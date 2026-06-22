@@ -17,6 +17,8 @@ fn active_docs_do_not_instruct_running_retired_python_entrypoints() {
         "docs/standards/CLAUDE_PERMISSIONS.md",
         "docs/standards/PRECOMMIT_HOOKS.md",
         "docs/standards/EVAL_CONVENTIONS.md",
+        ".claude/commands/aod.build.md",
+        ".claude/agents/tester.md",
         "docs/devops/01_Local/README.md",
         "docs/devops/CI_CD_GUIDE.md",
         "README.md",
@@ -39,6 +41,7 @@ fn active_docs_do_not_instruct_running_retired_python_entrypoints() {
         "pip install pre-commit",
         "third-party Python package",
         "pytest-level timeout",
+        "pytest-playwright",
         "requirements-dev.txt",
         "pyproject.toml",
         "make test",
@@ -131,6 +134,12 @@ fn active_devops_docs_and_architecture_summary_frames_are_rust_init_matrix_based
         "CI guide should not call the legacy test dependency pytest"
     );
 
+    let ci_guide_runtime = read_lines(&root.join("docs/devops/CI_CD_GUIDE.md"), 262, 266);
+    assert!(
+        !ci_guide_runtime.contains("legacy Python test framework dependency"),
+        "CI guide runtime note should not name the dependency as Python-based"
+    );
+
     let architecture_gate = read_lines(
         &root.join("docs/architecture/00_Tech_Stack/README.md"),
         228,
@@ -143,6 +152,26 @@ fn active_devops_docs_and_architecture_summary_frames_are_rust_init_matrix_based
     assert!(
         !architecture_gate.contains("tachi-pytest.yml"),
         "architecture CI gate guidance should not name the matrix as pytest-based"
+    );
+
+    let devops_readme_runtime = read_lines(&root.join("docs/devops/README.md"), 302, 305);
+    assert!(
+        devops_readme_runtime.contains("Rust-only CI dependencies"),
+        "devops README runtime note should describe the CI dependencies generically"
+    );
+    assert!(
+        !devops_readme_runtime.contains("Python package installation at runtime"),
+        "devops README runtime note should not mention Python package installation"
+    );
+
+    let testing_readme = read_lines(&root.join("docs/testing/README.md"), 15, 17);
+    assert!(
+        testing_readme.contains("Rust-native test modules"),
+        "testing guide should center the Rust-native audit"
+    );
+    assert!(
+        !testing_readme.contains("remaining legacy Python tests"),
+        "testing guide should not frame the audit around legacy Python tests"
     );
 }
 
@@ -294,6 +323,21 @@ fn active_devops_ci_guide_uses_rust_init_matrix_language_for_the_workflow_file_l
     assert!(
         !ci_guide.contains("tachi-pytest.yml"),
         "CI guide workflow table should not name the retired workflow file"
+    );
+}
+
+#[test]
+fn active_architecture_index_summary_avoids_python_pytest_framing() {
+    let root = workspace_root();
+
+    let architecture_index = read_lines(&root.join("docs/architecture/README.md"), 67, 67);
+    assert!(
+        architecture_index.contains("Rust init matrix workflow"),
+        "architecture index should describe the workflow with Rust init matrix wording"
+    );
+    assert!(
+        !architecture_index.contains("pytest"),
+        "architecture index should not frame the live summaries around pytest"
     );
 }
 

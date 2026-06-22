@@ -352,12 +352,6 @@ Reference: PRD #296, BLP-04 Adoption Push Wave 1 (Distribution Launch).
 
 ### Features
 
-* **015:** implement threat report agent with attack trees ([#16](https://github.com/pratik-saptarshi/tachi-rust/issues/16)) ([f59783f](https://github.com/pratik-saptarshi/tachi-rust/commit/f59783f743496f2afe73e038989d3493a7a9ab0f))
-* **018:** implement threat infographic agent with Gemini integration ([#19](https://github.com/pratik-saptarshi/tachi-rust/issues/19)) ([24ba12b](https://github.com/pratik-saptarshi/tachi-rust/commit/24ba12bcd6cd2c2f3bebf5ee7201d5628926e0d9)), closes [#18](https://github.com/pratik-saptarshi/tachi-rust/issues/18)
-* **021:** implement platform adapters for 5 target platforms ([#22](https://github.com/pratik-saptarshi/tachi-rust/issues/22)) ([c4331f4](https://github.com/pratik-saptarshi/tachi-rust/commit/c4331f41bc79c23b103c7af702c702fee460d5d5)), closes [#21](https://github.com/pratik-saptarshi/tachi-rust/issues/21)
-* **024:** add example threat models for web-app, agentic-app, and microservices ([#25](https://github.com/pratik-saptarshi/tachi-rust/issues/25)) ([f411944](https://github.com/pratik-saptarshi/tachi-rust/commit/f411944002d0bd4cf8be947ec2d53b00a47426f3))
-* **029:** refactor threat agents — right-size orchestrator, report, and infographic ([#30](https://github.com/pratik-saptarshi/tachi-rust/issues/30)) ([cde4cc8](https://github.com/pratik-saptarshi/tachi-rust/commit/cde4cc86b26de26d3046d1926e66cd3822fd1ace))
-* **030:** refine infographic templates, rewrite README ([#32](https://github.com/pratik-saptarshi/tachi-rust/issues/32)) ([bc5c05d](https://github.com/pratik-saptarshi/tachi-rust/commit/bc5c05dcf300d467fb23b96c91da0e62d8a323e1))
 * **035:** add quantitative risk scoring command and agent ([#37](https://github.com/pratik-saptarshi/tachi-rust/issues/37)) ([4afbe77](https://github.com/pratik-saptarshi/tachi-rust/commit/4afbe77cdcf3348d0c61727b8fb327a061a0528d)), closes [#35](https://github.com/pratik-saptarshi/tachi-rust/issues/35)
 * **036:** Compensating Controls Analysis ([#40](https://github.com/pratik-saptarshi/tachi-rust/issues/40)) ([9a84115](https://github.com/pratik-saptarshi/tachi-rust/commit/9a841151321f08671d2c5b7bae649f3850957355))
 * **039:** Standalone /infographic Command ([#42](https://github.com/pratik-saptarshi/tachi-rust/issues/42)) ([45ba448](https://github.com/pratik-saptarshi/tachi-rust/commit/45ba448dd4c25d502203de10f1f37ca41d3dadad))
@@ -476,7 +470,6 @@ Reference: PRD #296, BLP-04 Adoption Push Wave 1 (Distribution Launch).
 * **266:** retitle CONTRIBUTING.md for tachi ([#267](https://github.com/pratik-saptarshi/tachi-rust/issues/267)) ([abde9cd](https://github.com/pratik-saptarshi/tachi-rust/commit/abde9cd13197689bf245435de48c753fcc225989)), closes [#266](https://github.com/pratik-saptarshi/tachi-rust/issues/266)
 * **268:** disentangle tachi-scanner from AOD-Kit positioning in scope.md ([#271](https://github.com/pratik-saptarshi/tachi-rust/issues/271)) ([b2bef11](https://github.com/pratik-saptarshi/tachi-rust/commit/b2bef1178961e66d86ee525c1d0ef1407e14317c)), closes [#268](https://github.com/pratik-saptarshi/tachi-rust/issues/268)
 * auto-detect newest docs/security run directory in tachi commands ([#164](https://github.com/pratik-saptarshi/tachi-rust/issues/164)) ([39c962c](https://github.com/pratik-saptarshi/tachi-rust/commit/39c962c4eaed2e4cec899f5036169ba005b6d163))
-* bump next.js and playwright minimums to resolve 15 Dependabot alerts ([1a2b3c5](https://github.com/pratik-saptarshi/tachi-rust/commit/1a2b3c5176e9100be25738e5225c182d98e98b1e))
 * fall back to architecture.md H1 when threats.md lacks project name ([#165](https://github.com/pratik-saptarshi/tachi-rust/issues/165)) ([b746cb7](https://github.com/pratik-saptarshi/tachi-rust/commit/b746cb74595f9a15041c50bcdef69e5e0ed21709))
 * restore Apache 2.0 license overwritten by /aod.update bug ([f8f3c2e](https://github.com/pratik-saptarshi/tachi-rust/commit/f8f3c2e8cc6759e86c790d0bd9e093df712e9a2d))
 * **shell:** align init trace benchmark assertions ([d0e7e54](https://github.com/pratik-saptarshi/tachi-rust/commit/d0e7e54685df850dd1de9d0c9eaed2d04560a23f))
