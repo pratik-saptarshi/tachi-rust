@@ -239,7 +239,7 @@ pub fn risk_scores_sarif_output(
     let threats_md = std::fs::read_to_string(threats)
         .map_err(|err| format!("failed to read {}: {err}", threats.display()))?;
 
-    let findings = parse_risk_md_section2(&risk_md);
+    let findings = parse_risk_md_section2(&risk_md)?;
     let section3 = parse_risk_md_section3(&risk_md);
     let section4 = parse_risk_md_section4(&risk_md);
     let threat_findings = parse_threats_findings(&threats_md)?;

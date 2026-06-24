@@ -30,7 +30,7 @@ fn parse_risk_scores_sections_extracts_scored_table_metadata_and_governance() {
 | AG-8 | Alice | 7 | Monitor | 2026-06-06 |
 "#;
 
-    let section2 = tachi_core::risk_scores::parse_risk_md_section2(md);
+    let section2 = tachi_core::risk_scores::parse_risk_md_section2(md).unwrap();
     let section3 = tachi_core::risk_scores::parse_risk_md_section3(md);
     let section4 = tachi_core::risk_scores::parse_risk_md_section4(md);
 
@@ -167,4 +167,17 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
         result["properties"]["feature"],
         "219-asi07-tool-abuse-enrichment"
     );
+}
+
+#[test]
+fn test_parse_risk_md_section2_returns_err_on_malformed_scores() {
+    let md = r#"
+## 2. Scored Threat Table
+
+| ID | Component | Threat | CVSS | Exploitability | Scalability | Reachability | Composite | Severity | SLA | Disposition |
+|----|-----------|--------|------|----------------|--------------|--------------|-----------|----------|-----|-------------|
+| AG-8 | Agent | Prompt injection | malformed_score | 9.0 | 8.5 | 8.0 | 8.8 | High | 7 | Monitor |
+"#;
+    let res = tachi_core::risk_scores::parse_risk_md_section2(md);
+    assert!(res.is_err(), "Expected error for malformed score, got {:?}", res);
 }
