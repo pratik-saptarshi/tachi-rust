@@ -106,7 +106,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     );
 
     let mut threats_status = BTreeMap::new();
-    threats_status.insert(String::from("AG-8"), String::from("NEW"));
+    threats_status.insert(String::from("AG-8"), String::from("UNCHANGED"));
 
     let mut threats_full = BTreeMap::new();
     threats_full.insert(
@@ -135,6 +135,8 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
         &threats_full,
         &source_attribution,
         &component_meta,
+        "custom-threats.md",
+        "custom-run-id-999",
     );
 
     let result = &sarif["runs"][0]["results"][0];
@@ -166,5 +168,13 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     assert_eq!(
         result["properties"]["feature"],
         "219-asi07-tool-abuse-enrichment"
+    );
+    assert_eq!(
+        result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
+        "custom-threats.md"
+    );
+    assert_eq!(
+        result["partialFingerprints"]["baselineRunId"],
+        "custom-run-id-999"
     );
 }

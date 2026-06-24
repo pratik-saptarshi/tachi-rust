@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use tachi_shell::commands::threats_sarif_output;
 
 fn main() -> ExitCode {
-    let (input, output) = match parse_args() {
+    let (input, output, baseline_run_id, source_threats_uri) = match parse_args() {
         Ok(values) => values,
         Err(message) => {
             eprintln!("{message}");
@@ -12,7 +12,11 @@ fn main() -> ExitCode {
         }
     };
 
-    let payload = match threats_sarif_output(&input) {
+    let payload = match threats_sarif_output(
+        &input,
+        source_threats_uri.as_deref(),
+        baseline_run_id.as_deref(),
+    ) {
         Ok(payload) => payload,
         Err(message) => {
             eprintln!("{message}");
@@ -45,10 +49,12 @@ fn main() -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn parse_args() -> Result<(PathBuf, PathBuf), String> {
+fn parse_args() -> Result<(PathBuf, PathBuf, Option<String>, Option<String>), String> {
     let mut args = std::env::args().skip(1);
     let mut input = None;
     let mut output = None;
+    let mut baseline_run_id = None;
+    let mut source_threats_uri = None;
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -64,9 +70,21 @@ fn parse_args() -> Result<(PathBuf, PathBuf), String> {
                     .ok_or_else(|| String::from("--output requires a path argument"))?;
                 output = Some(PathBuf::from(value));
             }
+            "--baseline-run-id" => {
+                let value = args
+                    .next()
+                    .ok_or_else(|| String::from("--baseline-run-id requires a value"))?;
+                baseline_run_id = Some(value);
+            }
+            "--source-threats-uri" => {
+                let value = args
+                    .next()
+                    .ok_or_else(|| String::from("--source-threats-uri requires a value"))?;
+                source_threats_uri = Some(value);
+            }
             "--help" | "-h" => {
                 return Err(String::from(
-                    "usage: threats-sarif --input PATH --output PATH",
+                    "usage: threats-sarif --input PATH --output PATH [--baseline-run-id ID] [--source-threats-uri URI]",
                 ));
             }
             other => {
@@ -77,5 +95,5 @@ fn parse_args() -> Result<(PathBuf, PathBuf), String> {
 
     let input = input.ok_or_else(|| String::from("--input is required"))?;
     let output = output.ok_or_else(|| String::from("--output is required"))?;
-    Ok((input, output))
+    Ok((input, output, baseline_run_id, source_threats_uri))
 }

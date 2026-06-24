@@ -192,7 +192,11 @@ pub fn report_data_output(target_dir: &Path, template_dir: &Path) -> String {
     build_report_data_typst(target_dir, template_dir)
 }
 
-pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> {
+pub fn threats_sarif_output(
+    input: &Path,
+    source_threats_uri: Option<&str>,
+    baseline_run_id: Option<&str>,
+) -> Result<ThreatsSarifOutput, String> {
     let threats_md = std::fs::read_to_string(input)
         .map_err(|err| format!("failed to read {}: {err}", input.display()))?;
     let findings = parse_threats_findings(&threats_md)?;
@@ -219,7 +223,10 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
             mitigation: finding.mitigation,
         })
         .collect::<Vec<_>>();
-    let sarif = build_threats_sarif(&sarif_findings, &component_meta);
+    let uri_str = input.to_string_lossy();
+    let uri = source_threats_uri.unwrap_or(&uri_str);
+    let run_id = baseline_run_id.unwrap_or("2026-04-19T03-20-30");
+    let sarif = build_threats_sarif(&sarif_findings, &component_meta, uri, run_id);
     let sarif = serde_json::to_string_pretty(&sarif)
         .map_err(|err| format!("failed to serialize threats SARIF: {err}"))?;
 
@@ -233,6 +240,8 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
 pub fn risk_scores_sarif_output(
     risk_scores: &Path,
     threats: &Path,
+    source_threats_uri: Option<&str>,
+    baseline_run_id: Option<&str>,
 ) -> Result<RiskScoresSarifOutput, String> {
     let risk_md = std::fs::read_to_string(risk_scores)
         .map_err(|err| format!("failed to read {}: {err}", risk_scores.display()))?;
@@ -279,6 +288,10 @@ pub fn risk_scores_sarif_output(
         .collect();
     let component_meta = parse_component_metadata(&threats_md);
 
+    let uri_str = threats.to_string_lossy();
+    let uri = source_threats_uri.unwrap_or(&uri_str);
+    let run_id = baseline_run_id.unwrap_or("2026-04-19T03-20-30");
+
     let sarif = build_risk_scores_sarif(
         &findings,
         &section3,
@@ -287,6 +300,8 @@ pub fn risk_scores_sarif_output(
         &threats_full,
         &source_attribution,
         &component_meta,
+        uri,
+        run_id,
     );
     let sarif = serde_json::to_string_pretty(&sarif)
         .map_err(|err| format!("failed to serialize risk scores SARIF: {err}"))?;
