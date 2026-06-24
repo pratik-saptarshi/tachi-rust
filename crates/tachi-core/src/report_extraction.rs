@@ -108,7 +108,11 @@ pub fn parse_threat_report_md(content: &str) -> ThreatReportData {
     if !narrative_parts.is_empty() {
         let mut narrative = narrative_parts.join("\n\n");
         if narrative.len() > 2000 {
-            narrative.truncate(2000);
+            let mut limit = 2000;
+            while !narrative.is_char_boundary(limit) {
+                limit -= 1;
+            }
+            narrative.truncate(limit);
         }
         result.executive_narrative = Some(narrative);
     }
