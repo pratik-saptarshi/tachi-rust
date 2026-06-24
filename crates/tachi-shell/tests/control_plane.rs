@@ -34,6 +34,7 @@ fn fixture_repo() -> PathBuf {
 
     let scripts_dir = root.join("scripts");
     fs::create_dir_all(&scripts_dir).expect("create fixture scripts directory");
+    fs::create_dir_all(root.join(".aod")).expect("create fixture .aod directory");
     root
 }
 
@@ -166,4 +167,31 @@ fn init_output_uses_ancestor_scripts_dir_when_invoked_from_nested_path() {
                 .expect("root path has non-UTF8 component"),
         ));
     assert_eq!(output.stdout.lines().nth(1), Some("--help"));
+}
+
+#[test]
+fn test_upward_traversal_is_prevented() {
+    let temp_parent = std::env::temp_dir().join(format!(
+        "unsafe-ancestor-{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&temp_parent).unwrap();
+    
+    let unsafe_scripts = temp_parent.join("scripts");
+    fs::create_dir_all(&unsafe_scripts).unwrap();
+    let unsafe_script = unsafe_scripts.join("init.sh");
+    write_executable_file(&unsafe_script, "#!/usr/bin/env bash\necho 'untrusted'\nexit 0\n");
+
+    let repo_root = temp_parent.join("my-project");
+    fs::create_dir_all(&repo_root).unwrap();
+
+    let resolved = tachi_shell::commands::control_plane_scripts_dir(&repo_root);
+    assert!(
+        !resolved.starts_with(&temp_parent) || resolved.starts_with(&repo_root),
+        "Should not resolve to scripts dir in ancestor outside of repo root. Resolved: {:?}",
+        resolved
+    );
 }

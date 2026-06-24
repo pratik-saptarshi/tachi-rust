@@ -161,11 +161,32 @@ pub(crate) fn run_script_command_with_progress(
 }
 
 fn script_dir_for_repo_root(repo_root: &Path) -> PathBuf {
+    let repo_boundary = {
+        let mut current = repo_root;
+        let mut boundary = repo_root.to_path_buf();
+        while current != current.parent().unwrap_or(current) {
+            if current.join(".git").exists()
+                || current.join(".aod").exists()
+                || current.join(".claude").exists()
+                || current.join("Cargo.toml").exists()
+                || current.join("package.json").exists()
+            {
+                boundary = current.to_path_buf();
+                break;
+            }
+            current = current.parent().unwrap_or(current);
+        }
+        boundary
+    };
+
     let mut current = repo_root;
     while current != current.parent().unwrap_or(current) {
+        if !current.starts_with(&repo_boundary) {
+            break;
+        }
         let candidate = current.join("scripts");
         if candidate.exists() {
-            return current.to_path_buf().join("scripts");
+            return candidate;
         }
         current = current.parent().unwrap_or(current);
     }
