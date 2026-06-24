@@ -2,10 +2,44 @@ use std::fs;
 use std::path::Path;
 
 use tachi_core::coverage_attestation::{
-    build_per_framework_aggregates_in_dir, load_framework_yaml_in_scope_record_counts_from_dir,
-    load_framework_yaml_records_from_dir,
+    build_per_framework_aggregates_from_store, build_per_framework_aggregates_in_dir,
+    load_framework_yaml_in_scope_record_counts_from_dir, load_framework_yaml_records_from_dir,
 };
 use tachi_core::parsers::{SourceAttributionRecord, ThreatFinding};
+
+struct FakeTaxonomyStore {
+    records: std::collections::BTreeMap<
+        (String, bool),
+        Vec<tachi_core::coverage_attestation::FrameworkRecord>,
+    >,
+}
+
+impl tachi_core::coverage_attestation::TaxonomyStore for FakeTaxonomyStore {
+    fn load_framework_records(
+        &self,
+        framework_name: &str,
+        in_scope_only: bool,
+    ) -> Vec<tachi_core::coverage_attestation::FrameworkRecord> {
+        self.records
+            .get(&(framework_name.to_string(), in_scope_only))
+            .cloned()
+            .unwrap_or_default()
+    }
+}
+
+struct DirTaxonomyStore {
+    taxonomy_dir: std::path::PathBuf,
+}
+
+impl tachi_core::coverage_attestation::TaxonomyStore for DirTaxonomyStore {
+    fn load_framework_records(
+        &self,
+        framework_name: &str,
+        in_scope_only: bool,
+    ) -> Vec<tachi_core::coverage_attestation::FrameworkRecord> {
+        load_framework_yaml_records_from_dir(&self.taxonomy_dir, framework_name, in_scope_only)
+    }
+}
 
 fn temp_root(prefix: &str) -> std::path::PathBuf {
     let nanos = std::time::SystemTime::now()
@@ -99,6 +133,66 @@ fn build_per_framework_aggregates_in_dir_uses_in_scope_denominator() {
     assert_eq!(owasp.partial_count, 0);
     assert_eq!(owasp.gap_count, 0);
     assert_eq!(owasp.coverage_percentage, "100.00%");
+
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn build_per_framework_aggregates_from_store_uses_fake_taxonomy_provider() {
+    let mut records = std::collections::BTreeMap::new();
+    records.insert(
+        (String::from("owasp"), false),
+        vec![
+            tachi_core::coverage_attestation::FrameworkRecord::new("A01", false),
+            tachi_core::coverage_attestation::FrameworkRecord::new("A02", true),
+        ],
+    );
+    records.insert(
+        (String::from("owasp"), true),
+        vec![tachi_core::coverage_attestation::FrameworkRecord::new(
+            "A01", false,
+        )],
+    );
+    let store = FakeTaxonomyStore { records };
+    let findings = vec![finding("F-1", "owasp", "A01", "primary")];
+
+    let aggregates = tachi_core::coverage_attestation::build_per_framework_aggregates_from_store(
+        &store, &findings,
+    );
+
+    let owasp = aggregates
+        .iter()
+        .find(|aggregate| aggregate.framework == "owasp")
+        .expect("owasp aggregate");
+    assert_eq!(owasp.yaml_record_count, 2);
+    assert_eq!(owasp.in_scope_yaml_record_count, 1);
+    assert_eq!(owasp.covered_count, 1);
+    assert_eq!(owasp.gap_count, 0);
+}
+
+#[test]
+fn build_per_framework_aggregates_from_store_matches_dir_backed_adapter() {
+    let root = temp_root("tachi-coverage-attestation-dir-adapter");
+    let taxonomy_dir = root.join("schemas/taxonomy");
+    write_taxonomy_file(
+        &taxonomy_dir,
+        "owasp",
+        r#"- id: A01
+  out_of_scope: false
+- id: A02
+  out_of_scope: true
+"#,
+    );
+
+    let dir_store = DirTaxonomyStore {
+        taxonomy_dir: taxonomy_dir.clone(),
+    };
+    let findings = vec![finding("F-1", "owasp", "A01", "primary")];
+
+    let from_dir = build_per_framework_aggregates_in_dir(&taxonomy_dir, &findings);
+    let from_store = build_per_framework_aggregates_from_store(&dir_store, &findings);
+
+    assert_eq!(from_store, from_dir);
 
     let _ = fs::remove_dir_all(root);
 }

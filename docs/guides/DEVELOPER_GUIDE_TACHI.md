@@ -1,5 +1,13 @@
 # Tachi Developer Guide: Threat Modeling and AI-Reasoning Vulnerability Detection Harness
 
+This guide is written for developers, auditors, and maintainers who need a
+repeatable way to turn architecture into security evidence. It explains what
+tachi does, how to install it, how to run the first analysis, and how to read
+the outputs that matter during review.
+
+For the harness matrix and fallback rules, see
+[`docs/platform-compatibility.md`](../platform-compatibility.md).
+
 > **Quick Links**
 > - [Step 1: /tachi.threat-model](#step-5-run-your-first-analysis)
 > - [Step 2: /tachi.risk-score](#section-9----running-tachirisk-score)
@@ -44,20 +52,32 @@ Each step enriches the previous step's output. Steps 2-5 are optional and indepe
 
 # Part 1: Quick Start
 
-Get from zero to your first threat model in 6 steps. No security background required.
+Get from zero to your first analysis in 6 steps. No security background
+required.
 
 ## Prerequisites
 
-- **Claude Code** installed and working in your project
+- **A supported harness** or the generic fallback prompt pack installed and
+  working in your project
 - **A Gemini API key** (optional, for infographic image generation) — see [Setting Up GEMINI_API_KEY](#setting-up-gemini_api_key) below
 - **A project** with an architecture description (or you will create one below)
+
+### Choose Your Harness
+
+| Harness support level | Install surface | First-run entrypoint |
+|---|---|---|
+| Native adapter | `adapters/claude-code/agents/`, `adapters/cursor/rules/`, `adapters/copilot/agents/`, `adapters/copilot/instructions/`, or `adapters/github-actions/tachi.threat-model.yml` | Use the harness-native command, rule, or workflow trigger |
+| Thin shim | `adapters/generic/prompts/` | Use the harness wrapper that loads the numbered prompts in order |
+| Generic fallback | `adapters/generic/prompts/` | Paste or API-call the numbered prompts in sequence |
+
+See `../platform-compatibility.md` for the full matrix and setup recipes.
 
 ### Setting Up GEMINI_API_KEY
 
 The Gemini key is only needed for generating infographic images (`.jpg`). All text-based outputs (threats.md, SARIF, report, attack trees) work without it.
 
 1. Get a key at [Google AI Studio](https://aistudio.google.com/apikey)
-2. Make it available to Claude Code using **one** of these methods:
+2. Make it available to your harness using **one** of these methods:
 
 | Method | Best For | Setup |
 |--------|----------|-------|
@@ -91,7 +111,7 @@ From your project root, run the install script:
 To install a specific version:
 
 ```bash
-~/Projects/tachi/scripts/install.sh --version v4.0.0
+~/Projects/tachi/scripts/install.sh --version v4.37.0
 ```
 
 If tachi is cloned to a non-default location:
@@ -120,6 +140,10 @@ mkdir -p adapters/claude-code/agents
 cp -r ~/Projects/tachi/adapters/claude-code/agents/references/ adapters/claude-code/agents/references/
 cp -r ~/Projects/tachi/brand/ brand/
 
+# Compatibility guide
+mkdir -p docs
+cp ~/Projects/tachi/docs/platform-compatibility.md docs/
+
 # Developer guide
 mkdir -p docs/guides
 cp ~/Projects/tachi/docs/guides/DEVELOPER_GUIDE_TACHI.md docs/guides/
@@ -127,14 +151,14 @@ cp ~/Projects/tachi/docs/guides/DEVELOPER_GUIDE_TACHI.md docs/guides/
 
 </details>
 
-Run this for each new codebase you want to add threat modeling to. Repeat it after pulling tachi updates to get the latest agents, commands, and templates. See [`INSTALL_MANIFEST.md`](../../INSTALL_MANIFEST.md) for the canonical list of distributable files.
+Run this for each new codebase you want to add threat modeling to. Repeat it after pulling tachi updates to get the latest agents, commands, templates, and compatibility guidance. See [`INSTALL_MANIFEST.md`](../../INSTALL_MANIFEST.md) for the canonical list of distributable files.
 
 ## Step 3: Verify
 
 ```bash
 ls .claude/agents/tachi/                       # 17 agent .md files
 ls .claude/commands/                            # tachi.threat-model.md, tachi.risk-score.md, tachi.compensating-controls.md, tachi.infographic.md, tachi.security-report.md, tachi.architecture.md
-ls schemas/                                     # 8 YAML schema files
+ls schemas/                                     # 10 YAML schema files, including aisvs.yaml
 ls templates/tachi/output-schemas/              # 7 output format templates (.md + .sarif)
 ls templates/tachi/infographics/                # 3 infographic design templates
 ls templates/tachi/security-report/             # main.typ, theme.typ, shared.typ, + page templates
@@ -196,13 +220,24 @@ Tachi auto-detects the format. You can also use free-text prose, ASCII diagrams,
 
 ## Step 5: Run Your First Analysis
 
-In Claude Code, type:
+Use the entrypoint that matches your harness:
+
+| Harness | First-run entrypoint |
+|---|---|
+| Claude Code | `/tachi.threat-model` |
+| Cursor | Ask Cursor to run a complete tachi threat model |
+| Copilot | `@tachi-orchestrator` |
+| GitHub Actions | Open a pull request or run the manual workflow dispatch |
+| Generic fallback | Run the numbered prompts from `adapters/generic/prompts/` in order |
+
+If you are using Claude Code, type:
 
 ```
 /tachi.threat-model
 ```
 
-That is it. One command. Tachi validates the setup, reads your architecture, dispatches its 15 specialized agents, and writes the full output suite.
+That is it. One command. Tachi validates the setup, reads your architecture,
+dispatches its 14 specialized agents, and writes the full output suite.
 
 To use a different architecture file or output location:
 
@@ -1027,7 +1062,7 @@ cp -r ~/Projects/tachi/brand/ brand/
 # Verify
 ls .claude/agents/tachi/                       # 17 agent .md files
 ls .claude/commands/                            # 6 command files
-ls schemas/                                     # 8 YAML schema files
+ls schemas/                                     # 10 YAML schema files, including aisvs.yaml
 ls templates/tachi/                             # output-schemas/, infographics/, security-report/
 ```
 
@@ -1116,8 +1151,8 @@ jobs:
   upload-sarif:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/upload-sarif@v3
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: docs/security/threats.sarif
 ```
@@ -1688,11 +1723,11 @@ jobs:
   threat-model:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Upload existing SARIF (generated locally or in a prior step)
       - name: Upload threat model results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: docs/security/threats.sarif
           category: threat-model

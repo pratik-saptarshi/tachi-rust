@@ -1,12 +1,15 @@
 # Rust/Tauri Parity Issue Cards
 
-**Last Updated**: 2026-06-15
-**Status**: Beads-ready execution backlog for the active parity roadmap
+**Last Updated**: 2026-06-21
+**Status**: archived Beads snapshot for the earlier parity roadmap
 **Source**: [2026-06-15-rust-tauri-parity-remediation-roadmap.html.md](./2026-06-15-rust-tauri-parity-remediation-roadmap.html.md)
 
-These cards are the task-sized execution slices for the active parity roadmap in
-[implementation-backlog.md](./implementation-backlog.md). Copy them into Beads
-as-is or with only implementation-owner routing changes.
+The active parity roadmap and issue cards now live in the
+`2026-06-21-rust-tauri-parity-remediation-*` pair. Keep this file as a
+historical record only.
+
+These cards were the task-sized execution slices for the earlier parity roadmap.
+Retain them for provenance; do not use them for new work.
 
 ## Card Format
 
@@ -23,6 +26,12 @@ Every card includes:
 - `Stage label`
 - `Next test seam`
 - `Notes`
+
+## Current Status Snapshot
+
+- Open: none
+- Partial: none
+- Done: RT-010, RT-011, RT-012, RT-013, RT-014, RT-015, RT-016, RT-017, RT-018, RT-019, RT-020, RT-021, RT-022, RT-023
 
 ## Phase 0 - parity harness
 
@@ -43,7 +52,8 @@ Every card includes:
 - `Implementation owner`: `tachi-shell`
 - `Stage label`: Phase 0
 - `Next test seam`: `crates/tachi-shell/src/commands.rs`
-- `Notes`: Keep the harness small enough to run on every PR.
+- `Notes`: Implemented in `src-tauri/tests/registry_diff.rs`; validated by
+  registry diff tests and bridge regression tests.
 
 ### RT-011 - schema and fixture contract
 
@@ -62,6 +72,8 @@ Every card includes:
 - `Stage label`: Phase 0
 - `Next test seam`: `tests/fixtures/`
 - `Notes`: Use the same schema for CLI and Tauri capture.
+- `Notes`: Implemented in `crates/tachi-core/src/fixtures.rs`; validated by
+  the fixture contract tests.
 
 ### RT-012 - deterministic normalization helper
 
@@ -79,7 +91,8 @@ Every card includes:
 - `Implementation owner`: `tachi-core`
 - `Stage label`: Phase 0
 - `Next test seam`: `crates/tachi-core/src/parsers/findings.rs`
-- `Notes`: Do not duplicate normalization in command code.
+- `Notes`: Implemented in `crates/tachi-core/src/normalization.rs` and used by
+  the findings parser plus fixture canonicalization.
 
 ## Phase 1 - critical parity closure
 
@@ -99,7 +112,9 @@ Every card includes:
 - `Implementation owner`: `src-tauri`
 - `Stage label`: Phase 1
 - `Next test seam`: `src-tauri/src/lib.rs`
-- `Notes`: Keep the bridge thin and command-only.
+- `Notes`: Implemented in `src-tauri/src/lib.rs` and
+  `crates/tachi-shell/src/tauri_bridge.rs`; validated by the desktop bridge and
+  registry parity tests.
 
 ### RT-014 - desktop invoke contract validation
 
@@ -116,7 +131,7 @@ Every card includes:
 - `Implementation owner`: `src-tauri`
 - `Stage label`: Phase 1
 - `Next test seam`: `src-tauri/src/commands.rs`
-- `Notes`: Preserve the same error shape for CLI and desktop callers.
+- `Notes`: Implemented in `src-tauri/src/schema.rs` and `src-tauri/src/lib.rs`; validated by schema, bridge, and registry tests.
 
 ## Phase 2 - output contract parity
 
@@ -132,10 +147,13 @@ Every card includes:
   - Canonical outputs remain stable until intentionally revised.
 - `Validation`:
   - Snapshot tests compare against canonical fixtures.
+- `Notes`: Implemented in `crates/tachi-core/tests/reporting_goldens.rs`;
+  validated by reporting goldens tests.
 - `Implementation owner`: `tachi-core`
 - `Stage label`: Phase 2
 - `Next test seam`: `crates/tachi-core/tests/`
-- `Notes`: Freeze ordering before snapshotting.
+- `Notes`: Partial coverage exists via structural tests, but canonical
+  goldens are still missing. Freeze ordering before snapshotting.
 
 ### RT-016 - parser regression suite
 
@@ -152,7 +170,8 @@ Every card includes:
 - `Implementation owner`: `tachi-core`
 - `Stage label`: Phase 2
 - `Next test seam`: `crates/tachi-core/src/parsers/`
-- `Notes`: Keep the regression set small but representative.
+- `Notes`: Implemented in `crates/tachi-core/tests/parsers.rs`; validated
+  by targeted parser regression tests.
 
 ## Phase 3 - CI and release hardening
 
@@ -171,7 +190,7 @@ Every card includes:
 - `Implementation owner`: `docs`
 - `Stage label`: Phase 3
 - `Next test seam`: `.github/workflows/`
-- `Notes`: Treat workflow version drift as a publish blocker.
+- `Notes`: Implemented in `Makefile workflow-gate`; validated by `make publish-gate`.
 
 ### RT-018 - release artifact parity
 
@@ -188,7 +207,7 @@ Every card includes:
 - `Implementation owner`: `docs`
 - `Stage label`: Phase 3
 - `Next test seam`: `docs/bill-of-materials.html.md`
-- `Notes`: Keep the BOM in sync with the release inventory.
+- `Notes`: Implemented in `feat/rt018-release-artifact-parity`; validated by `make publish-gate`.
 
 ### RT-021 - docs-only release-please filter
 
@@ -209,7 +228,45 @@ Every card includes:
 - `Implementation owner`: `docs`
 - `Stage label`: Phase 3
 - `Next test seam`: `.github/workflows/release-please.yml`
-- `Notes`: Keep release automation active for code changes.
+- `Notes`: Implemented in `.github/workflows/release-please.yml`;
+  validated on docs-only publish path.
+
+### RT-022 - release-please no PR branch updates
+
+- `Epic`: Phase 3 - CI and release hardening
+- `Capability`: release automation stability
+- `Feature`: release-please push safety
+- `Task`: keep `release-please` from updating its PR branch on push so the
+  main-push workflow cannot fail on stale release refs
+- `Acceptance criteria`:
+  - `release-please` no longer attempts PR branch updates on push.
+  - Main-push CI no longer fails on `release-please` ref updates.
+- `Validation`:
+  - Latest main-push `release-please` run succeeds.
+- `Implementation owner`: `docs`
+- `Stage label`: Phase 3
+- `Next test seam`: `.github/workflows/release-please.yml`
+- `Notes`: Implemented in `feat/release-please-no-pr-creation`; validated on code push.
+
+### RT-023 - GitHub Actions and CodeQL modernization
+
+- `Epic`: Phase 3 - CI and release hardening
+- `Capability`: workflow hygiene
+- `Task`: upgrade checkout, CodeQL upload, and Rust toolchain actions to current majors and remove Node 20 deprecation sources
+- `Function`: `.github/workflows/*`, `Makefile`
+- `Dependencies`: RT-017, RT-022
+- `Acceptance criteria`:
+  - All live workflows use `actions/checkout@v7`.
+  - Rust CI no longer depends on `actions-rs/toolchain`.
+  - SARIF uploads use `github/codeql-action/upload-sarif@v4`.
+  - Publish-gate fails if stale checkout, CodeQL, or set-output usage returns.
+- `Validation`:
+  - Workflow version scan gate.
+  - Main-push Actions run completes without Node 20 deprecation warnings from the updated workflows.
+- `Implementation owner`: `docs`
+- `Stage label`: Phase 3
+- `Next test seam`: `.github/workflows/*`
+- `Notes`: Implemented in `.github/workflows/*` and `Makefile`; validated by workflow-gate, publish-gate, and main-push CI.
 
 ## Phase 4 - exceed `tachi`
 
@@ -245,4 +302,4 @@ Every card includes:
 - `Implementation owner`: `src-tauri`
 - `Stage label`: Phase 4
 - `Next test seam`: `src-tauri/src/lib.rs`
-- `Notes`: Add only after release hardening is stable.
+- `Notes`: Implemented in `feat/rt020-offline-bootstrap-cache`; ready for merge.
