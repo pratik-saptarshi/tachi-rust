@@ -90,3 +90,11 @@ pub fn build_sarif_envelope(
     envelope.insert("runs".to_string(), Value::Array(vec![Value::Object(run)]));
     Value::Object(envelope)
 }
+
+pub fn kind_for_dfd_type(dfd_type: &str) -> &'static str {
+    match dfd_type {
+        "External Entity" => "external-entity",
+        "Data Store" => "resource",
+        _ => "process",
+    }
+}

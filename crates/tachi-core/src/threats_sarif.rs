@@ -4,7 +4,7 @@ use std::hash::{Hash, Hasher};
 
 use serde_json::{json, Value};
 
-use crate::sarif_common::{build_sarif_envelope, ComponentMetadata};
+use crate::sarif_common::{build_sarif_envelope, ComponentMetadata, kind_for_dfd_type};
 
 const SOURCE_THREATS_URI: &str = "examples/agentic-app/sample-report/threats.md";
 
@@ -147,13 +147,6 @@ fn level_for_risk(risk_level: &str) -> &'static str {
     }
 }
 
-fn kind_for_dfd_type(dfd_type: &str) -> &'static str {
-    match dfd_type {
-        "External Entity" => "external-entity",
-        "Data Store" => "data",
-        _ => "process",
-    }
-}
 
 fn tags_for_prefix(prefix: &str) -> Vec<String> {
     match prefix {

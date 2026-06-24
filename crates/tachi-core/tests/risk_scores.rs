@@ -145,7 +145,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     assert_eq!(result["message"]["markdown"], "Harden prompts");
     assert_eq!(
         result["locations"][0]["logicalLocation"]["kind"],
-        "data-store"
+        "resource"
     );
     assert_eq!(result["properties"]["score-source"], "inherited");
     assert_eq!(
