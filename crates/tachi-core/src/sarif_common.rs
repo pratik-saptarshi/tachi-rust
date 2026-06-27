@@ -28,11 +28,11 @@ pub fn level_for_band(band: &str) -> &'static str {
     }
 }
 
-pub fn logical_location_kind_for_dfd_type(dfd_type: &str) -> &'static str {
+pub fn logical_location_kind_for_dfd_type(dfd_type: &str) -> Option<&'static str> {
     match dfd_type {
-        "External Entity" => "external-entity",
-        "Data Store" => "data-store",
-        _ => "process",
+        "External Entity" => Some("external-entity"),
+        "Data Store" => None,
+        _ => Some("process"),
     }
 }
 

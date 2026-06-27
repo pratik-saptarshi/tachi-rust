@@ -84,7 +84,12 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
         })
         .collect::<Vec<_>>();
     let source_threats_uri = input.display().to_string();
-    let sarif = build_threats_sarif(&sarif_findings, &component_meta, &source_threats_uri);
+    let sarif = build_threats_sarif(
+        &sarif_findings,
+        &component_meta,
+        &source_threats_uri,
+        Some(&source_threats_uri),
+    );
     let sarif = to_string_pretty(&sarif)
         .map_err(|err| format!("failed to serialize threats SARIF: {err}"))?;
 
@@ -161,6 +166,7 @@ pub fn risk_scores_sarif_output(
             source_attribution: &source_attribution,
             component_meta: &component_meta,
             source_threats_uri: &source_threats_uri,
+            baseline_run_id: Some(&source_threats_uri),
         },
     );
     let sarif = to_string_pretty(&sarif)
@@ -249,6 +255,10 @@ mod tests {
         assert_eq!(
             sarif["runs"][0]["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"]
                 ["uri"],
+            threats.display().to_string()
+        );
+        assert_eq!(
+            sarif["runs"][0]["results"][0]["partialFingerprints"]["baselineRunId"],
             threats.display().to_string()
         );
 

@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use serde_json::{json, Value};
 
 use crate::sarif_common::{
-    baseline_run_id, build_sarif_envelope, logical_location_kind_for_dfd_type, ComponentMetadata,
+    build_sarif_envelope, logical_location_kind_for_dfd_type, ComponentMetadata,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -28,10 +28,11 @@ pub fn build_threats_sarif(
     findings: &[ThreatSarifFinding],
     component_meta: &BTreeMap<String, ComponentMetadata>,
     source_threats_uri: &str,
+    baseline_run_id: Option<&str>,
 ) -> Value {
     let results = findings
         .iter()
-        .map(|finding| build_result(finding, component_meta, source_threats_uri))
+        .map(|finding| build_result(finding, component_meta, source_threats_uri, baseline_run_id))
         .collect::<Vec<_>>();
 
     let driver = json!({
@@ -52,6 +53,7 @@ fn build_result(
     finding: &ThreatSarifFinding,
     component_meta: &BTreeMap<String, ComponentMetadata>,
     source_threats_uri: &str,
+    baseline_run_id: Option<&str>,
 ) -> Value {
     let rule_id = rule_for_prefix(&finding.prefix);
     let level = level_for_risk(&finding.risk_level);
@@ -99,6 +101,14 @@ fn build_result(
         properties["pattern_category"] = json!(9);
     }
 
+    let mut logical_location = json!({
+        "name": finding.component,
+        "fullyQualifiedName": fq,
+    });
+    if let Some(kind) = kind {
+        logical_location["kind"] = json!(kind);
+    }
+
     json!({
         "ruleId": rule_id,
         "message": {
@@ -115,18 +125,18 @@ fn build_result(
                     "region": {"startLine": 1},
                 },
                 "logicalLocations": [
-                    {
-                        "name": finding.component,
-                        "fullyQualifiedName": fq,
-                        "kind": kind,
-                    }
+                    logical_location,
                 ],
             }
         ],
         "partialFingerprints": {
             "primaryLocationLineHash": line_hash_for(&finding.id),
             "findingId/v1": finding.id,
-            "baselineRunId": if finding.status == "[NEW]" { "" } else { baseline_run_id() },
+            "baselineRunId": if finding.status == "[NEW]" {
+                ""
+            } else {
+                baseline_run_id.unwrap_or("")
+            },
         },
         "properties": properties,
     })
@@ -392,7 +402,12 @@ mod tests {
             },
         ];
 
-        let sarif = build_threats_sarif(&findings, &component_meta, "reports/internal/threats.md");
+        let sarif = build_threats_sarif(
+            &findings,
+            &component_meta,
+            "reports/internal/threats.md",
+            Some("reports/internal/threats.md"),
+        );
         let rule_ids = sarif["runs"][0]["results"]
             .as_array()
             .expect("results array")

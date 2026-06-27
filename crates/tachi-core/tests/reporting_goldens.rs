@@ -232,6 +232,7 @@ fn threats_sarif_matches_canonical_golden() {
         std::slice::from_ref(&finding),
         &component_meta,
         source_threats_uri,
+        Some(source_threats_uri),
     );
     assert_threats_sarif_semantics(&actual, &finding, source_threats_uri);
 }
@@ -319,6 +320,7 @@ fn risk_scores_sarif_matches_canonical_golden() {
             source_attribution: &source_attribution,
             component_meta: &component_meta,
             source_threats_uri,
+            baseline_run_id: Some(source_threats_uri),
         },
     );
     assert_risk_scores_sarif_semantics(&actual, source_threats_uri);
@@ -420,7 +422,7 @@ fn assert_risk_scores_sarif_semantics(actual: &Value, source_threats_uri: &str) 
                 "line": 1,
                 "component": "Agent",
                 "fullyQualifiedName": "Core/Agent",
-                "kind": "data-store",
+                "kind": serde_json::Value::Null,
                 "severity_band": "High",
                 "score_source": "inherited",
                 "score_source_detail": "correlation primary",

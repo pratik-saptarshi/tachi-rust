@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 use std::collections::BTreeMap;
 use tachi_core::parsers::SourceAttributionRecord;
-use tachi_core::sarif_common::{baseline_run_id, ComponentMetadata};
+use tachi_core::sarif_common::ComponentMetadata;
 use tachi_core::{
     build_risk_scores_sarif, parse_risk_md_section2, parse_risk_md_section3,
     parse_risk_md_section4, RiskScoreBreakdown, RiskScoreFinding, RiskScoreGovernance,
@@ -143,6 +143,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
             source_attribution: &source_attribution,
             component_meta: &component_meta,
             source_threats_uri,
+            baseline_run_id: Some("reports/custom/run-id-2026-06-27"),
         },
     );
 
@@ -154,7 +155,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     assert_eq!(result["message"]["markdown"], "Harden prompts");
     assert_eq!(
         result["locations"][0]["logicalLocation"]["kind"],
-        "data-store"
+        serde_json::Value::Null
     );
     assert_eq!(
         result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
@@ -236,13 +237,14 @@ fn build_risk_scores_sarif_uses_shared_baseline_run_id_for_existing_finding() {
             source_attribution: &source_attribution,
             component_meta: &component_meta,
             source_threats_uri,
+            baseline_run_id: Some("reports/custom/run-id-2026-06-27"),
         },
     );
 
     let result = &sarif["runs"][0]["results"][0];
     assert_eq!(
         result["partialFingerprints"]["baselineRunId"],
-        baseline_run_id()
+        "reports/custom/run-id-2026-06-27"
     );
 }
 

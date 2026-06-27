@@ -5,8 +5,8 @@ use serde_json::{json, Value};
 use crate::parsers::parse_markdown_table;
 use crate::parsers::SourceAttributionRecord;
 use crate::sarif_common::{
-    baseline_run_id, build_sarif_envelope, level_for_band, logical_location_kind_for_dfd_type,
-    prefix_for, ComponentMetadata,
+    build_sarif_envelope, level_for_band, logical_location_kind_for_dfd_type, prefix_for,
+    ComponentMetadata,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -208,6 +208,7 @@ pub struct RiskScoreSarifInputs<'a> {
     pub source_attribution: &'a BTreeMap<String, Vec<SourceAttributionRecord>>,
     pub component_meta: &'a BTreeMap<String, ComponentMetadata>,
     pub source_threats_uri: &'a str,
+    pub baseline_run_id: Option<&'a str>,
 }
 
 pub fn build_risk_scores_sarif(
@@ -288,11 +289,13 @@ fn build_result(finding: &RiskScoreFinding, inputs: &RiskScoreSarifInputs<'_>) -
         .cloned()
         .unwrap_or_else(default_component_meta);
     let kind = logical_location_kind_for_dfd_type(&meta.dfd_type);
-    let logical_location = json!({
+    let mut logical_location = json!({
         "name": finding.component,
         "fullyQualifiedName": format!("{}/{}", meta.zone, finding.component),
-        "kind": kind,
     });
+    if let Some(kind) = kind {
+        logical_location["kind"] = json!(kind);
+    }
 
     let (threat_text, mitigation_text) = inputs
         .threats_full
@@ -381,7 +384,7 @@ fn build_result(finding: &RiskScoreFinding, inputs: &RiskScoreSarifInputs<'_>) -
 
     let baseline_run_id_value = match inputs.threats_status.get(&finding.id) {
         Some(status) if status == "NEW" => "",
-        _ => baseline_run_id(),
+        _ => inputs.baseline_run_id.unwrap_or(""),
     };
 
     json!({

@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use pretty_assertions::assert_eq;
-use tachi_core::sarif_common::{baseline_run_id, ComponentMetadata, SARIF_SCHEMA_URI};
+use tachi_core::sarif_common::{ComponentMetadata, SARIF_SCHEMA_URI};
 
 #[test]
 fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
@@ -34,6 +34,7 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
         &[finding],
         &component_meta,
         source_threats_uri,
+        Some(source_threats_uri),
     );
     let run = &sarif["runs"][0];
     let result = &run["results"][0];
@@ -54,7 +55,7 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
     );
     assert_eq!(
         result["locations"][0]["logicalLocations"][0]["kind"],
-        "data-store"
+        serde_json::Value::Null
     );
     assert_eq!(result["partialFingerprints"]["findingId/v1"], "AG-8");
     assert_eq!(
@@ -107,12 +108,13 @@ fn build_threats_sarif_uses_shared_baseline_run_id_for_existing_finding() {
         &[finding],
         &component_meta,
         "reports/custom/threats.md",
+        Some("reports/custom/run-id-2026-06-27"),
     );
     let result = &sarif["runs"][0]["results"][0];
 
     assert_eq!(
         result["partialFingerprints"]["baselineRunId"],
-        baseline_run_id()
+        "reports/custom/run-id-2026-06-27"
     );
     assert_eq!(result["properties"]["baselineState"], "unchanged");
 }
