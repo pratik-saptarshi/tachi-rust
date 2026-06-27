@@ -11,6 +11,8 @@
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
 - [Standalone MCP server roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
 - [Standalone MCP server issue cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
 
@@ -39,7 +41,11 @@
 - [AISVS Dependabot remediation issue cards](./2026-06-23-aisvs-dependabot-remediation-issue-cards.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
 - Epic: `RT-00i` AISVS framework and Dependabot remediation
+- Active GitHub issue mirrors: `RT-bu7` / `gh-2` dynamic SARIF
+  `baselineRunId`, `RT-0zv` / `gh-6` SARIF logical-location kind compliance
 - Feature issues: `RT-00i.1` typed AISVS control registry, `RT-00i.2` GTK-free desktop host migration, `RT-00i.3` AISVS C01-C04, `RT-00i.4` AISVS C09-C12, `RT-00i.5` AISVS C05-C08
 - Feature issues: `RT-00i.6` CI and docs readiness for AISVS framework
 - Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
@@ -62,6 +68,8 @@
 - [AISVS Dependabot remediation issue cards](./2026-06-23-aisvs-dependabot-remediation-issue-cards.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
 - [Rust/Tauri parity remediation roadmap](./2026-06-21-rust-tauri-parity-remediation-roadmap.html.md)
 - [Rust/Tauri parity issue cards](./2026-06-21-rust-tauri-parity-issue-cards.md)
 - [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
