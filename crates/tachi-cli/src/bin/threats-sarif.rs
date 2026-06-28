@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use tachi_shell::commands::threats_sarif_output;
 
 fn main() -> ExitCode {
-    let (input, output, baseline_run_id, source_threats_uri) = match parse_args() {
+    let (input, output, _baseline_run_id, _source_threats_uri) = match parse_args() {
         Ok(values) => values,
         Err(message) => {
             eprintln!("{message}");
@@ -12,11 +12,7 @@ fn main() -> ExitCode {
         }
     };
 
-    let payload = match threats_sarif_output(
-        &input,
-        source_threats_uri.as_deref(),
-        baseline_run_id.as_deref(),
-    ) {
+    let payload = match threats_sarif_output(&input) {
         Ok(payload) => payload,
         Err(message) => {
             eprintln!("{message}");

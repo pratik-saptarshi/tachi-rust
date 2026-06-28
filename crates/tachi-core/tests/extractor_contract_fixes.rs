@@ -1,9 +1,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use tachi_core::assets::detect_images;
-use tachi_core::compensating_controls::parse_compensating_controls_md;
-use tachi_core::report_extraction::{merge_delta_status, parse_threat_report_md};
+use tachi_core::facade::detect_images;
+use tachi_core::facade::parse_compensating_controls_md;
+use tachi_core::facade::{merge_delta_status, parse_threat_report_md};
 use tachi_core::{attack_trees::parse_attack_trees, parsers::ThreatFinding};
 
 fn workspace_root() -> PathBuf {
@@ -61,6 +61,20 @@ fn parse_threat_report_md_falls_back_to_full_section1_prose() {
     assert!(narrative.contains("42 active findings"));
     assert!(narrative.contains("Risk profile by count"));
     assert!(!narrative.contains("## 2."));
+}
+
+#[test]
+fn parse_threat_report_md_truncates_on_char_boundary_without_panicking() {
+    let prose = format!("{}🌐b", "a".repeat(1999));
+    let result = parse_threat_report_md(&format!(
+        "# Threat Report\n\n## 1. Executive Summary\n\n{}\n\n## 2. Architecture Overview\n\nComponents and trust boundaries follow below.\n",
+        prose
+    ));
+
+    let narrative = result.executive_narrative.expect("narrative should exist");
+    assert_eq!(narrative.chars().count(), 2000);
+    assert!(narrative.ends_with("🌐"));
+    assert!(!narrative.ends_with("b"));
 }
 
 #[test]

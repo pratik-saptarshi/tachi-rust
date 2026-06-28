@@ -42,29 +42,28 @@ fn rt009_documentation_contract_is_rust_native() {
     assert!(!testing_guide.contains("**Python Projects**:"));
     assert!(!testing_guide.contains("pytest"));
 
-    let roadmap = fs::read_to_string(
-        root.join("docs/roadmap/2026-06-15-rust-tauri-parity-remediation-roadmap.html.md"),
-    )
-    .expect("rust tauri parity roadmap exists");
-    let issue_cards = fs::read_to_string(
-        root.join("docs/roadmap/2026-06-15-rust-tauri-parity-issue-cards.md"),
-    )
-    .expect("rust tauri parity issue cards exist");
+    let roadmap =
+        fs::read_to_string(root.join("docs/roadmap/2026-06-08-rust-tauri-only-roadmap.md"))
+            .expect("rust tauri roadmap exists");
+    let issue_cards =
+        fs::read_to_string(root.join("docs/roadmap/2026-06-08-rust-tauri-only-issue-cards.md"))
+            .expect("rust tauri issue cards exist");
     let merge_plan =
         fs::read_to_string(root.join("docs/roadmap/2026-06-08-rust-tauri-only-merge-plan.md"))
             .expect("rust tauri merge plan exists");
 
-    assert!(roadmap.contains("Rust and Tauri only. No Python runtime path, no Python bridge"));
-    assert!(roadmap.contains("Phase 0 - parity harness"));
-    assert!(roadmap.contains("RT-010 - command registry diff harness"));
-    assert!(roadmap.contains("RT-021 - docs-only release-please filter"));
     assert!(roadmap.contains("implementation-backlog.md"));
     assert!(roadmap.contains("2026-06-15-rust-tauri-parity-issue-cards.md"));
-    assert!(roadmap.contains("2026-06-08-rust-tauri-only-roadmap.md"));
-    assert!(roadmap.contains("Use the following structure when creating Beads cards:"));
-    assert!(issue_cards.contains("### RT-010 - command registry diff harness"));
+    assert!(roadmap.contains("rust-tauri-only-merge-plan.md"));
+    assert!(roadmap.contains("Stage 0 | Inventory and contract freeze"));
+    assert!(roadmap.contains("Stage 5 | Performance, streaming, and formal assurance"));
+    assert!(roadmap.contains("Epic 1 - Rust Safety and Parser Hardening"));
+    assert!(roadmap.contains("Epic 5 - Performance, Streaming, and Formal Assurance"));
+    assert!(roadmap.contains("Beads-ready template for each task lives in"));
+    assert!(issue_cards.contains("RB-1.1 - Diagram parser boundary safety"));
+    assert!(issue_cards.contains("RB-5.6 - Contract invariants"));
     assert!(issue_cards.contains("`Stage label`:"));
-    assert!(issue_cards.contains("`Function`:"));
+    assert!(issue_cards.contains("`Capability bundle`:"));
     assert!(merge_plan.contains("docs(roadmap): add rust-tauri-only migration roadmap"));
     assert!(merge_plan.contains("test(docs): lock roadmap and issue-pack contract"));
 

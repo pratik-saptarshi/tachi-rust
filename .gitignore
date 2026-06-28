@@ -238,6 +238,7 @@ venv/
 # committed baseline; settings.local.json is per-developer, per-machine.
 .claude/settings.local.json
 
-# Deepwork
-.slim/deepwork/
-
+# Beads / Dolt files (added by bd init)
+.dolt/
+.beads-credential-key
+.beads/proxieddb/

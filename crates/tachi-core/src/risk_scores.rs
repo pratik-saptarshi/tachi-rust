@@ -4,8 +4,10 @@ use serde_json::{json, Value};
 
 use crate::parsers::parse_markdown_table;
 use crate::parsers::SourceAttributionRecord;
-use crate::sarif_common::{build_sarif_envelope, level_for_band, prefix_for, ComponentMetadata};
-
+use crate::sarif_common::{
+    build_sarif_envelope, level_for_band, logical_location_kind_for_dfd_type, prefix_for,
+    ComponentMetadata,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RiskScoreFinding {
@@ -41,38 +43,73 @@ pub struct RiskScoreGovernance {
     pub review_date: String,
 }
 
-pub fn parse_risk_md_section2(md: &str) -> Vec<RiskScoreFinding> {
-    parse_markdown_table(md, "## 2. Scored Threat Table")
-        .into_iter()
-        .map(|row| RiskScoreFinding {
-            id: row.get("ID").cloned().unwrap_or_default(),
+pub fn parse_risk_md_section2(md: &str) -> Result<Vec<RiskScoreFinding>, String> {
+    let rows = parse_markdown_table(md, "## 2. Scored Threat Table");
+    let mut findings = Vec::with_capacity(rows.len());
+
+    for row in rows {
+        let id = row.get("ID").cloned().unwrap_or_default();
+
+        let cvss_raw = table_cell(&row, "CVSS", &[]);
+        let cvss_base = cvss_raw
+            .trim()
+            .parse::<f64>()
+            .map_err(|err| format!("failed to parse CVSS score for {id}: {err}"))?;
+
+        let exp_raw = table_cell(&row, "Exploitability", &["Exploit.", "Exploit"]);
+        let exploitability = exp_raw
+            .trim()
+            .parse::<f64>()
+            .map_err(|err| format!("failed to parse Exploitability score for {id}: {err}"))?;
+
+        let scal_raw = table_cell(&row, "Scalability", &["Scale.", "Scale"]);
+        let scalability = scal_raw
+            .trim()
+            .parse::<f64>()
+            .map_err(|err| format!("failed to parse Scalability score for {id}: {err}"))?;
+
+        let reach_raw = table_cell(&row, "Reachability", &["Reach.", "Reach"]);
+        let reachability = reach_raw
+            .trim()
+            .parse::<f64>()
+            .map_err(|err| format!("failed to parse Reachability score for {id}: {err}"))?;
+
+        let comp_raw = table_cell(&row, "Composite", &[]);
+        let composite = comp_raw
+            .trim()
+            .parse::<f64>()
+            .map_err(|err| format!("failed to parse Composite score for {id}: {err}"))?;
+
+        findings.push(RiskScoreFinding {
+            id,
             component: row.get("Component").cloned().unwrap_or_default(),
             threat_summary: row.get("Threat").cloned().unwrap_or_default(),
-            cvss_base: row
-                .get("CVSS")
-                .and_then(|value| value.parse::<f64>().ok())
-                .unwrap_or(0.0),
-            exploitability: row
-                .get("Exploitability")
-                .and_then(|value| value.parse::<f64>().ok())
-                .unwrap_or(0.0),
-            scalability: row
-                .get("Scalability")
-                .and_then(|value| value.parse::<f64>().ok())
-                .unwrap_or(0.0),
-            reachability: row
-                .get("Reachability")
-                .and_then(|value| value.parse::<f64>().ok())
-                .unwrap_or(0.0),
-            composite: row
-                .get("Composite")
-                .and_then(|value| value.parse::<f64>().ok())
-                .unwrap_or(0.0),
+            cvss_base,
+            exploitability,
+            scalability,
+            reachability,
+            composite,
             severity_band: row.get("Severity").cloned().unwrap_or_default(),
             sla_days: row.get("SLA").cloned().unwrap_or_default(),
             disposition: row.get("Disposition").cloned().unwrap_or_default(),
+        });
+    }
+
+    Ok(findings)
+}
+
+fn table_cell(row: &BTreeMap<String, String>, primary: &str, aliases: &[&str]) -> String {
+    row.get(primary)
+        .filter(|value| !value.trim().is_empty())
+        .cloned()
+        .or_else(|| {
+            aliases.iter().find_map(|alias| {
+                row.get(*alias)
+                    .filter(|value| !value.trim().is_empty())
+                    .cloned()
+            })
         })
-        .collect()
+        .unwrap_or_default()
 }
 
 pub fn parse_risk_md_section3(md: &str) -> BTreeMap<String, RiskScoreBreakdown> {
@@ -163,32 +200,24 @@ pub fn parse_risk_md_section4(md: &str) -> BTreeMap<String, RiskScoreGovernance>
     out
 }
 
+pub struct RiskScoreSarifInputs<'a> {
+    pub section3: &'a BTreeMap<String, RiskScoreBreakdown>,
+    pub section4: &'a BTreeMap<String, RiskScoreGovernance>,
+    pub threats_status: &'a BTreeMap<String, String>,
+    pub threats_full: &'a BTreeMap<String, (String, String)>,
+    pub source_attribution: &'a BTreeMap<String, Vec<SourceAttributionRecord>>,
+    pub component_meta: &'a BTreeMap<String, ComponentMetadata>,
+    pub source_threats_uri: &'a str,
+    pub baseline_run_id: Option<&'a str>,
+}
+
 pub fn build_risk_scores_sarif(
     findings: &[RiskScoreFinding],
-    section3: &BTreeMap<String, RiskScoreBreakdown>,
-    section4: &BTreeMap<String, RiskScoreGovernance>,
-    threats_status: &BTreeMap<String, String>,
-    threats_full: &BTreeMap<String, (String, String)>,
-    source_attribution: &BTreeMap<String, Vec<SourceAttributionRecord>>,
-    component_meta: &BTreeMap<String, ComponentMetadata>,
-    source_threats_uri: &str,
-    baseline_run_id: &str,
+    inputs: &RiskScoreSarifInputs<'_>,
 ) -> Value {
     let results = findings
         .iter()
-        .map(|finding| {
-            build_result(
-                finding,
-                section3,
-                section4,
-                threats_status,
-                threats_full,
-                source_attribution,
-                component_meta,
-                source_threats_uri,
-                baseline_run_id,
-            )
-        })
+        .map(|finding| build_result(finding, inputs))
         .collect::<Vec<_>>();
 
     let driver = json!({
@@ -249,39 +278,41 @@ fn parse_score_source(line: &str) -> Option<String> {
     Some(value.trim().trim_end_matches('*').trim().to_string())
 }
 
-fn build_result(
-    finding: &RiskScoreFinding,
-    section3: &BTreeMap<String, RiskScoreBreakdown>,
-    section4: &BTreeMap<String, RiskScoreGovernance>,
-    threats_status: &BTreeMap<String, String>,
-    threats_full: &BTreeMap<String, (String, String)>,
-    source_attribution: &BTreeMap<String, Vec<SourceAttributionRecord>>,
-    component_meta: &BTreeMap<String, ComponentMetadata>,
-    source_threats_uri: &str,
-    run_id_baseline: &str,
-) -> Value {
+fn build_result(finding: &RiskScoreFinding, inputs: &RiskScoreSarifInputs<'_>) -> Value {
     let pref = prefix_for(&finding.id);
     let rule_id = rule_for_prefix(pref.as_str());
     let level = level_for_band(&finding.severity_band);
 
-    let meta = component_meta
+    let meta = inputs
+        .component_meta
         .get(&finding.component)
         .cloned()
         .unwrap_or_else(default_component_meta);
-    let kind = kind_for_dfd_type(&meta.dfd_type);
-    let logical_location = json!({
+    let kind = logical_location_kind_for_dfd_type(&meta.dfd_type);
+    let mut logical_location = json!({
         "name": finding.component,
         "fullyQualifiedName": format!("{}/{}", meta.zone, finding.component),
-        "kind": kind,
     });
+    if let Some(kind) = kind {
+        logical_location["kind"] = json!(kind);
+    }
 
-    let (threat_text, mitigation_text) = threats_full
+    let (threat_text, mitigation_text) = inputs
+        .threats_full
         .get(&finding.id)
         .cloned()
         .unwrap_or_else(|| (finding.threat_summary.clone(), String::new()));
 
-    let s3 = section3.get(&finding.id).cloned().unwrap_or_default();
-    let s4 = section4.get(&finding.id).cloned().unwrap_or_default();
+    let s3 = inputs
+        .section3
+        .get(&finding.id)
+        .cloned()
+        .unwrap_or_default();
+    let s4 = inputs
+        .section4
+        .get(&finding.id)
+        .cloned()
+        .unwrap_or_default();
 
     let mut props = json!({
         "security-severity": format!("{:.1}", finding.composite),
@@ -325,7 +356,7 @@ fn build_result(
         props["owasp-reference"] = json!(owasp);
     }
 
-    if let Some(attrs) = source_attribution.get(&finding.id) {
+    if let Some(attrs) = inputs.source_attribution.get(&finding.id) {
         props["source-attribution"] = json!(attrs
             .iter()
             .map(|record| json!({
@@ -342,13 +373,19 @@ fn build_result(
         props["new-finding"] = json!(true);
     }
 
-    if threats_status
+    if inputs
+        .threats_status
         .get(&finding.id)
         .map(|status| status == "NEW")
         .unwrap_or(false)
     {
         props["new-finding"] = json!(true);
     }
+
+    let baseline_run_id_value = match inputs.threats_status.get(&finding.id) {
+        Some(status) if status == "NEW" => "",
+        _ => inputs.baseline_run_id.unwrap_or(""),
+    };
 
     json!({
         "ruleId": rule_id,
@@ -360,7 +397,7 @@ fn build_result(
         "locations": [
             {
                 "physicalLocation": {
-                    "artifactLocation": {"uri": source_threats_uri},
+                    "artifactLocation": {"uri": inputs.source_threats_uri},
                     "region": {"startLine": 1},
                 },
                 "logicalLocation": logical_location,
@@ -368,7 +405,7 @@ fn build_result(
         ],
         "partialFingerprints": {
             "findingId/v1": finding.id,
-            "baselineRunId": if threats_status.get(&finding.id).map(|s| s == "NEW").unwrap_or(false) { "" } else { run_id_baseline },
+            "baselineRunId": baseline_run_id_value,
         },
         "properties": props,
     })
@@ -378,14 +415,6 @@ fn default_component_meta() -> ComponentMetadata {
     ComponentMetadata {
         zone: String::from("Application Zone"),
         dfd_type: String::from("Process"),
-    }
-}
-
-fn kind_for_dfd_type(dfd_type: &str) -> &'static str {
-    match dfd_type {
-        "External Entity" => "external-entity",
-        "Data Store" => "data-store",
-        _ => "process",
     }
 }
 
@@ -408,5 +437,56 @@ fn rule_for_prefix(prefix: &str) -> &'static str {
         "AG" | "AGP" => "tachi/ai/agentic",
         "LLM" | "OI" | "MI" => "tachi/ai/llm",
         _ => "tachi/ai/agentic",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_risk_md_section2;
+
+    #[test]
+    fn parse_risk_md_section2_parses_valid_numbers_and_supports_exploitability_header() {
+        let markdown = r#"
+## 2. Scored Threat Table
+
+| ID | Component | Threat | CVSS | Exploitability | Scalability | Reachability | Composite | Severity | SLA | Disposition |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| AG-1 | API | Prompt injection | 9.1 | 9.2 | 8.0 | 7.0 | 8.3 | High | 7 | Monitor |
+| AG-2 | Worker | Broken isolation | 8.5 | 7.0 | 6.0 | 5.0 | 6.8 | Medium | 14 | Fix |
+"#;
+
+        let findings = parse_risk_md_section2(markdown).expect("section 2 parse");
+        assert_eq!(findings.len(), 2);
+        assert_eq!(findings[0].id, "AG-1");
+        assert_eq!(findings[0].cvss_base, 9.1);
+        assert_eq!(findings[0].exploitability, 9.2);
+        assert_eq!(findings[0].severity_band, "High");
+        assert_eq!(findings[1].exploitability, 7.0);
+        assert_eq!(findings[1].composite, 6.8);
+    }
+
+    #[test]
+    fn parse_risk_md_section2_accepts_abbreviated_dimension_headers() {
+        let markdown = r#"
+## 2. Scored Threat Table
+
+| ID | Component | Threat | CVSS | Exploit. | Scale. | Reach. | Composite | Severity | SLA | Disposition |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| LLM-1 | Orchestrator | Prompt override | 9.8 | 8.8 | 7.3 | 5.5 | 8.3 | High | 7d | Mitigate |
+"#;
+
+        let findings = parse_risk_md_section2(markdown).expect("abbreviated section 2 parse");
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].id, "LLM-1");
+        assert_eq!(findings[0].exploitability, 8.8);
+        assert_eq!(findings[0].scalability, 7.3);
+        assert_eq!(findings[0].reachability, 5.5);
+    }
+
+    #[test]
+    fn parse_risk_md_section2_returns_empty_without_scored_table() {
+        let findings = parse_risk_md_section2("# Report\n\nNo scored table here.")
+            .expect("empty section 2 parse");
+        assert!(findings.is_empty());
     }
 }

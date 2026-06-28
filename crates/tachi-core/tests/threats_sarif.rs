@@ -29,11 +29,12 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
         mitigation: String::from("Harden prompts"),
     };
 
+    let source_threats_uri = "reports/custom/threats.md";
     let sarif = tachi_core::threats_sarif::build_threats_sarif(
         &[finding],
         &component_meta,
-        "custom-threats.md",
-        "custom-run-id-999",
+        source_threats_uri,
+        Some(source_threats_uri),
     );
     let run = &sarif["runs"][0];
     let result = &run["results"][0];
@@ -46,11 +47,15 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
     assert_eq!(result["message"]["markdown"], "Harden prompts");
     assert_eq!(
         result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
-        "custom-threats.md"
+        source_threats_uri
     );
     assert_eq!(
         result["locations"][0]["logicalLocations"][0]["fullyQualifiedName"],
         "Core/Agent"
+    );
+    assert_eq!(
+        result["locations"][0]["logicalLocations"][0]["kind"],
+        serde_json::Value::Null
     );
     assert_eq!(result["partialFingerprints"]["findingId/v1"], "AG-8");
     assert_eq!(
@@ -58,7 +63,7 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
             .as_str()
             .unwrap()
             .len(),
-            16
+        16
     );
     assert_eq!(result["partialFingerprints"]["baselineRunId"], "");
     assert_eq!(result["properties"]["baselineState"], "new");
@@ -71,4 +76,45 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
     assert_eq!(result["properties"]["pattern_category"], 9);
     assert_eq!(result["properties"]["tags"][0], "security");
     assert_eq!(result["properties"]["tags"][1], "ai");
+}
+
+#[test]
+fn build_threats_sarif_uses_shared_baseline_run_id_for_existing_finding() {
+    let mut component_meta = BTreeMap::new();
+    component_meta.insert(
+        String::from("Agent"),
+        ComponentMetadata {
+            zone: String::from("Core"),
+            dfd_type: String::from("Data Store"),
+        },
+    );
+
+    let finding = tachi_core::threats_sarif::ThreatSarifFinding {
+        id: String::from("AG-8"),
+        prefix: String::from("AG"),
+        status: String::from("[UNCHANGED]"),
+        component: String::from("Agent"),
+        maestro: String::from("L3 Triage"),
+        agentic_pattern: String::new(),
+        threat: String::from("Prompt injection"),
+        owasp_ref: String::new(),
+        likelihood: String::from("High"),
+        impact: String::from("High"),
+        risk_level: String::from("High"),
+        mitigation: String::from("Harden prompts"),
+    };
+
+    let sarif = tachi_core::threats_sarif::build_threats_sarif(
+        &[finding],
+        &component_meta,
+        "reports/custom/threats.md",
+        Some("reports/custom/run-id-2026-06-27"),
+    );
+    let result = &sarif["runs"][0]["results"][0];
+
+    assert_eq!(
+        result["partialFingerprints"]["baselineRunId"],
+        "reports/custom/run-id-2026-06-27"
+    );
+    assert_eq!(result["properties"]["baselineState"], "unchanged");
 }

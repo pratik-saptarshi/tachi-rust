@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use tachi_shell::commands::risk_scores_sarif_output;
 
 fn main() -> ExitCode {
-    let (risk_scores, threats, output, baseline_run_id, source_threats_uri) = match parse_args() {
+    let (risk_scores, threats, output, _baseline_run_id, _source_threats_uri) = match parse_args() {
         Ok(values) => values,
         Err(message) => {
             eprintln!("{message}");
@@ -12,12 +12,7 @@ fn main() -> ExitCode {
         }
     };
 
-    let payload = match risk_scores_sarif_output(
-        &risk_scores,
-        &threats,
-        source_threats_uri.as_deref(),
-        baseline_run_id.as_deref(),
-    ) {
+    let payload = match risk_scores_sarif_output(&risk_scores, &threats) {
         Ok(payload) => payload,
         Err(message) => {
             eprintln!("{message}");

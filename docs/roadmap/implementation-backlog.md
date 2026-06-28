@@ -1,29 +1,87 @@
 # Implementation Backlog
 
-**Last Updated**: 2026-06-15
+**Last Updated**: 2026-06-26
 **Purpose**: navigation hub for the Beads-ready Rust/Tauri implementation backlog
 **Scope**: roadmap sequencing, issue-pack pointers, and task-template guidance
 
 ## Active Execution
 
-- [Rust/Tauri Parity Remediation Roadmap](./2026-06-15-rust-tauri-parity-remediation-roadmap.html.md)
-- [Rust/Tauri Parity Issue Cards](./2026-06-15-rust-tauri-parity-issue-cards.md)
+- Active desktop host: `crates/tachi-desktop`
+- [Beads issue mirror snapshot](./.beads/issues.jsonl)
+- [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
+- [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
+- [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
+- [Standalone MCP server roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
+- [Standalone MCP server issue cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
+
+## Current Status Snapshot
+
+- Open: AQ-010, AQ-020, AQ-051, AQ-052, AQ-053, AQ-054, MCP-001, MCP-001.3, MCP-001.3.3, MCP-001.4, MCP-001.4.1, MCP-001.4.2, MCP-001.4.3, MCP-001.5, MCP-001.5.1
+- Partial: AQ-021, AQ-022, AQ-023, AQ-024, AQ-025
+- Done: AQ-001, AQ-011, AQ-012, AQ-013, AQ-030, AQ-031, AQ-032, AQ-033, AQ-034, AQ-040, AQ-041, AQ-042, AQ-043, AQ-050, AQ-055, DOC-001, DOC-002, DOC-003, DOC-004, RT-010, RT-011, RT-012, RT-013, RT-014, RT-015, RT-016, RT-017, RT-018, RT-019, RT-020, RT-021, RT-022, RT-023, RT-024, RT-025, RT-026, RT-027, RT-028, RT-029, RT-030
 
 ## Archive Records
 
+- [Adversarial Architecture and Test Quality Roadmap](./2026-06-22-adversarial-architecture-test-quality-roadmap.html.md)
+- [Rust/Tauri Parity Remediation Roadmap](./2026-06-21-rust-tauri-parity-remediation-roadmap.html.md)
+- [Rust/Tauri Parity Issue Cards](./2026-06-21-rust-tauri-parity-issue-cards.md)
+- [Archived Docs Workflow-Version Inventory](./2026-06-21-archived-docs-workflow-version-inventory.md)
+- [Archived Docs Workflow-Version Sweep Roadmap](./2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md)
+- [Archived Docs Workflow-Version Sweep Issue Cards](./2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md)
 - [Rust/Tauri Migration Issue Pack](./2026-06-04-rust-tauri-issue-pack.md)
 - [Rust/Tauri Implementation Roadmap](./2026-06-08-rust-tauri-only-roadmap.md)
 - [Rust/Tauri Implementation Issue Cards](./2026-06-08-rust-tauri-only-issue-cards.md)
+- [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
+- [Standalone MCP Server Issue Cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
+
+## Active Security Track
+
+- [AISVS Dependabot remediation issue cards](./2026-06-23-aisvs-dependabot-remediation-issue-cards.md)
+- [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
+- [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
+- Epic: `RT-00i` AISVS framework and Dependabot remediation
+- Active GitHub issue mirrors: `RT-bu7` / `gh-2` dynamic SARIF
+  `baselineRunId`, `RT-0zv` / `gh-6` SARIF logical-location kind compliance
+- Feature issues: `RT-00i.1` typed AISVS control registry, `RT-00i.2` GTK-free desktop host migration, `RT-00i.3` AISVS C01-C04, `RT-00i.4` AISVS C09-C12, `RT-00i.5` AISVS C05-C08
+- Feature issues: `RT-00i.6` CI and docs readiness for AISVS framework
+- Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
+- Task issues: `RT-00i.1.1` control registry, `RT-00i.1.2` sanitized errors, `RT-00i.1.3` Send+Sync invariants, `RT-00i.2.1` reproduce advisory proof, `RT-00i.2.2` GTK-free desktop host boundary, `RT-00i.2.3` closure evidence, `RT-00i.2.4` future workspace recheck, `RT-00i.6.1` docs and export sync
+
+## Standalone MCP Track
+
+- [Standalone MCP server roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
+- [Standalone MCP server issue cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
+- Epic: `MCP-001` Standalone MCP server
+- Feature issues: `MCP-001.1` canonical contract extraction, `MCP-001.2` MCP transport and tool layer, `MCP-001.3` transport runtime hardening, `MCP-001.4` docs and release integration, `MCP-001.5` portability envelope
+- Task issues: `MCP-001.3.1` correlation and cancellation, `MCP-001.3.2` auth guard, `MCP-001.3.3` cleanup and timeout, `MCP-001.4.1` docs publish alignment, `MCP-001.4.2` BOM/release alignment, `MCP-001.4.3` CI evidence lane, `MCP-001.5.1` portability matrix
+- Code state: `crates/tachi-mcp` now implements the Stage 0 contract snapshot plus schema metadata snapshot, the Stage 1 transport/tool layer, the MCP allowlist authorization seam, and the cancellation cleanup hook; the current ready issues are the runtime hardening and portability/release follow-ups.
 
 ## Canonical Sources
 
-- [Rust/Tauri parity remediation roadmap](./2026-06-15-rust-tauri-parity-remediation-roadmap.html.md)
-- [Rust/Tauri parity issue cards](./2026-06-15-rust-tauri-parity-issue-cards.md)
+- [Adversarial Architecture and Test Quality Roadmap](./2026-06-22-adversarial-architecture-test-quality-roadmap.html.md)
+- [Adversarial Architecture and Test Quality Issue Cards](./2026-06-22-adversarial-architecture-test-quality-issue-cards.md)
+- [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
+- [AISVS Dependabot remediation issue cards](./2026-06-23-aisvs-dependabot-remediation-issue-cards.md)
+- [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
+- [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
+- [Rust/Tauri parity remediation roadmap](./2026-06-21-rust-tauri-parity-remediation-roadmap.html.md)
+- [Rust/Tauri parity issue cards](./2026-06-21-rust-tauri-parity-issue-cards.md)
+- [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
+- [Standalone MCP Server Issue Cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
+- [Archived Docs Workflow-Version Sweep Roadmap](./2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md)
+- [Archived Docs Workflow-Version Sweep Issue Cards](./2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md)
 - [Rust/Tauri migration issue pack](./2026-06-04-rust-tauri-issue-pack.md)
 
 The active roadmap is the canonical sequencing document. The issue cards are
 the copy-paste execution templates that become Beads issues. The archived issue
-pack remains the tracker-neutral historical baseline.
+pack remains the tracker-neutral historical baseline. Completed roadmap slices
+move into archive records once their tracker cards are done.
 
 ## Backlog Shape
 
@@ -64,7 +122,7 @@ has passed its exit criteria and validation matrix.
 |---|---|---|
 | Parser work | Unit tests plus integration fixtures | Parser module and malformed fixture set |
 | CLI and config work | Command-level tests plus config parsing tests | `tachi-cli` entrypoints |
-| Tauri work | Bridge parity tests plus desktop smoke checks | `src-tauri` command registration |
+| Desktop host work | Host-parity tests plus desktop smoke checks | `crates/tachi-desktop` command boundary |
 | Reporting work | Output-shape checks plus snapshot-style regression tests | `tachi-core` builders |
 | Performance work | Benchmark or criterion gate | Hot-path functions and regressions |
 | Docs work | Readability, consistency, and link checks | Roadmap and onboarding docs |
@@ -73,7 +131,7 @@ has passed its exit criteria and validation matrix.
 
 - Parity harness work must land before any bridge, output, or release-hardening
   slice.
-- Tauri command exposure must land before schema validation and desktop-only UX.
+- Desktop host exposure must land before schema validation and desktop-only UX.
 - Output goldens and parser regression tests must stabilize before release
   artifact work.
 - Release hardening must land before desktop-specific differentiators.

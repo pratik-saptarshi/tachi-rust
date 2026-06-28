@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate publish-gate
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate release-gate fuzz-mutation-gate publish-gate
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -45,16 +45,54 @@ llvm-cov: ## Run cargo llvm-cov with the active toolchain's LLVM tools
 	@./scripts/llvm-cov.sh
 
 workflow-gate: ## Validate workflow action versions and checkout modernization
-	@if rg "actions/checkout@v4" .github/workflows; then \
-	  echo "FAIL: actions/checkout@v4 is still present in workflows"; \
+	@if rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows; then \
+	  echo "FAIL: stale GitHub Actions or CodeQL pins are still present in workflows"; \
 	  exit 1; \
 	else \
 	  echo "workflow action gate passed"; \
 	fi
 
+docs-version-gate: ## Validate docs and examples workflow-version hygiene
+	@if rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|codeql/upload-sarif@v3|::set-output|Node 20" \
+	  docs/testing/README.md \
+	  docs/guides/DEVELOPER_GUIDE_TACHI.md \
+	  docs/devops/README.md \
+	  docs/devops/CI_CD_GUIDE.md \
+	  docs/standards/PRECOMMIT_HOOKS.md \
+	  docs/standards/GIT_WORKFLOW.md \
+	  docs/architecture/00_Tech_Stack/README.md \
+	  docs/architecture/01_system_design/README.md \
+	  examples; then \
+	  echo "FAIL: stale workflow-version references are still present in maintained docs or examples"; \
+	  exit 1; \
+	else \
+	  echo "docs/version gate passed"; \
+	fi
+
+docs-archive-version-gate: ## Validate archived docs workflow-version hygiene
+	@./scripts/docs-archive-version-gate.sh
+
+scaffold-dependency-gate: ## Validate scaffold dependency floors against known Dependabot advisories
+	@cargo test -p tachi-core --test scaffold_dependency_floors -- --nocapture
+
+release-gate: ## Validate active desktop host release readiness
+	@cargo test -p tachi-desktop --all-targets -- --nocapture
+
+fuzz-mutation-gate: ## Validate documented fuzz/mutation lane and baseline report artifact
+	@test -f docs/testing/fuzz-mutation-audit.md
+	@test -f docs/reports/fuzz-mutation-baseline.md
+	@grep -q "cargo fuzz" docs/testing/fuzz-mutation-audit.md
+	@grep -q "cargo-mutants" docs/testing/fuzz-mutation-audit.md
+	@grep -qi "follow-up Beads" docs/reports/fuzz-mutation-baseline.md
+
 publish-gate: ## Run end-to-end publish-readiness gates locally
 	@$(MAKE) check
 	@$(MAKE) workflow-gate
+	@$(MAKE) docs-version-gate
+	@$(MAKE) docs-archive-version-gate
+	@$(MAKE) scaffold-dependency-gate
+	@$(MAKE) release-gate
+	@$(MAKE) fuzz-mutation-gate
 	@$(MAKE) test
 	@cargo clippy --all-targets -- -D warnings
 	@$(MAKE) coverage-audit

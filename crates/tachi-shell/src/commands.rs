@@ -1,42 +1,167 @@
+use std::collections::BTreeSet;
+use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
-use std::process::Output;
-use std::process::Stdio;
-use std::thread::sleep;
-use std::time::Duration;
 
-use tachi_core::coverage_audit::{collect_audit, render};
-use tachi_core::infographic::build_infographic_payload;
-use tachi_core::parsers::parse_threats_findings;
-use tachi_core::report_data::build_report_data_typst;
-use tachi_core::risk_scores::{
-    build_risk_scores_sarif, parse_risk_md_section2, parse_risk_md_section3, parse_risk_md_section4,
-};
-use tachi_core::sarif_common::{parse_component_metadata, prefix_for};
-use tachi_core::threats_sarif::{build_threats_sarif, ThreatSarifFinding};
+use serde::Serialize;
 
-use crate::progress::{
-    emit_progress_event, CancellationToken, NoopProgressReporter, ProgressReporter,
+use crate::progress::{CancellationToken, NoopProgressReporter, ProgressReporter};
+
+pub use crate::command_use_cases::{
+    coverage_audit_output, infographic_data_output, render_report_data_result, report_data_output,
+    report_data_result, risk_scores_sarif_output, threats_sarif_output,
+    validate_report_data_result, ReportDataResult, RiskScoresSarifOutput, ThreatsSarifOutput,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ThreatsSarifOutput {
-    pub sarif: String,
-    pub findings_count: usize,
-    pub ag8_status: Option<String>,
+mod runtime_helpers;
+mod script_executor;
+
+pub const CONTROL_PLANE_COMMANDS: [&str; 9] = [
+    "install",
+    "init",
+    "update",
+    "bootstrap",
+    "infographic-data",
+    "coverage-audit",
+    "report-data",
+    "risk-scores-sarif",
+    "threats-sarif",
+];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CommandOutputKind {
+    Plain,
+    CoverageSummary,
+    Json,
+    Typst,
+    ThreatsSarif,
+    RiskScoresSarif,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RiskScoresSarifOutput {
-    pub sarif: String,
-    pub results_count: usize,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CommandDispatchKind {
+    ControlPlane,
+    CoverageAudit,
+    InfographicData,
+    ReportData,
+    ThreatsSarif,
+    RiskScoresSarif,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CommandSpec {
+    pub name: &'static str,
+    pub dispatch_kind: CommandDispatchKind,
+    pub output_kind: CommandOutputKind,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct CommandRegistry {
+    specs: &'static [CommandSpec],
+}
+
+pub const COMMAND_SPECS: [CommandSpec; 9] = [
+    CommandSpec {
+        name: "install",
+        dispatch_kind: CommandDispatchKind::ControlPlane,
+        output_kind: CommandOutputKind::Plain,
+    },
+    CommandSpec {
+        name: "init",
+        dispatch_kind: CommandDispatchKind::ControlPlane,
+        output_kind: CommandOutputKind::Plain,
+    },
+    CommandSpec {
+        name: "update",
+        dispatch_kind: CommandDispatchKind::ControlPlane,
+        output_kind: CommandOutputKind::Plain,
+    },
+    CommandSpec {
+        name: "bootstrap",
+        dispatch_kind: CommandDispatchKind::ControlPlane,
+        output_kind: CommandOutputKind::Plain,
+    },
+    CommandSpec {
+        name: "infographic-data",
+        dispatch_kind: CommandDispatchKind::InfographicData,
+        output_kind: CommandOutputKind::Json,
+    },
+    CommandSpec {
+        name: "coverage-audit",
+        dispatch_kind: CommandDispatchKind::CoverageAudit,
+        output_kind: CommandOutputKind::CoverageSummary,
+    },
+    CommandSpec {
+        name: "report-data",
+        dispatch_kind: CommandDispatchKind::ReportData,
+        output_kind: CommandOutputKind::Typst,
+    },
+    CommandSpec {
+        name: "risk-scores-sarif",
+        dispatch_kind: CommandDispatchKind::RiskScoresSarif,
+        output_kind: CommandOutputKind::RiskScoresSarif,
+    },
+    CommandSpec {
+        name: "threats-sarif",
+        dispatch_kind: CommandDispatchKind::ThreatsSarif,
+        output_kind: CommandOutputKind::ThreatsSarif,
+    },
+];
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct CommandOutput {
     pub status: i32,
     pub stdout: String,
     pub stderr: String,
+}
+
+pub fn control_plane_commands() -> &'static [&'static str] {
+    &CONTROL_PLANE_COMMANDS
+}
+
+pub const fn command_registry() -> CommandRegistry {
+    CommandRegistry::new(&COMMAND_SPECS)
+}
+
+pub fn command_spec(command: &str) -> Option<&'static CommandSpec> {
+    command_registry().spec(command)
+}
+
+pub fn command_output_kind(command: &str) -> Option<CommandOutputKind> {
+    command_spec(command).map(|spec| spec.output_kind)
+}
+
+pub fn command_dispatch_kind(command: &str) -> Option<CommandDispatchKind> {
+    command_spec(command).map(|spec| spec.dispatch_kind)
+}
+
+impl CommandRegistry {
+    pub const fn new(specs: &'static [CommandSpec]) -> Self {
+        Self { specs }
+    }
+
+    pub const fn specs(&self) -> &'static [CommandSpec] {
+        self.specs
+    }
+
+    pub fn names(&self) -> Vec<&'static str> {
+        self.specs.iter().map(|spec| spec.name).collect()
+    }
+
+    pub fn spec(&self, command: &str) -> Option<&'static CommandSpec> {
+        self.specs.iter().find(|spec| spec.name == command)
+    }
+
+    pub fn validate_unique(&self) -> Result<(), String> {
+        let mut seen = BTreeSet::new();
+
+        for spec in self.specs {
+            if !seen.insert(spec.name) {
+                return Err(format!("duplicate command in registry: {}", spec.name));
+            }
+        }
+
+        Ok(())
+    }
 }
 
 fn run_script_command(
@@ -65,251 +190,46 @@ pub(crate) fn run_script_command_with_progress(
     token: &CancellationToken,
     reporter: &mut dyn ProgressReporter,
 ) -> CommandOutput {
-    emit_progress_event(reporter, script_name, "starting");
-    if token.is_cancelled() {
-        emit_progress_event(reporter, script_name, "cancelled");
-        return CommandOutput {
-            status: 130,
-            stdout: String::new(),
-            stderr: format!("{script_name} cancelled\n"),
-        };
-    }
+    script_executor::run_script_command_with_progress_using(
+        script_executor::ScriptCommandRunRequest {
+            executor: &script_executor::SystemScriptExecutor,
+            sink: &runtime_helpers::SystemScriptOutputSink,
+            script_dir,
+            script_name,
+            args,
+            repo_root,
+            token,
+            reporter,
+        },
+    )
+}
 
-    let script_path = script_dir.join(script_name);
-    let cwd = script_dir.parent().unwrap_or(repo_root);
-
-    let spawn_result = Command::new(&script_path)
-        .current_dir(cwd)
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn();
-
-    let mut child = match spawn_result {
-        Ok(child) => child,
-        Err(err) => {
-            emit_progress_event(reporter, script_name, "failed");
-            return CommandOutput {
-                status: 1,
-                stdout: String::new(),
-                stderr: format!("failed to execute {script_name}: {err}\n"),
-            };
-        }
-    };
-
-    loop {
-        if token.is_cancelled() {
-            let _ = child.kill();
-            match child.wait_with_output() {
-                Ok(output) => {
-                    emit_progress_event(reporter, script_name, "cancelled");
-                    return CommandOutput {
-                        status: 130,
-                        stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-                        stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-                    };
-                }
-                Err(err) => {
-                    emit_progress_event(reporter, script_name, "cancelled");
-                    return CommandOutput {
-                        status: 130,
-                        stdout: String::new(),
-                        stderr: format!("{script_name} cancelled: {err}\n"),
-                    };
-                }
-            }
-        }
-
-        match child.try_wait() {
-            Ok(Some(_status)) => match child.wait_with_output() {
-                Ok(Output {
-                    status,
-                    stdout,
-                    stderr,
-                }) => {
-                    emit_progress_event(reporter, script_name, "completed");
-                    return CommandOutput {
-                        status: status.code().unwrap_or(1),
-                        stdout: String::from_utf8_lossy(&stdout).to_string(),
-                        stderr: String::from_utf8_lossy(&stderr).to_string(),
-                    };
-                }
-                Err(err) => {
-                    emit_progress_event(reporter, script_name, "failed");
-                    return CommandOutput {
-                        status: 1,
-                        stdout: String::new(),
-                        stderr: format!("failed to execute {script_name}: {err}\n"),
-                    };
-                }
-            },
-            Ok(None) => {
-                emit_progress_event(reporter, script_name, "running");
-                sleep(Duration::from_millis(10));
-            }
-            Err(err) => {
-                let _ = child.kill();
-                emit_progress_event(reporter, script_name, "failed");
-                return CommandOutput {
-                    status: 1,
-                    stdout: String::new(),
-                    stderr: format!("failed to monitor {script_name}: {err}\n"),
-                };
+fn workspace_root_for_control_plane(start: &Path) -> PathBuf {
+    for ancestor in start.ancestors() {
+        let manifest = ancestor.join("Cargo.toml");
+        if let Ok(contents) = fs::read_to_string(&manifest) {
+            if contents.contains("[workspace]") {
+                return ancestor.to_path_buf();
             }
         }
     }
+
+    start.to_path_buf()
 }
 
 fn script_dir_for_repo_root(repo_root: &Path) -> PathBuf {
-    let mut current = repo_root;
-    while current != current.parent().unwrap_or(current) {
-        let candidate = current.join("scripts");
-        if candidate.exists() {
-            return current.to_path_buf().join("scripts");
-        }
-        current = current.parent().unwrap_or(current);
-    }
-
-    repo_root.join("scripts")
+    workspace_root_for_control_plane(repo_root).join("scripts")
 }
 
 pub fn control_plane_scripts_dir(repo_root: &Path) -> PathBuf {
     script_dir_for_repo_root(repo_root)
 }
 
-pub fn coverage_audit_output(root: &Path) -> String {
-    let audit = collect_audit(root);
-    render(&audit, root)
-}
-
-pub fn infographic_data_output(root: &Path, template: &str) -> Result<String, String> {
-    let payload = build_infographic_payload(root, template)?;
-    serde_json::to_string_pretty(&payload)
-        .map_err(|err| format!("failed to serialize infographic payload: {err}"))
-}
-
-pub fn report_data_output(target_dir: &Path, template_dir: &Path) -> String {
-    build_report_data_typst(target_dir, template_dir)
-}
-
-pub fn threats_sarif_output(
-    input: &Path,
-    source_threats_uri: Option<&str>,
-    baseline_run_id: Option<&str>,
-) -> Result<ThreatsSarifOutput, String> {
-    let threats_md = std::fs::read_to_string(input)
-        .map_err(|err| format!("failed to read {}: {err}", input.display()))?;
-    let findings = parse_threats_findings(&threats_md)?;
-    let component_meta = parse_component_metadata(&threats_md);
-    let ag8_status = findings
-        .iter()
-        .find(|finding| finding.id == "AG-8")
-        .and_then(|finding| finding.delta_status.clone());
-
-    let sarif_findings = findings
-        .into_iter()
-        .map(|finding| ThreatSarifFinding {
-            id: finding.id.clone(),
-            prefix: prefix_for(&finding.id),
-            status: finding.delta_status.unwrap_or_default(),
-            component: finding.component,
-            maestro: String::new(),
-            agentic_pattern: finding.agentic_pattern,
-            threat: finding.threat,
-            owasp_ref: String::new(),
-            likelihood: finding.likelihood,
-            impact: finding.impact,
-            risk_level: finding.risk_level,
-            mitigation: finding.mitigation,
-        })
-        .collect::<Vec<_>>();
-    let uri_str = input.to_string_lossy();
-    let uri = source_threats_uri.unwrap_or(&uri_str);
-    let run_id = baseline_run_id.unwrap_or("2026-04-19T03-20-30");
-    let sarif = build_threats_sarif(&sarif_findings, &component_meta, uri, run_id);
-    let sarif = serde_json::to_string_pretty(&sarif)
-        .map_err(|err| format!("failed to serialize threats SARIF: {err}"))?;
-
-    Ok(ThreatsSarifOutput {
-        sarif,
-        findings_count: sarif_findings.len(),
-        ag8_status,
-    })
-}
-
-pub fn risk_scores_sarif_output(
-    risk_scores: &Path,
-    threats: &Path,
-    source_threats_uri: Option<&str>,
-    baseline_run_id: Option<&str>,
-) -> Result<RiskScoresSarifOutput, String> {
-    let risk_md = std::fs::read_to_string(risk_scores)
-        .map_err(|err| format!("failed to read {}: {err}", risk_scores.display()))?;
-    let threats_md = std::fs::read_to_string(threats)
-        .map_err(|err| format!("failed to read {}: {err}", threats.display()))?;
-
-    let findings = parse_risk_md_section2(&risk_md);
-    let section3 = parse_risk_md_section3(&risk_md);
-    let section4 = parse_risk_md_section4(&risk_md);
-    let threat_findings = parse_threats_findings(&threats_md)?;
-
-    let threats_status = threat_findings
-        .iter()
-        .filter_map(|finding| {
-            finding.delta_status.as_ref().map(|status| {
-                (
-                    finding.id.clone(),
-                    status
-                        .trim()
-                        .trim_start_matches('[')
-                        .trim_end_matches(']')
-                        .to_string(),
-                )
-            })
-        })
-        .collect();
-    let threats_full = threat_findings
-        .iter()
-        .map(|finding| {
-            (
-                finding.id.clone(),
-                (finding.threat.clone(), finding.mitigation.clone()),
-            )
-        })
-        .collect();
-    let source_attribution = threat_findings
-        .iter()
-        .filter_map(|finding| {
-            finding
-                .source_attribution
-                .clone()
-                .map(|records| (finding.id.clone(), records))
-        })
-        .collect();
-    let component_meta = parse_component_metadata(&threats_md);
-
-    let uri_str = threats.to_string_lossy();
-    let uri = source_threats_uri.unwrap_or(&uri_str);
-    let run_id = baseline_run_id.unwrap_or("2026-04-19T03-20-30");
-
-    let sarif = build_risk_scores_sarif(
-        &findings,
-        &section3,
-        &section4,
-        &threats_status,
-        &threats_full,
-        &source_attribution,
-        &component_meta,
-        uri,
-        run_id,
-    );
-    let sarif = serde_json::to_string_pretty(&sarif)
-        .map_err(|err| format!("failed to serialize risk scores SARIF: {err}"))?;
-
-    Ok(RiskScoresSarifOutput {
-        sarif,
-        results_count: findings.len(),
-    })
+pub(crate) fn bootstrap_control_plane_args(args: &[&str]) -> Vec<String> {
+    let mut bootstrap_args = Vec::with_capacity(args.len() + 1);
+    bootstrap_args.push(String::from("--bootstrap"));
+    bootstrap_args.extend(args.iter().map(|arg| (*arg).to_string()));
+    bootstrap_args
 }
 
 pub fn install_output(root: &Path, args: &[&str]) -> CommandOutput {
@@ -328,10 +248,63 @@ pub fn update_output(root: &Path, args: &[&str]) -> CommandOutput {
 }
 
 pub fn bootstrap_output(root: &Path, args: &[&str]) -> CommandOutput {
-    let mut bootstrap_args = Vec::with_capacity(args.len() + 1);
-    bootstrap_args.push("--bootstrap");
-    bootstrap_args.extend_from_slice(args);
-
+    let bootstrap_args = bootstrap_control_plane_args(args);
     let scripts_dir = control_plane_scripts_dir(root);
+    let bootstrap_args = bootstrap_args
+        .iter()
+        .map(String::as_str)
+        .collect::<Vec<_>>();
     run_script_command(&scripts_dir, "update.sh", &bootstrap_args, root)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::bootstrap_control_plane_args;
+    use super::control_plane_scripts_dir;
+    use std::fs;
+
+    #[test]
+    fn bootstrap_control_plane_args_prepends_bootstrap_flag_without_mutating_input() {
+        let args = vec!["--upstream-url=https://example.com/upstream.git", "--yes"];
+
+        let shaped = bootstrap_control_plane_args(&args);
+
+        assert_eq!(
+            shaped,
+            vec![
+                String::from("--bootstrap"),
+                String::from("--upstream-url=https://example.com/upstream.git"),
+                String::from("--yes"),
+            ]
+        );
+        assert_eq!(
+            args,
+            vec!["--upstream-url=https://example.com/upstream.git", "--yes"]
+        );
+    }
+
+    #[test]
+    fn control_plane_scripts_dir_stays_within_repo_root() {
+        let root = std::env::temp_dir().join(format!(
+            "tachi-shell-scripts-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let parent = root.join("parent");
+        let repo_root = parent.join("repo");
+
+        fs::create_dir_all(parent.join("scripts")).expect("create parent scripts");
+        fs::create_dir_all(&repo_root).expect("create repo root");
+        fs::write(repo_root.join("Cargo.toml"), "[workspace]\n").expect("write repo manifest");
+
+        let scripts_dir = control_plane_scripts_dir(&repo_root);
+
+        assert_eq!(scripts_dir, repo_root.join("scripts"));
+        assert!(scripts_dir.starts_with(&repo_root));
+        assert_ne!(scripts_dir, parent.join("scripts"));
+
+        let _ = fs::remove_dir_all(&root);
+    }
 }

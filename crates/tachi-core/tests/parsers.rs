@@ -1,9 +1,11 @@
+use serde_json::json;
 use std::path::Path;
+use tachi_core::normalization::{normalize_optional_text, normalize_value, stable_trim_text};
 use tachi_core::parsers::{
-    compute_delta_counts, compute_has_source_attribution, escape_typst_string, parse_component_asset_map,
-    parse_finding_pattern, parse_markdown_table, parse_project_name, parse_threats_findings,
-    strip_bold, validate_source_attribution, ResolvedFinding, ThreatFinding, VALID_AGENTIC_PATTERNS,
-    VALID_ASSET_TAGS,
+    compute_delta_counts, compute_has_source_attribution, escape_typst_string,
+    parse_component_asset_map, parse_finding_pattern, parse_markdown_table, parse_project_name,
+    parse_threats_findings, strip_bold, validate_source_attribution, ResolvedFinding,
+    ThreatFinding, VALID_AGENTIC_PATTERNS, VALID_ASSET_TAGS,
 };
 
 static PARSER_TEMP_DIR_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
@@ -266,6 +268,94 @@ fn finding_pattern_parser_contract_is_rust_native() {
 }
 
 #[test]
+fn parse_threats_findings_roundtrips_a_canonical_seed_row_without_loss() {
+    let seed = r#"
+## 7. Recommended Actions
+
+| Finding ID | Component | Threat | Risk Level | Mitigation | Agentic Pattern | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| R-1 | Parser | Preserve exact field tokens | Medium | Keep identifiers stable | trust_exploitation | open |
+"#;
+
+    let findings = parse_threats_findings(seed).expect("parse canonical seed row");
+    assert_eq!(findings.len(), 1);
+
+    let first = &findings[0];
+    assert_eq!(first.id, "R-1");
+    assert_eq!(first.component, "Parser");
+    assert_eq!(first.threat, "Preserve exact field tokens");
+    assert_eq!(first.risk_level, "Medium");
+    assert_eq!(first.mitigation, "Keep identifiers stable");
+    assert_eq!(first.agentic_pattern, "trust_exploitation");
+    assert_eq!(first.delta_status.as_deref(), Some("open"));
+    assert!(first.source_attribution.is_none());
+
+    let roundtripped = format!(
+        r#"
+## 7. Recommended Actions
+
+| Finding ID | Component | Threat | Risk Level | Mitigation | Agentic Pattern | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| {id} | {component} | {threat} | {risk_level} | {mitigation} | {pattern} | {status} |
+"#,
+        id = first.id,
+        component = first.component,
+        threat = first.threat,
+        risk_level = first.risk_level,
+        mitigation = first.mitigation,
+        pattern = first.agentic_pattern,
+        status = first.delta_status.as_deref().unwrap_or("—"),
+    );
+
+    let reparsed = parse_threats_findings(&roundtripped).expect("reparse roundtripped seed");
+    assert_eq!(reparsed.len(), 1);
+    assert_eq!(reparsed[0].id, first.id);
+    assert_eq!(reparsed[0].component, first.component);
+    assert_eq!(reparsed[0].threat, first.threat);
+    assert_eq!(reparsed[0].risk_level, first.risk_level);
+    assert_eq!(reparsed[0].mitigation, first.mitigation);
+    assert_eq!(reparsed[0].agentic_pattern, first.agentic_pattern);
+    assert_eq!(reparsed[0].delta_status, first.delta_status);
+    assert_eq!(reparsed[0].source_attribution, first.source_attribution);
+}
+
+#[test]
+fn normalize_value_trims_strings_and_stably_orders_nested_objects() {
+    assert_eq!(stable_trim_text("  padded  "), "padded");
+    assert_eq!(
+        normalize_optional_text(Some("  ready  ")),
+        Some(String::from("ready"))
+    );
+    assert_eq!(normalize_optional_text(Some("   ")), None);
+    assert_eq!(normalize_optional_text(None), None);
+
+    let payload = json!({
+        "z": "  tail  ",
+        "nested": {
+            "b": "  bravo ",
+            "a": null,
+            "c": [" first ", {"d": " second "}],
+        },
+        "keep": 3,
+    });
+
+    let normalized = normalize_value(&payload);
+
+    assert_eq!(
+        normalized,
+        json!({
+            "keep": 3,
+            "nested": {
+                "a": null,
+                "b": "bravo",
+                "c": ["first", {"d": "second"}],
+            },
+            "z": "tail",
+        })
+    );
+}
+
+#[test]
 fn parse_threats_findings_extracts_source_attribution_and_pattern() {
     let markdown =
         include_str!("../../../tests/scripts/fixtures/source_attribution/valid_multi_record.md");
@@ -301,6 +391,24 @@ fn parse_threats_findings_preserves_absent_and_empty_source_attribution_semantic
         empty_findings[0].source_attribution.as_ref().unwrap().len(),
         0
     );
+}
+
+#[test]
+fn parse_threats_findings_skips_rows_with_missing_ids() {
+    let markdown = r#"
+## 7. Recommended Actions
+
+| Finding ID | Component | Threat | Risk Level | Mitigation |
+| --- | --- | --- | --- | --- |
+| | API | Missing identifier | High | Fix it |
+| S-1 | UI | Valid finding | Low | Fix it |
+"#;
+
+    let findings = parse_threats_findings(markdown).expect("parse findings");
+
+    assert_eq!(findings.len(), 1);
+    assert_eq!(findings[0].id, "S-1");
+    assert_eq!(findings[0].component, "UI");
 }
 
 #[test]

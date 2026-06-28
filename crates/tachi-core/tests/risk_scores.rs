@@ -2,6 +2,11 @@ use pretty_assertions::assert_eq;
 use std::collections::BTreeMap;
 use tachi_core::parsers::SourceAttributionRecord;
 use tachi_core::sarif_common::ComponentMetadata;
+use tachi_core::{
+    build_risk_scores_sarif, parse_risk_md_section2, parse_risk_md_section3,
+    parse_risk_md_section4, RiskScoreBreakdown, RiskScoreFinding, RiskScoreGovernance,
+    RiskScoreSarifInputs,
+};
 
 #[test]
 fn parse_risk_scores_sections_extracts_scored_table_metadata_and_governance() {
@@ -30,9 +35,9 @@ fn parse_risk_scores_sections_extracts_scored_table_metadata_and_governance() {
 | AG-8 | Alice | 7 | Monitor | 2026-06-06 |
 "#;
 
-    let section2 = tachi_core::risk_scores::parse_risk_md_section2(md);
-    let section3 = tachi_core::risk_scores::parse_risk_md_section3(md);
-    let section4 = tachi_core::risk_scores::parse_risk_md_section4(md);
+    let section2 = parse_risk_md_section2(md).expect("section 2 parse");
+    let section3 = parse_risk_md_section3(md);
+    let section4 = parse_risk_md_section4(md);
 
     assert_eq!(section2.len(), 1);
     assert_eq!(section2[0].id, "AG-8");
@@ -66,7 +71,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
         },
     );
 
-    let findings = vec![tachi_core::risk_scores::RiskScoreFinding {
+    let findings = vec![RiskScoreFinding {
         id: String::from("AG-8"),
         component: String::from("Agent"),
         threat_summary: String::from("Prompt injection"),
@@ -83,7 +88,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     let mut section3 = BTreeMap::new();
     section3.insert(
         String::from("AG-8"),
-        tachi_core::risk_scores::RiskScoreBreakdown {
+        RiskScoreBreakdown {
             threat_full: String::from("Prompt injection"),
             component: String::from("Agent"),
             category: String::from("Agentic Threats"),
@@ -97,7 +102,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     let mut section4 = BTreeMap::new();
     section4.insert(
         String::from("AG-8"),
-        tachi_core::risk_scores::RiskScoreGovernance {
+        RiskScoreGovernance {
             owner: String::from("Alice"),
             sla_days: String::from("7"),
             disposition: String::from("Monitor"),
@@ -106,7 +111,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     );
 
     let mut threats_status = BTreeMap::new();
-    threats_status.insert(String::from("AG-8"), String::from("UNCHANGED"));
+    threats_status.insert(String::from("AG-8"), String::from("NEW"));
 
     let mut threats_full = BTreeMap::new();
     threats_full.insert(
@@ -127,16 +132,19 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
         }],
     );
 
-    let sarif = tachi_core::risk_scores::build_risk_scores_sarif(
+    let source_threats_uri = "reports/custom/threats.md";
+    let sarif = build_risk_scores_sarif(
         &findings,
-        &section3,
-        &section4,
-        &threats_status,
-        &threats_full,
-        &source_attribution,
-        &component_meta,
-        "custom-threats.md",
-        "custom-run-id-999",
+        &RiskScoreSarifInputs {
+            section3: &section3,
+            section4: &section4,
+            threats_status: &threats_status,
+            threats_full: &threats_full,
+            source_attribution: &source_attribution,
+            component_meta: &component_meta,
+            source_threats_uri,
+            baseline_run_id: Some("reports/custom/run-id-2026-06-27"),
+        },
     );
 
     let result = &sarif["runs"][0]["results"][0];
@@ -147,8 +155,13 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     assert_eq!(result["message"]["markdown"], "Harden prompts");
     assert_eq!(
         result["locations"][0]["logicalLocation"]["kind"],
-        "data-store"
+        serde_json::Value::Null
     );
+    assert_eq!(
+        result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
+        source_threats_uri
+    );
+    assert_eq!(result["partialFingerprints"]["baselineRunId"], "");
     assert_eq!(result["properties"]["score-source"], "inherited");
     assert_eq!(
         result["properties"]["score-source-detail"],
@@ -169,12 +182,90 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
         result["properties"]["feature"],
         "219-asi07-tool-abuse-enrichment"
     );
-    assert_eq!(
-        result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
-        "custom-threats.md"
+}
+
+#[test]
+fn build_risk_scores_sarif_uses_shared_baseline_run_id_for_existing_finding() {
+    let mut component_meta = BTreeMap::new();
+    component_meta.insert(
+        String::from("Agent"),
+        ComponentMetadata {
+            zone: String::from("Core"),
+            dfd_type: String::from("Data Store"),
+        },
     );
+
+    let findings = vec![RiskScoreFinding {
+        id: String::from("AG-8"),
+        component: String::from("Agent"),
+        threat_summary: String::from("Prompt injection"),
+        cvss_base: 9.1,
+        exploitability: 9.0,
+        scalability: 8.5,
+        reachability: 8.0,
+        composite: 8.8,
+        severity_band: String::from("High"),
+        sla_days: String::from("7"),
+        disposition: String::from("Monitor"),
+    }];
+
+    let section3 = BTreeMap::new();
+    let section4 = BTreeMap::new();
+
+    let mut threats_status = BTreeMap::new();
+    threats_status.insert(String::from("AG-8"), String::from("UNCHANGED"));
+
+    let mut threats_full = BTreeMap::new();
+    threats_full.insert(
+        String::from("AG-8"),
+        (
+            String::from("Prompt injection"),
+            String::from("Harden prompts"),
+        ),
+    );
+
+    let source_attribution = BTreeMap::new();
+    let source_threats_uri = "reports/custom/threats.md";
+
+    let sarif = build_risk_scores_sarif(
+        &findings,
+        &RiskScoreSarifInputs {
+            section3: &section3,
+            section4: &section4,
+            threats_status: &threats_status,
+            threats_full: &threats_full,
+            source_attribution: &source_attribution,
+            component_meta: &component_meta,
+            source_threats_uri,
+            baseline_run_id: Some("reports/custom/run-id-2026-06-27"),
+        },
+    );
+
+    let result = &sarif["runs"][0]["results"][0];
     assert_eq!(
         result["partialFingerprints"]["baselineRunId"],
-        "custom-run-id-999"
+        "reports/custom/run-id-2026-06-27"
+    );
+}
+
+#[test]
+fn test_parse_risk_md_section2_returns_err_on_malformed_scores() {
+    let md = r#"
+## 2. Scored Threat Table
+
+| ID | Component | Threat | CVSS | Exploitability | Scalability | Reachability | Composite | Severity | SLA | Disposition |
+|----|-----------|--------|------|----------------|--------------|--------------|-----------|----------|-----|-------------|
+| AG-8 | Agent | Prompt injection | malformed_score | 9.0 | 8.5 | 8.0 | 8.8 | High | 7 | Monitor |
+"#;
+    let res = parse_risk_md_section2(md);
+    assert!(
+        res.is_err(),
+        "Expected error for malformed score, got {:?}",
+        res
+    );
+    let err = res.expect_err("malformed score should be rejected");
+    assert!(
+        err.contains("failed to parse CVSS score for AG-8"),
+        "unexpected error: {err}"
     );
 }

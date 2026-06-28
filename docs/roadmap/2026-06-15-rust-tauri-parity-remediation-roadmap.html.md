@@ -1,30 +1,40 @@
 # Rust/Tauri Parity Remediation Roadmap
 
-Status: active execution roadmap
+Status: archived snapshot
 
 Scope: Rust and Tauri only. No Python runtime path, no Python bridge,
 no legacy script execution in release or desktop flows.
 
-This roadmap supersedes the completed `2026-06-04` issue pack and the
+This roadmap superseded the completed `2026-06-04` issue pack and the
 `2026-06-08` migration roadmap. Keep those files as archive records only.
+The active parity roadmap is now
+[2026-06-21-rust-tauri-parity-remediation-roadmap.html.md](./2026-06-21-rust-tauri-parity-remediation-roadmap.html.md).
 
 ## Objective
 
-Reach feature parity with `tachi`, then exceed it with Rust/Tauri-only
-desktop and release capabilities.
-
-The first phase is strict parity. Do not introduce new differentiators
-until the critical gaps are closed and proven with tests.
+Archived snapshot of the earlier parity remediation plan. Retained for
+provenance only; do not add new work here.
 
 ## Current critical gaps
 
 1. Desktop command surface parity is incomplete.
-2. Output contracts still need golden-fixture proof across the major
-   command families.
-3. Deterministic serialization and normalization rules need a shared
-   test harness.
-4. CI and release workflows still need version and policy cleanup.
-5. Packaging, checksums, and artifact consistency need explicit coverage.
+2. Output contracts still need canonical golden-fixture proof across
+   the major command families.
+3. Deterministic serialization and normalization rules still need a
+   shared test harness.
+
+## Resolved in repo
+
+- Command registry diff harness RT-010 is implemented and validated.
+- Schema and fixture contract RT-011 is implemented and validated.
+- Deterministic normalization helper RT-012 is implemented and validated.
+- Tauri command allowlist parity RT-013 is implemented and validated.
+- Desktop invoke contract validation RT-014 is implemented and validated.
+- Parser regression coverage RT-016 is implemented and validated.
+- CI and release hardening RT-017, RT-018, RT-021, and RT-022 are
+  implemented and validated.
+- CI modernization RT-023 is implemented and validated.
+- Desktop UX slices RT-019 and RT-020 are implemented and validated.
 
 ## Working rules
 
@@ -106,6 +116,7 @@ Exit gate:
 - desktop integration tests pass
 - CLI and Tauri command names are aligned
 - no bridge path depends on Python or shell-script fallback behavior
+- Notes: Implemented in `src-tauri/src/schema.rs` and `src-tauri/src/lib.rs`; validated by schema, bridge, and registry tests.
 
 ## Phase 2 - output contract parity
 
@@ -122,6 +133,8 @@ the important command families.
 - Acceptance: fixtures cover the primary command families and the edge
   cases that previously drifted
 - Validation: snapshot tests compare against canonical fixtures
+- Notes: Implemented in `crates/tachi-core/tests/reporting_goldens.rs`;
+  validated by reporting goldens tests
 
 ### RT-016 - parser regression suite
 
@@ -173,11 +186,39 @@ Goal: remove workflow drift and make releases reproducible.
 - Acceptance: docs-only pushes to `main` do not invoke release-please
 - Validation: main-push smoke check after docs-only changes
 
+### RT-022 - release-please no PR branch updates
+
+- Epic: CI modernization
+- Capability: release automation stability
+- Feature: release-please push safety
+- Task: keep `release-please` from updating its PR branch on push so the
+  main-push workflow cannot fail on stale release refs
+- Acceptance: release-please no longer attempts PR branch updates on push
+- Validation: latest main-push release-please run succeeds
+- Notes: Implemented in `feat/release-please-no-pr-creation`; validated on code push
+
+### RT-023 - GitHub Actions and CodeQL modernization
+
+- Epic: CI modernization
+- Capability: workflow hygiene
+- Feature: workflow and CodeQL pin modernization
+- Task: upgrade checkout, CodeQL upload, and Rust toolchain actions to
+  current majors and remove Node 20 deprecation sources
+- Acceptance: all live workflows use `actions/checkout@v7`; Rust CI no
+  longer depends on `actions-rs/toolchain`; SARIF uploads use
+  `github/codeql-action/upload-sarif@v4`
+- Validation: workflow version scan gate and published main-push run
+  completes without Node 20 deprecation warnings from the updated
+  workflows
+- Notes: Implemented in `.github/workflows/*` and `Makefile`; validated
+  by workflow-gate, publish-gate, and main-push CI
+
 Exit gate:
 
 - workflow version drift is removed
 - release artifacts are reproducible
 - workflow and packaging docs agree with the code path
+- `make publish-gate` enforces workflow drift plus release artifact parity
 
 ## Phase 4 - exceed `tachi`
 
@@ -203,6 +244,7 @@ Goal: only after parity is proven, add Rust/Tauri-native advantages.
 - Acceptance: app can recover from offline startup with cached data
 - Validation: smoke test covers cold start, cache restore, and update
   probe paths
+- Notes: Implemented in `feat/rt020-offline-bootstrap-cache`; ready for merge
 
 Exit gate:
 

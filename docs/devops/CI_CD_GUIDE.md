@@ -243,7 +243,7 @@ The 1080s outer cap is intentional: it MUST be > the inner 900s cap to ensure th
 | `ubuntu-latest` | 1m29s | green | unchanged |
 | `macos-latest` | 5m19s | green | 30-40 min flaky band |
 
-Both legs green on first attempt; release-please PR #254 auto-opened ~35s post-merge. The macos-latest run is now well under the 15-minute target informally adopted as the upper bound for CI-test feedback loop tolerance.
+Both legs green on first attempt; the release-please workflow completed release automation on the `main` push ~35s post-merge. The macos-latest run is now well under the 15-minute target informally adopted as the upper bound for CI-test feedback loop tolerance.
 
 **F-248 closeout addendum (now superseded by F-250)**: F-248 PR #249 merged via admin-override squash-merge with the macOS leg flaking on the 300s timeout. F-250 — landed same day — converts that scoped exception back into a deterministic green by re-budgeting the timeouts and restructuring the fixture topology. The substitution surface itself was never the regression; the CI-runner cost was.
 
@@ -283,13 +283,13 @@ F-256 introduces one adopter-facing environment variable, `AOD_FETCH_TIMEOUT`, r
 | Workflow file | `.github/workflows/gitleaks.yml` |
 | Trigger | `pull_request` against `main` (no path filter — every PR scans the full repo) |
 | Runner | `ubuntu-latest` |
-| Permissions | `contents: read` + `security-events: write` (required by `github/codeql-action/upload-sarif@v3`) |
+| Permissions | `contents: read` + `security-events: write` (required by `github/codeql-action/upload-sarif@v4`) |
 | Gitleaks version | **v8.30.1** (pinned) |
 | SHA256 checksum | `551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb` (verified before tarball extraction) |
 | Scan scope | Full-repo (`gitleaks git`) — NOT PR-diff |
 | SARIF category | `gitleaks` (visible under GitHub Security tab → Code Scanning → Tool: gitleaks) |
 | `actions/checkout` | `@v4` with `fetch-depth: 0` (full git history needed for `gitleaks git`) |
-| SARIF upload action | `github/codeql-action/upload-sarif@v3` |
+| SARIF upload action | `github/codeql-action/upload-sarif@v4` |
 | `continue-on-error` | `true` on the scan step (so the SARIF upload always runs even when findings are present) |
 | `if: always()` | Set on the upload step to guarantee the SARIF artifact is published |
 
@@ -613,7 +613,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -627,7 +627,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Deploy to Staging
         run: |
           # Platform-specific deployment command
@@ -639,7 +639,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Deploy to Production
         run: |
           # Platform-specific deployment command
