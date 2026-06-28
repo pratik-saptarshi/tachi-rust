@@ -42,34 +42,29 @@ fn rt009_documentation_contract_is_rust_native() {
     assert!(!testing_guide.contains("**Python Projects**:"));
     assert!(!testing_guide.contains("pytest"));
 
-    let roadmap =
-        fs::read_to_string(root.join("docs/roadmap/2026-06-08-rust-tauri-only-roadmap.md"))
-            .expect("rust tauri roadmap exists");
-    let issue_cards =
-        fs::read_to_string(root.join("docs/roadmap/2026-06-08-rust-tauri-only-issue-cards.md"))
-            .expect("rust tauri issue cards exist");
+    let roadmap = fs::read_to_string(
+        root.join("docs/roadmap/2026-06-15-rust-tauri-parity-remediation-roadmap.html.md"),
+    )
+    .expect("rust tauri parity roadmap exists");
+    let issue_cards = fs::read_to_string(
+        root.join("docs/roadmap/2026-06-15-rust-tauri-parity-issue-cards.md"),
+    )
+    .expect("rust tauri parity issue cards exist");
     let merge_plan =
         fs::read_to_string(root.join("docs/roadmap/2026-06-08-rust-tauri-only-merge-plan.md"))
             .expect("rust tauri merge plan exists");
 
-    assert!(roadmap.contains("rust-tauri-only-issue-cards.md"));
-    assert!(roadmap.contains("rust-tauri-only-merge-plan.md"));
-    assert!(roadmap.contains("Current roadmap completion: 100% (6 of 6 cards complete)."));
-    assert!(roadmap.contains("| RT-010 | Complete |"));
-    assert!(roadmap.contains("| RT-011 | Complete |"));
-    assert!(roadmap.contains("| RT-012 | Complete |"));
-    assert!(roadmap.contains("| RT-013 | Complete |"));
-    assert!(roadmap.contains("| RT-014 | Complete |"));
-    assert!(roadmap.contains("| RT-015 | Complete |"));
-    assert!(issue_cards.contains("RT-010 - Freeze the Python surface inventory"));
-    assert!(issue_cards.contains("RT-015 - Optimize the Rust path for speed and reliability"));
-    assert!(issue_cards.contains("Current roadmap completion: 100% (6 of 6 cards complete)."));
-    assert!(issue_cards.contains("| RT-010 | Complete |"));
-    assert!(issue_cards.contains("| RT-011 | Complete |"));
-    assert!(issue_cards.contains("| RT-012 | Complete |"));
-    assert!(issue_cards.contains("| RT-013 | Complete |"));
-    assert!(issue_cards.contains("| RT-014 | Complete |"));
-    assert!(issue_cards.contains("| RT-015 | Complete |"));
+    assert!(roadmap.contains("Rust and Tauri only. No Python runtime path, no Python bridge"));
+    assert!(roadmap.contains("Phase 0 - parity harness"));
+    assert!(roadmap.contains("RT-010 - command registry diff harness"));
+    assert!(roadmap.contains("RT-021 - docs-only release-please filter"));
+    assert!(roadmap.contains("implementation-backlog.md"));
+    assert!(roadmap.contains("2026-06-15-rust-tauri-parity-issue-cards.md"));
+    assert!(roadmap.contains("2026-06-08-rust-tauri-only-roadmap.md"));
+    assert!(roadmap.contains("Use the following structure when creating Beads cards:"));
+    assert!(issue_cards.contains("### RT-010 - command registry diff harness"));
+    assert!(issue_cards.contains("`Stage label`:"));
+    assert!(issue_cards.contains("`Function`:"));
     assert!(merge_plan.contains("docs(roadmap): add rust-tauri-only migration roadmap"));
     assert!(merge_plan.contains("test(docs): lock roadmap and issue-pack contract"));
 

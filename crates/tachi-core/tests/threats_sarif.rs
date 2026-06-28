@@ -29,7 +29,12 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
         mitigation: String::from("Harden prompts"),
     };
 
-    let sarif = tachi_core::threats_sarif::build_threats_sarif(&[finding], &component_meta);
+    let sarif = tachi_core::threats_sarif::build_threats_sarif(
+        &[finding],
+        &component_meta,
+        "custom-threats.md",
+        "custom-run-id-999",
+    );
     let run = &sarif["runs"][0];
     let result = &run["results"][0];
 
@@ -41,7 +46,7 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
     assert_eq!(result["message"]["markdown"], "Harden prompts");
     assert_eq!(
         result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
-        "examples/agentic-app/sample-report/threats.md"
+        "custom-threats.md"
     );
     assert_eq!(
         result["locations"][0]["logicalLocations"][0]["fullyQualifiedName"],
@@ -53,7 +58,7 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
             .as_str()
             .unwrap()
             .len(),
-        16
+            16
     );
     assert_eq!(result["partialFingerprints"]["baselineRunId"], "");
     assert_eq!(result["properties"]["baselineState"], "new");

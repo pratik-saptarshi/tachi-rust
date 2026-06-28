@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate publish-gate
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -43,3 +43,19 @@ coverage-audit: ## Report the repository test surface by category
 
 llvm-cov: ## Run cargo llvm-cov with the active toolchain's LLVM tools
 	@./scripts/llvm-cov.sh
+
+workflow-gate: ## Validate workflow action versions and checkout modernization
+	@if rg "actions/checkout@v4" .github/workflows; then \
+	  echo "FAIL: actions/checkout@v4 is still present in workflows"; \
+	  exit 1; \
+	else \
+	  echo "workflow action gate passed"; \
+	fi
+
+publish-gate: ## Run end-to-end publish-readiness gates locally
+	@$(MAKE) check
+	@$(MAKE) workflow-gate
+	@$(MAKE) test
+	@cargo clippy --all-targets -- -D warnings
+	@$(MAKE) coverage-audit
+	@$(MAKE) llvm-cov

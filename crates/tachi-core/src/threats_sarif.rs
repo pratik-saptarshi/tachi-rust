@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 
 use crate::sarif_common::{build_sarif_envelope, ComponentMetadata};
 
-const SOURCE_THREATS_URI: &str = "examples/agentic-app/sample-report/threats.md";
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ThreatSarifFinding {
@@ -27,10 +27,12 @@ pub struct ThreatSarifFinding {
 pub fn build_threats_sarif(
     findings: &[ThreatSarifFinding],
     component_meta: &BTreeMap<String, ComponentMetadata>,
+    source_threats_uri: &str,
+    baseline_run_id: &str,
 ) -> Value {
     let results = findings
         .iter()
-        .map(|finding| build_result(finding, component_meta, "2026-04-19T03-20-30"))
+        .map(|finding| build_result(finding, component_meta, source_threats_uri, baseline_run_id))
         .collect::<Vec<_>>();
 
     let driver = json!({
@@ -50,6 +52,7 @@ pub fn build_threats_sarif(
 fn build_result(
     finding: &ThreatSarifFinding,
     component_meta: &BTreeMap<String, ComponentMetadata>,
+    source_threats_uri: &str,
     run_id_baseline: &str,
 ) -> Value {
     let rule_id = rule_for_prefix(&finding.prefix);
@@ -109,7 +112,7 @@ fn build_result(
             {
                 "physicalLocation": {
                     "artifactLocation": {
-                        "uri": SOURCE_THREATS_URI,
+                        "uri": source_threats_uri,
                     },
                     "region": {"startLine": 1},
                 },

@@ -1,6 +1,9 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::process::Output;
+use std::process::Stdio;
+use std::thread::sleep;
+use std::time::Duration;
 
 use tachi_core::coverage_audit::{collect_audit, render};
 use tachi_core::infographic::build_infographic_payload;
@@ -11,6 +14,10 @@ use tachi_core::risk_scores::{
 };
 use tachi_core::sarif_common::{parse_component_metadata, prefix_for};
 use tachi_core::threats_sarif::{build_threats_sarif, ThreatSarifFinding};
+
+use crate::progress::{
+    emit_progress_event, CancellationToken, NoopProgressReporter, ProgressReporter,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ThreatsSarifOutput {
@@ -38,29 +45,118 @@ fn run_script_command(
     args: &[&str],
     repo_root: &Path,
 ) -> CommandOutput {
+    let token = CancellationToken::new();
+    let mut reporter = NoopProgressReporter;
+    run_script_command_with_progress(
+        script_dir,
+        script_name,
+        args,
+        repo_root,
+        &token,
+        &mut reporter,
+    )
+}
+
+pub(crate) fn run_script_command_with_progress(
+    script_dir: &Path,
+    script_name: &str,
+    args: &[&str],
+    repo_root: &Path,
+    token: &CancellationToken,
+    reporter: &mut dyn ProgressReporter,
+) -> CommandOutput {
+    emit_progress_event(reporter, script_name, "starting");
+    if token.is_cancelled() {
+        emit_progress_event(reporter, script_name, "cancelled");
+        return CommandOutput {
+            status: 130,
+            stdout: String::new(),
+            stderr: format!("{script_name} cancelled\n"),
+        };
+    }
+
     let script_path = script_dir.join(script_name);
     let cwd = script_dir.parent().unwrap_or(repo_root);
 
-    let result = Command::new(&script_path)
+    let spawn_result = Command::new(&script_path)
         .current_dir(cwd)
         .args(args)
-        .output();
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn();
 
-    match result {
-        Ok(Output {
-            status,
-            stdout,
-            stderr,
-        }) => CommandOutput {
-            status: status.code().unwrap_or(1),
-            stdout: String::from_utf8_lossy(&stdout).to_string(),
-            stderr: String::from_utf8_lossy(&stderr).to_string(),
-        },
-        Err(err) => CommandOutput {
-            status: 1,
-            stdout: String::new(),
-            stderr: format!("failed to execute {script_name}: {err}\n"),
-        },
+    let mut child = match spawn_result {
+        Ok(child) => child,
+        Err(err) => {
+            emit_progress_event(reporter, script_name, "failed");
+            return CommandOutput {
+                status: 1,
+                stdout: String::new(),
+                stderr: format!("failed to execute {script_name}: {err}\n"),
+            };
+        }
+    };
+
+    loop {
+        if token.is_cancelled() {
+            let _ = child.kill();
+            match child.wait_with_output() {
+                Ok(output) => {
+                    emit_progress_event(reporter, script_name, "cancelled");
+                    return CommandOutput {
+                        status: 130,
+                        stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+                        stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+                    };
+                }
+                Err(err) => {
+                    emit_progress_event(reporter, script_name, "cancelled");
+                    return CommandOutput {
+                        status: 130,
+                        stdout: String::new(),
+                        stderr: format!("{script_name} cancelled: {err}\n"),
+                    };
+                }
+            }
+        }
+
+        match child.try_wait() {
+            Ok(Some(_status)) => match child.wait_with_output() {
+                Ok(Output {
+                    status,
+                    stdout,
+                    stderr,
+                }) => {
+                    emit_progress_event(reporter, script_name, "completed");
+                    return CommandOutput {
+                        status: status.code().unwrap_or(1),
+                        stdout: String::from_utf8_lossy(&stdout).to_string(),
+                        stderr: String::from_utf8_lossy(&stderr).to_string(),
+                    };
+                }
+                Err(err) => {
+                    emit_progress_event(reporter, script_name, "failed");
+                    return CommandOutput {
+                        status: 1,
+                        stdout: String::new(),
+                        stderr: format!("failed to execute {script_name}: {err}\n"),
+                    };
+                }
+            },
+            Ok(None) => {
+                emit_progress_event(reporter, script_name, "running");
+                sleep(Duration::from_millis(10));
+            }
+            Err(err) => {
+                let _ = child.kill();
+                emit_progress_event(reporter, script_name, "failed");
+                return CommandOutput {
+                    status: 1,
+                    stdout: String::new(),
+                    stderr: format!("failed to monitor {script_name}: {err}\n"),
+                };
+            }
+        }
     }
 }
 
@@ -96,7 +192,11 @@ pub fn report_data_output(target_dir: &Path, template_dir: &Path) -> String {
     build_report_data_typst(target_dir, template_dir)
 }
 
-pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> {
+pub fn threats_sarif_output(
+    input: &Path,
+    source_threats_uri: Option<&str>,
+    baseline_run_id: Option<&str>,
+) -> Result<ThreatsSarifOutput, String> {
     let threats_md = std::fs::read_to_string(input)
         .map_err(|err| format!("failed to read {}: {err}", input.display()))?;
     let findings = parse_threats_findings(&threats_md)?;
@@ -123,7 +223,10 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
             mitigation: finding.mitigation,
         })
         .collect::<Vec<_>>();
-    let sarif = build_threats_sarif(&sarif_findings, &component_meta);
+    let uri_str = input.to_string_lossy();
+    let uri = source_threats_uri.unwrap_or(&uri_str);
+    let run_id = baseline_run_id.unwrap_or("2026-04-19T03-20-30");
+    let sarif = build_threats_sarif(&sarif_findings, &component_meta, uri, run_id);
     let sarif = serde_json::to_string_pretty(&sarif)
         .map_err(|err| format!("failed to serialize threats SARIF: {err}"))?;
 
@@ -137,6 +240,8 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
 pub fn risk_scores_sarif_output(
     risk_scores: &Path,
     threats: &Path,
+    source_threats_uri: Option<&str>,
+    baseline_run_id: Option<&str>,
 ) -> Result<RiskScoresSarifOutput, String> {
     let risk_md = std::fs::read_to_string(risk_scores)
         .map_err(|err| format!("failed to read {}: {err}", risk_scores.display()))?;
@@ -183,6 +288,10 @@ pub fn risk_scores_sarif_output(
         .collect();
     let component_meta = parse_component_metadata(&threats_md);
 
+    let uri_str = threats.to_string_lossy();
+    let uri = source_threats_uri.unwrap_or(&uri_str);
+    let run_id = baseline_run_id.unwrap_or("2026-04-19T03-20-30");
+
     let sarif = build_risk_scores_sarif(
         &findings,
         &section3,
@@ -191,6 +300,8 @@ pub fn risk_scores_sarif_output(
         &threats_full,
         &source_attribution,
         &component_meta,
+        uri,
+        run_id,
     );
     let sarif = serde_json::to_string_pretty(&sarif)
         .map_err(|err| format!("failed to serialize risk scores SARIF: {err}"))?;

@@ -33,6 +33,7 @@ fn collect_python_files(root: &Path, current: &Path, files: &mut Vec<String>) {
             || relative.starts_with("specs/")
             || relative.starts_with(".worktrees/")
             || relative.starts_with(".git/")
+            || relative.starts_with(".tmp/")
         {
             continue;
         }

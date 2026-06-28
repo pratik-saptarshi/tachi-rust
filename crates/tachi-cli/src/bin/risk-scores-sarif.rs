@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use tachi_shell::commands::risk_scores_sarif_output;
 
 fn main() -> ExitCode {
-    let (risk_scores, threats, output) = match parse_args() {
+    let (risk_scores, threats, output, baseline_run_id, source_threats_uri) = match parse_args() {
         Ok(values) => values,
         Err(message) => {
             eprintln!("{message}");
@@ -12,7 +12,12 @@ fn main() -> ExitCode {
         }
     };
 
-    let payload = match risk_scores_sarif_output(&risk_scores, &threats) {
+    let payload = match risk_scores_sarif_output(
+        &risk_scores,
+        &threats,
+        source_threats_uri.as_deref(),
+        baseline_run_id.as_deref(),
+    ) {
         Ok(payload) => payload,
         Err(message) => {
             eprintln!("{message}");
@@ -39,11 +44,13 @@ fn main() -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn parse_args() -> Result<(PathBuf, PathBuf, PathBuf), String> {
+fn parse_args() -> Result<(PathBuf, PathBuf, PathBuf, Option<String>, Option<String>), String> {
     let mut args = std::env::args().skip(1);
     let mut risk_scores = None;
     let mut threats = None;
     let mut output = None;
+    let mut baseline_run_id = None;
+    let mut source_threats_uri = None;
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -65,9 +72,21 @@ fn parse_args() -> Result<(PathBuf, PathBuf, PathBuf), String> {
                     .ok_or_else(|| String::from("--output requires a path argument"))?;
                 output = Some(PathBuf::from(value));
             }
+            "--baseline-run-id" => {
+                let value = args
+                    .next()
+                    .ok_or_else(|| String::from("--baseline-run-id requires a value"))?;
+                baseline_run_id = Some(value);
+            }
+            "--source-threats-uri" => {
+                let value = args
+                    .next()
+                    .ok_or_else(|| String::from("--source-threats-uri requires a value"))?;
+                source_threats_uri = Some(value);
+            }
             "--help" | "-h" => {
                 return Err(String::from(
-                    "usage: risk-scores-sarif --risk-scores PATH --threats PATH --output PATH",
+                    "usage: risk-scores-sarif --risk-scores PATH --threats PATH --output PATH [--baseline-run-id ID] [--source-threats-uri URI]",
                 ));
             }
             other => {
@@ -79,5 +98,5 @@ fn parse_args() -> Result<(PathBuf, PathBuf, PathBuf), String> {
     let risk_scores = risk_scores.ok_or_else(|| String::from("--risk-scores is required"))?;
     let threats = threats.ok_or_else(|| String::from("--threats is required"))?;
     let output = output.ok_or_else(|| String::from("--output is required"))?;
-    Ok((risk_scores, threats, output))
+    Ok((risk_scores, threats, output, baseline_run_id, source_threats_uri))
 }
