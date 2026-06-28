@@ -94,7 +94,9 @@ If you're new here, start with the [Welcome thread](https://github.com/pratik-sa
 
 ## Prerequisites
 
-tachi requires two external CLIs for full functionality. Both are required — `typst` compiles the PDF security report and `@mermaid-js/mermaid-cli` (`mmdc`) renders attack path diagrams. See [ADR-022](docs/architecture/02_ADRs/ADR-022-mmdc-hard-prerequisite.md) for the rationale.
+tachi requires two external CLIs for full functionality. `typst` compiles the PDF security report. `@mermaid-js/mermaid-cli` (`mmdc`) renders attack path and attack chain diagrams when those artifacts are present. See [ADR-022](docs/architecture/02_ADRs/ADR-022-mmdc-hard-prerequisite.md) for the rationale.
+
+For the complete input checklist, see [docs/pre-requisites.html](docs/pre-requisites.html).
 
 **macOS**:
 
@@ -118,6 +120,8 @@ npm install -g @mermaid-js/mermaid-cli
 ```
 
 `/tachi.security-report` aborts at preflight with a clear install command if either CLI is missing when attack-trees are present.
+
+If you want infographic images (`.jpg`), set `GEMINI_API_KEY` in the environment. That is optional; text-only outputs work without it.
 
 ---
 
@@ -195,6 +199,7 @@ with all major components, data flows, protocols, and trust boundaries.
 ```
 
 tachi auto-detects the format. Mermaid, free-text, ASCII, PlantUML, and C4 are all supported.
+For best results, include components, data flows, trust boundaries, external entities, data stores, auth or privilege boundaries, and any LLM, agent, tool server, or MCP surfaces.
 
 ### 5. Run your first threat model
 
@@ -254,7 +259,7 @@ Runs the 5-phase threat modeling pipeline: scope, determine threats, determine c
 
 ### /tachi.risk-score
 
-Enriches threat model output with four-dimensional quantitative risk scores (CVSS 3.1, exploitability, scalability, reachability) and governance fields (owner, SLA, disposition, review date). Produces `risk-scores.md` and `risk-scores.sarif`.
+Enriches threat model output with four-dimensional quantitative risk scores (CVSS 3.1, exploitability, scalability, reachability) and governance fields (owner, SLA, disposition, review date). Produces `risk-scores.md` and `risk-scores.sarif`. Accepts `threats.md` as the canonical input and falls back to `threats.sarif` when needed.
 
 ```bash
 # Score threats in the default location
@@ -269,7 +274,7 @@ Enriches threat model output with four-dimensional quantitative risk scores (CVS
 
 ### /tachi.compensating-controls
 
-Scans a target codebase against scored threats to detect existing security controls, calculate residual risk, and recommend missing controls. Requires `/tachi.risk-score` output as input. Produces `compensating-controls.md` and `compensating-controls.sarif`.
+Scans a target codebase against scored threats to detect existing security controls, calculate residual risk, and recommend missing controls. Requires `/tachi.risk-score` output as input and a real target codebase path via `--target`. Produces `compensating-controls.md` and `compensating-controls.sarif`.
 
 ```bash
 # Scan current project against risk scores in the default location
@@ -287,9 +292,9 @@ Scans a target codebase against scored threats to detect existing security contr
 
 ### /tachi.infographic
 
-Generates visual threat infographic specifications and presentation-ready images. Auto-detects the richest data source in the output directory (prefers `compensating-controls.md` > `risk-scores.md` > `threats.md`). Produces spec markdown and `.jpg` images (images require `GEMINI_API_KEY`).
+Generates visual threat infographic specifications and presentation-ready images. Auto-detects the richest data source in the output directory and prefers `compensating-controls.md` > `risk-scores.md` > `threats.md`. If `risk-scores.md` or `compensating-controls.md` is used, a co-located `threats.md` is also required for structural context. Produces spec markdown and `.jpg` images (images require `GEMINI_API_KEY`).
 
-**Templates**: `baseball-card`, `system-architecture`, `risk-funnel`, `maestro-stack`, `maestro-heatmap`, `all`
+**Templates**: `baseball-card`, `system-architecture`, `risk-funnel`, `maestro-stack`, `maestro-heatmap`, `executive-architecture`, `all`, `maestro`
 
 ```bash
 # Generate all templates (auto-includes MAESTRO if data present)
@@ -301,6 +306,7 @@ Generates visual threat infographic specifications and presentation-ready images
 # Generate a specific template
 /tachi.infographic docs/security/2026-03-27/ --template baseball-card
 /tachi.infographic docs/security/2026-03-27/ --template risk-funnel
+/tachi.infographic docs/security/2026-03-27/ --template executive-architecture
 
 # Generate both MAESTRO templates
 /tachi.infographic docs/security/2026-03-27/ --template maestro
@@ -308,7 +314,7 @@ Generates visual threat infographic specifications and presentation-ready images
 
 ### /tachi.security-report
 
-Assembles all pipeline artifacts into a professional multi-page PDF security assessment booklet. Auto-detects available artifacts and conditionally includes pages. Requires `typst` CLI for PDF compilation and `mmdc` (Mermaid CLI) for attack path and attack chain diagram rendering (hard prerequisite per ADR-022 when diagrams are present).
+Assembles all pipeline artifacts into a professional multi-page PDF security assessment booklet. Auto-detects available artifacts and conditionally includes pages. Requires `typst` CLI for PDF compilation. `mmdc` (Mermaid CLI) is required when attack trees or attack chains are present and is otherwise optional (hard prerequisite per ADR-022 when diagrams are present).
 
 **Page types** (conditional, based on available artifacts):
 Cover, Disclaimer, Table of Contents, Risk Methodology, Assessment Scope, Executive Summary, Attack Path Analysis, Attack Chain Diagrams, MAESTRO Findings, Infographic pages (full-bleed), Findings Detail, Control Coverage, Remediation Roadmap
