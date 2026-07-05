@@ -73,7 +73,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 | Integration | Rust integration tests under `crates/*/tests` and transitional `src-tauri/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, Tauri capability-boundary audit, and the typed control-plane boundary audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init flow now lives in `crates/tachi-shell/tests/init_substitution.rs` while the Rust-owned E2E boundary is being defined. |
-| Coverage | `make llvm-cov` is the release-quality local gate. Current validated baseline: 85.36% regions / 86.06% lines. Current audit: 111 active modules, 96 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 1 Rust E2E module, 0 support/regression modules. |
+| Coverage | `make llvm-cov` is the release-quality local gate. Current validated baseline: 85.42% regions / 86.15% lines. Current audit: 111 active modules, 96 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 1 Rust E2E module, 0 support/regression modules. |
 
 The publish gate now includes `make scaffold-dependency-gate`, which runs the
 Rust-native `scaffold_dependency_floors` integration test against the real

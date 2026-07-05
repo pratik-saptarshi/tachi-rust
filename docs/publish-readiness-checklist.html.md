@@ -103,7 +103,7 @@ scheduled adapter workflow, not through the required publish gate.
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      baseline; validated at 85.36% region coverage and 86.06% line coverage
+      baseline; validated at 85.42% region coverage and 86.15% line coverage
       on 2026-07-05.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
