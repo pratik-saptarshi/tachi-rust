@@ -147,10 +147,10 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   `crates/tachi-core/tests/{risk_scores,threats_sarif}.rs` now share the
   canonical `logicalLocation.kind` mapping so threat and risk SARIF stay in
   parity on `data-store`.
-- AQ-021: `src-tauri/src/lib.rs` now registers a typed desktop dispatch
-  command, and `crates/tachi-shell/src/commands.rs` exposes serializable
-  `CommandOutput` for Tauri IPC while keeping the desktop capability boundary
-  test-backed.
+- AQ-021: closed. `src-tauri/src/lib.rs` now registers a typed desktop
+  dispatch command, declares the standalone `tauri` / `tauri-build` adapter
+  dependencies, wires `tauri::Builder` through `generate_handler!`, and keeps
+  the least-privilege capability boundary test-backed.
 - RT-00i.5.1: `schemas/aisvs.yaml`, `schemas/taxonomy/aisvs.yaml`,
   `crates/tachi-shell/tests/tauri_bridge.rs`, and the public docs now ship
   the AISVS schema/catalog slice with bridge coverage for report-data,
