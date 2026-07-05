@@ -125,6 +125,12 @@
   concerns have been superseded by the current BOM, publish checklist, RT-TC
   closeout, and this backlog reconciliation; direct merge would rewind current
   roadmaps and gates.
+- GitHub PR #10 (`issue-5`) and PR #11 (`issue-6`) were closed as superseded.
+  The shell containment behavior from #10 is covered on `main` by
+  `crates/tachi-shell/tests/control_plane.rs`, and the SARIF kind contract from
+  #11 is covered by `crates/tachi-core/src/sarif_common.rs` plus the
+  `risk_scores` and `threats_sarif` tests. The remote branches may remain as
+  historical refs, but their PRs are no longer active merge candidates.
 - Do not blindly merge either stale branch. Delete or archive local stale
   branches only with explicit operator approval.
 

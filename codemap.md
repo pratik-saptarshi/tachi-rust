@@ -163,6 +163,11 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   `crates/tachi-shell/tests/tauri_bridge.rs`, and the public docs now ship
   the AISVS schema/catalog slice with bridge coverage for report-data,
   infographic-data, threats-sarif, and risk-scores-sarif dispatch paths.
+- PR reconciliation: GitHub PR #10 (`issue-5`) and PR #11 (`issue-6`) are
+  closed as superseded by `main`. Shell script containment is now guarded by
+  `crates/tachi-shell/tests/control_plane.rs`; SARIF logical-location kind
+  behavior is centralized in `crates/tachi-core/src/sarif_common.rs` and
+  covered by `risk_scores` / `threats_sarif` tests.
 - AQ-001: tracker now has phase-0 Beads children `AQ-011`, `AQ-012`, and
   `AQ-013` materialized from the architecture/test-quality roadmap, and
   their workflow/template proofs are validated and closed.
