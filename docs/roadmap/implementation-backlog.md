@@ -21,13 +21,13 @@
 ## Current Status Snapshot
 
 - In progress: `AQ-020`, `AQ-021`, `RT-00i`
-- Open: `RT-TC`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`, `RT-TC-005`,
-  `RT-TC-006`
+- Open: `RT-TC`, `RT-TC-003`, `RT-TC-004`, `RT-TC-005`, `RT-TC-006`
 - Blocked: `RT-00i.2`, `RT-00i.5`
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
-  `DOC-*`, `RT-TC-001`, and completed `AQ-*` / `RT-*` migration slices.
+  `DOC-*`, `RT-TC-001`, `RT-TC-002`, and completed `AQ-*` / `RT-*`
+  migration slices.
 
 ## Archive Records
 
@@ -68,8 +68,9 @@
 - [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
 - Epic: `RT-TC` Rust toolchain modernization
 - Done: `RT-TC-001` pinned toolchain, Rust `1.96` MSRV metadata, and path
-  proof.
-- Priority `0`: `RT-TC-002` fail-closed supply-chain gates.
+  proof; `RT-TC-002` fail-closed supply-chain gates.
+- Priority `0`: all currently materialized RT-TC P0 prerequisites are closed;
+  continue with active desktop security blockers before promoting canaries.
 - Priority `1`: `RT-TC-003` semantic CI tests, `RT-TC-004` pinned
   `cargo-hack`/`cargo-llvm-cov` canary proof, `RT-TC-005` `src-tauri`
   member/exclude/retire decision.
@@ -98,12 +99,11 @@
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
 - `bd ready --json` currently returns the open `RT-TC` hierarchy except for
-  closed `RT-TC-001`.
+  closed `RT-TC-001` and `RT-TC-002`.
 - `bd list --json` includes active non-ready work: `AQ-020`, `AQ-021`,
   `RT-00i`, blocked `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
-- `RT-TC-002` and `RT-TC-004` retain explicit dependency edges on the closed
-  `RT-TC-001` toolchain pin so future status reports preserve the issue-card
-  sequencing.
+- `RT-TC-004` retains an explicit dependency edge on the closed `RT-TC-001`
+  toolchain pin so future status reports preserve the issue-card sequencing.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 

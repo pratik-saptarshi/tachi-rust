@@ -10,3 +10,4 @@ members = [
 
 [workspace.package]
 rust-version = "1.96"
+license = "Apache-2.0"

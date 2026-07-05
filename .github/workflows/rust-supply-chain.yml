@@ -1,0 +1,46 @@
+name: rust supply-chain gates
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '41 3 * * 0'
+
+jobs:
+  supply-chain:
+    name: cargo audit and cargo deny
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install --no-self-update
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Print Rust toolchain proof
+        run: |
+          rustc -Vv
+          cargo -Vv
+          which rustc
+          which cargo
+          rustup which rustc
+
+      - name: Install pinned supply-chain tools
+        run: |
+          cargo install --locked --version 0.22.2 cargo-audit
+          cargo install --locked --version 0.19.9 cargo-deny
+          cargo audit --version
+          cargo deny --version
+
+      - name: Run cargo audit
+        run: cargo audit
+
+      - name: Run cargo deny policy
+        run: cargo deny check advisories bans licenses sources

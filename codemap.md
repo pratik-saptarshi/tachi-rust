@@ -12,12 +12,13 @@ The repository is still migrating away from the original Python ecosystem. Remai
 |---|---|
 | `Cargo.toml` | Workspace manifest for `crates/tachi-core`, `crates/tachi-cli`, `crates/tachi-mcp`, `crates/tachi-shell`, and `crates/tachi-desktop`, with workspace Rust `1.96` MSRV metadata. |
 | `rust-toolchain.toml` | Repository Rust toolchain policy pinned to `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview`; required Rust workflows install it and print compiler path/version proof. |
+| `deny.toml` | Cargo dependency policy for advisories, bans, licenses, source registries, and exception metadata expectations. |
 | `crates/tachi-core/src/lib.rs` | Core Rust library export surface for parsers, report data, coverage-attestation payloads, SARIF builders, taxonomy, coverage audit, infographic payloads, and attack-chain Mermaid generation, including the executive-architecture overlay path. |
 | `crates/tachi-cli/src/bin/*.rs` | Rust CLI binaries for init/install/update/bootstrap, report-data, infographic-data, SARIF generation, and coverage audit. |
 | `crates/tachi-shell/src/commands.rs` | Shared command layer used by CLI-style flows, the GTK-free desktop host, and transitional adapter paths. |
 | `crates/tachi-desktop/src/main.rs` | Active native desktop host entrypoint, including headless smoke mode and macOS AppKit launch path. |
 | `src-tauri/src/lib.rs` | Transitional Tauri command registration and bridge integration retained for compatibility evidence. |
-| `Makefile` | Validation shortcuts, including the Rust coverage gate via `make llvm-cov` and the scaffold dependency-floor gate via `make scaffold-dependency-gate`. |
+| `Makefile` | Validation shortcuts, including the Rust coverage gate via `make llvm-cov`, dependency policy via `make supply-chain-gate`, and scaffold dependency-floor gate via `make scaffold-dependency-gate`. |
 | `.github/workflows/release-please.yml` | Main-push release automation using release-please with direct tag/release creation and no release-PR churn. |
 | `docs/platform-compatibility.md` | Public compatibility matrix and setup landing page for canonical core plus harness-specific shims/fallbacks. |
 | `docs/roadmap/` | Canonical migration roadmap, issue cards, merge plan, and Python-surface inventory. |
@@ -45,7 +46,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Track | Current Direction |
 |---|---|
-| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `RT-TC-001` has landed the repository toolchain pin and workflow proof; `docs/roadmap/2026-07-05-rust-toolchain-upgrade-issue-cards.md` remains the source text for the live Beads hierarchy `RT-TC-001` through `RT-TC-006`. |
+| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `RT-TC-001` has landed the repository toolchain pin and workflow proof; `RT-TC-002` adds fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `docs/roadmap/2026-07-05-rust-toolchain-upgrade-issue-cards.md` remains the source text for the live Beads hierarchy `RT-TC-001` through `RT-TC-006`. |
 | Codemap automation state | `.slim/codemap.json` is absent in this checkout. The root atlas is updated manually for this package, and no folder-level codemap files were invented. The codemap script path `~/.config/opencode/skills/codemap/scripts/codemap.mjs` exists on this machine, but codemap initialization/update was not run in this docs-first slice. |
 
 ## Rust Data And Control Flow
