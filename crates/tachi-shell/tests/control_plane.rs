@@ -177,3 +177,59 @@ fn init_output_uses_ancestor_scripts_dir_when_invoked_from_nested_path() {
         ));
     assert_eq!(output.stdout.lines().nth(1), Some("--help"));
 }
+
+#[test]
+fn init_output_uses_workspace_scripts_when_nested_manifest_exists() {
+    let _guard = CONTROL_PLANE_LOCK.lock().expect("control plane lock");
+    let (root, nested) = fixture_repo_with_nested_path();
+    fs::write(nested.join("Cargo.toml"), "[package]\nname = \"nested\"\n")
+        .expect("write nested package manifest");
+    fs::write(nested.join("package.json"), "{\"name\":\"nested\"}\n")
+        .expect("write nested package manifest");
+
+    let nested_scripts = nested.join("scripts");
+    fs::create_dir_all(&nested_scripts).expect("create nested scripts dir");
+    write_executable_file(
+        &nested_scripts.join("init.sh"),
+        "#!/usr/bin/env bash\nprintf 'nested-untrusted\\n'\n",
+    );
+
+    let script = root.join("scripts/init.sh");
+    write_executable_file(
+        &script,
+        "#!/usr/bin/env bash\nprintf 'workspace-trusted\\n'\n",
+    );
+
+    let output = init_output(&nested, &[]);
+    assert_eq!(output.status, 0);
+    assert_eq!(output.stdout.trim(), "workspace-trusted");
+}
+
+#[test]
+fn init_output_does_not_execute_untrusted_ancestor_scripts() {
+    let _guard = CONTROL_PLANE_LOCK.lock().expect("control plane lock");
+    let unique_suffix = TEMP_DIR_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let temp_parent = std::env::temp_dir().join(format!(
+        "tachi-rust-untrusted-ancestor-{}-{}",
+        unique_suffix,
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("clock")
+            .as_nanos()
+    ));
+    let repo_root = temp_parent.join("project");
+    let unsafe_scripts = temp_parent.join("scripts");
+    fs::create_dir_all(&repo_root).expect("create repo root");
+    fs::create_dir_all(&unsafe_scripts).expect("create unsafe scripts dir");
+    write_executable_file(
+        &unsafe_scripts.join("init.sh"),
+        "#!/usr/bin/env bash\nprintf 'ancestor-untrusted\\n'\n",
+    );
+
+    let output = init_output(&repo_root, &[]);
+    assert_ne!(output.status, 0);
+    assert!(
+        !output.stdout.contains("ancestor-untrusted"),
+        "control-plane command executed an ancestor script outside the repo root"
+    );
+}
