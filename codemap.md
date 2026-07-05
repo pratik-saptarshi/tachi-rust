@@ -44,7 +44,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Track | Current Direction |
 |---|---|
-| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `docs/roadmap/2026-07-05-rust-toolchain-upgrade-issue-cards.md` is the docs-first Beads source for `RT-TC-001` through `RT-TC-006` while live Beads writes are schema-blocked. |
+| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `docs/roadmap/2026-07-05-rust-toolchain-upgrade-issue-cards.md` is the source text for the live Beads hierarchy `RT-TC-001` through `RT-TC-006`. |
 | Codemap automation state | `.slim/codemap.json` is absent in this checkout. The root atlas is updated manually for this package, and no folder-level codemap files were invented. The codemap script path `~/.config/opencode/skills/codemap/scripts/codemap.mjs` exists on this machine, but codemap initialization/update was not run in this docs-first slice. |
 
 ## Rust Data And Control Flow

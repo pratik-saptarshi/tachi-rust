@@ -1,13 +1,12 @@
 # Rust Toolchain Upgrade Issue Cards
 
 **Last Updated**: 2026-07-05
-**Status**: Beads-ready execution blueprint; live Beads writes remain blocked
-until the remote schema migration guard is reconciled.
+**Status**: Beads-backed execution blueprint; live `RT-TC` hierarchy created
+after the approved remote schema migration.
 **Source**: [Rust Toolchain Upgrade Roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
 
-These cards are tracker-ready RT-TC slices for a docs-first Beads plan. Do not
-run `bd create`, `bd update`, or `BD_ALLOW_REMOTE_MIGRATE=1` from this file
-without an explicit migration owner and approval.
+These cards are the source text for the live RT-TC Beads hierarchy. The remote
+schema migration was run with explicit approval before tracker writes.
 
 ## Card Format
 
@@ -225,7 +224,7 @@ without an explicit migration owner and approval.
 
 ## Beads Creation Notes
 
-When Beads writes are unblocked, create this hierarchy from the card text:
+The live Beads hierarchy was created from the card text:
 
 - `RT-TC` priority `0`
 - `RT-TC-001` priority `0`
@@ -235,5 +234,5 @@ When Beads writes are unblocked, create this hierarchy from the card text:
 - `RT-TC-005` priority `1`
 - `RT-TC-006` priority `2`
 
-After live tracker writes, run `bd export -o .beads/issues.jsonl` and include
-the export in the same docs commit.
+After future live tracker writes, run `bd export -o .beads/issues.jsonl` and
+include the export in the same commit.

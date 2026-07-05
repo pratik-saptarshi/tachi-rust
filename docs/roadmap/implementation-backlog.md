@@ -68,10 +68,9 @@
   non-blocking MCP/runtime follow-ups when it improves release confidence, but
   it must not supersede active desktop security blockers except where the
   toolchain or supply-chain gate directly unblocks them.
-- Tracker state: live Beads writes remain blocked by the remote schema
-  migration guard. Use the issue-card file as the source for future `bd create`
-  commands, then run `bd export -o .beads/issues.jsonl` after the designated
-  migrator reconciles the schema.
+- Tracker state: the approved remote schema migration has been applied and
+  pushed, the live `RT-TC` hierarchy now exists, and `.beads/issues.jsonl` has
+  been exported. Use the issue-card file as the source text for future updates.
 
 ## Standalone MCP Track
 

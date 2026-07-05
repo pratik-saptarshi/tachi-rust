@@ -47,7 +47,7 @@ create surprise failures.
 | Security gates | `gitleaks.yml`, Dependabot-related docs, `scaffold_dependency_floors`, and workflow-version gates exist. | Missing first-class `cargo audit` / `cargo deny` policy; gitleaks currently needs fail-closed handling. |
 | Desktop dependency floor | Current `cargo tree -i glib` and `cargo tree -e features -i gtk` exit non-zero because no matching packages exist in the active workspace graph. | Preserve this as a wrapped absence proof; raw `cargo tree -i` is not a green gate when absence is expected. |
 | Local toolchain | `rustc --version` and `cargo --version` return Homebrew `1.96.0`, while rustup's active stable reports `rustc 1.95.0`. | Add path/toolchain proof before any CI or docs claim that the repo is running the pinned compiler. |
-| Beads | `bd ready --json` returns `[]`, but writes are blocked by remote schema migration guard. | Keep this as docs-first planning until tracker migration is reconciled. |
+| Beads | The approved remote schema migration has been applied and pushed. The live `RT-TC` hierarchy exists and `.beads/issues.jsonl` is exported. | Keep future tracker updates paired with `bd export -o .beads/issues.jsonl`. |
 
 ## Review Findings
 
