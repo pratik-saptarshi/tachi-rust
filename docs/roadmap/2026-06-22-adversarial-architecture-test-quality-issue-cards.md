@@ -102,7 +102,8 @@ Beads cards instead of reusing this completed set.
 - `Implementation owner`: `src-tauri`
 - `Stage label`: Phase 1
 - `Next test seam`: `src-tauri/tests/capability_boundary.rs`
-- `Notes`: Continue hardening runtime wiring without widening scope.
+- `Notes`: Closed with AQ-020 after the runtime wiring, adapter dependency,
+  capability, and typed dispatch evidence landed.
 
 ### AQ-022 - Typed control-plane argument policy
 

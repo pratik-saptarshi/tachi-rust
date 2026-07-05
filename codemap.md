@@ -151,6 +151,10 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   dispatch command, declares the standalone `tauri` / `tauri-build` adapter
   dependencies, wires `tauri::Builder` through `generate_handler!`, and keeps
   the least-privilege capability boundary test-backed.
+- AQ-020: closed. The Phase 1 desktop boundary now covers least-privilege
+  config/capabilities, typed argument policy, root-contained IO, bounded
+  process execution, and typed desktop errors through the closed AQ-021 through
+  AQ-025 task set.
 - RT-00i.5.1: `schemas/aisvs.yaml`, `schemas/taxonomy/aisvs.yaml`,
   `crates/tachi-shell/tests/tauri_bridge.rs`, and the public docs now ship
   the AISVS schema/catalog slice with bridge coverage for report-data,
