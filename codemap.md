@@ -155,6 +155,10 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   config/capabilities, typed argument policy, root-contained IO, bounded
   process execution, and typed desktop errors through the closed AQ-021 through
   AQ-025 task set.
+- Coverage gate: `crates/tachi-cli/tests/control_plane_cli.rs` now covers
+  `threats-sarif` and `risk-scores-sarif` invalid argument handling plus
+  optional SARIF metadata flags, keeping `make llvm-cov` above the 85% region
+  and line coverage release-quality floor.
 - RT-00i.5.1: `schemas/aisvs.yaml`, `schemas/taxonomy/aisvs.yaml`,
   `crates/tachi-shell/tests/tauri_bridge.rs`, and the public docs now ship
   the AISVS schema/catalog slice with bridge coverage for report-data,
