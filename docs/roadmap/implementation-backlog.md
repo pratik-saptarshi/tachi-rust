@@ -109,6 +109,24 @@
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 
+## Local Branch Reconciliation
+
+- `main` is synced with `origin/main` at `6c72a2a` after the planning status
+  reconciliation and archived-roadmap contract fix. Required GitHub Actions for
+  that commit are green.
+- One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on `main`.
+- `feat/tauri-minimal-features` is a stale pre-main desktop branch. Its
+  portable temp-root test changes and GTK-free desktop host work are already
+  represented on `main`; direct merge would reintroduce obsolete toolchain,
+  SARIF, MCP, and adapter state.
+- `feat/rt009-publish-gate-bom-readiness` is a stale publish-gate branch from
+  the earlier RT-009/RT-010 planning pass. Its useful publish/BOM/status
+  concerns have been superseded by the current BOM, publish checklist, RT-TC
+  closeout, and this backlog reconciliation; direct merge would rewind current
+  roadmaps and gates.
+- Do not blindly merge either stale branch. Delete or archive local stale
+  branches only with explicit operator approval.
+
 ## Canonical Sources
 
 - [Adversarial Architecture and Test Quality Roadmap](./2026-06-22-adversarial-architecture-test-quality-roadmap.html.md)
