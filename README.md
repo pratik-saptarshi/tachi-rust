@@ -673,7 +673,7 @@ make llvm-cov
 cargo clippy --all-targets -- -D warnings
 ```
 
-This runs the Rust test suite, the Rust-backed coverage audit, the LLVM coverage report with toolchain-local LLVM binaries, and Clippy warning gates. Publishing work should keep Rust coverage at or above the project floor documented in [`docs/standards/PUBLISHING_SECURITY.md`](docs/standards/PUBLISHING_SECURITY.md); as of 2026-06-24, `make llvm-cov` reports 85.33% line coverage, which clears the current 85% migration floor.
+This runs the Rust test suite, the Rust-backed coverage audit, the LLVM coverage report with toolchain-local LLVM binaries, and Clippy warning gates. Publishing work should keep Rust coverage at or above the project floor documented in [`docs/standards/PUBLISHING_SECURITY.md`](docs/standards/PUBLISHING_SECURITY.md); as of 2026-07-05, `make llvm-cov` reports 85.55% line coverage, which clears the current 85% migration floor.
 
 The legacy compatibility target remains available for archival migration use, but it is intentionally not listed as part of the Rust-native validation path above.
 

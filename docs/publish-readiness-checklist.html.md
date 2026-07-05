@@ -1,7 +1,7 @@
 # Publish Readiness Checklist
 
 **Status**: Active release gate
-**Last Updated**: 2026-06-26
+**Last Updated**: 2026-07-05
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
@@ -66,6 +66,13 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
 ## 4. Rust validation
 
 - [ ] `cargo test -q` passes.
+- [ ] `Cargo.toml` declares workspace `rust-version = "1.96"` and active
+      crates inherit it with `rust-version.workspace = true`.
+- [ ] `rust-toolchain.toml` pins the approved release toolchain and includes
+      `clippy`, `rustfmt`, and `llvm-tools-preview`.
+- [ ] Required Rust workflows install the checked-in toolchain policy and print
+      `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and
+      `rustup which rustc`.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
       `.github/workflows/rust-workspace.yml` PR gate is green.
 - [ ] Parser hardening regression tests pass, including delta-count normalization and panic-free status handling.
@@ -73,7 +80,7 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
       threat, risk, and infographic outputs.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      baseline; validated at 85.33% line coverage on 2026-06-24.
+      baseline; validated at 85.55% line coverage on 2026-07-05.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the
@@ -162,12 +169,16 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
 - [ ] `.github/workflows/gitleaks.yml` is green for the publish branch.
 - [ ] `.github/workflows/rust-workspace.yml` is green and is not
       path-filtered on pull requests.
+- [ ] `.github/workflows/rust-workspace.yml` consumes `rust-toolchain.toml`
+      instead of floating on `stable`.
 - [ ] `.github/workflows/rust-workspace.yml` completes within the runner window via its package-sized test matrix.
 - [ ] `.github/workflows/rust-workspace.yml` includes `tachi-mcp` in the
       package matrix and runs the MCP validation suite.
 - [ ] `.github/workflows/rust-clippy.yml` is green.
 - [ ] `.github/workflows/rust-clippy.yml` fails closed on warnings while still
       uploading SARIF with `if: always()`.
+- [ ] `.github/workflows/rust-clippy.yml` consumes `rust-toolchain.toml`
+      instead of overriding the repo pin with floating `stable`.
 - [ ] The latest main-push Actions run does not emit Node 20 deprecation warnings from the updated workflows.
 - [ ] `.github/workflows/release-please.yml` ignores docs-only and roadmap-only
       pushes and does not churn release-PR branches on main pushes.
