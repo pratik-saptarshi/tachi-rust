@@ -20,6 +20,7 @@ use tachi_shell::progress::ProgressReporter;
 struct RecordingReporter(Arc<Mutex<Vec<ProgressEvent>>>);
 
 static FIXTURE_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static SCRIPT_TEST_LOCK: Mutex<()> = Mutex::new(());
 
 impl ProgressReporter for RecordingReporter {
     fn emit(&mut self, event: ProgressEvent) {
@@ -57,6 +58,7 @@ fn registered_commands_match_shared_shell_registry() {
 
 #[test]
 fn desktop_host_methods_match_free_function_surface() {
+    let _guard = SCRIPT_TEST_LOCK.lock().expect("script test lock");
     let host = DesktopHost::new();
     assert_eq!(host.registered_commands(), registered_commands());
 
@@ -76,6 +78,7 @@ fn desktop_host_methods_match_free_function_surface() {
 
 #[test]
 fn owned_and_noop_dispatch_helpers_route_to_shared_surface() {
+    let _guard = SCRIPT_TEST_LOCK.lock().expect("script test lock");
     let root = fixture_repo();
     write_executable_file(
         &root.join("scripts/update.sh"),
@@ -99,6 +102,7 @@ fn owned_and_noop_dispatch_helpers_route_to_shared_surface() {
 
 #[test]
 fn desktop_host_progress_method_uses_supplied_reporter() {
+    let _guard = SCRIPT_TEST_LOCK.lock().expect("script test lock");
     let root = fixture_repo();
     write_executable_file(
         &root.join("scripts/update.sh"),
@@ -126,6 +130,7 @@ fn desktop_host_progress_method_uses_supplied_reporter() {
 
 #[test]
 fn dispatch_desktop_command_reuses_shared_bridge_for_bootstrap() {
+    let _guard = SCRIPT_TEST_LOCK.lock().expect("script test lock");
     let root = fixture_repo();
     write_executable_file(
         &root.join("scripts/update.sh"),
@@ -169,6 +174,7 @@ fn dispatch_desktop_command_routes_infographic_data_through_shared_shell_surface
 
 #[test]
 fn dispatch_desktop_command_with_progress_can_cancel_running_install_script() {
+    let _guard = SCRIPT_TEST_LOCK.lock().expect("script test lock");
     let root = fixture_repo();
     write_executable_file(
         &root.join("scripts/install.sh"),
