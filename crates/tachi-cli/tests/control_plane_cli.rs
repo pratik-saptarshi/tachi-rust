@@ -685,6 +685,54 @@ fn threats_sarif_binary_writes_sarif_file_and_marks_ag8_metadata() {
 }
 
 #[test]
+fn threats_sarif_binary_rejects_invalid_arguments_and_accepts_optional_metadata_flags() {
+    let help = Command::new(binary_path("threats-sarif"))
+        .arg("--help")
+        .output()
+        .expect("run threats-sarif help");
+    assert_eq!(help.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&help.stderr).contains("usage: threats-sarif"));
+
+    let missing_value = Command::new(binary_path("threats-sarif"))
+        .arg("--input")
+        .output()
+        .expect("run threats-sarif missing value");
+    assert_eq!(missing_value.status.code(), Some(2));
+    assert!(
+        String::from_utf8_lossy(&missing_value.stderr).contains("--input requires a path argument")
+    );
+
+    let unknown_arg = Command::new(binary_path("threats-sarif"))
+        .arg("--unknown")
+        .output()
+        .expect("run threats-sarif unknown arg");
+    assert_eq!(unknown_arg.status.code(), Some(2));
+    assert!(
+        String::from_utf8_lossy(&unknown_arg.stderr).contains("unrecognized argument: --unknown")
+    );
+
+    let repo_root = fixture_threats_sarif_repo();
+    let output_path = repo_root.join("generated/threats-with-metadata.sarif");
+    let output = Command::new(binary_path("threats-sarif"))
+        .args([
+            "--input",
+            repo_root.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            output_path.to_string_lossy().as_ref(),
+            "--baseline-run-id",
+            "baseline-1",
+            "--source-threats-uri",
+            "file://threats.md",
+        ])
+        .output()
+        .expect("run threats-sarif with optional metadata flags");
+
+    assert!(output.status.success());
+    assert!(output_path.exists());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("AG-8 present: true"));
+}
+
+#[test]
 fn risk_scores_sarif_binary_writes_sarif_file_and_marks_ag8_metadata() {
     let repo_root = fixture_risk_scores_sarif_repo();
     let output_path = repo_root.join("generated/risk-scores.sarif");
@@ -715,5 +763,61 @@ fn risk_scores_sarif_binary_writes_sarif_file_and_marks_ag8_metadata() {
     assert_eq!(result["properties"]["security-severity"], "8.8");
     assert_eq!(result["properties"]["score-source"], "inherited");
     assert_eq!(result["properties"]["asi07_emission"], true);
+    assert!(String::from_utf8_lossy(&output.stderr).contains("wrote 1 results"));
+}
+
+#[test]
+fn risk_scores_sarif_binary_rejects_invalid_arguments_and_accepts_optional_metadata_flags() {
+    let help = Command::new(binary_path("risk-scores-sarif"))
+        .arg("--help")
+        .output()
+        .expect("run risk-scores-sarif help");
+    assert_eq!(help.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&help.stderr).contains("usage: risk-scores-sarif"));
+
+    let missing_value = Command::new(binary_path("risk-scores-sarif"))
+        .arg("--risk-scores")
+        .output()
+        .expect("run risk-scores-sarif missing value");
+    assert_eq!(missing_value.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&missing_value.stderr)
+        .contains("--risk-scores requires a path argument"));
+
+    let missing_required = Command::new(binary_path("risk-scores-sarif"))
+        .args(["--risk-scores", "risk-scores.md"])
+        .output()
+        .expect("run risk-scores-sarif missing required arg");
+    assert_eq!(missing_required.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&missing_required.stderr).contains("--threats is required"));
+
+    let unknown_arg = Command::new(binary_path("risk-scores-sarif"))
+        .arg("--unknown")
+        .output()
+        .expect("run risk-scores-sarif unknown arg");
+    assert_eq!(unknown_arg.status.code(), Some(2));
+    assert!(
+        String::from_utf8_lossy(&unknown_arg.stderr).contains("unrecognized argument: --unknown")
+    );
+
+    let repo_root = fixture_risk_scores_sarif_repo();
+    let output_path = repo_root.join("generated/risk-scores-with-metadata.sarif");
+    let output = Command::new(binary_path("risk-scores-sarif"))
+        .args([
+            "--risk-scores",
+            repo_root.join("risk-scores.md").to_string_lossy().as_ref(),
+            "--threats",
+            repo_root.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            output_path.to_string_lossy().as_ref(),
+            "--baseline-run-id",
+            "baseline-1",
+            "--source-threats-uri",
+            "file://threats.md",
+        ])
+        .output()
+        .expect("run risk-scores-sarif with optional metadata flags");
+
+    assert!(output.status.success());
+    assert!(output_path.exists());
     assert!(String::from_utf8_lossy(&output.stderr).contains("wrote 1 results"));
 }
