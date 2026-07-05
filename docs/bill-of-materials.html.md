@@ -53,7 +53,7 @@ with the shipped release workflow before publication.
 
 | Path | Role | Publish status | Notes |
 |---|---|---|---|
-| `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; declares workspace Rust `1.96` MSRV; `src-tauri` is transitional-only. |
+| `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; declares workspace Rust `1.96` MSRV; explicitly excludes `src-tauri` as a standalone transitional adapter. |
 | `rust-toolchain.toml` | Pinned Rust toolchain policy | Publishable | Required Rust workflows install Rust `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview` from the checked-in policy. |
 | `deny.toml` | Cargo dependency policy | Publishable | Cargo-deny policy for advisories, bans, license allowlist, source allowlist, and exception metadata discipline. |
 | `README.md` | Public repository landing page | Publishable | Must stay aligned with the actual build, auditor workflow, and usage path. |
@@ -63,7 +63,7 @@ with the shipped release workflow before publication.
 | `docs/` | Public documentation | Publishable | Long-form docs, roadmap, standards, and review artifacts. |
 | `crates/` | Workspace library and binary crates | Publishable | Source of the Rust implementation. |
 | `crates/tachi-desktop/` | GTK-free desktop host boundary | Publishable | Active desktop host facade over the shared shell command surface without GTK/Wry transitive dependencies. |
-| `src-tauri/` | Transitional compatibility adapter | Publishable with review | Legacy Tauri layer kept only while parity is proven; not part of the GTK-free workspace host. |
+| `src-tauri/` | Transitional compatibility adapter | Publishable with review | Legacy Tauri layer kept only while parity is proven; excluded from the active workspace and validated through its own locked metadata/check lane. |
 | `.github/` | CI and release workflows | Publishable | Public automation surface. |
 | `.claude/` | Agent configuration and runtime rules | Publishable with review | Must avoid secrets and private credentials. |
 | `.aod/` | AOD support files | Publishable with review | Contains governance and hook logic; verify no private data. |
@@ -90,7 +90,7 @@ with the shipped release workflow before publication.
 | `crates/tachi-core/src/infographic/payload.rs` | Infographic payload boundary | Filesystem loading and payload orchestration stay separated from infographic parsing helpers. |
 | `crates/tachi-core/src/facade.rs` | Stable core facade | Downstream crates should import reporting and scoring helpers through root exports instead of module internals. |
 | `crates/tachi-desktop/` | Desktop host boundary | Registration-only host facade over the shared shell command surface, with no GTK/Wry dependency line. |
-| `src-tauri/` | Transitional compatibility shell | Legacy registration-only bridge retained out of workspace while parity is proven. |
+| `src-tauri/` | Transitional compatibility shell | Legacy registration-only bridge retained as an explicitly excluded standalone adapter with its own `Cargo.lock`. |
 | `schemas/` | Finding schemas and taxonomy catalogs | Schema compatibility, crosswalk stability, fixture coverage. |
 
 ### Transitional helper surface
@@ -148,6 +148,7 @@ with the shipped release workflow before publication.
 | `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate | Required non-path-filtered behavior gate for package matrix tests under the checked-in Rust toolchain. |
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |
+| `.github/workflows/tauri-adapter-compatibility.yml` | Transitional Tauri adapter compatibility lane | Manual/scheduled evidence lane for `src-tauri`; not a required PR or main-push gate while `crates/tachi-desktop` remains the active host. |
 | `.github/workflows/release-please.yml` | Release orchestration | Main-push release automation without release-PR branch churn; release gate now covers manifest and checksum parity. |
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |
 | `.github/workflows/tachi-mmdc-preflight.yml` | Mermaid preflight | Protects docs and renderable diagram outputs. |
@@ -186,6 +187,7 @@ The repository policy for these surfaces is:
 | Parser hardening regression | `cargo test -p tachi-core compute_delta_counts_trims_case_and_ignores_unknown_statuses -- --nocapture` | Must pass for panic-free delta counting and status normalization. |
 | Lint gate | `cargo clippy --all-targets -- -D warnings` and `.github/workflows/rust-clippy.yml` | No warnings allowed; SARIF upload remains `if: always()` but clippy status fails closed. |
 | Supply-chain gate | `cargo audit`, `cargo deny check advisories bans licenses sources`, `make supply-chain-gate`, and `.github/workflows/rust-supply-chain.yml` | RustSec advisories, dependency bans, license policy, and registry/source policy pass locally and in CI with pinned helper tools. |
+| Transitional adapter gate | `make tauri-adapter-check` and `.github/workflows/tauri-adapter-compatibility.yml` | `src-tauri` remains an explicitly excluded standalone adapter with its own lockfile and locked metadata/check proof; the active workspace release host is still `crates/tachi-desktop`. |
 | Coverage gate | `make llvm-cov` | Coverage remains above the repo floor; validated at 85.55% line coverage on 2026-07-05. |
 | Reporting goldens | `cargo test -p tachi-core --test reporting_goldens -- --nocapture` | Canonical report, threat, risk, coverage, and infographic outputs remain stable through semantic projections and compact snapshots. |
 | Advisory fuzz/mutation lane | `make fuzz-mutation-gate` and `.github/workflows/fuzz-mutation-audit.yml` | Commands stay documented, scheduled/manual runs remain non-blocking, and survivor reports stay offline-safe. |
@@ -228,6 +230,9 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `.github/workflows/gitleaks.yml` and `.github/workflows/rust-clippy.yml`
       upload SARIF with `if: always()` and fail closed after scanner,
       converter, formatter, or SARIF validation failures.
+- [ ] `src-tauri` is explicitly excluded from the root workspace, keeps its own
+      `Cargo.lock`, and passes `make tauri-adapter-check` when compatibility
+      evidence is required.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the active docs sweep roadmap, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
