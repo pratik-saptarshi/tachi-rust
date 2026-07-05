@@ -7,6 +7,9 @@
 
 Use this checklist before publishing to GitHub or cutting a release. The
 active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
+The transitional `src-tauri` adapter is explicitly excluded from the root
+workspace and validated through `make tauri-adapter-check` / the manual or
+scheduled adapter workflow, not through the required publish gate.
 
 ## 0. Canonical publish sequence
 
@@ -80,6 +83,9 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
       expiry, issue, and remediation metadata.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
       `.github/workflows/rust-workspace.yml` PR gate is green.
+- [ ] `src-tauri` remains listed in root `workspace.exclude`, has its own
+      `src-tauri/Cargo.lock`, and `make tauri-adapter-check` passes when the
+      transitional adapter compatibility surface is being changed.
 - [ ] Parser hardening regression tests pass, including delta-count normalization and panic-free status handling.
 - [ ] Reporting goldens pass with semantic projections for coverage, report,
       threat, risk, and infographic outputs.
@@ -186,6 +192,9 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
       instead of overriding the repo pin with floating `stable`.
 - [ ] `.github/workflows/rust-supply-chain.yml` is green and runs pinned
       `cargo-audit` and `cargo-deny` versions.
+- [ ] `.github/workflows/tauri-adapter-compatibility.yml` stays manual or
+      scheduled, uses the pinned repo toolchain, and is not a required
+      PR/main-push gate while `crates/tachi-desktop` is the active host.
 - [ ] `.github/workflows/gitleaks.yml` fails closed after SARIF upload when
       scanner execution or SARIF validation fails.
 - [ ] The latest main-push Actions run does not emit Node 20 deprecation warnings from the updated workflows.
@@ -201,7 +210,8 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
 - [ ] `src-tauri/tauri.conf.json` and `src-tauri/capabilities/main.json`
       remain least-privilege and do not grant filesystem or shell permissions
       without the corresponding AQ-022/AQ-023 policy tests. These files are
-      transitional only and are not part of the GTK-free workspace member set.
+      transitional only, explicitly excluded from the root workspace, and
+      validated through the standalone adapter lane.
 - [ ] The scaffold dependency-floor audit passes via `make scaffold-dependency-gate`
       and is included in `make publish-gate`.
 - [ ] Any release workflow required for the branch has succeeded or is queued

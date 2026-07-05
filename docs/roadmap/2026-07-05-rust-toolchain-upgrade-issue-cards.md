@@ -195,7 +195,9 @@ schema migration was run with explicit approval before tracker writes.
 - `Next test seam`: workflow matrix exclusion/member assertion
 - `Priority`: 1
 - `Notes`: Do not silently convert transitional compatibility into a required
-  release surface.
+  release surface. Implemented as an explicitly excluded standalone adapter
+  with its own lockfile, local `make tauri-adapter-check`, and a
+  manual/scheduled compatibility workflow.
 
 ## P2 Deferred ADR Boundary
 

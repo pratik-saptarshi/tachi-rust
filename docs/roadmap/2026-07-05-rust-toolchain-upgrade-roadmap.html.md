@@ -40,7 +40,7 @@ create surprise failures.
 | Area | Current state | Risk |
 |---|---|---|
 | Workspace | `Cargo.toml` members are `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `tachi-desktop`. | Active runtime path is Rust-native; toolchain changes hit every crate. |
-| Transitional Tauri | `src-tauri/Cargo.toml` is under the root tree but is not a workspace member. | Must fix membership/exclusion before making adapter validation a required gate. |
+| Transitional Tauri | `src-tauri/Cargo.toml` is explicitly excluded from the root workspace and retains its own lockfile. | Validate through `make tauri-adapter-check` and the manual/scheduled adapter workflow while `crates/tachi-desktop` remains the active host. |
 | Toolchain pin | No checked-in `rust-toolchain.toml`. | CI and local runs can diverge based on date and machine state. |
 | Package MSRV | Crates declare `edition = "2021"` and no `rust-version`. | Consumers cannot tell the supported compiler floor. |
 | CI | `rust-workspace.yml`, `rust-clippy.yml`, and `tachi-pytest.yml` use `dtolnay/rust-toolchain@stable` or otherwise install stable Rust. | Freshness is good, reproducibility is weaker; inventory every Rust workflow before claiming CI is pinned. |
@@ -434,7 +434,7 @@ make publish-gate
 | Raw GTK/glib absence commands exit non-zero when the dependency is absent. | P1 | Must-fix | Replaced raw `cargo tree -i` gates with `./scripts/assert-gtk-glib-absent.sh` wrapper/test requirement. |
 | Cargo lockfile and supply-chain gates need fail-closed behavior. | P1 | Must-fix | Added `--locked` metadata/test/clippy policy, pinned tool installs, audit/deny exception metadata, and no-op lockfile diff proof. |
 | Gitleaks and clippy SARIF upload paths can mask scanner/converter failures. | P1 | Must-fix | Added saved scanner exit-code flow, SARIF validation, pipeline status capture, and post-upload failure requirement. |
-| `src-tauri` metadata is currently an expected failure until workspace status is decided. | P1 | Must-fix | Marked Phase 0 metadata as expected failing proof and kept adapter gate blocked until member/exclude/retire decision lands. |
+| `src-tauri` metadata is currently an expected failure until workspace status is decided. | P1 | Fixed | Resolved `src-tauri` as an explicitly excluded standalone adapter with its own lockfile, local `make tauri-adapter-check`, and a manual/scheduled compatibility workflow. |
 | Workflow and golden tests are too order/text sensitive. | P1/P2 | Bundle | Added YAML/TOML parsing, workspace-member matrix comparison, keyed/sorted data assertions, and exact-golden limits. |
 | `taiki-e` tooling can reduce CI drift but needs pinned install proof. | P2 | Bundle | Added `cargo-hack`/`cargo-llvm-cov` pin/proof requirements and canary graduation criteria. |
 | `smol-rs` runtime crates expand blast radius for a compiler upgrade. | P2 | Defer | Deferred all `smol-rs` adoption to a separate async-runtime ADR. |

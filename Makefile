@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate release-gate fuzz-mutation-gate publish-gate
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate tauri-adapter-check release-gate fuzz-mutation-gate publish-gate
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -78,6 +78,10 @@ scaffold-dependency-gate: ## Validate scaffold dependency floors against known D
 supply-chain-gate: ## Run dependency advisory, license, ban, and source policy checks
 	@cargo audit
 	@cargo deny check advisories bans licenses sources
+
+tauri-adapter-check: ## Validate transitional Tauri adapter metadata and compile surface
+	@cargo metadata --manifest-path src-tauri/Cargo.toml --locked --format-version 1 >/dev/null
+	@cargo check --manifest-path src-tauri/Cargo.toml --locked
 
 release-gate: ## Validate active desktop host release readiness
 	@cargo test -p tachi-desktop --all-targets -- --nocapture
