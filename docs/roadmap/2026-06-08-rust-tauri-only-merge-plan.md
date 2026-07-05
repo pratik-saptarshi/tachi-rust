@@ -1,7 +1,7 @@
 # Rust/Tauri-Only Migration Merge Plan
 
 **Last Updated**: 2026-06-08
-**Status**: Merge-ready
+**Status**: archived historical merge plan
 **Scope**: translate the Rust/Tauri-only roadmap into a staged merge sequence
 
 ## Purpose

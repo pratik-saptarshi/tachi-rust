@@ -1,11 +1,13 @@
 # SARIF Open Issues Remediation Issue Cards
 
 **Last Updated**: 2026-06-27
-**Status**: Beads-ready execution blueprint for GitHub issues `#2` and `#6`
+**Status**: completed execution blueprint for closed Beads mirrors `RT-bu7`
+and `RT-0zv`
 **Source**: [SARIF Open Issues Remediation Roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
 
-These cards are TDD-first. Each card maps to a measurable closure condition for
-one remaining open GitHub issue and its Beads mirror.
+These cards were TDD-first execution templates. Each card mapped to a measurable
+closure condition for one SARIF GitHub issue and its Beads mirror. Future SARIF
+findings should open new Beads cards instead of reusing these closed templates.
 
 ## Card Format
 

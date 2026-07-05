@@ -46,7 +46,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Track | Current Direction |
 |---|---|
-| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `RT-TC-001` has landed the repository toolchain pin and workflow proof; `RT-TC-002` adds fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converts workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` adds pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` resolves `src-tauri` as an explicitly excluded standalone adapter with its own lockfile and manual/scheduled validation lane; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
+| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` resolved `src-tauri` as an explicitly excluded standalone adapter with its own lockfile and manual/scheduled validation lane; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
 | Codemap automation state | `.slim/codemap.json` is absent in this checkout. The root atlas is updated manually for this package, and no folder-level codemap files were invented. The codemap script path `~/.config/opencode/skills/codemap/scripts/codemap.mjs` exists on this machine, but codemap initialization/update was not run in this docs-first slice. |
 
 ## Rust Data And Control Flow
@@ -229,8 +229,9 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   release/documentation gate that keeps the MCP contract aligned with the
   canonical command registry. `crates/tachi-mcp` now carries the Stage 1
   transport/tool implementation plus request-id propagation, cancellation
-  handling, the policy allowlist seam, and the cleanup hook, and the next
-  tracked hardening slice is `MCP-001.3.3`.
+  handling, the policy allowlist seam, and the cleanup hook. The `MCP-001*`
+  Beads hierarchy is closed; future MCP work should open a new tracker
+  hierarchy.
 - AQ-042: `crates/tachi-core/src/infographic/maestro_templates.rs`
   now owns MAESTRO template assembly and a direct unit test, separating the
   layer-summary rendering from the parent infographic module.

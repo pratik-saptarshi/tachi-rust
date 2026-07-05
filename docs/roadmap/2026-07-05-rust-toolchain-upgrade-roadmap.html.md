@@ -3,26 +3,21 @@
 **Date**: 2026-07-05
 **Scope**: Rust, Cargo, rustup, workspace CI, dependency-security gates, and
 review brittleness for `tachi-rust`
-**Status**: active roadmap
+**Status**: completed; retained as the historical execution roadmap for the
+closed `RT-TC` Beads hierarchy
 
 ## Executive Summary
 
-Upgrade the repo to the current stable Rust toolchain deliberately, not by
-letting CI float silently. As of this plan, the official stable Rust release is
-`1.96.1` and the latest rustup release is `1.29.0`; the local machine has a
-toolchain-path split that must be fixed before implementation: unqualified
-`rustc`/`cargo` resolve to Homebrew `1.96.0`, while `rustup show
-active-toolchain` reports `stable-x86_64-apple-darwin` with active `rustc
-1.95.0`. The immediate target is therefore a point release plus path
-normalization, and it includes Cargo/libssh2 security fixes that should be
-treated as a supply-chain update, not a cosmetic compiler bump.
+The repo has been upgraded to the pinned Rust `1.96.1` toolchain deliberately,
+without letting required CI float silently. The `RT-TC` epic and `RT-TC-001`
+through `RT-TC-006` are closed in Beads. This document is retained as the
+historical execution plan and acceptance record for the toolchain pin,
+fail-closed supply-chain gates, semantic CI tests, advisory canaries,
+standalone `src-tauri` adapter boundary, and ADR-046 async-runtime deferral.
 
-The repo currently has no checked-in `rust-toolchain.toml`, `clippy.toml`,
-`rustfmt.toml`, `deny.toml`, or `audit.toml`. CI uses
-`dtolnay/rust-toolchain@stable`, which gives freshness but makes PR results
-time-dependent. This roadmap pins the repo policy, keeps scheduled latest-stable
-drift detection, and adds supply-chain proof so future Rust releases do not
-create surprise failures.
+Future compiler, supply-chain, or runtime-adoption work should open a new Beads
+hierarchy and keep `.beads/issues.jsonl`, the backlog snapshot, BOM, and publish
+checklist synchronized in the same change.
 
 ## Source Verification
 

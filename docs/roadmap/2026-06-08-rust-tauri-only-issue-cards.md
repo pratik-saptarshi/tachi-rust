@@ -4,12 +4,13 @@
 **Status**: archived execution backlog
 **Source**: [2026-06-08-rust-tauri-only-roadmap.md](./2026-06-08-rust-tauri-only-roadmap.md)
 
-This card set is retained for provenance only. The active Beads-ready issue set
-is [2026-06-15-rust-tauri-parity-issue-cards.md](./2026-06-15-rust-tauri-parity-issue-cards.md).
+This card set is retained for provenance only. The current planning hub is
+[implementation-backlog.md](./implementation-backlog.md).
 
 These cards are the task-sized execution slices for the roadmap in
 [implementation-backlog.md](./implementation-backlog.md). They are intentionally
-small, owner-aligned, and ready to copy into Beads.
+small and owner-aligned; do not copy them into Beads unless a new reconciliation
+pass explicitly reopens the historical scope.
 
 ## Card Format
 

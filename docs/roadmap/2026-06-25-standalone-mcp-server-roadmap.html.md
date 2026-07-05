@@ -3,21 +3,21 @@
 **Date**: 2026-06-25
 **Scope**: `tachi-rust` command surface, adapter contract, publish gates, and release posture
 **Execution model**: `$plan-review-integrator` style TDD, Beads issue graph, measured stage gates
-**Status**: active, multi-stage planning phase
+**Status**: completed; retained as the historical execution plan for the closed
+`MCP-001*` Beads hierarchy
 **Source context**: `docs/platform-compatibility.md`, `adapters/README.md`, `crates/tachi-shell/src/commands.rs`, `src-tauri/src/schema.rs`, `src-tauri/src/lib.rs`, `docs/standards/PUBLISHING_SECURITY.md`, `docs/bill-of-materials.html.md`, `docs/publish-readiness-checklist.html.md`
 
 ## Executive summary
 
-A Stage 1 MCP transport now exists in `crates/tachi-mcp`. The current core threat
-model logic and reporting contracts already exist and are adapter-agnostic in
-practice. The remaining gap is transport/runtime hardening: keep exposing those
-core commands as MCP tools without changing command semantics, output names, or
-artifact contracts while request-context policy and future transport support land.
+A standalone MCP transport now exists in `crates/tachi-mcp`, with the
+`MCP-001*` Beads hierarchy closed in the exported tracker snapshot. The current
+core threat model logic and reporting contracts are adapter-agnostic in practice.
 
-This roadmap converts the existing prompt-centric contract into a standalone MCP
-server by layering a protocol adapter and execution runtime on top of existing
-canonical command output contracts. Stage 1 has landed in code; Stage 2 and later
-stages remain the active sequencing targets.
+This roadmap records the completed conversion from the existing prompt-centric
+contract into a standalone MCP server by layering a protocol adapter and
+execution runtime on top of existing canonical command output contracts. Future
+MCP transport or runtime work should open a new issue hierarchy instead of
+reusing closed `MCP-001*` cards.
 
 ## Core capabilities to preserve
 

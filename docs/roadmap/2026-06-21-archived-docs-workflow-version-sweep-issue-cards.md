@@ -1,7 +1,7 @@
 # Archived Docs Workflow-Version Sweep Issue Cards
 
 **Last Updated**: 2026-06-21
-**Status**: Beads-ready execution backlog for the archived docs sweep roadmap
+**Status**: completed execution backlog for the archived docs sweep roadmap
 **Source**: [2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md](./2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md)
 
 These cards cover the docs-only cleanup of stale workflow-version mentions.

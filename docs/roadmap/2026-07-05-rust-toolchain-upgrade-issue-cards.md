@@ -1,12 +1,15 @@
 # Rust Toolchain Upgrade Issue Cards
 
 **Last Updated**: 2026-07-05
-**Status**: Beads-backed execution blueprint; live `RT-TC` hierarchy created
-after the approved remote schema migration.
+**Status**: completed Beads-backed execution blueprint; live `RT-TC` hierarchy
+created after the approved remote schema migration and now closed in the
+exported tracker snapshot.
 **Source**: [Rust Toolchain Upgrade Roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
 
-These cards are the source text for the live RT-TC Beads hierarchy. The remote
-schema migration was run with explicit approval before tracker writes.
+These cards were the source text for the live RT-TC Beads hierarchy. The remote
+schema migration was run with explicit approval before tracker writes, and
+future toolchain work should open a new hierarchy instead of reusing these
+closed cards.
 
 ## Card Format
 

@@ -11,12 +11,6 @@
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
-- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
-- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
-- [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
-- [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
-- [Standalone MCP server roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
-- [Standalone MCP server issue cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
 
 ## Current Status Snapshot
 
@@ -37,8 +31,12 @@
 - [Archived Docs Workflow-Version Inventory](./2026-06-21-archived-docs-workflow-version-inventory.md)
 - [Archived Docs Workflow-Version Sweep Roadmap](./2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md)
 - [Archived Docs Workflow-Version Sweep Issue Cards](./2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md)
+- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
+- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
 - [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
 - [Standalone MCP Server Issue Cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
+- [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
+- [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
 - [Rust/Tauri Migration Issue Pack](./2026-06-04-rust-tauri-issue-pack.md)
 - [Rust/Tauri Implementation Roadmap](./2026-06-08-rust-tauri-only-roadmap.md)
 - [Rust/Tauri Implementation Issue Cards](./2026-06-08-rust-tauri-only-issue-cards.md)
@@ -48,8 +46,6 @@
 - [AISVS Dependabot remediation issue cards](./2026-06-23-aisvs-dependabot-remediation-issue-cards.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
-- [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
-- [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
 - Epic: `RT-00i` AISVS framework and Dependabot remediation
 - Completed GitHub issue mirrors: `RT-bu7` / `gh-2` dynamic SARIF
   `baselineRunId`, `RT-0zv` / `gh-6` SARIF logical-location kind compliance
@@ -88,7 +84,8 @@
   toolchain or supply-chain gate directly unblocks them.
 - Tracker state: the approved remote schema migration has been applied and
   pushed, the live `RT-TC` hierarchy now exists, and `.beads/issues.jsonl` has
-  been exported. Use the issue-card file as the source text for future updates.
+  been exported. Future toolchain updates should open a new Beads hierarchy and
+  leave the closed RT-TC issue-card file as historical source text.
 
 ## Standalone MCP Track
 

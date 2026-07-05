@@ -3,24 +3,23 @@
 **Date**: 2026-06-27
 **Scope**: GitHub origin issues `#2` and `#6`, Beads mirrors `RT-bu7` and `RT-0zv`
 **Execution model**: `$plan-review-integrator` TDD refinement with Beads traceability
-**Status**: active plan, ready for implementation
+**Status**: completed; retained as the historical remediation plan for closed
+Beads mirrors `RT-bu7` and `RT-0zv`
 **Source context**: `crates/tachi-core/src/sarif_common.rs`, `crates/tachi-core/src/threats_sarif.rs`, `crates/tachi-core/src/risk_scores.rs`, `crates/tachi-core/tests/{risk_scores,threats_sarif,reporting_goldens}.rs`, GitHub issues `#2` and `#6`
 
 ## Executive Summary
 
 The GitHub issue sweep closed remediated issues `#3`, `#4`, `#5`, and `#7`.
-Two P1 SARIF contract issues remain open:
+The two P1 SARIF contract issues from this plan are now implemented and closed
+in Beads:
 
-- `#2` / `RT-bu7`: `baselineRunId` is now symmetric across threat and risk
-  SARIF outputs, but the value is still frozen in `sarif_common::baseline_run_id`.
-- `#6` / `RT-0zv`: `logicalLocation.kind` is now shared across threat and risk
-  SARIF outputs, but the shared mapping still emits `data-store`, which the
-  issue identifies as non-standard.
+- `#2` / `RT-bu7`: `baselineRunId` is now symmetric and generated from the
+  caller/input context instead of the old frozen value.
+- `#6` / `RT-0zv`: `logicalLocation.kind` now uses the shared SARIF-compatible
+  mapping across threat and risk SARIF outputs.
 
-This roadmap treats both as verified must-fix work because each affects SARIF
-consumer correlation semantics. The implementation should not widen the command
-surface unnecessarily and must preserve current CLI, shell, desktop, and MCP
-adapter behavior.
+This roadmap is no longer ready backlog. Future SARIF findings should open a
+new Beads hierarchy instead of reusing these closed tracker cards.
 
 ## Plan-Review Integration Summary
 
