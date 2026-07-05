@@ -118,7 +118,7 @@ with the shipped release workflow before publication.
 | `docs/roadmap/implementation-backlog.md` | Backlog navigation hub | Canonical link target for active implementation sequencing and public roadmap context. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md` | Active AISVS/security roadmap | Canonical sequencing for the live Dependabot alert, AISVS C01-C12 rollout, and TDD-backed validation gates. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md` | Active AISVS/security issue cards | Beads-ready execution templates for the RT-00i epic and its phase slices. |
-| `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md#phase-5-publish-readiness-and-release-gates` | Phase 5 publish-readiness slice | Tracks `RT-00i.6`, the docs and release-gate follow-up that keeps AISVS work publish-ready after each slice. |
+| `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md#phase-5-publish-readiness-and-release-gates` | Completed Phase 5 publish-readiness slice | Historical evidence for closed `RT-00i.6`, which synchronized the AISVS docs and release-gate follow-up. |
 | `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` | Archived MCP roadmap | Historical sequencing for the closed `MCP-001*` hierarchy, including scope boundaries, portability limits, and stage-gated acceptance criteria. |
 | `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` | Archived MCP issue cards | Completed execution templates for the closed MCP epic, features, capabilities, and task slices. |
 | `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md` | Archived AQ roadmap | Canonical architecture, SOLID, and test-quality remediation plan, now retained as a historical record. |
@@ -198,14 +198,14 @@ The repository policy for these surfaces is:
 | Scaffold dependency gate | `make scaffold-dependency-gate` | Next.js/Supabase scaffold dependency ranges exclude currently known vulnerable `next` and `vitest` floors. |
 | Docs gate | `README.md`, `docs/platform-compatibility.md`, `docs/guides/DEVELOPER_GUIDE_TACHI.md`, `SECURITY.md`, `CHANGELOG.md`, and public docs cross-links | Public docs match the shipped behavior and the disclosure policy. |
 | AISVS security gate | `cargo test -p tachi-core --test aisvs_registry`, `cargo test -p tachi-core --test aisvs_controls`, `cargo test -p tachi-core --test scaffold_dependency_floors`, `cargo clippy --workspace --all-features --all-targets -- -D warnings` | AISVS C01-C12 remain typed, test-backed, and fail-closed while the live `glib` advisory proof stays reproducible in Beads, the registry exposes stable per-control validation commands, and the desktop workspace stays on the GTK-free host path. |
-| AISVS publish-readiness follow-up | `RT-00i.6` | The Phase 5 docs/release-gate follow-up stays visible in the BOM and issue cards so publish-readiness work keeps pace with each control slice. |
+| AISVS publish-readiness evidence | `RT-00i.6` | Closed Phase 5 docs/release-gate evidence stays visible in the BOM and issue cards so future AISVS work opens a new tracker slice instead of reusing the closed follow-up. |
 | Docs/version sweep | `make docs-version-gate` + `make docs-archive-version-gate` | Maintained docs stay current; archived docs and examples retain only intentional historical references. |
 | Publish gate | `make publish-gate` | The release candidate passes the full local publish-readiness suite before remote publication. |
 | CI gate | GitHub Actions run status | Release, security, lint, and docs workflows are green. |
 | Remote monitor | `git push origin main --follow-tags` + `gh run watch` | Post-push CI is observed to completion before the release is considered published. |
 | Release-please gate | `release-please.yml` push filter | Docs-only publishes do not churn release refs and push runs avoid PR-branch churn. |
 | Workflow hardening | `rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows` | No legacy checkout, toolchain, SARIF, or set-output usage remains. |
-| MCP readiness gate | MCP roadmap, MCP issue cards, BOM, publish checklist, and MCP CI lane | MCP publish surfaces stay in sync with the canonical command contract, release checklist, request-context hardening, portability matrix, and CI evidence before promotion. |
+| MCP readiness evidence | Archived MCP roadmap, archived MCP issue cards, BOM, publish checklist, and MCP CI lane | Closed MCP publish surfaces remain synchronized with the canonical command contract, release checklist, request-context hardening, portability matrix, and CI evidence. Future MCP work should open a new tracker hierarchy before promotion. |
 | MCP CI lane | `.github/workflows/rust-workspace.yml` with `tachi-mcp` package matrix | Dedicated MCP package lane covers contract snapshot, schema snapshot, stdio transport, and tool registration regressions. |
 
 ## Exclusions
