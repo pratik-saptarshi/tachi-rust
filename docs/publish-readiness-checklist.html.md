@@ -96,6 +96,10 @@ scheduled adapter workflow, not through the required publish gate.
       threat, risk, and infographic outputs.
 - [ ] Workflow CI gates pass with YAML-parsed event/job/matrix/step assertions
       and workspace-derived package matrix checks.
+- [ ] ADR-046 remains the async-runtime boundary: no `smol-rs` runtime
+      dependency is added without a separate MCP or desktop feature, benchmarks,
+      cancellation/shutdown tests, compatibility evidence, dependency diff, and
+      rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
       baseline; validated at 85.55% line coverage on 2026-07-05.

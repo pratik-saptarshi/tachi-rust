@@ -32,7 +32,7 @@ create surprise failures.
 | Rust `1.96.1` fixes Cargo HTTP retry/timeout behavior, a MIR miscompilation, and three libssh2 CVEs in Cargo. | `https://blog.rust-lang.org/2026/06/30/Rust-1.96.1/` | Treat upgrade as P1 supply-chain/security work. |
 | Rust `1.96.0` included Cargo fixes for CVE-2026-5223 and CVE-2026-5222 for third-party registries. | `https://blog.rust-lang.org/2026/05/28/Rust-1.96.0/` | Add registry and lockfile review gates even if crates.io-only today. |
 | rustup `1.29.0` was published on 2026-03-12. | `https://blog.rust-lang.org/2026/03/12/Rustup-1.29.0/` | Local rustup is current; document self-update check instead of forcing a repo file change. |
-| `smol-rs` publishes async runtime primitives such as `smol`, `async-channel`, `blocking`, `async-io`, `polling`, and `async-task`. | `https://github.com/smol-rs` | Evaluate only if the MCP or desktop host adopts async IO; do not add runtime churn for the compiler upgrade. |
+| `smol-rs` publishes async runtime primitives such as `smol`, `async-channel`, `blocking`, `async-io`, `polling`, and `async-task`. | `https://github.com/smol-rs` | Deferred by [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md); evaluate only if a future MCP or desktop async-runtime feature supplies benchmarks plus cancellation and shutdown tests. |
 | `taiki-e` publishes Rust CI tools including `cargo-llvm-cov`, `cargo-hack`, `install-action`, `pin-project`, and `portable-atomic`. | `https://github.com/taiki-e` | Adopt `cargo-hack`/`cargo-llvm-cov` workflow patterns where they reduce feature or coverage drift. |
 
 ## Current Repo Baseline
@@ -184,9 +184,9 @@ on order. Otherwise:
 | `taiki-e/install-action` | Consider for installing cargo tools in CI. | Can reduce shell install drift for cargo-binstall-style tools, but adds a third-party action trust decision. | Use only with pinned version/SHA and least permissions; compare against `cargo install --locked`. |
 | `taiki-e/pin-project` | Defer. | Useful for custom `Future`/pin projection; no current evidence the upgrade needs it. | Re-evaluate only if async internals require manual pin projection. |
 | `taiki-e/portable-atomic` | Defer. | Useful for target portability, not a toolchain upgrade need today. | Re-evaluate if supporting weaker atomic targets becomes a release requirement. |
-| `smol-rs/smol` and runtime crates | Defer. | Runtime replacement or async introduction is outside the toolchain upgrade blast radius. | Evaluate only for MCP/desktop async IO work with benchmarks and cancellation/shutdown tests. |
-| `smol-rs/async-channel` | Defer. | Could be useful if command progress/events need async MPMC channels, but adopting runtime primitives during a toolchain upgrade expands blast radius. | Re-evaluate only in a separate async-runtime ADR with race/cancellation tests and no regression in CLI/Tauri command parity. |
-| `smol-rs/blocking` / `async-io` / `polling` | Defer. | Useful primitives, but adopting them during a compiler bump would confound failures. | Consider in a separate async-runtime ADR. |
+| `smol-rs/smol` and runtime crates | Defer under [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md). | Runtime replacement or async introduction is outside the toolchain upgrade blast radius. | Evaluate only for a concrete MCP/desktop async-runtime feature with benchmarks, cancellation tests, shutdown tests, compatibility evidence, dependency diff, and rollback plan. |
+| `smol-rs/async-channel` | Defer under [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md). | Could be useful if command progress/events need async MPMC channels, but adopting runtime primitives during a toolchain upgrade expands blast radius. | Re-evaluate only in a separate async-runtime ADR with race/cancellation tests and no regression in CLI/Tauri command parity. |
+| `smol-rs/blocking` / `async-io` / `polling` | Defer under [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md). | Useful primitives, but adopting them during a compiler bump would confound failures. | Consider only in a separate async-runtime ADR. |
 
 ## Phased Plan
 
@@ -442,7 +442,7 @@ make publish-gate
 | `src-tauri` metadata is currently an expected failure until workspace status is decided. | P1 | Fixed | Resolved `src-tauri` as an explicitly excluded standalone adapter with its own lockfile, local `make tauri-adapter-check`, and a manual/scheduled compatibility workflow. |
 | Workflow and golden tests are too order/text sensitive. | P1/P2 | Bundle | Added YAML/TOML parsing, workspace-member matrix comparison, keyed/sorted data assertions, and exact-golden limits. |
 | `taiki-e` tooling can reduce CI drift but needs pinned install proof. | P2 | Fixed | Added pinned manual/scheduled `cargo-hack 0.6.45` and `cargo-llvm-cov 0.8.7` canary lane, local proof targets, version evidence, and promotion guardrails. |
-| `smol-rs` runtime crates expand blast radius for a compiler upgrade. | P2 | Defer | Deferred all `smol-rs` adoption to a separate async-runtime ADR. |
+| `smol-rs` runtime crates expand blast radius for a compiler upgrade. | P2 | Fixed | Deferred all `smol-rs` adoption through [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md), which requires a future feature, benchmarks, cancellation/shutdown tests, compatibility evidence, dependency diff, and rollback plan. |
 
 ## Final Recommendation
 

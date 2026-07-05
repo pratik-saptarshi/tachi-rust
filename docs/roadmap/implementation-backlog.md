@@ -21,13 +21,13 @@
 ## Current Status Snapshot
 
 - In progress: `AQ-020`, `AQ-021`, `RT-00i`
-- Open: `RT-TC`, `RT-TC-006`
+- Open: none
 - Blocked: `RT-00i.2`, `RT-00i.5`
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
-  `DOC-*`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
-  `RT-TC-005`, and completed `AQ-*` / `RT-*` migration slices.
+  `DOC-*`, `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
+  `RT-TC-005`, `RT-TC-006`, and completed `AQ-*` / `RT-*` migration slices.
 
 ## Archive Records
 
@@ -66,7 +66,7 @@
 
 - [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
 - [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
-- Epic: `RT-TC` Rust toolchain modernization
+- Epic: `RT-TC` Rust toolchain modernization is closed.
 - Done: `RT-TC-001` pinned toolchain, Rust `1.96` MSRV metadata, and path
   proof; `RT-TC-002` fail-closed supply-chain gates.
 - Priority `0`: all currently materialized RT-TC P0 prerequisites are closed;
@@ -77,7 +77,11 @@
   manual/scheduled canaries; `RT-TC-005` resolved `src-tauri` as an explicitly
   excluded standalone adapter with its own lockfile and manual/scheduled
   compatibility lane.
-- Priority `2`: `RT-TC-006` deferred `smol-rs` async-runtime ADR boundary.
+- Priority `2`: `RT-TC-006` is implemented by
+  [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md),
+  which defers `smol-rs` runtime crates to a future MCP or desktop
+  async-runtime feature with benchmarks, cancellation/shutdown tests,
+  compatibility evidence, dependency diff, and rollback plan.
 - Sequencing: P0 security and CI reproducibility work may run before
   non-blocking MCP/runtime follow-ups when it improves release confidence, but
   it must not supersede active desktop security blockers except where the
@@ -101,9 +105,8 @@
 
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready --json` currently returns the open `RT-TC` hierarchy except for
-  closed `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`, and
-  `RT-TC-005`.
+- `bd ready --json` currently returns no ready RT-TC work; `RT-TC` and
+  `RT-TC-001` through `RT-TC-006` are closed in the exported tracker snapshot.
 - `bd list --json` includes active non-ready work: `AQ-020`, `AQ-021`,
   `RT-00i`, blocked `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
