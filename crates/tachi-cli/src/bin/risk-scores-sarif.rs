@@ -3,8 +3,16 @@ use std::process::ExitCode;
 
 use tachi_shell::commands::risk_scores_sarif_output;
 
+struct RiskScoresSarifArgs {
+    risk_scores: PathBuf,
+    threats: PathBuf,
+    output: PathBuf,
+    _baseline_run_id: Option<String>,
+    _source_threats_uri: Option<String>,
+}
+
 fn main() -> ExitCode {
-    let (risk_scores, threats, output, _baseline_run_id, _source_threats_uri) = match parse_args() {
+    let args = match parse_args() {
         Ok(values) => values,
         Err(message) => {
             eprintln!("{message}");
@@ -12,7 +20,7 @@ fn main() -> ExitCode {
         }
     };
 
-    let payload = match risk_scores_sarif_output(&risk_scores, &threats) {
+    let payload = match risk_scores_sarif_output(&args.risk_scores, &args.threats) {
         Ok(payload) => payload,
         Err(message) => {
             eprintln!("{message}");
@@ -20,13 +28,13 @@ fn main() -> ExitCode {
         }
     };
 
-    if let Some(parent) = output.parent() {
+    if let Some(parent) = args.output.parent() {
         if let Err(err) = std::fs::create_dir_all(parent) {
             eprintln!("failed to create output directory: {err}");
             return ExitCode::from(1);
         }
     }
-    if let Err(err) = std::fs::write(&output, payload.sarif.as_bytes()) {
+    if let Err(err) = std::fs::write(&args.output, payload.sarif.as_bytes()) {
         eprintln!("failed to write output file: {err}");
         return ExitCode::from(1);
     }
@@ -34,12 +42,12 @@ fn main() -> ExitCode {
     eprintln!(
         "OK: wrote {} results to {}",
         payload.results_count,
-        output.display()
+        args.output.display()
     );
     ExitCode::SUCCESS
 }
 
-fn parse_args() -> Result<(PathBuf, PathBuf, PathBuf, Option<String>, Option<String>), String> {
+fn parse_args() -> Result<RiskScoresSarifArgs, String> {
     let mut args = std::env::args().skip(1);
     let mut risk_scores = None;
     let mut threats = None;
@@ -93,5 +101,11 @@ fn parse_args() -> Result<(PathBuf, PathBuf, PathBuf, Option<String>, Option<Str
     let risk_scores = risk_scores.ok_or_else(|| String::from("--risk-scores is required"))?;
     let threats = threats.ok_or_else(|| String::from("--threats is required"))?;
     let output = output.ok_or_else(|| String::from("--output is required"))?;
-    Ok((risk_scores, threats, output, baseline_run_id, source_threats_uri))
+    Ok(RiskScoresSarifArgs {
+        risk_scores,
+        threats,
+        output,
+        _baseline_run_id: baseline_run_id,
+        _source_threats_uri: source_threats_uri,
+    })
 }

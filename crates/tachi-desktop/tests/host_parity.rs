@@ -38,6 +38,7 @@ fn fixture_repo() -> PathBuf {
     ));
 
     fs::create_dir_all(root.join("scripts")).expect("create fixture scripts");
+    fs::write(root.join("Cargo.toml"), "[workspace]\n").expect("write fixture workspace");
     root
 }
 
