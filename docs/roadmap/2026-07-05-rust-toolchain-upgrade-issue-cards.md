@@ -231,7 +231,12 @@ schema migration was run with explicit approval before tracker writes.
 - `Stage label`: P2 ADR boundary
 - `Next test seam`: none until a future async-runtime feature is opened
 - `Priority`: 2
-- `Notes`: This is a guardrail card, not an implementation dependency.
+- `Notes`: Implemented by
+  [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md).
+  This remains a guardrail card, not an implementation dependency; future
+  `smol-rs` evaluation requires a concrete feature, benchmarks,
+  cancellation/shutdown tests, compatibility evidence, dependency diff, and
+  rollback plan.
 
 ## Beads Creation Notes
 
