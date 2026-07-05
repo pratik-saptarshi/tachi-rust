@@ -131,27 +131,25 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] `SECURITY.md` matches the current private-reporting and privacy policy.
 - [ ] `CHANGELOG.md` is redaction-safe and reflects only releasable notes.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the archived AQ
-      roadmap, active AISVS/security roadmap, active docs sweep roadmap, and
-      archived provenance docs.
-- [ ] `docs/roadmap/implementation-backlog.md` also points at the active MCP
-      roadmap and MCP issue cards.
+      roadmap, active AISVS/security roadmap, closed docs-sweep/MCP/RT-TC
+      records, and archived provenance docs.
 - [ ] The AQ roadmap is archived at
       `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md`.
 - [ ] The active AISVS roadmap is
       `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads-ready issue set is
       `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
-- [ ] The active MCP roadmap is
-      `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md`.
-- [ ] The active MCP Beads-ready issue set is
+- [ ] The MCP roadmap and issue-card files are retained as historical records
+      for the closed `MCP-001*` hierarchy:
+      `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` and
       `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md`.
 - [ ] `RT-00i.6` is tracked as the publish-readiness follow-up for the
       AISVS roadmap and keeps the release-gate docs synchronized after each
       slice.
-- [ ] The active docs-sweep roadmap is
-      `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md`.
-- [ ] The active docs-sweep Beads-ready issue set is
-      `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md`.
+- [ ] The docs-sweep roadmap and issue-card files are retained as completed
+      historical records:
+      `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md`
+      and `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md`.
 - [ ] The archived roadmap docs are clearly marked historical only.
 - [ ] The roadmap and issue cards reflect the current phase sequencing, with
       closed AQ work retained as historical context.

@@ -119,17 +119,15 @@ with the shipped release workflow before publication.
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md` | Active AISVS/security roadmap | Canonical sequencing for the live Dependabot alert, AISVS C01-C12 rollout, and TDD-backed validation gates. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md` | Active AISVS/security issue cards | Beads-ready execution templates for the RT-00i epic and its phase slices. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md#phase-5-publish-readiness-and-release-gates` | Phase 5 publish-readiness slice | Tracks `RT-00i.6`, the docs and release-gate follow-up that keeps AISVS work publish-ready after each slice. |
-| `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` | Active MCP roadmap | Canonical sequencing for the standalone MCP track, including scope boundaries, portability limits, and stage-gated acceptance criteria. |
-| `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` | Active MCP issue cards | Beads-ready execution templates for the MCP epic, features, capabilities, and task slices. |
+| `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` | Archived MCP roadmap | Historical sequencing for the closed `MCP-001*` hierarchy, including scope boundaries, portability limits, and stage-gated acceptance criteria. |
+| `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` | Archived MCP issue cards | Completed execution templates for the closed MCP epic, features, capabilities, and task slices. |
 | `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md` | Archived AQ roadmap | Canonical architecture, SOLID, and test-quality remediation plan, now retained as a historical record. |
 | `docs/roadmap/2026-06-21-rust-tauri-parity-remediation-roadmap.html.md` | Archived parity roadmap | Historical Rust/Tauri parity rebaseline and supersession plan. |
 | `docs/roadmap/2026-06-21-rust-tauri-parity-issue-cards.md` | Archived parity execution cards | Historical Beads issue templates for the parity phases. |
-| `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md` | Active docs hygiene roadmap | Separate docs-only sweep for stale workflow-version references. |
-| `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md` | Active docs sweep cards | Copy-paste Beads issue templates for docs/version hygiene. |
+| `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md` | Archived docs hygiene roadmap | Completed docs-only sweep for stale workflow-version references. |
+| `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md` | Archived docs sweep cards | Completed Beads issue templates for docs/version hygiene. |
 | `docs/roadmap/2026-06-15-rust-tauri-parity-remediation-roadmap.html.md` | Archived parity roadmap | Historical snapshot of the earlier parity plan. |
 | `docs/roadmap/2026-06-15-rust-tauri-parity-issue-cards.md` | Archived parity cards | Historical Beads-ready backlog for the earlier parity track. |
-| `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` | Active MCP roadmap | MCP core-contract, transport, policy, docs, and portability-stage plan. |
-| `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` | Active MCP issue cards | Tracker-ready issue templates with explicit acceptance criteria and validation paths. |
 | `docs/roadmap/2026-06-04-rust-tauri-issue-pack.md` | Historical tracker-neutral pack | Archived provenance for the earlier migration plan. |
 | `docs/roadmap/2026-06-08-rust-tauri-only-roadmap.md` | Archived implementation roadmap | Historical planning snapshot, not active scope. |
 | `docs/roadmap/2026-06-08-rust-tauri-only-issue-cards.md` | Archived execution cards | Historical Beads-ready backlog from the superseded plan. |
@@ -240,11 +238,11 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `make feature-combination-canary` and `make coverage-tool-proof` pass
       serially before promoting feature/coverage canaries from advisory to
       required release gates.
-- [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the active docs sweep roadmap, and archived provenance docs.
+- [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
-- [ ] The active docs-sweep roadmap is `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md`.
-- [ ] The active docs-sweep Beads cards are `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md`.
+- [ ] The MCP issue hierarchy is closed; `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` and `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` are retained as historical source records.
+- [ ] The docs-sweep roadmap and issue cards are retained as completed historical records: `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md` and `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md`.
 - [ ] The live `glib` Dependabot alert proof is captured in `crates/tachi-core/tests/scaffold_dependency_floors.rs`, and `RT-00i.2` closes only when the GTK-free workspace no longer resolves `glib 0.18.5`.
 - [ ] Archived roadmap docs are clearly marked as historical only.
 - [ ] `make docs-version-gate` passes.
