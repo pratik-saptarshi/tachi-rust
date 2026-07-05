@@ -166,7 +166,11 @@ schema migration was run with explicit approval before tracker writes.
 - `Next test seam`: workflow gate test for pinned install/version evidence
 - `Priority`: 1
 - `Notes`: Prefer canary first; do not let tool installation churn block the
-  primary compiler pin slice.
+  primary compiler pin slice. Implemented as a manual/scheduled advisory lane
+  with pinned `cargo-hack 0.6.45`, pinned `cargo-llvm-cov 0.8.7`, local
+  Makefile proof targets with exact version checks, a post-`cargo-hack`
+  manifest diff guard before coverage, and no PR/main-push trigger until
+  signal/noise review.
 
 ### RT-TC-005 - Resolve src-tauri adapter status before enforcement
 

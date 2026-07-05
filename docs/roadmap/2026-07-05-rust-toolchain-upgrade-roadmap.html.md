@@ -179,8 +179,8 @@ on order. Otherwise:
 
 | Source | Decision | Rationale | Validation |
 |---|---|---|---|
-| `taiki-e/cargo-hack` | Adopt in CI canary, then PR gate if runtime is acceptable. | Directly reduces feature-combination brittleness and catches hidden default-feature assumptions. | Pin/prove `cargo-hack`, start with `cargo hack check --workspace --each-feature --no-dev-deps`, then graduate to bounded powerset; narrow excludes only with documented reasons. |
-| `taiki-e/cargo-llvm-cov` | Keep/adopt explicitly. | Repo already has `make llvm-cov`; using the established tool keeps coverage behavior standard. | Pin/provision `cargo-llvm-cov`, record `cargo llvm-cov --version`, verify `llvm-tools-preview`, and record exact command in `Makefile publish-gate`. |
+| `taiki-e/cargo-hack` | Adopted in manual/scheduled CI canary; PR gate promotion remains a later decision. | Directly reduces feature-combination brittleness and catches hidden default-feature assumptions. | Pins `cargo-hack 0.6.45`, prints version proof, and runs `cargo hack check --workspace --each-feature --no-dev-deps`; bounded powerset promotion remains deferred until exclusions have owner/expiry/reason metadata. |
+| `taiki-e/cargo-llvm-cov` | Adopted explicitly in manual/scheduled CI canary and local proof target. | Repo already has `make llvm-cov`; using the established tool keeps coverage behavior standard. | Pins `cargo-llvm-cov 0.8.7`, records `cargo llvm-cov --version`, and uses `scripts/llvm-cov.sh` to verify active-toolchain LLVM tools. |
 | `taiki-e/install-action` | Consider for installing cargo tools in CI. | Can reduce shell install drift for cargo-binstall-style tools, but adds a third-party action trust decision. | Use only with pinned version/SHA and least permissions; compare against `cargo install --locked`. |
 | `taiki-e/pin-project` | Defer. | Useful for custom `Future`/pin projection; no current evidence the upgrade needs it. | Re-evaluate only if async internals require manual pin projection. |
 | `taiki-e/portable-atomic` | Defer. | Useful for target portability, not a toolchain upgrade need today. | Re-evaluate if supporting weaker atomic targets becomes a release requirement. |
@@ -436,7 +436,7 @@ make publish-gate
 | Gitleaks and clippy SARIF upload paths can mask scanner/converter failures. | P1 | Must-fix | Added saved scanner exit-code flow, SARIF validation, pipeline status capture, and post-upload failure requirement. |
 | `src-tauri` metadata is currently an expected failure until workspace status is decided. | P1 | Fixed | Resolved `src-tauri` as an explicitly excluded standalone adapter with its own lockfile, local `make tauri-adapter-check`, and a manual/scheduled compatibility workflow. |
 | Workflow and golden tests are too order/text sensitive. | P1/P2 | Bundle | Added YAML/TOML parsing, workspace-member matrix comparison, keyed/sorted data assertions, and exact-golden limits. |
-| `taiki-e` tooling can reduce CI drift but needs pinned install proof. | P2 | Bundle | Added `cargo-hack`/`cargo-llvm-cov` pin/proof requirements and canary graduation criteria. |
+| `taiki-e` tooling can reduce CI drift but needs pinned install proof. | P2 | Fixed | Added pinned manual/scheduled `cargo-hack 0.6.45` and `cargo-llvm-cov 0.8.7` canary lane, local proof targets, version evidence, and promotion guardrails. |
 | `smol-rs` runtime crates expand blast radius for a compiler upgrade. | P2 | Defer | Deferred all `smol-rs` adoption to a separate async-runtime ADR. |
 
 ## Final Recommendation
