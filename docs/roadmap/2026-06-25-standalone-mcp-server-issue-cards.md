@@ -1,10 +1,12 @@
 # Standalone MCP Server Issue Cards
 
 **Last Updated**: 2026-06-25
-**Status**: active execution blueprint for Beads
+**Status**: completed execution blueprint for the closed `MCP-001*` Beads
+hierarchy
 
-These cards are TDD-first and include explicit, measurable acceptance criteria.
-Every card maps directly to a Beads issue ID.
+These cards were TDD-first and include explicit, measurable acceptance criteria.
+Every card mapped directly to a Beads issue ID. Future MCP work should open a
+new hierarchy instead of reusing these closed cards.
 
 ### Stage 0 - Scope boundary (MCP transport-safe surface)
 

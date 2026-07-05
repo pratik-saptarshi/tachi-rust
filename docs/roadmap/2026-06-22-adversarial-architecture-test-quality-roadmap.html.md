@@ -187,4 +187,4 @@ Revalidation note: AQ-F01, AQ-F02, and AQ-F05 were checked against the current w
 - AQ-001: epic, Architecture and test quality maturity program.
 - AQ-010/AQ-020/AQ-030/AQ-040/AQ-050: phase capabilities.
 - AQ-011..AQ-055: executable TDD tasks with dependency edges and acceptance criteria.
-- Beads-ready issue cards: [2026-06-22-adversarial-architecture-test-quality-issue-cards.md](./2026-06-22-adversarial-architecture-test-quality-issue-cards.md).
+- Completed issue cards: [2026-06-22-adversarial-architecture-test-quality-issue-cards.md](./2026-06-22-adversarial-architecture-test-quality-issue-cards.md).

@@ -1,12 +1,13 @@
 # Adversarial Architecture and Test Quality Issue Cards
 
 **Last Updated**: 2026-06-22
-**Status**: Beads-ready execution slices for the 2026-06-22 roadmap
+**Status**: completed historical execution slices for the 2026-06-22 roadmap
 **Source**: [2026-06-22-adversarial-architecture-test-quality-roadmap.html.md](./2026-06-22-adversarial-architecture-test-quality-roadmap.html.md)
 
-These cards are copy-paste-ready Beads issues. Every card is TDD-first:
+These cards were copy-paste-ready Beads issues. Every card was TDD-first:
 write or preserve the failing test/gate proof, then implement the smallest
-slice that makes it pass.
+slice that makes it pass. Future architecture/test-quality work should open new
+Beads cards instead of reusing this completed set.
 
 ## Card Format
 
