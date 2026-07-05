@@ -14,14 +14,15 @@
 
 ## Current Status Snapshot
 
-- In progress: `AQ-020`, `AQ-021`, `RT-00i`
+- In progress: `AQ-020`, `RT-00i`
 - Open: none
 - Blocked: `RT-00i.2`, `RT-00i.5`
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
   `DOC-*`, `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
-  `RT-TC-005`, `RT-TC-006`, and completed `AQ-*` / `RT-*` migration slices.
+  `RT-TC-005`, `RT-TC-006`, `AQ-021`, and completed `AQ-*` / `RT-*`
+  migration slices.
 
 ## Archive Records
 
@@ -104,8 +105,8 @@
   authoritative for scope and acceptance criteria.
 - `bd ready --json` currently returns no ready work; `RT-TC` and `RT-TC-001`
   through `RT-TC-006` are closed in the exported tracker snapshot.
-- `bd list --json` includes active non-ready work: `AQ-020`, `AQ-021`,
-  `RT-00i`, blocked `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
+- `bd list --json` includes active non-ready work: `AQ-020`, `RT-00i`,
+  blocked `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 
