@@ -14,82 +14,92 @@ fn workflow_text(name: &str) -> String {
         .unwrap_or_else(|err| panic!("read workflow {name}: {err}"))
 }
 
+fn parse_workflow(name: &str, text: &str) -> serde_yaml::Value {
+    serde_yaml::from_str(text).unwrap_or_else(|err| panic!("parse workflow {name}: {err}"))
+}
+
 #[test]
 fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     let text = workflow_text("rust-workspace.yml");
+    let workflow = parse_workflow("rust-workspace.yml", &text);
+    let active_packages = workspace_member_packages();
 
     assert_workflow_uses_pinned_repo_toolchain("rust-workspace.yml", &text);
     assert!(
-        workflow_declares_unfiltered_event(&text, "pull_request"),
+        workflow_declares_unfiltered_event(&workflow, "pull_request"),
         "rust-workspace workflow must run on unfiltered pull_request events"
     );
-    assert!(
-        text.contains("name: cargo test -p ${{ matrix.package }} --all-targets"),
+    assert_eq!(
+        workflow_job_name(&workflow, "cargo-test"),
+        Some("cargo test -p ${{ matrix.package }} --all-targets"),
         "cargo-test job must use a package matrix"
     );
-    for package in [
-        "tachi-core",
-        "tachi-mcp",
-        "tachi-shell",
-        "tachi-cli",
-        "tachi-desktop",
-    ] {
-        assert!(
-            text.contains(&format!("- package: {package}")),
-            "cargo-test job must include {package} in the matrix"
-        );
-    }
-    assert!(
-        text.contains("cargo test -p ${{ matrix.package }} --all-targets"),
-        "cargo-test job must run package-scoped cargo test --all-targets"
+    assert_eq!(
+        workflow_matrix_values(&workflow, "cargo-test", "package"),
+        active_packages,
+        "cargo-test matrix must derive from active root workspace packages"
     );
-    assert!(
-        text.contains("name: cargo test -p tachi-shell (${{ matrix.suite }})"),
+    assert_job_has_run_command(
+        &workflow,
+        "cargo-test",
+        "cargo test -p ${{ matrix.package }} --all-targets",
+    );
+    assert_eq!(
+        workflow_job_name(&workflow, "shell-tests"),
+        Some("cargo test -p tachi-shell (${{ matrix.suite }})"),
         "shell tests must run in a dedicated split matrix"
     );
-    for suite in ["shell-smoke", "shell-init", "shell-integration"] {
-        assert!(
-            text.contains(&format!("suite: {suite}")),
-            "shell test matrix must include {suite}"
-        );
-    }
-    for command in [
-        "cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane",
-        "cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary",
-        "cargo test -p tachi-shell --test tauri_bridge --test template_config_load --test template_git_clone_timeout",
-    ] {
-        assert!(
-            text.contains(command),
-            "shell test matrix must run {command}"
-        );
-    }
-    assert!(
-        text.contains("sudo apt-get install -y ripgrep pkg-config"),
-        "cargo-test job must install the lightweight tools required by the GTK-free workspace"
+    assert_eq!(
+        workflow_matrix_values(&workflow, "shell-tests", "suite"),
+        vec![
+            String::from("shell-init"),
+            String::from("shell-integration"),
+            String::from("shell-smoke"),
+        ],
+        "shell test matrix must include the semantic suite set"
+    );
+    assert_eq!(
+        workflow_matrix_values(&workflow, "shell-tests", "command"),
+        vec![
+            String::from("cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane"),
+            String::from("cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary"),
+            String::from("cargo test -p tachi-shell --test tauri_bridge --test template_config_load --test template_git_clone_timeout"),
+        ],
+        "shell test matrix commands must match the required semantic slices"
+    );
+    assert_job_has_run_command(
+        &workflow,
+        "cargo-test",
+        "sudo apt-get install -y ripgrep pkg-config",
     );
 }
 
 #[test]
 fn clippy_sarif_workflow_fails_closed_without_losing_upload() {
     let text = workflow_text("rust-clippy.yml");
+    let workflow = parse_workflow("rust-clippy.yml", &text);
 
     assert_workflow_uses_pinned_repo_toolchain("rust-clippy.yml", &text);
     assert!(
-        !text.contains("continue-on-error: true"),
+        !workflow_has_continue_on_error(&workflow),
         "clippy workflow must not mask lint failures with continue-on-error"
     );
     assert!(
-        text.contains("-- -D warnings"),
+        workflow_run_bodies(&workflow).any(|run| run.contains("-- -D warnings")),
         "clippy workflow must deny warnings"
     );
     assert!(
-        workflow_step_has_line(&text, "Upload analysis results to GitHub", "if: always()"),
+        workflow_step_field(&workflow, "Upload analysis results to GitHub", "if")
+            == Some("always()"),
         "clippy SARIF upload step must still run after clippy failures"
     );
-    assert!(
-        text.contains("cargo install --locked --version 0.8.0 clippy-sarif")
-            && text.contains("cargo install --locked --version 0.8.0 sarif-fmt"),
-        "clippy SARIF helper tools must be version-pinned"
+    assert_workflow_has_run_line(
+        &workflow,
+        "cargo install --locked --version 0.8.0 clippy-sarif",
+    );
+    assert_workflow_has_run_line(
+        &workflow,
+        "cargo install --locked --version 0.8.0 sarif-fmt",
     );
     for status in [
         "PIPE_STATUSES=(\"${PIPESTATUS[@]}\")",
@@ -98,17 +108,20 @@ fn clippy_sarif_workflow_fails_closed_without_losing_upload() {
         "FORMATTER_STATUS=${PIPE_STATUSES[3]}",
         "SARIF_STATUS=$?",
     ] {
-        assert!(
-            text.contains(status),
-            "clippy workflow must capture {status}"
-        );
+        assert_workflow_has_run_line(&workflow, status);
     }
     assert!(
-        text.contains("jq -e '.version == \"2.1.0\" and (.runs | type == \"array\")' rust-clippy-results.sarif"),
+        workflow_run_bodies(&workflow).any(|run| {
+            run.contains("jq -e '.version == \"2.1.0\" and (.runs | type == \"array\")' rust-clippy-results.sarif")
+        }),
         "clippy workflow must structurally validate SARIF before upload"
     );
     assert!(
-        text.contains("for status in CLIPPY_STATUS CONVERTER_STATUS FORMATTER_STATUS SARIF_STATUS"),
+        workflow_run_bodies(&workflow).any(|run| {
+            run.contains(
+                "for status in CLIPPY_STATUS CONVERTER_STATUS FORMATTER_STATUS SARIF_STATUS",
+            )
+        }),
         "clippy workflow must re-emit captured pipeline statuses after SARIF upload"
     );
 }
@@ -116,17 +129,15 @@ fn clippy_sarif_workflow_fails_closed_without_losing_upload() {
 #[test]
 fn gitleaks_workflow_uploads_sarif_but_fails_closed() {
     let text = workflow_text("gitleaks.yml");
+    let workflow = parse_workflow("gitleaks.yml", &text);
 
     assert!(
-        !text.contains("continue-on-error: true"),
+        !workflow_has_continue_on_error(&workflow),
         "gitleaks workflow must not mask scanner failures with continue-on-error"
     );
     assert!(
-        workflow_step_has_line(
-            &text,
-            "Upload SARIF to GitHub Code Scanning",
-            "if: always()"
-        ),
+        workflow_step_field(&workflow, "Upload SARIF to GitHub Code Scanning", "if")
+            == Some("always()"),
         "gitleaks SARIF upload step must still run after scanner failures"
     );
     for status in [
@@ -134,15 +145,14 @@ fn gitleaks_workflow_uploads_sarif_but_fails_closed() {
         "GITLEAKS_SARIF_STATUS=$?",
         "exit \"$GITLEAKS_STATUS\"",
     ] {
-        assert!(
-            text.contains(status),
-            "gitleaks workflow must capture and re-emit {status}"
-        );
+        assert_workflow_has_run_line(&workflow, status);
     }
     assert!(
-        text.contains(
-            "jq -e '.version == \"2.1.0\" and (.runs | type == \"array\")' gitleaks.sarif"
-        ),
+        workflow_run_bodies(&workflow).any(|run| {
+            run.contains(
+                "jq -e '.version == \"2.1.0\" and (.runs | type == \"array\")' gitleaks.sarif",
+            )
+        }),
         "gitleaks workflow must structurally validate SARIF before upload"
     );
 }
@@ -151,7 +161,8 @@ fn gitleaks_workflow_uploads_sarif_but_fails_closed() {
 fn publish_gate_runs_supply_chain_policy_checks() {
     let text = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
     let deny_config = fs::read_to_string(repo_root().join("deny.toml")).expect("read deny.toml");
-    let workflow = workflow_text("rust-supply-chain.yml");
+    let workflow_text = workflow_text("rust-supply-chain.yml");
+    let workflow = parse_workflow("rust-supply-chain.yml", &workflow_text);
 
     assert!(
         text.contains("supply-chain-gate:"),
@@ -167,17 +178,14 @@ fn publish_gate_runs_supply_chain_policy_checks() {
             "publish gate must include {command}"
         );
     }
-    assert_workflow_uses_pinned_repo_toolchain("rust-supply-chain.yml", &workflow);
+    assert_workflow_uses_pinned_repo_toolchain("rust-supply-chain.yml", &workflow_text);
     for command in [
         "cargo install --locked --version 0.22.2 cargo-audit",
         "cargo install --locked --version 0.19.9 cargo-deny",
         "cargo audit",
         "cargo deny check advisories bans licenses sources",
     ] {
-        assert!(
-            workflow.contains(command),
-            "supply-chain workflow must include {command}"
-        );
+        assert_workflow_has_run_line(&workflow, command);
     }
     assert!(deny_config.contains("multiple-versions = \"deny\""));
     assert!(deny_config.contains("wildcards = \"allow\""));
@@ -294,14 +302,17 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
         install_index < proof_index && proof_index < feature_index && feature_index < coverage_index,
         "feature/coverage canary workflow must install, prove, run cargo-hack, then run coverage serially"
     );
-    for trigger in ["workflow_dispatch:", "schedule:"] {
-        assert!(
-            workflow.contains(trigger),
-            "feature/coverage canary workflow must include {trigger}"
-        );
-    }
     assert!(
-        !workflow.contains("pull_request:") && !workflow.contains("push:"),
+        workflow_declares_event(&workflow_yaml, "workflow_dispatch"),
+        "feature/coverage canary workflow must include workflow_dispatch"
+    );
+    assert!(
+        workflow_declares_event(&workflow_yaml, "schedule"),
+        "feature/coverage canary workflow must include schedule"
+    );
+    assert!(
+        !workflow_declares_event(&workflow_yaml, "pull_request")
+            && !workflow_declares_event(&workflow_yaml, "push"),
         "feature/coverage canary must not be a required PR/main-push gate yet"
     );
     for command in [
@@ -315,10 +326,7 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
         "git diff --exit-code -- Cargo.toml 'crates/*/Cargo.toml'",
         "./scripts/llvm-cov.sh --workspace --summary-only --fail-under-lines 85 --ignore-filename-regex 'target/|tests/'",
     ] {
-        assert!(
-            workflow.contains(command),
-            "feature/coverage canary workflow must include {command}"
-        );
+        assert_workflow_has_run_line(&workflow_yaml, command);
     }
     for command in [
         "feature-combination-canary:",
@@ -373,6 +381,20 @@ fn workspace_members_section(manifest: &str) -> &str {
         .map(|offset| start + offset + 1)
         .expect("workspace members close");
     &manifest[start..end]
+}
+
+fn workspace_member_packages() -> Vec<String> {
+    let manifest =
+        fs::read_to_string(repo_root().join("Cargo.toml")).expect("read workspace Cargo.toml");
+    let mut packages = workspace_members_section(&manifest)
+        .lines()
+        .filter_map(|line| {
+            let member = line.trim().trim_end_matches(',').trim_matches('"');
+            member.strip_prefix("crates/").map(String::from)
+        })
+        .collect::<Vec<_>>();
+    packages.sort();
+    packages
 }
 
 fn assert_license_exceptions_require_metadata(deny_config: &str) {
@@ -493,8 +515,7 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
         !text.contains("toolchain: stable"),
         "{name} must not override the repo pin with floating stable"
     );
-    let workflow: serde_yaml::Value =
-        serde_yaml::from_str(text).unwrap_or_else(|err| panic!("parse workflow {name}: {err}"));
+    let workflow = parse_workflow(name, text);
     let jobs = workflow
         .get("jobs")
         .and_then(serde_yaml::Value::as_mapping)
@@ -542,6 +563,100 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
     }
 }
 
+fn workflow_job<'a>(workflow: &'a serde_yaml::Value, job_name: &str) -> &'a serde_yaml::Value {
+    workflow
+        .get("jobs")
+        .and_then(|jobs| jobs.get(job_name))
+        .unwrap_or_else(|| panic!("workflow must define job {job_name}"))
+}
+
+fn workflow_job_name<'a>(workflow: &'a serde_yaml::Value, job_name: &str) -> Option<&'a str> {
+    workflow_job(workflow, job_name)
+        .get("name")
+        .and_then(serde_yaml::Value::as_str)
+}
+
+fn workflow_matrix_values(
+    workflow: &serde_yaml::Value,
+    job_name: &str,
+    matrix_key: &str,
+) -> Vec<String> {
+    let mut values = workflow_job(workflow, job_name)
+        .get("strategy")
+        .and_then(|strategy| strategy.get("matrix"))
+        .and_then(|matrix| matrix.get("include"))
+        .and_then(serde_yaml::Value::as_sequence)
+        .unwrap_or_else(|| panic!("{job_name} must define matrix.include"))
+        .iter()
+        .filter_map(|entry| entry.get(matrix_key))
+        .filter_map(serde_yaml::Value::as_str)
+        .map(String::from)
+        .collect::<Vec<_>>();
+    values.sort();
+    values
+}
+
+fn workflow_job_steps<'a>(
+    workflow: &'a serde_yaml::Value,
+    job_name: &str,
+) -> &'a [serde_yaml::Value] {
+    workflow_job(workflow, job_name)
+        .get("steps")
+        .and_then(serde_yaml::Value::as_sequence)
+        .map(Vec::as_slice)
+        .unwrap_or_else(|| panic!("{job_name} must define steps"))
+}
+
+fn assert_job_has_run_command(workflow: &serde_yaml::Value, job_name: &str, command: &str) {
+    assert!(
+        workflow_job_steps(workflow, job_name).iter().any(|step| {
+            workflow_step_run(step)
+                .is_some_and(|run| run.lines().any(|line| line.trim() == command))
+        }),
+        "{job_name} must run {command}"
+    );
+}
+
+fn workflow_run_bodies(workflow: &serde_yaml::Value) -> impl Iterator<Item = &str> {
+    workflow
+        .get("jobs")
+        .and_then(serde_yaml::Value::as_mapping)
+        .into_iter()
+        .flat_map(|jobs| jobs.values())
+        .filter_map(|job| job.get("steps"))
+        .filter_map(serde_yaml::Value::as_sequence)
+        .flat_map(|steps| steps.iter())
+        .filter_map(workflow_step_run)
+}
+
+fn assert_workflow_has_run_line(workflow: &serde_yaml::Value, command: &str) {
+    assert!(
+        workflow_run_bodies(workflow).any(|run| run.lines().any(|line| line.trim() == command)),
+        "workflow must run {command}"
+    );
+}
+
+fn workflow_has_continue_on_error(workflow: &serde_yaml::Value) -> bool {
+    let jobs = workflow.get("jobs").and_then(serde_yaml::Value::as_mapping);
+    let job_level = jobs.into_iter().flat_map(|jobs| jobs.values()).any(|job| {
+        job.get("continue-on-error")
+            .and_then(serde_yaml::Value::as_bool)
+            == Some(true)
+    });
+    let step_level = jobs
+        .into_iter()
+        .flat_map(|jobs| jobs.values())
+        .filter_map(|job| job.get("steps"))
+        .filter_map(serde_yaml::Value::as_sequence)
+        .flat_map(|steps| steps.iter())
+        .any(|step| {
+            step.get("continue-on-error")
+                .and_then(serde_yaml::Value::as_bool)
+                == Some(true)
+        });
+    job_level || step_level
+}
+
 fn workflow_step_index(steps: &[serde_yaml::Value], step_name: &str) -> Option<usize> {
     steps.iter().position(|step| {
         step.get("name")
@@ -554,55 +669,40 @@ fn workflow_step_run(step: &serde_yaml::Value) -> Option<&str> {
     step.get("run").and_then(serde_yaml::Value::as_str)
 }
 
-fn workflow_declares_unfiltered_event(text: &str, event: &str) -> bool {
-    let lines = text.lines().collect::<Vec<_>>();
-    let Some(event_index) = lines
-        .iter()
-        .position(|line| line.trim() == format!("{event}:"))
-    else {
-        return false;
-    };
-
-    let event_indent = indentation(lines[event_index]);
-
-    for line in lines.iter().skip(event_index + 1) {
-        let trimmed = line.trim();
-        if trimmed.is_empty() || trimmed.starts_with('#') {
-            continue;
+fn workflow_declares_unfiltered_event(workflow: &serde_yaml::Value, event: &str) -> bool {
+    match workflow.get("on").and_then(|events| events.get(event)) {
+        Some(serde_yaml::Value::Null) => true,
+        Some(serde_yaml::Value::Mapping(config)) => {
+            !config.contains_key("paths") && !config.contains_key("paths-ignore")
         }
-
-        let indent = indentation(line);
-        if indent <= event_indent && trimmed.ends_with(':') {
-            break;
-        }
-
-        if matches!(trimmed, "paths:" | "paths-ignore:") {
-            return false;
-        }
+        Some(_) => true,
+        None => false,
     }
-
-    true
 }
 
-fn indentation(line: &str) -> usize {
-    line.chars()
-        .take_while(|character| *character == ' ')
-        .count()
+fn workflow_declares_event(workflow: &serde_yaml::Value, event: &str) -> bool {
+    workflow
+        .get("on")
+        .is_some_and(|events| events.get(event).is_some())
 }
 
-fn workflow_step_has_line(text: &str, step_name: &str, required_line: &str) -> bool {
-    let mut in_step = false;
-
-    for line in text.lines().map(str::trim) {
-        if line.starts_with("- name: ") {
-            in_step = line == format!("- name: {step_name}");
-            continue;
-        }
-
-        if in_step && line == required_line {
-            return true;
-        }
-    }
-
-    false
+fn workflow_step_field<'a>(
+    workflow: &'a serde_yaml::Value,
+    step_name: &str,
+    field: &str,
+) -> Option<&'a str> {
+    workflow
+        .get("jobs")
+        .and_then(serde_yaml::Value::as_mapping)?
+        .values()
+        .filter_map(|job| job.get("steps"))
+        .filter_map(serde_yaml::Value::as_sequence)
+        .flat_map(|steps| steps.iter())
+        .find(|step| {
+            step.get("name")
+                .and_then(serde_yaml::Value::as_str)
+                .is_some_and(|name| name == step_name)
+        })?
+        .get(field)
+        .and_then(serde_yaml::Value::as_str)
 }

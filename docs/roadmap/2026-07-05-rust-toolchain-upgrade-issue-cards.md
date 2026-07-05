@@ -139,6 +139,11 @@ schema migration was run with explicit approval before tracker writes.
 - `Next test seam`: workflow matrix helper and SARIF projection helpers
 - `Priority`: 1
 - `Notes`: This card directly reduces recurring brittle-review failures.
+  Implemented by parsing workflow YAML into job, event, matrix, step, and run
+  projections; deriving the required package matrix from root workspace
+  members; parsing coverage and Typst rendered output for semantic fields; and
+  comparing infographic JSON arrays as sorted/keyed projections where order is
+  not a product contract.
 
 ### RT-TC-004 - Add pinned cargo-hack and cargo-llvm-cov proof lanes
 

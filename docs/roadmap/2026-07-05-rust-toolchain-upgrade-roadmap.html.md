@@ -395,6 +395,11 @@ make publish-gate
     raw strings.
   - Remaining exact goldens are limited to rendering contracts.
 - `Validation`: `cargo test -p tachi-core --test reporting_goldens`
+  and `cargo test -p tachi-core --test workflow_ci_gates`
+- `Notes`: Implemented with YAML job/event/matrix/step projections,
+  workspace-derived package matrix assertions, parsed coverage and Typst
+  fields, and keyed/sorted JSON projections for infographic data where order is
+  not the contract.
 
 ### RT-TC-004 - Add feature-combination canary
 

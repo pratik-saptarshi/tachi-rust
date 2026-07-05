@@ -94,6 +94,8 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] Parser hardening regression tests pass, including delta-count normalization and panic-free status handling.
 - [ ] Reporting goldens pass with semantic projections for coverage, report,
       threat, risk, and infographic outputs.
+- [ ] Workflow CI gates pass with YAML-parsed event/job/matrix/step assertions
+      and workspace-derived package matrix checks.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
       baseline; validated at 85.55% line coverage on 2026-07-05.

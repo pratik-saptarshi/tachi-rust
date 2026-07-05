@@ -101,6 +101,7 @@ fn coverage_audit_render_matches_canonical_inventory_golden() {
 
     let audit = collect_audit(&root);
     let rendered = render(&audit, &root);
+    // Rendering order is part of the human-facing coverage report contract.
     let expected_lines = vec![
         format!("Coverage audit for {}", root.display()),
         String::from("Active test modules: 4"),
@@ -151,14 +152,15 @@ fn coverage_audit_render_preserves_semantic_section_invariants() {
 
     let audit = collect_audit(&root);
     let rendered = render(&audit, &root);
+    let section_counts = coverage_section_counts(&rendered);
 
     assert!(rendered.contains(&format!("Coverage audit for {}", root.display())));
-    assert!(rendered.contains("Active test modules: 4"));
-    assert!(rendered.contains("Unit: 1"));
-    assert!(rendered.contains("Integration: 1"));
-    assert!(rendered.contains("Smoke: 1"));
-    assert!(rendered.contains("True end-to-end: 1"));
-    assert!(rendered.contains("Support / regression: 0"));
+    assert_eq!(section_counts["Active test modules"], 4);
+    assert_eq!(section_counts["Unit"], 1);
+    assert_eq!(section_counts["Integration"], 1);
+    assert_eq!(section_counts["Smoke"], 1);
+    assert_eq!(section_counts["True end-to-end"], 1);
+    assert_eq!(section_counts["Support / regression"], 0);
 }
 
 #[test]
@@ -173,6 +175,7 @@ fn build_report_data_typst_matches_canonical_golden() {
     );
 
     let rendered = build_report_data_typst(&target_dir, &template_dir);
+    // The Typst prelude is a rendering contract consumed by report templates.
     let expected_prefix = vec![
         "#let project-name = \"Golden Report\"",
         "#let has-funnel-image = false",
@@ -198,7 +201,13 @@ fn build_report_data_typst_matches_canonical_golden() {
         .collect::<Vec<_>>();
 
     assert_eq!(rendered_prefix, expected_prefix);
-    assert!(rendered.contains("coverage-percentage: \"0.00%\""));
+    let assignments = typst_let_assignments(&rendered);
+    assert_eq!(assignments["project-name"], "Golden Report");
+    let coverage_percentages = typst_tuple_field_values(&rendered, "coverage-percentage");
+    assert!(!coverage_percentages.is_empty());
+    assert!(coverage_percentages
+        .iter()
+        .all(|percentage| percentage == "0.00%"));
 }
 
 #[test]
@@ -435,6 +444,13 @@ fn assert_risk_scores_sarif_semantics(actual: &Value, source_threats_uri: &str) 
 }
 
 fn assert_infographic_payload_semantics(actual: &Value) {
+    let finding_ids = sorted_string_array(&actual["findings_ids"]);
+    let top_findings = keyed_json_array(&actual["top_findings"], "id");
+    let severity_distribution = keyed_json_array(&actual["severity_distribution"], "label");
+    let maestro_layer_distribution = keyed_json_array(
+        &actual["template_data"]["maestro_layer_distribution"],
+        "layer_id",
+    );
     let projected = json!({
         "template": actual["template"],
         "metadata": {
@@ -448,10 +464,10 @@ fn assert_infographic_payload_semantics(actual: &Value) {
             "data_source_type": actual["metadata"]["data_source_type"],
         },
         "has_maestro_data": actual["has_maestro_data"],
-        "findings_ids": actual["findings_ids"],
-        "top_findings": actual["top_findings"],
-        "severity_distribution": actual["severity_distribution"],
-        "maestro_layer_distribution": actual["template_data"]["maestro_layer_distribution"],
+        "findings_ids": finding_ids,
+        "top_findings": top_findings,
+        "severity_distribution": severity_distribution,
+        "maestro_layer_distribution": maestro_layer_distribution,
         "most_exposed_layer": actual["template_data"]["most_exposed_layer"],
     });
 
@@ -470,23 +486,85 @@ fn assert_infographic_payload_semantics(actual: &Value) {
                 "data_source_type": "risk-scores",
             },
             "has_maestro_data": true,
-            "findings_ids": ["I-1", "S-1", "A-1"],
-            "top_findings": [
-                {"id": "I-1", "component": "Guardrails Service", "risk_level": "Critical", "score": 0.0, "threat": "Model output exfiltration"},
-                {"id": "S-1", "component": "LLM Agent Orchestrator", "risk_level": "High", "score": 0.0, "threat": "Prompt override risk"},
-                {"id": "A-1", "component": "MCP Tool Server", "risk_level": "Medium", "score": 0.0, "threat": "Tool abuse injection"},
-            ],
-            "severity_distribution": [
-                {"label": "Critical", "count": 1, "percentage": 34, "color": "#DC2626"},
-                {"label": "High", "count": 1, "percentage": 33, "color": "#EA580C"},
-                {"label": "Medium", "count": 1, "percentage": 33, "color": "#CA8A04"},
-                {"label": "Low", "count": 0, "percentage": 0, "color": "#2563EB"},
-            ],
-            "maestro_layer_distribution": [
-                {"layer_id": "L2", "layer_name": "Data Operations", "finding_count": 2, "highest_severity": "High"},
-                {"layer_id": "L5", "layer_name": "Evaluation and Observability", "finding_count": 1, "highest_severity": "Critical"},
-            ],
+            "findings_ids": ["A-1", "I-1", "S-1"],
+            "top_findings": {
+                "A-1": {"id": "A-1", "component": "MCP Tool Server", "risk_level": "Medium", "score": 0.0, "threat": "Tool abuse injection"},
+                "I-1": {"id": "I-1", "component": "Guardrails Service", "risk_level": "Critical", "score": 0.0, "threat": "Model output exfiltration"},
+                "S-1": {"id": "S-1", "component": "LLM Agent Orchestrator", "risk_level": "High", "score": 0.0, "threat": "Prompt override risk"},
+            },
+            "severity_distribution": {
+                "Critical": {"label": "Critical", "count": 1, "percentage": 34, "color": "#DC2626"},
+                "High": {"label": "High", "count": 1, "percentage": 33, "color": "#EA580C"},
+                "Low": {"label": "Low", "count": 0, "percentage": 0, "color": "#2563EB"},
+                "Medium": {"label": "Medium", "count": 1, "percentage": 33, "color": "#CA8A04"},
+            },
+            "maestro_layer_distribution": {
+                "L2": {"layer_id": "L2", "layer_name": "Data Operations", "finding_count": 2, "highest_severity": "High"},
+                "L5": {"layer_id": "L5", "layer_name": "Evaluation and Observability", "finding_count": 1, "highest_severity": "Critical"},
+            },
             "most_exposed_layer": "L2 — Data Operations",
         })
     );
+}
+
+fn coverage_section_counts(rendered: &str) -> BTreeMap<String, usize> {
+    rendered
+        .lines()
+        .filter_map(|line| line.split_once(':'))
+        .filter_map(|(label, count)| {
+            count
+                .trim()
+                .parse::<usize>()
+                .ok()
+                .map(|count| (label.trim().to_string(), count))
+        })
+        .collect()
+}
+
+fn typst_let_assignments(rendered: &str) -> BTreeMap<String, String> {
+    rendered
+        .lines()
+        .filter_map(|line| line.strip_prefix("#let "))
+        .filter_map(|assignment| assignment.split_once(" = "))
+        .map(|(key, value)| (key.to_string(), value.trim_matches('"').to_string()))
+        .collect()
+}
+
+fn typst_tuple_field_values(rendered: &str, field: &str) -> Vec<String> {
+    rendered
+        .lines()
+        .filter_map(|line| line.split_once(&format!("{field}: ")))
+        .filter_map(|(_, value)| value.split_once(',').map(|(value, _)| value))
+        .map(|value| value.trim().trim_matches('"').to_string())
+        .collect()
+}
+
+fn sorted_string_array(value: &Value) -> Vec<String> {
+    let mut strings = value
+        .as_array()
+        .expect("array")
+        .iter()
+        .map(|value| value.as_str().expect("string").to_string())
+        .collect::<Vec<_>>();
+    strings.sort();
+    strings
+}
+
+fn keyed_json_array(value: &Value, key: &str) -> BTreeMap<String, Value> {
+    let entries = value.as_array().expect("array");
+    let keyed = entries
+        .iter()
+        .map(|entry| {
+            (
+                entry[key].as_str().expect("entry key").to_string(),
+                entry.clone(),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    assert_eq!(
+        keyed.len(),
+        entries.len(),
+        "{key} values must be unique before keyed comparison"
+    );
+    keyed
 }
