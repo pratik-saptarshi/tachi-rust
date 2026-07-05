@@ -183,6 +183,10 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
 - AQ-033: bootstrap control-plane argument shaping was extracted into
   `bootstrap_control_plane_args`, and `crates/tachi-shell/src/tauri_bridge.rs`
   now reuses the helper instead of duplicating the bootstrap prefix logic.
+- PR reconciliation: `crates/tachi-shell/tests/control_plane.rs` now locks the
+  current workspace-root script resolution against stale PR #10 regressions:
+  nested package manifests still use workspace scripts, and ancestor scripts
+  outside the repo root are not executed.
 - AQ-043: `crates/tachi-core/src/infographic.rs` now routes template loading
   through an injected `PromptScaffoldStore`, letting tests swap in a fake
   store while the filesystem adapter preserves current behavior.
