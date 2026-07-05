@@ -38,3 +38,17 @@ fn parse_threat_report_extracts_remediation_timeline_entries() {
     assert_eq!(result.remediation_timeline[1].count, 12);
     assert_eq!(result.remediation_timeline[1].severity, "High");
 }
+
+#[test]
+fn parse_threat_report_truncates_safely_on_utf8_boundary() {
+    let mut prose = String::from("# Threat Report\n\n## 1. Executive Summary\n\n");
+    for _ in 0..1999 {
+        prose.push('a');
+    }
+    prose.push('🦀');
+    prose.push_str(" extra text\n\n## 2. Architecture Overview\n");
+
+    let result = parse_threat_report_md(&prose);
+    let narrative = result.executive_narrative.unwrap();
+    assert!(narrative.len() <= 2000);
+}
