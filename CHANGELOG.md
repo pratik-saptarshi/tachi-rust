@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### AISVS roadmap and Beads tracker sync
+
+Aligned the live AISVS / Dependabot roadmap with the implemented local state,
+kept the gtk/glib blocker explicit, and linked the publish-readiness lane to the
+current Beads tracker slices. Added an updated remediation roadmap and legacy
+plan note so the active implementation path and release-gate documentation stay
+consistent.
+
+### Fail-closed Rust CI gates
+
+Added a non-path-filtered workspace PR workflow for
+`cargo test --workspace --all-targets`, made the clippy SARIF workflow fail
+closed on warnings while still uploading SARIF, and added Rust tests that guard
+both workflow policies. Strengthened issue and pull-request templates so every
+implementation slice records failing-test-first evidence, exact validation
+gates, positive and negative/adversarial cases, and property/golden/mutation
+applicability.
+
+### Tauri capability boundary scaffold
+
+Added a Tauri v2 configuration file and a least-privilege main-window
+capability that grants only `core:default`, plus a Rust contract test that
+guards against returning to an empty desktop `run()` scaffold or granting
+filesystem/shell permissions before the typed policy work lands.
+
+### Scaffold dependency floor hardening
+
+Raised the Next.js/Supabase scaffold floors for `next` and `vitest`, then added
+an offline publish-gate audit so known vulnerable ranges from Dependabot alerts
+#1-#14 cannot be reintroduced.
+
 ### Rust-native asset-sensitivity tag parser
 
 Ported the Mermaid asset-sensitivity tag parser from `scripts/tachi_parsers.py` into `tachi-core`, preserving the closed six-tag enum, quoted Mermaid label parsing, tag normalization, duplicate merging, and Mermaid fence scoping while retiring `tests/scripts/test_asset_sensitivity_tags.py`.

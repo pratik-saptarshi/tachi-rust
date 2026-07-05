@@ -1,0 +1,79 @@
+name: rust workspace tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-test:
+    name: cargo test -p ${{ matrix.package }} --all-targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: tachi-core
+          - package: tachi-mcp
+          - package: tachi-cli
+          - package: tachi-shell
+          - package: tachi-desktop
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install workspace test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep pkg-config
+
+      - name: Run full workspace test suite
+        run: cargo test -p ${{ matrix.package }} --all-targets
+
+  shell-tests:
+    name: cargo test -p tachi-shell (${{ matrix.suite }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: shell-smoke
+            command: cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane
+          - suite: shell-init
+            command: cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary
+          - suite: shell-integration
+            command: cargo test -p tachi-shell --test tauri_bridge --test template_config_load --test template_git_clone_timeout
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install workspace test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep pkg-config
+
+      - name: Run shell test suite slice
+        run: ${{ matrix.command }}

@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>tachi-rust Pre-requisites</title>
+  <meta
+    name="description"
+    content="Input prerequisites for tachi-rust analysis commands and MCP-backed runs, including architecture, threat model, risk scoring, compensating controls, infographic generation, and security report assembly."
+  >
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --panel: #ffffff;
+      --ink: #1f2328;
+      --muted: #5b6572;
+      --accent: #0f5b78;
+      --accent-2: #8a5a00;
+      --border: #d7d2c8;
+      --soft: #efe8db;
+      --code: #eef3f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 91, 120, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(138, 90, 0, 0.08), transparent 28%),
+        var(--bg);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+
+    header,
+    section,
+    footer {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(31, 35, 40, 0.06);
+    }
+
+    header {
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 3vw, 3rem);
+      letter-spacing: -0.03em;
+    }
+
+    .lede {
+      margin: 0;
+      color: var(--muted);
+      max-width: 78ch;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .compact {
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+
+    .detail {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+
+    .compact ul {
+      margin: 12px 0 0;
+      padding-left: 18px;
+    }
+
+    .compact li + li {
+      margin-top: 8px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .summary li {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, #faf7f0);
+      border: 1px solid var(--border);
+      min-height: 88px;
+    }
+
+    .summary strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--accent);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    code,
+    .pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      background: var(--code);
+      border: 1px solid #d9e4eb;
+      border-radius: 999px;
+      padding: 0.08rem 0.45rem;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      border-radius: 14px;
+      background: #0f1720;
+      color: #e7eef6;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .callout {
+      padding: 14px 16px;
+      border-left: 4px solid var(--accent-2);
+      background: #fff8ec;
+      border-radius: 12px;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    footer {
+      padding: 18px 24px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fffdf7;
+      font-size: 0.86rem;
+      color: var(--ink);
+    }
+
+    @media (max-width: 780px) {
+      main {
+        padding: 16px 12px 28px;
+      }
+
+      header,
+      .compact,
+      .detail,
+      footer {
+        border-radius: 16px;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "tachi-rust pre-requisites",
+    "description": "Machine-readable input checklist for tachi-rust CLI and MCP-backed analysis runs.",
+    "itemListOrder": "https://schema.org/ItemListOrderAscending",
+    "numberOfItems": 7,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Architecture input",
+        "description": "Provide docs/security/architecture.md or an equivalent architecture file in Mermaid, free-text, ASCII, PlantUML, or C4."
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Threat model input",
+        "description": "Provide threats.md or threats.sarif for scoring, infographic generation, and PDF assembly."
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Risk score input",
+        "description": "Provide risk-scores.md or risk-scores.sarif for compensating controls and residual risk analysis."
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Target codebase",
+        "description": "Provide a real project path when running compensating-controls so code evidence can be matched against scored findings."
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "Output bundle",
+        "description": "Keep co-located threats.md with risk-scores.md or compensating-controls.md for infographic and report assembly."
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
+        "name": "Tooling",
+        "description": "Install typst and @mermaid-js/mermaid-cli (mmdc); GEMINI_API_KEY is optional for JPG infographic generation."
+      },
+      {
+        "@type": "ListItem",
+        "position": 7,
+        "name": "Baseline and permissions",
+        "description": "Use timestamped prior runs for delta tracking and ensure Claude Code can read inputs and write output directories."
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">tachi-rust input contract</div>
+      <h1>Pre-requisites</h1>
+      <p class="lede">
+        This document lists the inputs and environment prerequisites that produce the best analysis
+        outcomes from tachi-rust CLI commands and MCP-backed runs. It is optimized for both human
+        review and machine parsing.
+      </p>
+      <div class="tag-row" aria-label="primary surfaces">
+        <span class="tag">architecture</span>
+        <span class="tag">threat-model</span>
+        <span class="tag">risk-score</span>
+        <span class="tag">compensating-controls</span>
+        <span class="tag">infographic</span>
+        <span class="tag">security-report</span>
+        <span class="tag">MCP-compatible</span>
+      </div>
+    </header>
+
+    <section class="compact" aria-labelledby="quick-checklist">
+      <h2 id="quick-checklist">Quick Input Checklist</h2>
+      <p class="note">Provide these first. They are the minimum high-value inputs for a clean pipeline.</p>
+      <ul>
+        <li><strong>Architecture file:</strong> <code>docs/security/architecture.md</code> or an equivalent supported format.</li>
+        <li><strong>Threat output:</strong> <code>threats.md</code> or <code>threats.sarif</code> as the canonical threat-model artifact.</li>
+        <li><strong>Risk output:</strong> <code>risk-scores.md</code> or <code>risk-scores.sarif</code> for quantitative prioritization.</li>
+        <li><strong>Codebase path:</strong> the real target repository when analyzing compensating controls.</li>
+        <li><strong>Co-located baseline:</strong> keep <code>threats.md</code> beside downstream artifacts for infographic and PDF assembly.</li>
+        <li><strong>Tooling:</strong> install <code>typst</code> and <code>mmdc</code>; set <code>GEMINI_API_KEY</code> only if JPG images are desired.</li>
+      </ul>
+    </section>
+
+    <section class="detail" aria-labelledby="overview">
+      <h2 id="overview">What tachi-rust Needs</h2>
+      <div class="grid two-col">
+        <div class="callout">
+          <strong>Best outcome principle</strong>
+          <p class="note">
+            tachi-rust analyzes architecture first, then enriches the result through downstream
+            artifacts. The more complete and specific the input bundle, the better the analysis,
+            scoring, residual risk, visuals, and final PDF output.
+          </p>
+        </div>
+        <div class="callout">
+          <strong>For MCP-backed runs</strong>
+          <p class="note">
+            Pass file paths and project paths, not raw file bodies, whenever the workflow supports
+            on-demand file reads. That keeps context smaller and lets the analysis stages load only
+            what they need.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail" aria-labelledby="command-inputs">
+      <h2 id="command-inputs">Command Input Requirements</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Required inputs</th>
+            <th>Optional but high-value inputs</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-prereq-id="architecture">
+            <td><span class="pill">/tachi.architecture</span></td>
+            <td>Target codebase or project documentation</td>
+            <td>Existing architecture draft, infra files, API specs, environment configs</td>
+            <td>Produces the structured architecture file that downstream commands consume.</td>
+          </tr>
+          <tr data-prereq-id="threat-model">
+            <td><span class="pill">/tachi.threat-model</span></td>
+            <td>Architecture description file</td>
+            <td>Existing baseline <code>threats.md</code> from a prior run, explicit trust boundaries, data flows, auth zones, agent or MCP surfaces</td>
+            <td>Generates the primary findings artifact and supports delta tracking when a baseline exists.</td>
+          </tr>
+          <tr data-prereq-id="risk-score">
+            <td><span class="pill">/tachi.risk-score</span></td>
+            <td><code>threats.md</code> or <code>threats.sarif</code></td>
+            <td><code>architecture.md</code> for reachability context</td>
+            <td>Adds quantitative scoring, governance fields, and SARIF output for triage and CI integration.</td>
+          </tr>
+          <tr data-prereq-id="controls">
+            <td><span class="pill">/tachi.compensating-controls</span></td>
+            <td><code>risk-scores.md</code> or <code>risk-scores.sarif</code>, plus the target codebase path</td>
+            <td><code>architecture.md</code> for better mapping, a fully indexed target tree, and stable file layout</td>
+            <td>Detects implemented defenses, calculates residual risk, and recommends missing controls.</td>
+          </tr>
+          <tr data-prereq-id="infographic">
+            <td><span class="pill">/tachi.infographic</span></td>
+            <td>One of <code>compensating-controls.md</code>, <code>risk-scores.md</code>, or <code>threats.md</code></td>
+            <td>Co-located <code>threats.md</code> when the primary source is risk or controls output, and <code>GEMINI_API_KEY</code> for JPGs</td>
+            <td>Creates the richest possible visual based on the best available source tier.</td>
+          </tr>
+          <tr data-prereq-id="security-report">
+            <td><span class="pill">/tachi.security-report</span></td>
+            <td><code>threats.md</code>, plus <code>typst</code> installed</td>
+            <td><code>risk-scores.md</code>, <code>compensating-controls.md</code>, attack trees, attack chains, infographic JPGs, brand assets, <code>mmdc</code></td>
+            <td>Assembles the final PDF booklet and conditionally includes richer pages when artifacts exist.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="detail" aria-labelledby="content-quality">
+      <h2 id="content-quality">What to Put Inside the Architecture Input</h2>
+      <div class="grid two-col">
+        <div>
+          <h3>Must include</h3>
+          <ul>
+            <li>Components, services, agents, servers, queues, databases, and external entities.</li>
+            <li>Data flows, protocols, trust boundaries, and authentication or privilege transitions.</li>
+            <li>Any LLM, agent, tool server, plugin, or MCP surface if the system has one.</li>
+            <li>Data stores, secrets handling, egress paths, and boundary-crossing integrations.</li>
+            <li>Deployment or environment differences that affect exposure or access control.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Worth adding</h3>
+          <ul>
+            <li>Known mitigations already present in the codebase.</li>
+            <li>Tenant, group, or project scoping rules.</li>
+            <li>Input validation, serialization, and output encoding boundaries.</li>
+            <li>Any current limitations, assumptions, or security exceptions.</li>
+            <li>Previous analysis output if you want change detection and baseline comparisons.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail" aria-labelledby="operational">
+      <h2 id="operational">Operational Prerequisites</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Prerequisite</th>
+            <th>Expectation</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-prereq-id="agents">
+            <td>tachi agents installed</td>
+            <td><code>.claude/agents/tachi/</code> contains the shipped agents and templates</td>
+            <td>Without the agents, the slash commands halt before analysis begins.</td>
+          </tr>
+          <tr data-prereq-id="typst">
+            <td>Typst CLI</td>
+            <td><code>typst</code> is available on <code>PATH</code></td>
+            <td>Required for PDF generation.</td>
+          </tr>
+          <tr data-prereq-id="mmdc">
+            <td>Mermaid CLI</td>
+            <td><code>mmdc</code> is available on <code>PATH</code></td>
+            <td>Required when attack trees or attack chains need rendering.</td>
+          </tr>
+          <tr data-prereq-id="gemini">
+            <td>Gemini API key</td>
+            <td><code>GEMINI_API_KEY</code> set in the environment</td>
+            <td>Optional. Enables JPG infographic generation only.</td>
+          </tr>
+          <tr data-prereq-id="workspace">
+            <td>Writable output location</td>
+            <td>Target directory exists and can be written by the current session</td>
+            <td>Use the default <code>docs/security/</code> pipeline layout or a custom output path.</td>
+          </tr>
+          <tr data-prereq-id="baseline">
+            <td>Optional baseline</td>
+            <td>Previous timestamped run folder with <code>threats.md</code></td>
+            <td>Improves delta reporting and makes findings easier to compare across runs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="detail" aria-labelledby="best-practice">
+      <h2 id="best-practice">Best-Practice Input Bundle</h2>
+      <pre>{
+  "architecture": "docs/security/architecture.md",
+  "baseline_threats": "docs/security/&lt;previous-timestamp&gt;/threats.md",
+  "threat_model_output": "docs/security/&lt;current-timestamp&gt;/threats.md",
+  "risk_output": "docs/security/&lt;current-timestamp&gt;/risk-scores.md",
+  "controls_output": "docs/security/&lt;current-timestamp&gt;/compensating-controls.md",
+  "target_codebase": "/absolute/path/to/project",
+  "tooling": {
+    "typst": true,
+    "mmdc": true,
+    "gemini_api_key": "optional"
+  }
+}</pre>
+      <p class="note">
+        The exact filenames can vary by output directory, but keeping the artifacts co-located and
+        timestamped is the cleanest way to preserve baselines and feed every downstream command.
+      </p>
+    </section>
+
+    <footer>
+      Machine-readable hint: the page includes an <code>application/ld+json</code> ItemList and
+      <code>data-prereq-id</code> attributes for downstream parsing.
+    </footer>
+  </main>
+</body>
+</html>

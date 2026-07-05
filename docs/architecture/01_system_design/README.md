@@ -1092,7 +1092,7 @@ graph LR
 | YAML | Frontmatter metadata, VERSION manifest | Standard for config in all target platforms |
 | Bash | VERSION file generation script | Lightweight, no runtime dependencies |
 | GitHub Actions YAML | CI workflow definition | Standard for GitHub CI/CD |
-| `codeql/upload-sarif@v3` | SARIF upload to Code Scanning | GitHub's official SARIF upload action |
+| `codeql/upload-sarif@v4` | SARIF upload to Code Scanning | GitHub's official SARIF upload action |
 
 ---
 
@@ -1933,7 +1933,7 @@ User runs install.sh from target project root
 **Configuration**:
 - Trigger: `on: push: branches: [main]`
 - Permissions: `contents: write`, `pull-requests: write`
-- Action: `googleapis/release-please-action@v4`
+- Action: `googleapis/release-please-action@v5.0.0`
 - Release type: `simple`
 
 ### Component 2: Release Configuration (`release-please-config.json`)

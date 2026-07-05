@@ -28,6 +28,18 @@ pub fn level_for_band(band: &str) -> &'static str {
     }
 }
 
+pub fn logical_location_kind_for_dfd_type(dfd_type: &str) -> Option<&'static str> {
+    match dfd_type {
+        "External Entity" => Some("external-entity"),
+        "Data Store" => None,
+        _ => Some("process"),
+    }
+}
+
+pub fn baseline_run_id() -> &'static str {
+    "2026-04-19T03-20-30"
+}
+
 pub fn parse_component_metadata(threats_md: &str) -> BTreeMap<String, ComponentMetadata> {
     let scope = parse_scope_data(threats_md);
     let mut out = BTreeMap::new();

@@ -4,9 +4,9 @@ use std::hash::{Hash, Hasher};
 
 use serde_json::{json, Value};
 
-use crate::sarif_common::{build_sarif_envelope, ComponentMetadata};
-
-const SOURCE_THREATS_URI: &str = "examples/agentic-app/sample-report/threats.md";
+use crate::sarif_common::{
+    build_sarif_envelope, logical_location_kind_for_dfd_type, ComponentMetadata,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ThreatSarifFinding {
@@ -27,10 +27,12 @@ pub struct ThreatSarifFinding {
 pub fn build_threats_sarif(
     findings: &[ThreatSarifFinding],
     component_meta: &BTreeMap<String, ComponentMetadata>,
+    source_threats_uri: &str,
+    baseline_run_id: Option<&str>,
 ) -> Value {
     let results = findings
         .iter()
-        .map(|finding| build_result(finding, component_meta, "2026-04-19T03-20-30"))
+        .map(|finding| build_result(finding, component_meta, source_threats_uri, baseline_run_id))
         .collect::<Vec<_>>();
 
     let driver = json!({
@@ -50,7 +52,8 @@ pub fn build_threats_sarif(
 fn build_result(
     finding: &ThreatSarifFinding,
     component_meta: &BTreeMap<String, ComponentMetadata>,
-    run_id_baseline: &str,
+    source_threats_uri: &str,
+    baseline_run_id: Option<&str>,
 ) -> Value {
     let rule_id = rule_for_prefix(&finding.prefix);
     let level = level_for_risk(&finding.risk_level);
@@ -59,7 +62,7 @@ fn build_result(
         .get(&finding.component)
         .cloned()
         .unwrap_or_else(default_component_meta);
-    let kind = kind_for_dfd_type(&meta.dfd_type);
+    let kind = logical_location_kind_for_dfd_type(&meta.dfd_type);
     let fq = format!("{}/{}", meta.zone, finding.component);
     let owasp_id = normalize_owasp_id(&finding.owasp_ref, &finding.prefix);
 
@@ -98,6 +101,14 @@ fn build_result(
         properties["pattern_category"] = json!(9);
     }
 
+    let mut logical_location = json!({
+        "name": finding.component,
+        "fullyQualifiedName": fq,
+    });
+    if let Some(kind) = kind {
+        logical_location["kind"] = json!(kind);
+    }
+
     json!({
         "ruleId": rule_id,
         "message": {
@@ -109,23 +120,23 @@ fn build_result(
             {
                 "physicalLocation": {
                     "artifactLocation": {
-                        "uri": SOURCE_THREATS_URI,
+                        "uri": source_threats_uri,
                     },
                     "region": {"startLine": 1},
                 },
                 "logicalLocations": [
-                    {
-                        "name": finding.component,
-                        "fullyQualifiedName": fq,
-                        "kind": kind,
-                    }
+                    logical_location,
                 ],
             }
         ],
         "partialFingerprints": {
             "primaryLocationLineHash": line_hash_for(&finding.id),
             "findingId/v1": finding.id,
-            "baselineRunId": if finding.status == "[NEW]" { "" } else { run_id_baseline },
+            "baselineRunId": if finding.status == "[NEW]" {
+                ""
+            } else {
+                baseline_run_id.unwrap_or("")
+            },
         },
         "properties": properties,
     })
@@ -144,14 +155,6 @@ fn level_for_risk(risk_level: &str) -> &'static str {
         "Medium" => "warning",
         "Low" | "Note" => "note",
         _ => "note",
-    }
-}
-
-fn kind_for_dfd_type(dfd_type: &str) -> &'static str {
-    match dfd_type {
-        "External Entity" => "external-entity",
-        "Data Store" => "data",
-        _ => "process",
     }
 }
 
@@ -292,4 +295,136 @@ fn taxonomies() -> Vec<Value> {
             "shortDescription": {"text": "Common Weakness Enumeration"},
         }),
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::BTreeMap;
+
+    use super::{build_threats_sarif, ThreatSarifFinding};
+    use crate::sarif_common::ComponentMetadata;
+
+    #[test]
+    fn build_threats_sarif_maps_prefix_classifier_precedence() {
+        let mut component_meta = BTreeMap::new();
+        component_meta.insert(
+            String::from("Agent"),
+            ComponentMetadata {
+                zone: String::from("Core"),
+                dfd_type: String::from("Process"),
+            },
+        );
+
+        let findings = vec![
+            ThreatSarifFinding {
+                id: String::from("AG-1"),
+                prefix: String::from("AG"),
+                status: String::from("[NEW]"),
+                component: String::from("Agent"),
+                maestro: String::new(),
+                agentic_pattern: String::new(),
+                threat: String::from("Agentic threat"),
+                owasp_ref: String::new(),
+                likelihood: String::from("High"),
+                impact: String::from("High"),
+                risk_level: String::from("High"),
+                mitigation: String::from("Mitigate"),
+            },
+            ThreatSarifFinding {
+                id: String::from("AGP-1"),
+                prefix: String::from("AGP"),
+                status: String::from("[NEW]"),
+                component: String::from("Agent"),
+                maestro: String::new(),
+                agentic_pattern: String::new(),
+                threat: String::from("Agentic pattern threat"),
+                owasp_ref: String::new(),
+                likelihood: String::from("Medium"),
+                impact: String::from("Medium"),
+                risk_level: String::from("Medium"),
+                mitigation: String::from("Mitigate"),
+            },
+            ThreatSarifFinding {
+                id: String::from("LLM-1"),
+                prefix: String::from("LLM"),
+                status: String::from("[NEW]"),
+                component: String::from("Agent"),
+                maestro: String::new(),
+                agentic_pattern: String::new(),
+                threat: String::from("LLM threat"),
+                owasp_ref: String::new(),
+                likelihood: String::from("Low"),
+                impact: String::from("Low"),
+                risk_level: String::from("Low"),
+                mitigation: String::from("Mitigate"),
+            },
+            ThreatSarifFinding {
+                id: String::from("OI-1"),
+                prefix: String::from("OI"),
+                status: String::from("[NEW]"),
+                component: String::from("Agent"),
+                maestro: String::new(),
+                agentic_pattern: String::new(),
+                threat: String::from("Output integrity threat"),
+                owasp_ref: String::new(),
+                likelihood: String::from("Low"),
+                impact: String::from("Low"),
+                risk_level: String::from("Low"),
+                mitigation: String::from("Mitigate"),
+            },
+            ThreatSarifFinding {
+                id: String::from("MI-1"),
+                prefix: String::from("MI"),
+                status: String::from("[NEW]"),
+                component: String::from("Agent"),
+                maestro: String::new(),
+                agentic_pattern: String::new(),
+                threat: String::from("Misinformation threat"),
+                owasp_ref: String::new(),
+                likelihood: String::from("Low"),
+                impact: String::from("Low"),
+                risk_level: String::from("Low"),
+                mitigation: String::from("Mitigate"),
+            },
+            ThreatSarifFinding {
+                id: String::from("ZZ-1"),
+                prefix: String::from("ZZ"),
+                status: String::from("[NEW]"),
+                component: String::from("Agent"),
+                maestro: String::new(),
+                agentic_pattern: String::new(),
+                threat: String::from("Unknown threat"),
+                owasp_ref: String::new(),
+                likelihood: String::from("Note"),
+                impact: String::from("Note"),
+                risk_level: String::from("Note"),
+                mitigation: String::from("Mitigate"),
+            },
+        ];
+
+        let sarif = build_threats_sarif(
+            &findings,
+            &component_meta,
+            "reports/internal/threats.md",
+            Some("reports/internal/threats.md"),
+        );
+        let rule_ids = sarif["runs"][0]["results"]
+            .as_array()
+            .expect("results array")
+            .iter()
+            .map(|result| result["ruleId"].as_str().expect("rule id").to_owned())
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            rule_ids,
+            vec![
+                String::from("tachi/ai/agentic"),
+                String::from("tachi/ai/agentic"),
+                String::from("tachi/ai/llm"),
+                String::from("tachi/ai/llm"),
+                String::from("tachi/ai/llm"),
+                String::from("tachi/ai/agentic"),
+            ]
+        );
+    }
 }
