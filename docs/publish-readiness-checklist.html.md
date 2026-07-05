@@ -137,15 +137,15 @@ scheduled adapter workflow, not through the required publish gate.
       `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md`.
 - [ ] The active AISVS roadmap is
       `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
-- [ ] The active AISVS Beads-ready issue set is
+- [ ] The active AISVS scope and issue-card source is
       `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
 - [ ] The MCP roadmap and issue-card files are retained as historical records
       for the closed `MCP-001*` hierarchy:
       `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` and
       `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md`.
-- [ ] `RT-00i.6` is tracked as the publish-readiness follow-up for the
-      AISVS roadmap and keeps the release-gate docs synchronized after each
-      slice.
+- [ ] Closed `RT-00i.6` remains the historical publish-readiness evidence for
+      the AISVS roadmap; future AISVS release-gate deltas open new tracker
+      slices instead of reusing the closed follow-up.
 - [ ] The docs-sweep roadmap and issue-card files are retained as completed
       historical records:
       `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md`
@@ -165,7 +165,7 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
       agree on the publish gate, security surfaces, and remote publication flow.
 - [ ] `docs/bill-of-materials.html.md` includes the MCP roadmap and MCP issue
-      cards as active publish surfaces.
+      cards as historical records for the closed `MCP-001*` hierarchy.
 - [ ] The public README, compatibility doc, developer guide, BOM, and
       publish-security checklist describe the same install, analysis, adapter,
       and release workflow.
@@ -219,7 +219,8 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] The docs/version gate is green on the current branch.
 - [ ] The release artifact gate and checksum matrix pass via `make publish-gate`.
 - [ ] MCP roadmap, issue cards, BOM, and publish checklist remain synchronized
-      before any release promotion.
+      as closed MCP evidence before any future MCP release promotion opens a
+      new tracker hierarchy.
 - [ ] `src-tauri/tauri.conf.json` and `src-tauri/capabilities/main.json`
       remain least-privilege and do not grant filesystem or shell permissions
       without the corresponding AQ-022/AQ-023 policy tests. These files are
