@@ -30,14 +30,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          components: clippy
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install --no-self-update
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
+
+      - name: Print Rust toolchain proof
+        run: |
+          rustc -Vv
+          cargo -Vv
+          which rustc
+          which cargo
+          rustup which rustc
 
       - name: Install required cargo
         run: cargo install clippy-sarif sarif-fmt

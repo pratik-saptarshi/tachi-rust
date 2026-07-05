@@ -10,7 +10,8 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Entry Point | Responsibility |
 |---|---|
-| `Cargo.toml` | Workspace manifest for `crates/tachi-core`, `crates/tachi-cli`, `crates/tachi-mcp`, `crates/tachi-shell`, and `crates/tachi-desktop`. |
+| `Cargo.toml` | Workspace manifest for `crates/tachi-core`, `crates/tachi-cli`, `crates/tachi-mcp`, `crates/tachi-shell`, and `crates/tachi-desktop`, with workspace Rust `1.96` MSRV metadata. |
+| `rust-toolchain.toml` | Repository Rust toolchain policy pinned to `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview`; required Rust workflows install it and print compiler path/version proof. |
 | `crates/tachi-core/src/lib.rs` | Core Rust library export surface for parsers, report data, coverage-attestation payloads, SARIF builders, taxonomy, coverage audit, infographic payloads, and attack-chain Mermaid generation, including the executive-architecture overlay path. |
 | `crates/tachi-cli/src/bin/*.rs` | Rust CLI binaries for init/install/update/bootstrap, report-data, infographic-data, SARIF generation, and coverage audit. |
 | `crates/tachi-shell/src/commands.rs` | Shared command layer used by CLI-style flows, the GTK-free desktop host, and transitional adapter paths. |
@@ -44,7 +45,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Track | Current Direction |
 |---|---|
-| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `docs/roadmap/2026-07-05-rust-toolchain-upgrade-issue-cards.md` is the source text for the live Beads hierarchy `RT-TC-001` through `RT-TC-006`. |
+| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the active roadmap for pinning Rust/Cargo policy, normalizing local toolchain path proof, hardening supply-chain gates, reducing CI brittleness, and keeping latest-stable drift detection separate from required PR gates. `RT-TC-001` has landed the repository toolchain pin and workflow proof; `docs/roadmap/2026-07-05-rust-toolchain-upgrade-issue-cards.md` remains the source text for the live Beads hierarchy `RT-TC-001` through `RT-TC-006`. |
 | Codemap automation state | `.slim/codemap.json` is absent in this checkout. The root atlas is updated manually for this package, and no folder-level codemap files were invented. The codemap script path `~/.config/opencode/skills/codemap/scripts/codemap.mjs` exists on this machine, but codemap initialization/update was not run in this docs-first slice. |
 
 ## Rust Data And Control Flow
@@ -71,7 +72,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 | Integration | Rust integration tests under `crates/*/tests` and transitional `src-tauri/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, Tauri capability-boundary audit, and the typed control-plane boundary audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init flow now lives in `crates/tachi-shell/tests/init_substitution.rs` while the Rust-owned E2E boundary is being defined. |
-| Coverage | `make llvm-cov` is the release-quality local gate. Current validated baseline: 86.32% regions / 85.33% lines. Current audit: 84 active modules, 80 Rust integration modules, 2 Rust unit modules, 1 Rust smoke module, 1 Rust E2E module, 0 support/regression modules. |
+| Coverage | `make llvm-cov` is the release-quality local gate. Current validated baseline: 84.93% regions / 85.55% lines. Current audit: 111 active modules, 96 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 1 Rust E2E module, 0 support/regression modules. |
 
 The publish gate now includes `make scaffold-dependency-gate`, which runs the
 Rust-native `scaffold_dependency_floors` integration test against the real

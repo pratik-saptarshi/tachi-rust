@@ -1,7 +1,7 @@
 # Bill of Materials
 
 **Status**: Active publish inventory
-**Last Updated**: 2026-06-26
+**Last Updated**: 2026-07-05
 **Purpose**: enumerate the repository surfaces that are expected to ship, be
 reviewed, or be validated before publishing `tachi-rust` to remote origin
 **Scope**: source code, docs, tests, CI, security posture, and release gates
@@ -53,7 +53,8 @@ with the shipped release workflow before publication.
 
 | Path | Role | Publish status | Notes |
 |---|---|---|---|
-| `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; `src-tauri` is transitional-only. |
+| `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; declares workspace Rust `1.96` MSRV; `src-tauri` is transitional-only. |
+| `rust-toolchain.toml` | Pinned Rust toolchain policy | Publishable | Required Rust workflows install Rust `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview` from the checked-in policy. |
 | `README.md` | Public repository landing page | Publishable | Must stay aligned with the actual build, auditor workflow, and usage path. |
 | `LICENSE` | License text | Publishable | Required public artifact. |
 | `SECURITY.md` | Vulnerability disclosure policy | Publishable | Public security policy and private disclosure channel. |
@@ -143,8 +144,8 @@ with the shipped release workflow before publication.
 | Path | Purpose | Publish note |
 |---|---|---|
 | `.github/workflows/gitleaks.yml` | Full-repo secret scanning | Required publication gate. |
-| `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate | Required non-path-filtered behavior gate for `cargo test --workspace --all-targets`. |
-| `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping. |
+| `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate | Required non-path-filtered behavior gate for package matrix tests under the checked-in Rust toolchain. |
+| `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/release-please.yml` | Release orchestration | Main-push release automation without release-PR branch churn; release gate now covers manifest and checksum parity. |
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |
 | `.github/workflows/tachi-mmdc-preflight.yml` | Mermaid preflight | Protects docs and renderable diagram outputs. |
@@ -174,6 +175,7 @@ The repository policy for these surfaces is:
 | Gate | Evidence | Acceptance |
 |---|---|---|
 | Rust unit and integration tests | `cargo test -q` | Must pass cleanly. |
+| Rust toolchain proof | `rustup toolchain install --no-self-update`, `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, `rustup which rustc` | Required Rust workflows consume `rust-toolchain.toml` and prove the compiler path before running tests or lint. |
 | Full workspace PR behavior gate | `cargo test --workspace --all-targets` and `.github/workflows/rust-workspace.yml` | Pull requests run the whole Rust workspace without path filters. |
 | Rust e2e and bridge checks | `cargo test -p tachi-shell --test init_substitution` and `cargo test -p tachi-core --test rt009_docs` | Must pass for CLI/tidy report contract parity surfaces. |
 | MCP scaffold and contract checks | `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio` and `cargo build -p tachi-mcp --features stdio` | MCP registry, stdio transport, request-id continuity, cancellation handling, schema snapshots, and contract snapshots remain deterministic. |
@@ -181,7 +183,7 @@ The repository policy for these surfaces is:
 | Infographic payload seam | `cargo test -p tachi-core` | Payload orchestration remains behavior-compatible after moving filesystem loading and template assembly. |
 | Parser hardening regression | `cargo test -p tachi-core compute_delta_counts_trims_case_and_ignores_unknown_statuses -- --nocapture` | Must pass for panic-free delta counting and status normalization. |
 | Lint gate | `cargo clippy --all-targets -- -D warnings` and `.github/workflows/rust-clippy.yml` | No warnings allowed; SARIF upload remains `if: always()` but clippy status fails closed. |
-| Coverage gate | `make llvm-cov` | Coverage remains above the repo floor; validated at 85.33% line coverage on 2026-06-24. |
+| Coverage gate | `make llvm-cov` | Coverage remains above the repo floor; validated at 85.55% line coverage on 2026-07-05. |
 | Reporting goldens | `cargo test -p tachi-core --test reporting_goldens -- --nocapture` | Canonical report, threat, risk, coverage, and infographic outputs remain stable through semantic projections and compact snapshots. |
 | Advisory fuzz/mutation lane | `make fuzz-mutation-gate` and `.github/workflows/fuzz-mutation-audit.yml` | Commands stay documented, scheduled/manual runs remain non-blocking, and survivor reports stay offline-safe. |
 | Diff hygiene | `git diff --check` | No whitespace or patch-format issues. |
@@ -216,6 +218,8 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 ## Publish Evidence Checklist (required before push)
 
 - [ ] `rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows` returns no matches.
+- [ ] `rust-toolchain.toml` pins the approved Rust toolchain and required components for CI.
+- [ ] Required Rust workflows print `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and `rustup which rustc`.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the active docs sweep roadmap, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.

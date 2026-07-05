@@ -86,8 +86,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install --no-self-update
+
+      - name: Print Rust toolchain proof
+        run: |
+          rustc -Vv
+          cargo -Vv
+          which rustc
+          which cargo
+          rustup which rustc
 
       - name: Diagnostic — bash version (compatibility gate)
         run: |

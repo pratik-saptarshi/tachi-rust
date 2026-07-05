@@ -7,3 +7,6 @@ members = [
   "crates/tachi-shell",
   "crates/tachi-desktop",
 ]
+
+[workspace.package]
+rust-version = "1.96"
