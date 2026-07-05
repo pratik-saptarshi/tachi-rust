@@ -55,6 +55,7 @@ with the shipped release workflow before publication.
 |---|---|---|---|
 | `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; declares workspace Rust `1.96` MSRV; `src-tauri` is transitional-only. |
 | `rust-toolchain.toml` | Pinned Rust toolchain policy | Publishable | Required Rust workflows install Rust `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview` from the checked-in policy. |
+| `deny.toml` | Cargo dependency policy | Publishable | Cargo-deny policy for advisories, bans, license allowlist, source allowlist, and exception metadata discipline. |
 | `README.md` | Public repository landing page | Publishable | Must stay aligned with the actual build, auditor workflow, and usage path. |
 | `LICENSE` | License text | Publishable | Required public artifact. |
 | `SECURITY.md` | Vulnerability disclosure policy | Publishable | Public security policy and private disclosure channel. |
@@ -146,6 +147,7 @@ with the shipped release workflow before publication.
 | `.github/workflows/gitleaks.yml` | Full-repo secret scanning | Required publication gate. |
 | `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate | Required non-path-filtered behavior gate for package matrix tests under the checked-in Rust toolchain. |
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
+| `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |
 | `.github/workflows/release-please.yml` | Release orchestration | Main-push release automation without release-PR branch churn; release gate now covers manifest and checksum parity. |
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |
 | `.github/workflows/tachi-mmdc-preflight.yml` | Mermaid preflight | Protects docs and renderable diagram outputs. |
@@ -183,6 +185,7 @@ The repository policy for these surfaces is:
 | Infographic payload seam | `cargo test -p tachi-core` | Payload orchestration remains behavior-compatible after moving filesystem loading and template assembly. |
 | Parser hardening regression | `cargo test -p tachi-core compute_delta_counts_trims_case_and_ignores_unknown_statuses -- --nocapture` | Must pass for panic-free delta counting and status normalization. |
 | Lint gate | `cargo clippy --all-targets -- -D warnings` and `.github/workflows/rust-clippy.yml` | No warnings allowed; SARIF upload remains `if: always()` but clippy status fails closed. |
+| Supply-chain gate | `cargo audit`, `cargo deny check advisories bans licenses sources`, `make supply-chain-gate`, and `.github/workflows/rust-supply-chain.yml` | RustSec advisories, dependency bans, license policy, and registry/source policy pass locally and in CI with pinned helper tools. |
 | Coverage gate | `make llvm-cov` | Coverage remains above the repo floor; validated at 85.55% line coverage on 2026-07-05. |
 | Reporting goldens | `cargo test -p tachi-core --test reporting_goldens -- --nocapture` | Canonical report, threat, risk, coverage, and infographic outputs remain stable through semantic projections and compact snapshots. |
 | Advisory fuzz/mutation lane | `make fuzz-mutation-gate` and `.github/workflows/fuzz-mutation-audit.yml` | Commands stay documented, scheduled/manual runs remain non-blocking, and survivor reports stay offline-safe. |
@@ -220,6 +223,11 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows` returns no matches.
 - [ ] `rust-toolchain.toml` pins the approved Rust toolchain and required components for CI.
 - [ ] Required Rust workflows print `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and `rustup which rustc`.
+- [ ] `make supply-chain-gate` passes, including `cargo audit` and
+      `cargo deny check advisories bans licenses sources`.
+- [ ] `.github/workflows/gitleaks.yml` and `.github/workflows/rust-clippy.yml`
+      upload SARIF with `if: always()` and fail closed after scanner,
+      converter, formatter, or SARIF validation failures.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the active docs sweep roadmap, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.

@@ -87,9 +87,164 @@ fn clippy_sarif_workflow_fails_closed_without_losing_upload() {
         "clippy SARIF upload step must still run after clippy failures"
     );
     assert!(
-        text.contains("exit \"$CLIPPY_STATUS\""),
-        "clippy workflow must re-emit the captured clippy exit status"
+        text.contains("cargo install --locked --version 0.8.0 clippy-sarif")
+            && text.contains("cargo install --locked --version 0.8.0 sarif-fmt"),
+        "clippy SARIF helper tools must be version-pinned"
     );
+    for status in [
+        "PIPE_STATUSES=(\"${PIPESTATUS[@]}\")",
+        "CLIPPY_STATUS=${PIPE_STATUSES[0]}",
+        "CONVERTER_STATUS=${PIPE_STATUSES[1]}",
+        "FORMATTER_STATUS=${PIPE_STATUSES[3]}",
+        "SARIF_STATUS=$?",
+    ] {
+        assert!(
+            text.contains(status),
+            "clippy workflow must capture {status}"
+        );
+    }
+    assert!(
+        text.contains("jq -e '.version == \"2.1.0\" and (.runs | type == \"array\")' rust-clippy-results.sarif"),
+        "clippy workflow must structurally validate SARIF before upload"
+    );
+    assert!(
+        text.contains("for status in CLIPPY_STATUS CONVERTER_STATUS FORMATTER_STATUS SARIF_STATUS"),
+        "clippy workflow must re-emit captured pipeline statuses after SARIF upload"
+    );
+}
+
+#[test]
+fn gitleaks_workflow_uploads_sarif_but_fails_closed() {
+    let text = workflow_text("gitleaks.yml");
+
+    assert!(
+        !text.contains("continue-on-error: true"),
+        "gitleaks workflow must not mask scanner failures with continue-on-error"
+    );
+    assert!(
+        workflow_step_has_line(
+            &text,
+            "Upload SARIF to GitHub Code Scanning",
+            "if: always()"
+        ),
+        "gitleaks SARIF upload step must still run after scanner failures"
+    );
+    for status in [
+        "GITLEAKS_STATUS=$?",
+        "GITLEAKS_SARIF_STATUS=$?",
+        "exit \"$GITLEAKS_STATUS\"",
+    ] {
+        assert!(
+            text.contains(status),
+            "gitleaks workflow must capture and re-emit {status}"
+        );
+    }
+    assert!(
+        text.contains(
+            "jq -e '.version == \"2.1.0\" and (.runs | type == \"array\")' gitleaks.sarif"
+        ),
+        "gitleaks workflow must structurally validate SARIF before upload"
+    );
+}
+
+#[test]
+fn publish_gate_runs_supply_chain_policy_checks() {
+    let text = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    let deny_config = fs::read_to_string(repo_root().join("deny.toml")).expect("read deny.toml");
+    let workflow = workflow_text("rust-supply-chain.yml");
+
+    assert!(
+        text.contains("supply-chain-gate:"),
+        "Makefile must expose a local supply-chain gate"
+    );
+    for command in [
+        "cargo audit",
+        "cargo deny check advisories bans licenses sources",
+        "@$(MAKE) supply-chain-gate",
+    ] {
+        assert!(
+            text.contains(command),
+            "publish gate must include {command}"
+        );
+    }
+    assert_workflow_uses_pinned_repo_toolchain("rust-supply-chain.yml", &workflow);
+    for command in [
+        "cargo install --locked --version 0.22.2 cargo-audit",
+        "cargo install --locked --version 0.19.9 cargo-deny",
+        "cargo audit",
+        "cargo deny check advisories bans licenses sources",
+    ] {
+        assert!(
+            workflow.contains(command),
+            "supply-chain workflow must include {command}"
+        );
+    }
+    assert!(deny_config.contains("multiple-versions = \"deny\""));
+    assert!(deny_config.contains("wildcards = \"allow\""));
+    assert_license_exceptions_require_metadata(&deny_config);
+}
+
+fn assert_license_exceptions_require_metadata(deny_config: &str) {
+    let uncommented = strip_toml_comments(deny_config);
+    let exceptions = extract_inline_array(&uncommented, "exceptions")
+        .expect("deny.toml must declare licenses.exceptions");
+    let entries = inline_table_entries(exceptions);
+    for entry in entries {
+        let reason = inline_table_value(entry, "reason").unwrap_or("");
+        for required in ["owner", "expires", "issue", "remediation"] {
+            assert!(
+                reason.contains(required),
+                "deny.toml license exception `{entry}` must include {required} metadata in reason"
+            );
+        }
+    }
+}
+
+fn strip_toml_comments(text: &str) -> String {
+    text.lines()
+        .map(|line| line.split_once('#').map_or(line, |(content, _)| content))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+fn extract_inline_array<'a>(text: &'a str, key: &str) -> Option<&'a str> {
+    let start = text.find(&format!("{key} = ["))?;
+    let after_open = text[start..].find('[')? + start + 1;
+    let after_close = text[after_open..].find(']')? + after_open;
+    Some(&text[after_open..after_close])
+}
+
+fn inline_table_entries(array: &str) -> Vec<&str> {
+    let mut entries = Vec::new();
+    let mut start = None;
+    let mut depth = 0usize;
+    for (index, character) in array.char_indices() {
+        match character {
+            '{' => {
+                if depth == 0 {
+                    start = Some(index);
+                }
+                depth += 1;
+            }
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    if let Some(start) = start.take() {
+                        entries.push(&array[start..=index]);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    entries
+}
+
+fn inline_table_value<'a>(entry: &'a str, key: &str) -> Option<&'a str> {
+    let start = entry.find(&format!("{key} = \""))?;
+    let value_start = start + key.len() + 4;
+    let value_end = entry[value_start..].find('"')? + value_start;
+    Some(&entry[value_start..value_end])
 }
 
 #[test]

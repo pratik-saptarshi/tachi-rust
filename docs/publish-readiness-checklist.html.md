@@ -73,6 +73,11 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
 - [ ] Required Rust workflows install the checked-in toolchain policy and print
       `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and
       `rustup which rustc`.
+- [ ] `cargo audit` passes locally or in the equivalent
+      `.github/workflows/rust-supply-chain.yml` gate.
+- [ ] `cargo deny check advisories bans licenses sources` passes against
+      `deny.toml`, and any future license/source exceptions include owner,
+      expiry, issue, and remediation metadata.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
       `.github/workflows/rust-workspace.yml` PR gate is green.
 - [ ] Parser hardening regression tests pass, including delta-count normalization and panic-free status handling.
@@ -179,6 +184,10 @@ active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
       uploading SARIF with `if: always()`.
 - [ ] `.github/workflows/rust-clippy.yml` consumes `rust-toolchain.toml`
       instead of overriding the repo pin with floating `stable`.
+- [ ] `.github/workflows/rust-supply-chain.yml` is green and runs pinned
+      `cargo-audit` and `cargo-deny` versions.
+- [ ] `.github/workflows/gitleaks.yml` fails closed after SARIF upload when
+      scanner execution or SARIF validation fails.
 - [ ] The latest main-push Actions run does not emit Node 20 deprecation warnings from the updated workflows.
 - [ ] `.github/workflows/release-please.yml` ignores docs-only and roadmap-only
       pushes and does not churn release-PR branches on main pushes.

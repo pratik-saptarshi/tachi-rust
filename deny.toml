@@ -1,0 +1,33 @@
+[advisories]
+ignore = []
+
+[licenses]
+allow = [
+  "Apache-2.0",
+  "MIT",
+  "Unicode-3.0",
+  "Unlicense",
+]
+confidence-threshold = 0.8
+
+# License exceptions must include owner, expires, issue, and remediation in the
+# reason field before they are accepted. Example:
+# { crate = "example", allow = ["LicenseRef-example"], reason = "owner = security; expires = 2026-12-31; issue = RT-TC-002; remediation = replace dependency" }
+exceptions = []
+
+[licenses.private]
+ignore = false
+
+[bans]
+multiple-versions = "deny"
+wildcards = "allow"
+allow = []
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

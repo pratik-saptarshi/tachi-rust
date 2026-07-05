@@ -45,7 +45,9 @@ jobs:
           rustup which rustc
 
       - name: Install required cargo
-        run: cargo install clippy-sarif sarif-fmt
+        run: |
+          cargo install --locked --version 0.8.0 clippy-sarif
+          cargo install --locked --version 0.8.0 sarif-fmt
 
       - name: Install native Linux build dependencies
         run: |
@@ -60,8 +62,17 @@ jobs:
             | clippy-sarif \
             | tee rust-clippy-results.sarif \
             | sarif-fmt
-          CLIPPY_STATUS=${PIPESTATUS[0]}
-          exit "$CLIPPY_STATUS"
+          PIPE_STATUSES=("${PIPESTATUS[@]}")
+          CLIPPY_STATUS=${PIPE_STATUSES[0]}
+          CONVERTER_STATUS=${PIPE_STATUSES[1]}
+          FORMATTER_STATUS=${PIPE_STATUSES[3]}
+          jq -e '.version == "2.1.0" and (.runs | type == "array")' rust-clippy-results.sarif
+          SARIF_STATUS=$?
+          echo "CLIPPY_STATUS=${CLIPPY_STATUS}" >> "$GITHUB_ENV"
+          echo "CONVERTER_STATUS=${CONVERTER_STATUS}" >> "$GITHUB_ENV"
+          echo "FORMATTER_STATUS=${FORMATTER_STATUS}" >> "$GITHUB_ENV"
+          echo "SARIF_STATUS=${SARIF_STATUS}" >> "$GITHUB_ENV"
+          exit 0
 
       - name: Upload analysis results to GitHub
         if: always()
@@ -69,3 +80,13 @@ jobs:
         with:
           sarif_file: rust-clippy-results.sarif
           wait-for-processing: true
+
+      - name: Fail on clippy or SARIF conversion errors
+        if: always()
+        run: |
+          for status in CLIPPY_STATUS CONVERTER_STATUS FORMATTER_STATUS SARIF_STATUS; do
+            value="${!status:-1}"
+            if [ "$value" -ne 0 ]; then
+              exit "$value"
+            fi
+          done
