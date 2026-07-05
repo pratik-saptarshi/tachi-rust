@@ -1,7 +1,7 @@
 # AISVS Dependabot Remediation Issue Cards
 
-**Last Updated**: 2026-06-23
-**Status**: Beads-ready execution slices for the AISVS / Dependabot roadmap
+**Last Updated**: 2026-07-05
+**Status**: active scope and acceptance record for the AISVS / Dependabot roadmap
 **Source**: [2026-06-23-aisvs-dependabot-remediation-roadmap.html.md](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
 
 These cards are TDD-first and follow the roadmap ordering:
@@ -49,7 +49,9 @@ with the exact commands named in the card.
 - `Implementation owner`: `crates/tachi-desktop`
 - `Stage label`: Phase 0
 - `Next test seam`: `Cargo.lock`
-- `Notes`: This slice contains the live open alert and should land first.
+- `Notes`: This slice contains the live open alert and remains blocked on the
+  upstream GTK/glib compatibility constraint captured by `RT-00i.7` and
+  deferred recheck `RT-00i.2.4`.
 
 #### RT-00i.2 task beads
 
@@ -64,6 +66,8 @@ with the exact commands named in the card.
     no longer includes the GTK/Wry host stack; the new host crate routes the
     shared shell commands directly; and any Tauri compatibility concerns are
     recorded as an explicit transitional note.
+  - Status: closed for the active GTK-free host boundary; final alert closure
+    remains blocked by the transitional desktop-stack compatibility constraint.
 - `RT-00i.7` Record gtk/glib compatibility decision for Dependabot alert
   - Acceptance: the upstream compatibility decision captures the current
     `tauri -> gtk -> glib 0.18.5` path, the failed `glib 0.20.0` update, and
@@ -76,12 +80,16 @@ with the exact commands named in the card.
     release-readiness docs reflect the current state; and the Beads export
     matches the tracker state.
   - Dependencies: `RT-00i.2.2`
+  - Status: blocked with parent `RT-00i.2` until the vulnerable transitive
+    desktop-stack path can be removed or the alert is reduced to an approved
+    non-blocking exception.
 - `RT-00i.2.4` Recheck workspace desktop compatibility after host migration
   - Acceptance: a follow-up probe records whether the GTK-free workspace still
     remains free of `glib 0.18.5`; the lockfile and dependency tree are
     re-audited; and any future desktop adapter changes are tracked separately
     from the closed advisory.
   - Dependencies: `RT-00i.7`
+  - Status: deferred until upstream GTK/glib compatibility changes.
 
 ## Phase 1 - AISVS framework foundation
 
@@ -171,8 +179,9 @@ with the exact commands named in the card.
 - `Next test seam`: `crates/tachi-core/tests/aisvs_controls.rs`
 - `Notes`: This phase should close the security/control gap between the AISVS
   plan and the core reporting path.
-- `Status`: implemented locally in `crates/tachi-core/src/aisvs.rs` with
-  targeted phase-3 tests in `crates/tachi-core/tests/aisvs_controls.rs`.
+- `Status`: control implementation and tests are landed, but the Beads issue
+  remains blocked because the C06 supply-chain acceptance criterion depends on
+  closing or explicitly excepting the live `glib` advisory through `RT-00i.2`.
 
 ## Phase 4 - AISVS C09-C12 cluster
 

@@ -102,8 +102,8 @@
 
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready --json` currently returns no ready RT-TC work; `RT-TC` and
-  `RT-TC-001` through `RT-TC-006` are closed in the exported tracker snapshot.
+- `bd ready --json` currently returns no ready work; `RT-TC` and `RT-TC-001`
+  through `RT-TC-006` are closed in the exported tracker snapshot.
 - `bd list --json` includes active non-ready work: `AQ-020`, `AQ-021`,
   `RT-00i`, blocked `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
@@ -111,9 +111,9 @@
 
 ## Local Branch Reconciliation
 
-- `main` is synced with `origin/main` at `6c72a2a` after the planning status
-  reconciliation and archived-roadmap contract fix. Required GitHub Actions for
-  that commit are green.
+- `main` is synced with `origin/main` after the active backlog status
+  reconciliation. Re-check GitHub Actions live before release
+  because CI status is not encoded in the roadmap snapshot.
 - One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on `main`.
 - `feat/tauri-minimal-features` is a stale pre-main desktop branch. Its
   portable temp-root test changes and GTK-free desktop host work are already
