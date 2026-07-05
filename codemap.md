@@ -113,6 +113,10 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
 ## Agent Guidance
 
 - Before changing code, read this file and the relevant Rust module/test files.
+- Local branch audit on 2026-07-05 found `feat/tauri-minimal-features` and
+  `feat/rt009-publish-gate-bom-readiness` stale against `main`; do not merge
+  them directly without a fresh reconciliation pass and explicit deletion or
+  archival approval.
 - Prefer small TDD slices with one retired Python surface per commit.
 - Use `.worktrees/` for isolated branches; it is ignored by git.
 - Treat roadmap documents under `docs/roadmap/` as the canonical migration status.
