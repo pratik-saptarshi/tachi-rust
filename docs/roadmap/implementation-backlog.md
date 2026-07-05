@@ -1,6 +1,6 @@
 # Implementation Backlog
 
-**Last Updated**: 2026-06-26
+**Last Updated**: 2026-07-05
 **Purpose**: navigation hub for the Beads-ready Rust/Tauri implementation backlog
 **Scope**: roadmap sequencing, issue-pack pointers, and task-template guidance
 
@@ -13,6 +13,8 @@
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
 - [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
 - [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
+- [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
+- [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
 - [Standalone MCP server roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
 - [Standalone MCP server issue cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
 
@@ -51,6 +53,25 @@
 - Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
 - Task issues: `RT-00i.1.1` control registry, `RT-00i.1.2` sanitized errors, `RT-00i.1.3` Send+Sync invariants, `RT-00i.2.1` reproduce advisory proof, `RT-00i.2.2` GTK-free desktop host boundary, `RT-00i.2.3` closure evidence, `RT-00i.2.4` future workspace recheck, `RT-00i.6.1` docs and export sync
 
+## Rust Toolchain Modernization Track
+
+- [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
+- [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
+- Epic: `RT-TC` Rust toolchain modernization
+- Priority `0`: `RT-TC-001` pinned toolchain and path proof,
+  `RT-TC-002` fail-closed supply-chain gates.
+- Priority `1`: `RT-TC-003` semantic CI tests, `RT-TC-004` pinned
+  `cargo-hack`/`cargo-llvm-cov` canary proof, `RT-TC-005` `src-tauri`
+  member/exclude/retire decision.
+- Priority `2`: `RT-TC-006` deferred `smol-rs` async-runtime ADR boundary.
+- Sequencing: P0 security and CI reproducibility work may run before
+  non-blocking MCP/runtime follow-ups when it improves release confidence, but
+  it must not supersede active desktop security blockers except where the
+  toolchain or supply-chain gate directly unblocks them.
+- Tracker state: the approved remote schema migration has been applied and
+  pushed, the live `RT-TC` hierarchy now exists, and `.beads/issues.jsonl` has
+  been exported. Use the issue-card file as the source text for future updates.
+
 ## Standalone MCP Track
 
 - [Standalone MCP server roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
@@ -70,6 +91,8 @@
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
 - [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
 - [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
+- [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
+- [Rust Toolchain Upgrade issue cards](./2026-07-05-rust-toolchain-upgrade-issue-cards.md)
 - [Rust/Tauri parity remediation roadmap](./2026-06-21-rust-tauri-parity-remediation-roadmap.html.md)
 - [Rust/Tauri parity issue cards](./2026-06-21-rust-tauri-parity-issue-cards.md)
 - [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
