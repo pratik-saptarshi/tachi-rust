@@ -7,7 +7,7 @@
 ## Active Execution
 
 - Active desktop host: `crates/tachi-desktop`
-- [Beads issue mirror snapshot](./.beads/issues.jsonl)
+- [Beads issue mirror snapshot](../../.beads/issues.jsonl)
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
@@ -20,9 +20,14 @@
 
 ## Current Status Snapshot
 
-- Open: AQ-010, AQ-020, AQ-051, AQ-052, AQ-053, AQ-054, MCP-001, MCP-001.3, MCP-001.3.3, MCP-001.4, MCP-001.4.1, MCP-001.4.2, MCP-001.4.3, MCP-001.5, MCP-001.5.1
-- Partial: AQ-021, AQ-022, AQ-023, AQ-024, AQ-025
-- Done: AQ-001, AQ-011, AQ-012, AQ-013, AQ-030, AQ-031, AQ-032, AQ-033, AQ-034, AQ-040, AQ-041, AQ-042, AQ-043, AQ-050, AQ-055, DOC-001, DOC-002, DOC-003, DOC-004, RT-010, RT-011, RT-012, RT-013, RT-014, RT-015, RT-016, RT-017, RT-018, RT-019, RT-020, RT-021, RT-022, RT-023, RT-024, RT-025, RT-026, RT-027, RT-028, RT-029, RT-030
+- In progress: `AQ-020`, `AQ-021`, `RT-00i`
+- Open: `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
+  `RT-TC-005`, `RT-TC-006`
+- Blocked: `RT-00i.2`, `RT-00i.5`
+- Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
+- Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
+  including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
+  `DOC-*`, and completed `AQ-*` / `RT-*` migration slices.
 
 ## Archive Records
 
@@ -32,11 +37,11 @@
 - [Archived Docs Workflow-Version Inventory](./2026-06-21-archived-docs-workflow-version-inventory.md)
 - [Archived Docs Workflow-Version Sweep Roadmap](./2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md)
 - [Archived Docs Workflow-Version Sweep Issue Cards](./2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md)
+- [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
+- [Standalone MCP Server Issue Cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
 - [Rust/Tauri Migration Issue Pack](./2026-06-04-rust-tauri-issue-pack.md)
 - [Rust/Tauri Implementation Roadmap](./2026-06-08-rust-tauri-only-roadmap.md)
 - [Rust/Tauri Implementation Issue Cards](./2026-06-08-rust-tauri-only-issue-cards.md)
-- [Standalone MCP Server Roadmap](./2026-06-25-standalone-mcp-server-roadmap.html.md)
-- [Standalone MCP Server Issue Cards](./2026-06-25-standalone-mcp-server-issue-cards.md)
 
 ## Active Security Track
 
@@ -46,12 +51,16 @@
 - [SARIF Open Issues remediation roadmap](./2026-06-27-sarif-open-issues-remediation-roadmap.html.md)
 - [SARIF Open Issues remediation issue cards](./2026-06-27-sarif-open-issues-remediation-issue-cards.md)
 - Epic: `RT-00i` AISVS framework and Dependabot remediation
-- Active GitHub issue mirrors: `RT-bu7` / `gh-2` dynamic SARIF
+- Completed GitHub issue mirrors: `RT-bu7` / `gh-2` dynamic SARIF
   `baselineRunId`, `RT-0zv` / `gh-6` SARIF logical-location kind compliance
-- Feature issues: `RT-00i.1` typed AISVS control registry, `RT-00i.2` GTK-free desktop host migration, `RT-00i.3` AISVS C01-C04, `RT-00i.4` AISVS C09-C12, `RT-00i.5` AISVS C05-C08
-- Feature issues: `RT-00i.6` CI and docs readiness for AISVS framework
+- Feature issues: `RT-00i.1` typed AISVS control registry, `RT-00i.3`
+  AISVS C01-C04, `RT-00i.4` AISVS C09-C12, and `RT-00i.6` CI/docs
+  readiness are closed.
+- Blocked feature issues: `RT-00i.2` GTK/glib advisory remediation and
+  `RT-00i.5` AISVS C05-C08 supply-chain closure remain blocked by the
+  transitional desktop-stack constraint.
 - Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
-- Task issues: `RT-00i.1.1` control registry, `RT-00i.1.2` sanitized errors, `RT-00i.1.3` Send+Sync invariants, `RT-00i.2.1` reproduce advisory proof, `RT-00i.2.2` GTK-free desktop host boundary, `RT-00i.2.3` closure evidence, `RT-00i.2.4` future workspace recheck, `RT-00i.6.1` docs and export sync
+- Deferred task issues: `RT-00i.2.4` future workspace recheck.
 
 ## Rust Toolchain Modernization Track
 
@@ -79,7 +88,19 @@
 - Epic: `MCP-001` Standalone MCP server
 - Feature issues: `MCP-001.1` canonical contract extraction, `MCP-001.2` MCP transport and tool layer, `MCP-001.3` transport runtime hardening, `MCP-001.4` docs and release integration, `MCP-001.5` portability envelope
 - Task issues: `MCP-001.3.1` correlation and cancellation, `MCP-001.3.2` auth guard, `MCP-001.3.3` cleanup and timeout, `MCP-001.4.1` docs publish alignment, `MCP-001.4.2` BOM/release alignment, `MCP-001.4.3` CI evidence lane, `MCP-001.5.1` portability matrix
-- Code state: `crates/tachi-mcp` now implements the Stage 0 contract snapshot plus schema metadata snapshot, the Stage 1 transport/tool layer, the MCP allowlist authorization seam, and the cancellation cleanup hook; the current ready issues are the runtime hardening and portability/release follow-ups.
+- Tracker state: all `MCP-001*` issues are closed in the Beads export. The
+  roadmap remains a canonical historical source and future MCP work should open
+  a new issue hierarchy instead of reusing closed tracker cards.
+
+## Planning Reconciliation
+
+- Live Beads state is authoritative for status; roadmap files remain
+  authoritative for scope and acceptance criteria.
+- `bd ready --json` currently returns the open `RT-TC` hierarchy only.
+- `bd list --json` includes active non-ready work: `AQ-020`, `AQ-021`,
+  `RT-00i`, blocked `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
+- After any live tracker write, run `bd export -o .beads/issues.jsonl` and
+  update this backlog snapshot in the same commit.
 
 ## Canonical Sources
 
