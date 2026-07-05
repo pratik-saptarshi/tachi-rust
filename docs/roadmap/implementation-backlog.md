@@ -16,13 +16,13 @@
 
 - In progress: `RT-00i`
 - Open: none
-- Blocked: `RT-00i.2`, `RT-00i.5`
+- Blocked: `RT-00i.2.3`, `RT-00i.5`
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
   `DOC-*`, `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
-  `RT-TC-005`, `RT-TC-006`, `AQ-020`, `AQ-021`, and completed `AQ-*` /
-  `RT-*` migration slices.
+  `RT-TC-005`, `RT-TC-006`, `RT-00i.2.5`, `AQ-020`, `AQ-021`, and
+  completed `AQ-*` / `RT-*` migration slices.
 
 ## Archive Records
 
@@ -53,11 +53,12 @@
 - Feature issues: `RT-00i.1` typed AISVS control registry, `RT-00i.3`
   AISVS C01-C04, `RT-00i.4` AISVS C09-C12, and `RT-00i.6` CI/docs
   readiness are closed.
-- Blocked feature issues: `RT-00i.2` GTK/glib advisory remediation and
-  `RT-00i.5` AISVS C05-C08 supply-chain closure remain blocked by the
-  transitional desktop-stack constraint.
+- Completed remediation slice: `RT-00i.2.5` retired the buildable `src-tauri`
+  adapter and removed its lockfile/workflow from the active dependency surface.
+- Blocked feature issue: `RT-00i.5` AISVS C05-C08 supply-chain closure remains
+  blocked until the live `glib` alert is closed or formally excepted.
 - Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
-- Deferred task issues: `RT-00i.2.4` future workspace recheck.
+- Deferred task issue: `RT-00i.2.4` future workspace recheck.
 
 ## Rust Toolchain Modernization Track
 
@@ -71,9 +72,9 @@
 - Priority `1`: `RT-TC-003` converted workflow/reporting assertions to
   semantic YAML, workspace-derived, keyed JSON, and parsed rendering
   projections; `RT-TC-004` added pinned `cargo-hack`/`cargo-llvm-cov`
-  manual/scheduled canaries; `RT-TC-005` resolved `src-tauri` as an explicitly
-  excluded standalone adapter with its own lockfile and manual/scheduled
-  compatibility lane.
+  manual/scheduled canaries; `RT-TC-005` recorded the standalone-adapter
+  decision that is now superseded by active `RT-00i.2.5` retirement of the
+  buildable `src-tauri` surface.
 - Priority `2`: `RT-TC-006` is implemented by
   [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md),
   which defers `smol-rs` runtime crates to a future MCP or desktop
@@ -106,7 +107,7 @@
 - `bd ready --json` currently returns no ready work; `RT-TC` and `RT-TC-001`
   through `RT-TC-006` are closed in the exported tracker snapshot.
 - `bd list --json` includes active non-ready work: `RT-00i`, blocked
-  `RT-00i.2` / `RT-00i.5`, and deferred follow-ups.
+  `RT-00i.2.3` / `RT-00i.5`, and deferred follow-ups.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 

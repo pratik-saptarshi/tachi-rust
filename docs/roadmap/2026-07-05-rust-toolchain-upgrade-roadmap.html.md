@@ -6,6 +6,12 @@ review brittleness for `tachi-rust`
 **Status**: completed; retained as the historical execution roadmap for the
 closed `RT-TC` Beads hierarchy
 
+> Supersession note (2026-07-05): RT-TC-005 resolved `src-tauri` as a
+> standalone adapter during the toolchain hardening track. Active security work
+> in `RT-00i.2.5` now supersedes that decision by retiring the buildable
+> adapter manifest, lockfile, and workflow to close the remaining GTK/GLib
+> advisory surface.
+
 ## Executive Summary
 
 The repo has been upgraded to the pinned Rust `1.96.1` toolchain deliberately,

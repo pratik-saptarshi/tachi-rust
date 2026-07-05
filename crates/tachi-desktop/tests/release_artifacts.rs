@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use pretty_assertions::assert_eq;
-use tachi_tauri::{
+use tachi_desktop::{
     build_release_manifest, validate_package_contents, verify_checksum_matrix, PackageContentReport,
 };
 

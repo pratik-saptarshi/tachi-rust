@@ -62,7 +62,7 @@ pub fn collect_audit(root: &Path) -> CoverageAudit {
         collect_python_test_paths(&python_tests_root, &mut paths);
     }
 
-    let rust_test_roots = [root.join("crates"), root.join("src-tauri")];
+    let rust_test_roots = [root.join("crates")];
     for rust_root in rust_test_roots {
         if rust_root.exists() {
             collect_rust_test_paths(&rust_root, &mut paths);

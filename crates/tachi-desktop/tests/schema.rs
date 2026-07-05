@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 use serde_json::json;
-use tachi_tauri::{
+use tachi_desktop::{
     render_schema_error, validate_invoke_input, validate_invoke_output, DesktopInvokeInput,
 };
 

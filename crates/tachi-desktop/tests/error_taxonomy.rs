@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
-use tachi_tauri::{
+use tachi_desktop::{
     build_release_manifest_typed, dispatch_desktop_command, restore_offline_cache_typed,
     validate_invoke_input_typed, verify_checksum_matrix_typed, DesktopErrorKind,
 };
@@ -64,7 +64,7 @@ fn typed_release_policy_and_internal_codes_are_distinct() {
     assert_eq!(policy_err.kind(), DesktopErrorKind::Policy);
     assert_eq!(policy_err.code(), 3);
 
-    let internal = tachi_tauri::DesktopError::internal("desktop boundary failure");
+    let internal = tachi_desktop::DesktopError::internal("desktop boundary failure");
     assert_eq!(internal.kind(), DesktopErrorKind::Internal);
     assert_eq!(internal.code(), 1);
     assert!(internal.message().contains("desktop boundary failure"));

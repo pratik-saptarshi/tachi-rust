@@ -1,11 +1,11 @@
 use pretty_assertions::assert_eq;
-use tachi_tauri::{collect_cli_commands, collect_tauri_commands, diff_registry, RegistryDiff};
+use tachi_desktop::{collect_cli_commands, collect_desktop_commands, diff_registry, RegistryDiff};
 
 #[test]
 fn registry_diff_reports_matching_control_plane_surface() {
-    assert_eq!(collect_cli_commands(), collect_tauri_commands());
+    assert_eq!(collect_cli_commands(), collect_desktop_commands());
 
-    let diff = diff_registry(collect_cli_commands(), collect_tauri_commands());
+    let diff = diff_registry(collect_cli_commands(), collect_desktop_commands());
     assert_eq!(
         diff,
         RegistryDiff {
@@ -21,7 +21,7 @@ fn registry_diff_reports_matching_control_plane_surface() {
                 String::from("update"),
             ],
             cli_only_commands: Vec::new(),
-            tauri_only_commands: Vec::new(),
+            desktop_only_commands: Vec::new(),
         }
     );
 }
@@ -69,7 +69,7 @@ fn registry_diff_reports_missing_and_extra_commands() {
                 String::from("update"),
             ],
             cli_only_commands: Vec::new(),
-            tauri_only_commands: vec![String::from("sync-status")],
+            desktop_only_commands: vec![String::from("sync-status")],
         }
     );
 }

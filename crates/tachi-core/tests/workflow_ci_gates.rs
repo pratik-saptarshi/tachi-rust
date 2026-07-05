@@ -193,14 +193,10 @@ fn publish_gate_runs_supply_chain_policy_checks() {
 }
 
 #[test]
-fn transitional_tauri_adapter_is_explicitly_standalone() {
+fn retired_tauri_adapter_is_absent_from_release_dependency_surface() {
     let workspace_manifest =
         fs::read_to_string(repo_root().join("Cargo.toml")).expect("read workspace Cargo.toml");
-    let adapter_manifest = fs::read_to_string(repo_root().join("src-tauri/Cargo.toml"))
-        .expect("read src-tauri Cargo.toml");
-    let adapter_lock = repo_root().join("src-tauri/Cargo.lock");
     let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
-    let workflow = workflow_text("tauri-adapter-compatibility.yml");
     let required_workflows = [
         "rust-workspace.yml",
         "rust-clippy.yml",
@@ -208,68 +204,34 @@ fn transitional_tauri_adapter_is_explicitly_standalone() {
     ];
 
     assert!(
-        workspace_manifest.contains("exclude = [\"src-tauri\"]"),
-        "root workspace must explicitly exclude the transitional Tauri adapter"
+        !workspace_manifest.contains("src-tauri"),
+        "root workspace must not retain retired src-tauri member or exclude entries"
     );
-    assert!(
-        !workspace_members_section(&workspace_manifest).contains("\"src-tauri\""),
-        "src-tauri must not be an active workspace member"
-    );
-    assert!(
-        adapter_lock.exists(),
-        "standalone src-tauri adapter must commit its own Cargo.lock for locked validation"
-    );
-    for required in [
-        "rust-version = \"1.96\"",
-        "license = \"Apache-2.0\"",
-        "publish = false",
+    for retired_path in [
+        "src-tauri/Cargo.toml",
+        "src-tauri/Cargo.lock",
+        ".github/workflows/tauri-adapter-compatibility.yml",
     ] {
         assert!(
-            adapter_manifest.contains(required),
-            "standalone src-tauri manifest must include {required}"
+            !repo_root().join(retired_path).exists(),
+            "{retired_path} must stay absent after retiring the vulnerable adapter surface"
         );
     }
-    for command in [
-        "tauri-adapter-check:",
-        "cargo metadata --manifest-path src-tauri/Cargo.toml --locked --format-version 1",
-        "cargo check --manifest-path src-tauri/Cargo.toml --locked",
+    for retired_command in [
+        "tauri-adapter-check",
+        "cargo metadata --manifest-path src-tauri/Cargo.toml",
+        "cargo check --manifest-path src-tauri/Cargo.toml",
     ] {
         assert!(
-            makefile.contains(command),
-            "Makefile must expose non-publish-blocking adapter validation command {command}"
+            !makefile.contains(retired_command),
+            "Makefile must not expose retired adapter command {retired_command}"
         );
     }
-    assert!(
-        !publish_gate_commands(&makefile).any(|line| line.contains("tauri-adapter-check")),
-        "transitional adapter validation must not be part of publish-gate until promoted"
-    );
-    assert_workflow_uses_pinned_repo_toolchain("tauri-adapter-compatibility.yml", &workflow);
-    assert!(
-        workflow.contains("workflow_dispatch:") && workflow.contains("schedule:"),
-        "adapter workflow must be manual/scheduled compatibility evidence"
-    );
-    for dependency in [
-        "libwebkit2gtk-4.1-dev",
-        "libayatana-appindicator3-dev",
-        "librsvg2-dev",
-        "libssl-dev",
-        "libxdo-dev",
-        "pkg-config",
-    ] {
-        assert!(
-            workflow.contains(dependency),
-            "adapter workflow must install Tauri Linux dependency {dependency}"
-        );
-    }
-    assert!(
-        !workflow.contains("pull_request:") && !workflow.contains("push:"),
-        "adapter workflow must not become a required PR/main gate accidentally"
-    );
     for name in required_workflows {
         let text = workflow_text(name);
         assert!(
             !text.contains("src-tauri") && !text.contains("tachi-tauri"),
-            "{name} must not accidentally gate the transitional adapter"
+            "{name} must not accidentally gate the retired adapter"
         );
     }
 }

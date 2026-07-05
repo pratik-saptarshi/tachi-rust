@@ -2,7 +2,7 @@
 
 ## Project Responsibility
 
-`tachi-rust` is the Rust-native implementation track for Tachi threat-modeling workflows. The current canonical path is the Rust workspace: `tachi-core` owns parsing and report data, `tachi-cli` exposes command-line entrypoints, `tachi-mcp` owns the standalone MCP transport and registered analysis tools, `tachi-shell` provides shared command handlers, and `crates/tachi-desktop` owns the active GTK-free desktop host. `src-tauri` remains as a transitional compatibility adapter.
+`tachi-rust` is the Rust-native implementation track for Tachi threat-modeling workflows. The current canonical path is the Rust workspace: `tachi-core` owns parsing and report data, `tachi-cli` exposes command-line entrypoints, `tachi-mcp` owns the standalone MCP transport and registered analysis tools, `tachi-shell` provides shared command handlers, and `crates/tachi-desktop` owns the active GTK-free desktop host. The former `src-tauri` adapter is retired from the active dependency surface.
 
 The repository is still migrating away from the original Python ecosystem. Remaining Python scripts, pytest suites, and FastAPI stack scaffolds are tracked as transitional surfaces in `docs/roadmap/2026-06-08-python-surface-inventory.md`.
 
@@ -10,15 +10,15 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Entry Point | Responsibility |
 |---|---|
-| `Cargo.toml` | Workspace manifest for `crates/tachi-core`, `crates/tachi-cli`, `crates/tachi-mcp`, `crates/tachi-shell`, and `crates/tachi-desktop`, with workspace Rust `1.96` MSRV metadata and an explicit `src-tauri` exclusion. |
+| `Cargo.toml` | Workspace manifest for `crates/tachi-core`, `crates/tachi-cli`, `crates/tachi-mcp`, `crates/tachi-shell`, and `crates/tachi-desktop`, with workspace Rust `1.96` MSRV metadata. |
 | `rust-toolchain.toml` | Repository Rust toolchain policy pinned to `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview`; required Rust workflows install it and print compiler path/version proof. |
 | `deny.toml` | Cargo dependency policy for advisories, bans, licenses, source registries, and exception metadata expectations. |
 | `crates/tachi-core/src/lib.rs` | Core Rust library export surface for parsers, report data, coverage-attestation payloads, SARIF builders, taxonomy, coverage audit, infographic payloads, and attack-chain Mermaid generation, including the executive-architecture overlay path. |
 | `crates/tachi-cli/src/bin/*.rs` | Rust CLI binaries for init/install/update/bootstrap, report-data, infographic-data, SARIF generation, and coverage audit. |
 | `crates/tachi-shell/src/commands.rs` | Shared command layer used by CLI-style flows, the GTK-free desktop host, and transitional adapter paths. |
 | `crates/tachi-desktop/src/main.rs` | Active native desktop host entrypoint, including headless smoke mode and macOS AppKit launch path. |
-| `src-tauri/src/lib.rs` | Transitional Tauri command registration and bridge integration retained for standalone compatibility evidence. |
-| `Makefile` | Validation shortcuts, including the Rust coverage gate via `make llvm-cov`, dependency policy via `make supply-chain-gate`, standalone Tauri adapter proof via `make tauri-adapter-check`, advisory feature/coverage canaries via `make feature-combination-canary` and `make coverage-tool-proof`, and scaffold dependency-floor gate via `make scaffold-dependency-gate`. |
+| `crates/tachi-desktop/src/lib.rs` | Active desktop host facade, command registry parity, typed invoke validation, offline-cache helpers, release-artifact manifest helpers, and shared shell dispatch integration. |
+| `Makefile` | Validation shortcuts, including the Rust coverage gate via `make llvm-cov`, dependency policy via `make supply-chain-gate`, advisory feature/coverage canaries via `make feature-combination-canary` and `make coverage-tool-proof`, and scaffold dependency-floor gate via `make scaffold-dependency-gate`. |
 | `.github/workflows/release-please.yml` | Main-push release automation using release-please with direct tag/release creation and no release-PR churn. |
 | `docs/platform-compatibility.md` | Public compatibility matrix and setup landing page for canonical core plus harness-specific shims/fallbacks. |
 | `docs/roadmap/` | Canonical migration roadmap, issue cards, merge plan, and Python-surface inventory. |
@@ -31,8 +31,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 | `crates/tachi-cli/` | Thin CLI binary layer. Binaries parse flags, call shared core/shell functions, and write files or stdout. Business logic should move down into `tachi-core` or `tachi-shell`. |
 | `crates/tachi-mcp/` | Standalone MCP transport. The crate owns the initial contract snapshot, versioned command hash, registered analysis tools, and stdio request/response seam with request-id propagation and cancellation-aware policy checks. |
 | `crates/tachi-shell/` | Shared command facade for shell-style control-plane operations and Tauri-facing command dispatch. Keeps desktop and CLI command semantics aligned and now enforces bounded execution, output/input path containment, process cleanup for desktop bridge file IO, and serialized control-plane tests around shared shell state. |
-| `crates/tachi-desktop/` | Active GTK-free native desktop host. It routes directly through `tachi-shell`, owns host parity and app-state tests, and provides the launchable desktop path without Tauri/Wry/GTK dependencies. |
-| `src-tauri/` | Transitional Tauri adapter. It should remain a bridge/registration layer and avoid duplicate business logic while compatibility evidence is retained. The scaffold includes `tauri.conf.json`, `capabilities/main.json`, typed control-plane schema guards, typed desktop error taxonomy, and offline cache path-policy checks with a least-privilege `core:default` main-window capability. |
+| `crates/tachi-desktop/` | Active GTK-free native desktop host. It routes directly through `tachi-shell`, owns host parity, typed boundary, offline-cache, release-artifact, and app-state tests, and provides the launchable desktop path without Tauri/Wry/GTK dependencies. |
 | `schemas/` | Finding schema and taxonomy catalogs used by parser, source-attribution, coverage, AISVS, and crosswalk validation tests. |
 | `.claude/` | Agent, command, skill, and reference content inherited from the original Tachi workflow. This is data/configuration for threat-modeling behavior, not Rust runtime code. |
 | `.aod/` | AOD shell helpers, templates, and governance memory. Some shell helpers remain under Rust test coverage while migration continues. |
@@ -46,7 +45,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Track | Current Direction |
 |---|---|
-| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` resolved `src-tauri` as an explicitly excluded standalone adapter with its own lockfile and manual/scheduled validation lane; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
+| Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` first resolved `src-tauri` as standalone evidence, then `RT-00i.2.5` retired that adapter from the active dependency surface to unblock the live GTK/GLib advisory; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
 | Codemap automation state | `.slim/codemap.json` is absent in this checkout. The root atlas is updated manually for this package, and no folder-level codemap files were invented. The codemap script path `~/.config/opencode/skills/codemap/scripts/codemap.mjs` exists on this machine, but codemap initialization/update was not run in this docs-first slice. |
 
 ## Rust Data And Control Flow
@@ -63,14 +62,14 @@ The repository is still migrating away from the original Python ecosystem. Remai
    - `coverage_audit.rs` classifies active test modules by unit, integration, smoke, E2E, and support/regression families.
 3. `tachi-shell` exposes reusable command functions for shell and desktop paths through the stable `tachi_core::facade` surface, which now carries the test-facing artifacts/assets/attack-chain/mmdc and compensating-control helpers, plus the stable reporting exports now rehomed behind root facade re-exports.
 4. `crates/tachi-desktop` exposes the active desktop host and calls the shared shell dispatch path directly while preserving command output shape, artifact behavior, progress/cancellation handling, and app-state visibility.
-5. `src-tauri` keeps transitional command registration and bridge evidence for compatibility while the active workspace desktop path stays GTK-free.
+5. The retired `src-tauri` Cargo manifest and lockfile stay absent so the active workspace desktop path remains GTK-free and Dependabot does not track a stale adapter lockfile.
 
 ## Testing And Validation
 
 | Level | Current Rust-Native Surface |
 |---|---|
 | Unit | Rust unit tests; current audit shows 2 Rust unit modules and 0 remaining Python unit modules. |
-| Integration | Rust integration tests under `crates/*/tests` and transitional `src-tauri/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, Tauri capability-boundary audit, and the typed control-plane boundary audit, while the init-substitution E2E boundary is Rust-owned. |
+| Integration | Rust integration tests under `crates/*/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, retired-adapter guard tests, and the typed control-plane boundary audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init flow now lives in `crates/tachi-shell/tests/init_substitution.rs` while the Rust-owned E2E boundary is being defined. |
 | Coverage | `make llvm-cov` is the release-quality local gate. Current validated baseline: 85.42% regions / 86.15% lines. Current audit: 111 active modules, 96 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 1 Rust E2E module, 0 support/regression modules. |
@@ -147,10 +146,10 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   `crates/tachi-core/tests/{risk_scores,threats_sarif}.rs` now share the
   canonical `logicalLocation.kind` mapping so threat and risk SARIF stay in
   parity on `data-store`.
-- AQ-021: closed. `src-tauri/src/lib.rs` now registers a typed desktop
-  dispatch command, declares the standalone `tauri` / `tauri-build` adapter
-  dependencies, wires `tauri::Builder` through `generate_handler!`, and keeps
-  the least-privilege capability boundary test-backed.
+- AQ-021: closed historical evidence. Its reusable typed validation, offline
+  cache, release-artifact, and registry tests now live under
+  `crates/tachi-desktop`; the buildable `src-tauri` adapter surface is retired
+  by RT-00i.2.5.
 - AQ-020: closed. The Phase 1 desktop boundary now covers least-privilege
   config/capabilities, typed argument policy, root-contained IO, bounded
   process execution, and typed desktop errors through the closed AQ-021 through

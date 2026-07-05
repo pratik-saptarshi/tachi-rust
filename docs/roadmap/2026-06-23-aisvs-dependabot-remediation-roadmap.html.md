@@ -4,18 +4,18 @@
 **Scope**: current live Dependabot alert set, AISVS 1.0 control framework, and
 TDD-backed backlog slices for `tachi-rust`
 **Status**: active roadmap; phase 1-4 are implemented locally, phase 0 now
-tracks the GTK-free desktop host split, phase 5 is the active publish gate and
-docs-sync lane
+tracks retirement of the remaining buildable Tauri adapter surface, phase 5 is
+the active publish gate and docs-sync lane
 
 ## Executive summary
 
 The current Dependabot alert surface has one open runtime advisory: `glib`
-`0.18.5` is vulnerable in the workspace lockfile, with the patched line at
-`0.20.0`. The alert was transitive through the desktop stack (`src-tauri`
-depended on `tauri 2.6.3`, and the lockfile resolved `gio` / `glib` / `gtk`
-`0.18.x` packages). The remediation plan now replaces the workspace desktop
-host with a GTK-free boundary and keeps the Tauri shell as a transitional
-compatibility adapter only.
+`0.18.5` is vulnerable in the retired adapter lockfile, with the patched line
+at `0.20.0`. The alert was transitive through the old desktop stack
+(`src-tauri` depended on `tauri`, and the lockfile resolved `gio` / `glib` /
+`gtk` `0.18.x` packages). The active remediation plan keeps the workspace on
+the GTK-free `crates/tachi-desktop` host and retires the remaining buildable
+`src-tauri` adapter manifest, lockfile, and compatibility workflow.
 
 In parallel, the repository needs an AISVS 1.0 control framework that is
 complementary to the existing OWASP-oriented security surfaces. The framework
@@ -24,9 +24,8 @@ release gates so future security controls are incremental instead of ad hoc.
 
 Current implementation status:
 
-- Phase 0 remains open until the workspace lockfile no longer resolves
-  `glib 0.18.5` and the GTK/Wry host stack is removed from the primary member
-  set.
+- Phase 0 remains open until the active workspace and checked-in lockfiles no
+  longer expose a buildable GTK/Wry/Tauri adapter path with `glib 0.18.5`.
 - Phases 1-4 are already implemented locally in `crates/tachi-core/src/aisvs.rs`
   with targeted tests in `crates/tachi-core/tests/aisvs_registry.rs` and
   `crates/tachi-core/tests/aisvs_controls.rs`.
@@ -37,12 +36,13 @@ Current implementation status:
 
 | Alert | Current state | Package path | Fixed version | Risk |
 |---|---|---|---|---|
-| 15 | open | `Cargo.lock` -> legacy `tauri` / `gtk` host path | `glib 0.20.0` | Unsound iterator implementation in `glib::VariantStrIter` can trigger undefined behavior and crashes |
+| 16 | open | retired `src-tauri/Cargo.lock` -> legacy `tauri` / `gtk` host path | `glib 0.20.0` | Unsound iterator implementation in `glib::VariantStrIter` can trigger undefined behavior and crashes |
 
 ### Immediate remediation objective
 
-1. Move the workspace desktop surface to a GTK-free host boundary.
-1. Re-resolve `Cargo.lock` so the vulnerable `glib 0.18.5` package disappears.
+1. Keep the workspace desktop surface on the GTK-free host boundary.
+1. Remove the retired adapter manifest and lockfile so the vulnerable
+   `glib 0.18.5` package disappears from active tracked dependency surfaces.
 1. Validate the update with workspace tests, the new desktop-host tests, clippy,
    and the existing release-readiness gates.
 1. Close the Dependabot alert only after the lockfile and validation evidence
@@ -56,7 +56,7 @@ needed to be made explicit in the roadmap:
 | Finding | Severity | Category | Remediation |
 |---|---|---|---|
 | Roadmap status drifted from the live repo state | MEDIUM | Correction | Replace "implementation pending" with the actual phase status so future readers do not treat implemented control phases as work still needing build-out. |
-| Phase 0 closure still needs a workspace host split | HIGH | Gap | Keep `RT-00i.2.2`, `RT-00i.7`, and `RT-00i.2.4` as the explicit blocker/follow-up lane; do not reintroduce the GTK/Wry stack into the workspace member set. |
+| Phase 0 closure still needs adapter retirement proof | HIGH | Gap | Use `RT-00i.2.5` to remove the buildable `src-tauri` adapter surface; keep `RT-00i.2.4` as the future recheck lane; do not reintroduce the GTK/Wry stack into the workspace member set. |
 
 This roadmap already contains the necessary Beads graph, but the phase narrative
 and status text must stay aligned with the tracker and the local implementation
@@ -79,15 +79,15 @@ state.
 | Epic | `RT-00i` AISVS framework and Dependabot remediation |
 | Capability | Supply-chain containment for the live `glib` alert |
 | Feature | `RT-00i.2` Replace workspace Tauri host with GTK-free boundary |
-| Tasks | `RT-00i.2.1` reproduce alert, `RT-00i.2.2` add GTK-free host boundary, `RT-00i.2.3` verify alert closure |
-| Functions | `Cargo.toml`, `crates/tachi-desktop/`, `Cargo.lock`, `src-tauri/` compatibility adapter, `Makefile publish-gate`, `Makefile scaffold-dependency-gate` |
+| Tasks | `RT-00i.2.1` reproduce alert, `RT-00i.2.2` add GTK-free host boundary, `RT-00i.2.5` retire adapter surface, `RT-00i.2.3` verify alert closure |
+| Functions | `Cargo.toml`, `crates/tachi-desktop/`, `Cargo.lock`, retired `src-tauri` manifest/lockfile/workflow, `Makefile publish-gate`, `Makefile scaffold-dependency-gate` |
 
 **TDD acceptance criteria**
 
 - Add or preserve a failing proof that captures the vulnerable `glib 0.18.5`
   lockfile state before the host split.
-- Make the smallest workspace change that removes the GTK/Wry host path from
-  the primary member set.
+- Make the smallest workspace change that removes the remaining buildable
+  GTK/Wry/Tauri adapter path from tracked dependency surfaces.
 - Keep the desktop host and workspace tests green after the split.
 - Prove the Dependabot alert is closed or reduced to a documented, explicit
   exception.
@@ -224,7 +224,7 @@ state.
 
 ### Checkpoint A: host containment
 
-- Keep `RT-00i.2`, `RT-00i.2.4`, and the closed `RT-00i.7` decision note as
+- Keep `RT-00i.2.5`, `RT-00i.2.4`, and the closed `RT-00i.7` decision note as
   the evidence trail for the GTK-free desktop host split.
 - Re-run `cargo tree -i glib --locked --target all` and the workspace gates
   after any desktop-host change.
