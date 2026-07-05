@@ -107,11 +107,7 @@ pub fn parse_threat_report_md(content: &str) -> ThreatReportData {
 
     if !narrative_parts.is_empty() {
         let mut narrative = narrative_parts.join("\n\n");
-        if narrative.chars().count() > 2000 {
-            if let Some((idx, _)) = narrative.char_indices().nth(2000) {
-                narrative.truncate(idx);
-            }
-        }
+        truncate_utf8_bytes(&mut narrative, 2000);
         result.executive_narrative = Some(narrative);
     }
 
@@ -127,6 +123,18 @@ pub fn parse_threat_report_md(content: &str) -> ThreatReportData {
     }
 
     result
+}
+
+fn truncate_utf8_bytes(value: &mut String, max_len: usize) {
+    if value.len() <= max_len {
+        return;
+    }
+
+    let mut end = max_len;
+    while !value.is_char_boundary(end) {
+        end -= 1;
+    }
+    value.truncate(end);
 }
 
 pub fn build_remediation_actions(
