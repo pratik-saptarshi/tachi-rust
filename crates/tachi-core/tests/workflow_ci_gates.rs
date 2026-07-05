@@ -266,6 +266,92 @@ fn transitional_tauri_adapter_is_explicitly_standalone() {
     }
 }
 
+#[test]
+fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
+    let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    let workflow = workflow_text("rust-feature-coverage-canary.yml");
+    let workflow_yaml: serde_yaml::Value =
+        serde_yaml::from_str(&workflow).expect("parse rust-feature-coverage-canary.yml");
+    let llvm_cov_script =
+        fs::read_to_string(repo_root().join("scripts/llvm-cov.sh")).expect("read llvm-cov.sh");
+
+    assert_workflow_uses_pinned_repo_toolchain("rust-feature-coverage-canary.yml", &workflow);
+    let steps = workflow_yaml
+        .get("jobs")
+        .and_then(|jobs| jobs.get("feature-coverage-canary"))
+        .and_then(|job| job.get("steps"))
+        .and_then(serde_yaml::Value::as_sequence)
+        .expect("feature canary workflow steps");
+    let install_index = workflow_step_index(steps, "Install pinned canary tools")
+        .expect("install pinned canary tools step");
+    let proof_index =
+        workflow_step_index(steps, "Print canary tool proof").expect("print canary proof step");
+    let feature_index =
+        workflow_step_index(steps, "Run feature-combination canary").expect("feature canary step");
+    let coverage_index =
+        workflow_step_index(steps, "Run coverage tool proof canary").expect("coverage canary step");
+    assert!(
+        install_index < proof_index && proof_index < feature_index && feature_index < coverage_index,
+        "feature/coverage canary workflow must install, prove, run cargo-hack, then run coverage serially"
+    );
+    for trigger in ["workflow_dispatch:", "schedule:"] {
+        assert!(
+            workflow.contains(trigger),
+            "feature/coverage canary workflow must include {trigger}"
+        );
+    }
+    assert!(
+        !workflow.contains("pull_request:") && !workflow.contains("push:"),
+        "feature/coverage canary must not be a required PR/main-push gate yet"
+    );
+    for command in [
+        "cargo install --locked --version 0.6.45 cargo-hack",
+        "cargo install --locked --version 0.8.7 cargo-llvm-cov",
+        "cargo hack --version",
+        "cargo llvm-cov --version",
+        "cargo hack --version | grep -qx 'cargo-hack 0.6.45'",
+        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'",
+        "cargo hack check --workspace --locked --each-feature --no-dev-deps",
+        "git diff --exit-code -- Cargo.toml 'crates/*/Cargo.toml'",
+        "./scripts/llvm-cov.sh --workspace --summary-only --fail-under-lines 85 --ignore-filename-regex 'target/|tests/'",
+    ] {
+        assert!(
+            workflow.contains(command),
+            "feature/coverage canary workflow must include {command}"
+        );
+    }
+    for command in [
+        "feature-combination-canary:",
+        "cargo hack --version | grep -qx 'cargo-hack 0.6.45'",
+        "cargo hack check --workspace --each-feature --no-dev-deps",
+        "git diff --quiet -- Cargo.toml crates/*/Cargo.toml",
+        "coverage-tool-proof:",
+        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'",
+        "$(MAKE) llvm-cov",
+    ] {
+        assert!(
+            makefile.contains(command),
+            "Makefile must expose local canary command {command}"
+        );
+    }
+    assert!(
+        !publish_gate_commands(&makefile).any(|line| {
+            line.contains("feature-combination-canary") || line.contains("coverage-tool-proof")
+        }),
+        "canary targets must not be part of publish-gate until signal/noise review promotes them"
+    );
+    for proof in [
+        "missing llvm-cov tools in active toolchain",
+        "llvm-cov",
+        "llvm-profdata",
+    ] {
+        assert!(
+            llvm_cov_script.contains(proof),
+            "llvm-cov wrapper must keep llvm-tools-preview proof for {proof}"
+        );
+    }
+}
+
 fn publish_gate_commands(makefile: &str) -> impl Iterator<Item = &str> {
     let mut in_publish_gate = false;
     makefile.lines().filter(move |line| {

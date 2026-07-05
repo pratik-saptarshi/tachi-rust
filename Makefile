@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate tauri-adapter-check release-gate fuzz-mutation-gate publish-gate
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate tauri-adapter-check feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -82,6 +82,17 @@ supply-chain-gate: ## Run dependency advisory, license, ban, and source policy c
 tauri-adapter-check: ## Validate transitional Tauri adapter metadata and compile surface
 	@cargo metadata --manifest-path src-tauri/Cargo.toml --locked --format-version 1 >/dev/null
 	@cargo check --manifest-path src-tauri/Cargo.toml --locked
+
+feature-combination-canary: ## Run cargo-hack feature-combination canary
+	@cargo hack --version
+	@cargo hack --version | grep -qx 'cargo-hack 0.6.45'
+	@cargo hack check --workspace --each-feature --no-dev-deps
+	@git diff --quiet -- Cargo.toml crates/*/Cargo.toml
+
+coverage-tool-proof: ## Print cargo-llvm-cov proof and run coverage gate
+	@cargo llvm-cov --version
+	@cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'
+	@$(MAKE) llvm-cov
 
 release-gate: ## Validate active desktop host release readiness
 	@cargo test -p tachi-desktop --all-targets -- --nocapture

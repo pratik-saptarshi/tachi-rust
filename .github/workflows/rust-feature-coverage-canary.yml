@@ -1,0 +1,55 @@
+name: rust feature and coverage canaries
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 8 * * 3"
+
+permissions:
+  contents: read
+
+jobs:
+  feature-coverage-canary:
+    name: cargo-hack and cargo-llvm-cov canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install --no-self-update
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Print Rust toolchain proof
+        run: |
+          rustc -Vv
+          cargo -Vv
+          which rustc
+          which cargo
+          rustup which rustc
+
+      - name: Install pinned canary tools
+        run: |
+          cargo install --locked --version 0.6.45 cargo-hack
+          cargo install --locked --version 0.8.7 cargo-llvm-cov
+
+      - name: Print canary tool proof
+        run: |
+          cargo hack --version
+          cargo hack --version | grep -qx 'cargo-hack 0.6.45'
+          cargo llvm-cov --version
+          cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'
+
+      - name: Run feature-combination canary
+        run: cargo hack check --workspace --locked --each-feature --no-dev-deps
+
+      - name: Verify cargo-hack restored manifests
+        run: git diff --exit-code -- Cargo.toml 'crates/*/Cargo.toml'
+
+      - name: Run coverage tool proof canary
+        run: ./scripts/llvm-cov.sh --workspace --summary-only --fail-under-lines 85 --ignore-filename-regex 'target/|tests/'

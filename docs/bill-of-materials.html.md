@@ -149,6 +149,7 @@ with the shipped release workflow before publication.
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |
 | `.github/workflows/tauri-adapter-compatibility.yml` | Transitional Tauri adapter compatibility lane | Manual/scheduled evidence lane for `src-tauri`; not a required PR or main-push gate while `crates/tachi-desktop` remains the active host. |
+| `.github/workflows/rust-feature-coverage-canary.yml` | Feature-combination and coverage-tool canary | Manual/scheduled lane that pins `cargo-hack 0.6.45` and `cargo-llvm-cov 0.8.7`; not a required PR or main-push gate until signal/noise review promotes it. |
 | `.github/workflows/release-please.yml` | Release orchestration | Main-push release automation without release-PR branch churn; release gate now covers manifest and checksum parity. |
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |
 | `.github/workflows/tachi-mmdc-preflight.yml` | Mermaid preflight | Protects docs and renderable diagram outputs. |
@@ -188,6 +189,7 @@ The repository policy for these surfaces is:
 | Lint gate | `cargo clippy --all-targets -- -D warnings` and `.github/workflows/rust-clippy.yml` | No warnings allowed; SARIF upload remains `if: always()` but clippy status fails closed. |
 | Supply-chain gate | `cargo audit`, `cargo deny check advisories bans licenses sources`, `make supply-chain-gate`, and `.github/workflows/rust-supply-chain.yml` | RustSec advisories, dependency bans, license policy, and registry/source policy pass locally and in CI with pinned helper tools. |
 | Transitional adapter gate | `make tauri-adapter-check` and `.github/workflows/tauri-adapter-compatibility.yml` | `src-tauri` remains an explicitly excluded standalone adapter with its own lockfile and locked metadata/check proof; the active workspace release host is still `crates/tachi-desktop`. |
+| Feature and coverage canary | `make feature-combination-canary`, `make coverage-tool-proof`, and `.github/workflows/rust-feature-coverage-canary.yml` | `cargo-hack 0.6.45` checks workspace feature combinations with no dev-dependencies; `cargo-llvm-cov 0.8.7` records coverage-tool proof through the active toolchain LLVM wrapper; lane stays advisory until promoted. |
 | Coverage gate | `make llvm-cov` | Coverage remains above the repo floor; validated at 85.55% line coverage on 2026-07-05. |
 | Reporting goldens | `cargo test -p tachi-core --test reporting_goldens -- --nocapture` | Canonical report, threat, risk, coverage, and infographic outputs remain stable through semantic projections and compact snapshots. |
 | Advisory fuzz/mutation lane | `make fuzz-mutation-gate` and `.github/workflows/fuzz-mutation-audit.yml` | Commands stay documented, scheduled/manual runs remain non-blocking, and survivor reports stay offline-safe. |
@@ -233,6 +235,9 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `src-tauri` is explicitly excluded from the root workspace, keeps its own
       `Cargo.lock`, and passes `make tauri-adapter-check` when compatibility
       evidence is required.
+- [ ] `make feature-combination-canary` and `make coverage-tool-proof` pass
+      serially before promoting feature/coverage canaries from advisory to
+      required release gates.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the active docs sweep roadmap, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.

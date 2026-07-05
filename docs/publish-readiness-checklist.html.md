@@ -26,6 +26,8 @@ scheduled adapter workflow, not through the required publish gate.
       and cancellation handling without artifact leakage.
 - [ ] `make scaffold-dependency-gate` passes before publishing scaffold or template changes.
 - [ ] `make fuzz-mutation-gate` passes and `.github/workflows/fuzz-mutation-audit.yml` remains scheduled/manual and non-blocking.
+- [ ] Feature and coverage canaries are run serially when promoted for release
+      evidence: `make feature-combination-canary`, then `make coverage-tool-proof`.
 - [ ] `git push origin main --follow-tags` is the intended publish command.
 - [ ] `gh run list --branch main --limit 10` is ready for post-push monitoring.
 - [ ] `gh run watch <run-id>` will be used until the publish workflow completes.
@@ -86,6 +88,9 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] `src-tauri` remains listed in root `workspace.exclude`, has its own
       `src-tauri/Cargo.lock`, and `make tauri-adapter-check` passes when the
       transitional adapter compatibility surface is being changed.
+- [ ] `cargo hack --version` reports `0.6.45`, `cargo llvm-cov --version`
+      reports `0.8.7`, and `make feature-combination-canary` passes before any
+      feature-combination canary is promoted to a required PR gate.
 - [ ] Parser hardening regression tests pass, including delta-count normalization and panic-free status handling.
 - [ ] Reporting goldens pass with semantic projections for coverage, report,
       threat, risk, and infographic outputs.
@@ -195,6 +200,9 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] `.github/workflows/tauri-adapter-compatibility.yml` stays manual or
       scheduled, uses the pinned repo toolchain, and is not a required
       PR/main-push gate while `crates/tachi-desktop` is the active host.
+- [ ] `.github/workflows/rust-feature-coverage-canary.yml` stays manual or
+      scheduled, installs pinned `cargo-hack` / `cargo-llvm-cov`, prints tool
+      versions, and is not a required PR/main-push gate until reviewed.
 - [ ] `.github/workflows/gitleaks.yml` fails closed after SARIF upload when
       scanner execution or SARIF validation fails.
 - [ ] The latest main-push Actions run does not emit Node 20 deprecation warnings from the updated workflows.
