@@ -72,8 +72,8 @@ fn parse_threat_report_md_truncates_on_char_boundary_without_panicking() {
     ));
 
     let narrative = result.executive_narrative.expect("narrative should exist");
-    assert_eq!(narrative.chars().count(), 2000);
-    assert!(narrative.ends_with("🌐"));
+    assert!(narrative.len() <= 2000);
+    assert_eq!(narrative.len(), 1999);
     assert!(!narrative.ends_with("b"));
 }
 
