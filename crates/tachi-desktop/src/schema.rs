@@ -241,6 +241,9 @@ pub fn validate_invoke_output(command: &str, output: &CommandOutput) -> Result<(
             }
         }
         Some(CommandOutputKind::Json) => {
+            if output.stdout.is_empty() && output.stderr.is_empty() {
+                return Ok(());
+            }
             let payload: Value = serde_json::from_str(&output.stdout).map_err(|err| {
                 render_schema_error(
                     command,
@@ -404,6 +407,7 @@ fn validate_control_plane_args(command: &str, args: &[&str]) -> Result<Vec<Strin
 fn control_plane_flag_group(command: &str, flag: &str) -> Option<&'static str> {
     match command {
         "install" => match flag {
+            "--root" => Some("--root"),
             "--source" => Some("--source"),
             "--version" => Some("--version"),
             _ => None,
@@ -426,7 +430,7 @@ fn control_plane_flag_group(command: &str, flag: &str) -> Option<&'static str> {
 
 fn control_plane_flag_takes_value(command: &str, flag: &str) -> bool {
     match command {
-        "install" => matches!(flag, "--source" | "--version"),
+        "install" => matches!(flag, "--root" | "--source" | "--version"),
         "update" | "bootstrap" => matches!(flag, "--upstream-url"),
         _ => false,
     }

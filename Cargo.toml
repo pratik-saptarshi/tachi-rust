@@ -7,7 +7,6 @@ members = [
   "crates/tachi-shell",
   "crates/tachi-desktop",
 ]
-exclude = ["src-tauri"]
 
 [workspace.package]
 rust-version = "1.96"

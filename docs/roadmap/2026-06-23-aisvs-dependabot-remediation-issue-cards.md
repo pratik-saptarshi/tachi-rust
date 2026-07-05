@@ -35,13 +35,15 @@ with the exact commands named in the card.
   shell command engine
 - `Function`: `Cargo.toml`, `crates/tachi-desktop/`, `Cargo.lock`,
   `crates/tachi-core/tests/scaffold_dependency_floors.rs`,
-  `src-tauri/` compatibility adapter, `Makefile scaffold-dependency-gate`
-- `Dependencies`: live Dependabot alert 15, workspace member split,
-  transitional `src-tauri` adapter
+  retired `src-tauri` manifest/lockfile/workflow, `Makefile scaffold-dependency-gate`
+- `Dependencies`: live Dependabot alert 16, workspace member split,
+  retired `src-tauri` adapter
 - `Acceptance criteria`:
   - The vulnerable `glib 0.18.5` resolution no longer appears in the lockfile.
   - The Dependabot alert is closed or documented as an explicit non-blocking exception.
   - The workspace no longer resolves GTK/Wry through the primary desktop host.
+  - `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, and the adapter workflow
+    are absent from the active repository surface.
   - The desktop and workspace tests stay green after the host split.
   - The migration is conventional-commit sized and preserves publish-readiness gates.
 - `Validation`: `cargo test --workspace --all-targets`, `cargo test -p tachi-desktop`,
@@ -49,9 +51,9 @@ with the exact commands named in the card.
 - `Implementation owner`: `crates/tachi-desktop`
 - `Stage label`: Phase 0
 - `Next test seam`: `Cargo.lock`
-- `Notes`: This slice contains the live open alert and remains blocked on the
-  upstream GTK/glib compatibility constraint captured by `RT-00i.7` and
-  deferred recheck `RT-00i.2.4`.
+- `Notes`: This slice contains the live open alert. The in-progress
+  `RT-00i.2.5` task retires the remaining buildable adapter surface instead of
+  waiting for an upstream GTK/glib compatibility change.
 
 #### RT-00i.2 task beads
 
@@ -83,6 +85,14 @@ with the exact commands named in the card.
   - Status: blocked with parent `RT-00i.2` until the vulnerable transitive
     desktop-stack path can be removed or the alert is reduced to an approved
     non-blocking exception.
+- `RT-00i.2.5` Retire transitional Tauri adapter from release dependency surface
+  - Acceptance: `src-tauri` no longer contains an active `Cargo.toml` or
+    `Cargo.lock`; the adapter compatibility workflow and Makefile target are
+    removed; reusable typed desktop boundary tests live under
+    `crates/tachi-desktop`; and active workspace dependency proof shows no
+    `glib` or `gtk` package.
+  - Dependencies: `RT-00i.2`, `RT-00i.7`
+  - Status: closed after adapter retirement and dependency proof.
 - `RT-00i.2.4` Recheck workspace desktop compatibility after host migration
   - Acceptance: a follow-up probe records whether the GTK-free workspace still
     remains free of `glib 0.18.5`; the lockfile and dependency tree are

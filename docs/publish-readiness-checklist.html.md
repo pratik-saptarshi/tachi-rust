@@ -6,10 +6,8 @@
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
 Use this checklist before publishing to GitHub or cutting a release. The
-active desktop host is `crates/tachi-desktop`; `src-tauri` is transitional-only.
-The transitional `src-tauri` adapter is explicitly excluded from the root
-workspace and validated through `make tauri-adapter-check` / the manual or
-scheduled adapter workflow, not through the required publish gate.
+active desktop host is `crates/tachi-desktop`; the former `src-tauri` adapter is
+retired from the active dependency surface.
 
 ## 0. Canonical publish sequence
 
@@ -85,9 +83,9 @@ scheduled adapter workflow, not through the required publish gate.
       expiry, issue, and remediation metadata.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
       `.github/workflows/rust-workspace.yml` PR gate is green.
-- [ ] `src-tauri` remains listed in root `workspace.exclude`, has its own
-      `src-tauri/Cargo.lock`, and `make tauri-adapter-check` passes when the
-      transitional adapter compatibility surface is being changed.
+- [ ] `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, and the adapter
+      compatibility workflow remain absent after retiring the vulnerable
+      Tauri/GTK adapter surface.
 - [ ] `cargo hack --version` reports `0.6.45`, `cargo llvm-cov --version`
       reports `0.8.7`, and `make feature-combination-canary` passes before any
       feature-combination canary is promoted to a required PR gate.
@@ -203,9 +201,6 @@ scheduled adapter workflow, not through the required publish gate.
       instead of overriding the repo pin with floating `stable`.
 - [ ] `.github/workflows/rust-supply-chain.yml` is green and runs pinned
       `cargo-audit` and `cargo-deny` versions.
-- [ ] `.github/workflows/tauri-adapter-compatibility.yml` stays manual or
-      scheduled, uses the pinned repo toolchain, and is not a required
-      PR/main-push gate while `crates/tachi-desktop` is the active host.
 - [ ] `.github/workflows/rust-feature-coverage-canary.yml` stays manual or
       scheduled, installs pinned `cargo-hack` / `cargo-llvm-cov`, prints tool
       versions, and is not a required PR/main-push gate until reviewed.
@@ -222,11 +217,6 @@ scheduled adapter workflow, not through the required publish gate.
 - [ ] MCP roadmap, issue cards, BOM, and publish checklist remain synchronized
       as closed MCP evidence before any future MCP release promotion opens a
       new tracker hierarchy.
-- [ ] `src-tauri/tauri.conf.json` and `src-tauri/capabilities/main.json`
-      remain least-privilege and do not grant filesystem or shell permissions
-      without the corresponding AQ-022/AQ-023 policy tests. These files are
-      transitional only, explicitly excluded from the root workspace, and
-      validated through the standalone adapter lane.
 - [ ] The scaffold dependency-floor audit passes via `make scaffold-dependency-gate`
       and is included in `make publish-gate`.
 - [ ] Any release workflow required for the branch has succeeded or is queued

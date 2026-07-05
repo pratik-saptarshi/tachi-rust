@@ -102,6 +102,21 @@ fn glib_dependabot_alert_is_absent_from_workspace_lockfile() {
 }
 
 #[test]
+fn retired_tauri_adapter_cargo_surface_is_absent() {
+    let root = workspace_root();
+    for retired_path in [
+        "src-tauri/Cargo.toml",
+        "src-tauri/Cargo.lock",
+        ".github/workflows/tauri-adapter-compatibility.yml",
+    ] {
+        assert!(
+            !root.join(retired_path).exists(),
+            "{retired_path} must stay absent after retiring the vulnerable Tauri/GTK adapter surface"
+        );
+    }
+}
+
+#[test]
 fn dependency_floor_audit_reports_synthetic_vulnerable_ranges() {
     let package_json = json!({
         "dependencies": {

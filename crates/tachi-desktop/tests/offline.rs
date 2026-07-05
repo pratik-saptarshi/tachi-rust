@@ -4,7 +4,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
 use pretty_assertions::assert_eq;
-use tachi_tauri::{
+use tachi_desktop::{
     bootstrap_from_cache, check_for_update, restore_offline_cache, BootstrapReport,
     OfflineRestoreReport, UpdateCheck,
 };

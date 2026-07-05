@@ -47,8 +47,8 @@ A future async-runtime ADR must include:
   for runtime-crate adoption.
 - Manual/scheduled canaries may measure runtime-sensitive behavior, but they do
   not authorize runtime dependency changes.
-- `src-tauri` remains a standalone compatibility adapter until its own support
-  status changes through a separate issue.
+- The retired `src-tauri` adapter does not authorize runtime dependency
+  changes; any future desktop async work still needs a separate issue and ADR.
 
 ## Alternatives Considered
 

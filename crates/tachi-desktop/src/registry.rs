@@ -6,30 +6,30 @@ use tachi_shell::commands::control_plane_commands;
 pub struct RegistryDiff {
     pub shared_commands: Vec<String>,
     pub cli_only_commands: Vec<String>,
-    pub tauri_only_commands: Vec<String>,
+    pub desktop_only_commands: Vec<String>,
 }
 
 pub fn collect_cli_commands() -> &'static [&'static str] {
     control_plane_commands()
 }
 
-pub fn collect_tauri_commands() -> &'static [&'static str] {
+pub fn collect_desktop_commands() -> &'static [&'static str] {
     super::registered_commands()
 }
 
-pub fn diff_registry(cli_commands: &[&str], tauri_commands: &[&str]) -> RegistryDiff {
+pub fn diff_registry(cli_commands: &[&str], desktop_commands: &[&str]) -> RegistryDiff {
     let cli_set = cli_commands.iter().copied().collect::<BTreeSet<_>>();
-    let tauri_set = tauri_commands.iter().copied().collect::<BTreeSet<_>>();
+    let desktop_set = desktop_commands.iter().copied().collect::<BTreeSet<_>>();
 
     let shared_commands = cli_set
-        .intersection(&tauri_set)
+        .intersection(&desktop_set)
         .map(|command| (*command).to_string())
         .collect::<Vec<_>>();
     let cli_only_commands = cli_set
-        .difference(&tauri_set)
+        .difference(&desktop_set)
         .map(|command| (*command).to_string())
         .collect::<Vec<_>>();
-    let tauri_only_commands = tauri_set
+    let desktop_only_commands = desktop_set
         .difference(&cli_set)
         .map(|command| (*command).to_string())
         .collect::<Vec<_>>();
@@ -37,6 +37,6 @@ pub fn diff_registry(cli_commands: &[&str], tauri_commands: &[&str]) -> Registry
     RegistryDiff {
         shared_commands,
         cli_only_commands,
-        tauri_only_commands,
+        desktop_only_commands,
     }
 }

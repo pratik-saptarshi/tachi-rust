@@ -6,6 +6,10 @@ created after the approved remote schema migration and now closed in the
 exported tracker snapshot.
 **Source**: [Rust Toolchain Upgrade Roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
 
+> Supersession note (2026-07-05): RT-TC-005 records the historical
+> standalone-adapter decision. Active RT-00i.2.5 work now retires that buildable
+> `src-tauri` surface and moves reusable tests into `crates/tachi-desktop`.
+
 These cards were the source text for the live RT-TC Beads hierarchy. The remote
 schema migration was run with explicit approval before tracker writes, and
 future toolchain work should open a new hierarchy instead of reusing these
