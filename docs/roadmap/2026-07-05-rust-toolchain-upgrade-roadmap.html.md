@@ -30,7 +30,11 @@ checklist synchronized in the same change.
 | `smol-rs` publishes async runtime primitives such as `smol`, `async-channel`, `blocking`, `async-io`, `polling`, and `async-task`. | `https://github.com/smol-rs` | Deferred by [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md); evaluate only if a future MCP or desktop async-runtime feature supplies benchmarks plus cancellation and shutdown tests. |
 | `taiki-e` publishes Rust CI tools including `cargo-llvm-cov`, `cargo-hack`, `install-action`, `pin-project`, and `portable-atomic`. | `https://github.com/taiki-e` | Adopt `cargo-hack`/`cargo-llvm-cov` workflow patterns where they reduce feature or coverage drift. |
 
-## Current Repo Baseline
+## Pre-Implementation Repo Baseline
+
+This table records the baseline that shaped the original execution plan. It is
+not the current repository state; the completed `RT-TC` issue hierarchy and the
+backlog snapshot are authoritative for post-implementation status.
 
 | Area | Current state | Risk |
 |---|---|---|
