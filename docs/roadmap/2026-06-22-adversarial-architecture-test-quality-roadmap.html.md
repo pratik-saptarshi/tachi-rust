@@ -15,8 +15,13 @@ The highest-priority remediation is now to harden the Tauri boundary before deep
 ### Current repository delta
 
 - `src-tauri/tauri.conf.json`, `src-tauri/capabilities/main.json`, and `src-tauri/build.rs` now exist, so the Tauri surface is no longer a raw scaffold.
-- `AQ-021` is partially implemented: the desktop boundary now has least-privilege config and capability tests, but the runtime wiring and typed boundary work remain open.
-- `AQ-022` and `AQ-023` are complete: the desktop command schema now rejects control-plane drift and the bridge/offline layer now enforces root-contained IO.
+- `AQ-020` is complete: the Phase 1 Tauri desktop boundary now has
+  least-privilege config/capabilities, standalone adapter dependencies, real
+  `tauri::Builder` invoke-handler wiring, typed argument validation,
+  root-contained IO, bounded process execution, and typed desktop errors.
+- `AQ-021`, `AQ-022`, and `AQ-023` are complete: the desktop command schema now
+  rejects control-plane drift and the bridge/offline layer now enforces
+  root-contained IO.
 - `AQ-024` is complete: the shared executor now enforces bounded timeout, cancellation cleanup, output caps, and process-group termination where supported.
 - `AQ-025` is complete: the desktop boundary now exposes a typed error taxonomy with stable codes while keeping CLI rendering compatible.
 - `AQ-030` is complete: the typed command registry now drives parsing, dispatch, and output policy through a single source of command metadata.
@@ -26,7 +31,8 @@ The highest-priority remediation is now to harden the Tauri boundary before deep
 - `AQ-055` is complete: coverage-audit assertions now use invariants instead of brittle global counts.
 - `AQ-001` is closed: all child capabilities have reached the documented completion criteria and the roadmap now serves as a historical record.
 - Revalidation note: the fail-closed workspace-test and clippy gates are already present, and the bridge/offline containment checks already block the previously reported path-escape concerns. Those older findings remain archived context only.
-- The remaining risk concentrates in adapter drift, SOLID boundary cleanup, public API hygiene, and the remaining Phase 4 test-quality hardening.
+- The remaining risk concentrates in upstream GTK/glib advisory remediation,
+  adapter drift monitoring, and future roadmap-controlled follow-up work.
 
 ## Panel findings
 
@@ -36,7 +42,7 @@ The highest-priority remediation is now to harden the Tauri boundary before deep
 | --- | --- | --- | --- |
 | AQ-F01 | PR CI does not expose a full workspace behavioral gate | `.github/workflows/tachi-pytest.yml`, `.github/workflows/tachi-mmdc-preflight.yml`, `Makefile` | Regressions can merge when targeted workflows pass but workspace tests fail. |
 | AQ-F02 | Clippy SARIF lane is advisory rather than fail-closed | `.github/workflows/rust-clippy.yml` uses `continue-on-error` semantics | Lint regressions can be hidden behind successful uploads. |
-| AQ-F03 | Tauri surface is partially hardened, but runtime wiring is still incomplete | `src-tauri/src/lib.rs::run`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, `src-tauri/capabilities/main.json` | Desktop boundary now exists, but the invoke surface still needs deeper typed wiring and full least-privilege validation. |
+| AQ-F03 | Tauri runtime wiring needed least-privilege validation | `src-tauri/src/lib.rs::run`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, `src-tauri/capabilities/main.json` | Closed by AQ-020/AQ-021: the standalone adapter now wires `tauri::Builder` through the typed command allowlist and keeps capability coverage in tests. |
 | AQ-F04 | Desktop/control-plane command args remain partially opaque | `src-tauri/src/schema.rs`, `crates/tachi-shell/src/tauri_bridge.rs`, `crates/tachi-shell/src/commands.rs` | UI invoke path can still drift toward a privileged proxy unless the typed registry lands. |
 | AQ-F05 | File writes and cache copies need explicit root containment | `crates/tachi-shell/src/tauri_bridge.rs`, `src-tauri/src/offline.rs` | Output/cache paths can escape expected roots if absolute, parent, or symlink paths are accepted. |
 | AQ-F06 | Command contracts are stringly and duplicated across adapters | CLI `parse_args`, Tauri schema validation, shell dispatch matches | Violates open/closed principle and creates CLI/Tauri drift risk. |
@@ -56,7 +62,10 @@ The highest-priority remediation is now to harden the Tauri boundary before deep
 | AQ-F15 | No property/fuzz/mutation framework surfaced | no `proptest`, `quickcheck`, `cargo fuzz`, or `cargo-mutants` wiring observed | Parser and report invariants rely mainly on hand examples. |
 | AQ-F16 | Coverage audit assertions are count-brittle | `coverage_audit_cli.rs` exact inventory totals | Adding or moving tests can fail audits without product behavior changing. |
 
-Revalidation note: AQ-F01, AQ-F02, and AQ-F05 were checked against the current workflows and containment logic. They are not the active bottleneck anymore; the open remediation now centers on AQ-F03, AQ-F04, AQ-F06, AQ-F07, AQ-F11, AQ-F12, AQ-F15, and AQ-F16.
+Revalidation note: AQ-F01 through AQ-F16 were closed through the AQ-010,
+AQ-020, AQ-030, AQ-040, and AQ-050 phase capabilities. Future architecture or
+test-quality changes should open a new Beads hierarchy instead of reopening
+this completed roadmap.
 
 ## Architecture principles assessment
 
