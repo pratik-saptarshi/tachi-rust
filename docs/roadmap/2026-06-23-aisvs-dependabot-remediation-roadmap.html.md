@@ -3,14 +3,13 @@
 **Date**: 2026-06-23
 **Scope**: current live Dependabot alert set, AISVS 1.0 control framework, and
 TDD-backed backlog slices for `tachi-rust`
-**Status**: active roadmap; phase 1-4 are implemented locally, phase 0 now
-tracks retirement of the remaining buildable Tauri adapter surface, phase 5 is
-the active publish gate and docs-sync lane
+**Status**: completed active roadmap; retained as the historical execution
+record for the closed `RT-00i` Beads hierarchy
 
 ## Executive summary
 
-The current Dependabot alert surface has one open runtime advisory: `glib`
-`0.18.5` is vulnerable in the retired adapter lockfile, with the patched line
+The current Dependabot alert surface had one runtime advisory: `glib`
+`0.18.5` was vulnerable in the retired adapter lockfile, with the patched line
 at `0.20.0`. The alert was transitive through the old desktop stack
 (`src-tauri` depended on `tauri`, and the lockfile resolved `gio` / `glib` /
 `gtk` `0.18.x` packages). The active remediation plan keeps the workspace on
@@ -24,8 +23,8 @@ release gates so future security controls are incremental instead of ad hoc.
 
 Current implementation status:
 
-- Phase 0 remains open until the active workspace and checked-in lockfiles no
-  longer expose a buildable GTK/Wry/Tauri adapter path with `glib 0.18.5`.
+- Phase 0 is closed: the active workspace and checked-in lockfiles no longer
+  expose a buildable GTK/Wry/Tauri adapter path with `glib 0.18.5`.
 - Phases 1-4 are already implemented locally in `crates/tachi-core/src/aisvs.rs`
   with targeted tests in `crates/tachi-core/tests/aisvs_registry.rs` and
   `crates/tachi-core/tests/aisvs_controls.rs`.
@@ -72,7 +71,7 @@ state.
 - `Task` is the smallest TDD-first change set.
 - `Function` names the concrete module, command, workflow, or test seam.
 
-## Phase 0: Contain the open Dependabot alert
+## Phase 0: Contain the Dependabot alert
 
 | Layer | Mapping |
 |---|---|
@@ -249,7 +248,7 @@ state.
 
 ## Definition of done
 
-- The open Dependabot alert is closed or explicitly documented as accepted.
+- The Dependabot alert is closed or explicitly documented as accepted.
 - AISVS C01-C12 exist as typed, test-backed controls in the Rust workspace.
 - The roadmap and Beads tracker expose the exact validation commands for each
   slice.
