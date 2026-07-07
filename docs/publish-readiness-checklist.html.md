@@ -152,10 +152,9 @@ retired from the active dependency surface.
 - [ ] The archived roadmap docs are clearly marked historical only.
 - [ ] The roadmap and issue cards reflect the current phase sequencing, with
       closed AQ work retained as historical context.
-- [ ] The live `glib` Dependabot alert proof is captured in
-      `crates/tachi-core/tests/scaffold_dependency_floors.rs`, and
-      `RT-00i.2` closes only when the GTK-free workspace no longer resolves
-      `glib 0.18.5`.
+- [ ] The historical `glib` Dependabot proof is captured in
+      `crates/tachi-core/tests/scaffold_dependency_floors.rs`, and the
+      current workspace no longer resolves `gtk` or `glib`.
 - [ ] The AISVS registry exposes stable per-control validation commands, and
       the docs reference the registry-level contract instead of only the
       individual test names.

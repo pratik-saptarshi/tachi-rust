@@ -1,20 +1,20 @@
 # AISVS Dependabot Remediation Roadmap
 
 **Date**: 2026-06-23
-**Scope**: current live Dependabot alert set, AISVS 1.0 control framework, and
+**Scope**: historical Dependabot alert set, AISVS 1.0 control framework, and
 TDD-backed backlog slices for `tachi-rust`
 **Status**: completed active roadmap; retained as the historical execution
 record for the closed `RT-00i` Beads hierarchy
 
 ## Executive summary
 
-The current Dependabot alert surface had one runtime advisory: `glib`
+The historical Dependabot alert surface had one runtime advisory: `glib`
 `0.18.5` was vulnerable in the retired adapter lockfile, with the patched line
 at `0.20.0`. The alert was transitive through the old desktop stack
 (`src-tauri` depended on `tauri`, and the lockfile resolved `gio` / `glib` /
-`gtk` `0.18.x` packages). The active remediation plan keeps the workspace on
-the GTK-free `crates/tachi-desktop` host and retires the remaining buildable
-`src-tauri` adapter manifest, lockfile, and compatibility workflow.
+`gtk` `0.18.x` packages). The workspace has since moved to the GTK-free
+`crates/tachi-desktop` host and retired the buildable `src-tauri` adapter
+manifest, lockfile, and compatibility workflow.
 
 In parallel, the repository needs an AISVS 1.0 control framework that is
 complementary to the existing OWASP-oriented security surfaces. The framework
@@ -31,21 +31,20 @@ Current implementation status:
 - Phase 5 is active: publish-readiness now depends on the BOM, checklist, CI,
   and Beads export staying synchronized after each slice.
 
-## Live alert analysis
+## Historical alert analysis
 
 | Alert | Current state | Package path | Fixed version | Risk |
 |---|---|---|---|---|
-| 16 | open | retired `src-tauri/Cargo.lock` -> legacy `tauri` / `gtk` host path | `glib 0.20.0` | Unsound iterator implementation in `glib::VariantStrIter` can trigger undefined behavior and crashes |
+| 16 | closed | retired `src-tauri/Cargo.lock` -> legacy `tauri` / `gtk` host path | `glib 0.20.0` | Unsound iterator implementation in `glib::VariantStrIter` can trigger undefined behavior and crashes |
 
 ### Immediate remediation objective
 
 1. Keep the workspace desktop surface on the GTK-free host boundary.
-1. Remove the retired adapter manifest and lockfile so the vulnerable
-   `glib 0.18.5` package disappears from active tracked dependency surfaces.
+1. Retire the adapter manifest and lockfile so the vulnerable `glib 0.18.5`
+   package disappears from the tracked dependency surfaces.
 1. Validate the update with workspace tests, the new desktop-host tests, clippy,
    and the existing release-readiness gates.
-1. Close the Dependabot alert only after the lockfile and validation evidence
-   prove the split is real.
+1. Record the alert closure and keep the proof archived for historical review.
 
 ## Adversarial review integration
 
@@ -55,7 +54,7 @@ needed to be made explicit in the roadmap:
 | Finding | Severity | Category | Remediation |
 |---|---|---|---|
 | Roadmap status drifted from the live repo state | MEDIUM | Correction | Replace "implementation pending" with the actual phase status so future readers do not treat implemented control phases as work still needing build-out. |
-| Phase 0 closure still needs adapter retirement proof | HIGH | Gap | Use `RT-00i.2.5` to remove the buildable `src-tauri` adapter surface; keep `RT-00i.2.4` as the future recheck lane; do not reintroduce the GTK/Wry stack into the workspace member set. |
+| Phase 0 closure still needs adapter retirement proof | HIGH | Gap | Use `RT-00i.2.5` to remove the buildable `src-tauri` adapter surface; the future recheck lane was later deleted after workspace proof showed no `glib` package; do not reintroduce the GTK/Wry stack into the workspace member set. |
 
 This roadmap already contains the necessary Beads graph, but the phase narrative
 and status text must stay aligned with the tracker and the local implementation
@@ -76,7 +75,7 @@ state.
 | Layer | Mapping |
 |---|---|
 | Epic | `RT-00i` AISVS framework and Dependabot remediation |
-| Capability | Supply-chain containment for the live `glib` alert |
+| Capability | Supply-chain containment for the historical `glib` alert |
 | Feature | `RT-00i.2` Replace workspace Tauri host with GTK-free boundary |
 | Tasks | `RT-00i.2.1` reproduce alert, `RT-00i.2.2` add GTK-free host boundary, `RT-00i.2.5` retire adapter surface, `RT-00i.2.3` verify alert closure |
 | Functions | `Cargo.toml`, `crates/tachi-desktop/`, `Cargo.lock`, retired `src-tauri` manifest/lockfile/workflow, `Makefile publish-gate`, `Makefile scaffold-dependency-gate` |
@@ -223,8 +222,8 @@ state.
 
 ### Checkpoint A: host containment
 
-- Keep `RT-00i.2.5`, `RT-00i.2.4`, and the closed `RT-00i.7` decision note as
-  the evidence trail for the GTK-free desktop host split.
+- Keep `RT-00i.2.5` and the closed `RT-00i.7` decision note as the evidence
+  trail for the GTK-free desktop host split.
 - Re-run `cargo tree -i glib --locked --target all` and the workspace gates
   after any desktop-host change.
 - Do not reintroduce GTK/Wry into the workspace member set.

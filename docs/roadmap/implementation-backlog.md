@@ -15,7 +15,7 @@
 ## Current Status Snapshot
 
 - Open: none
-- Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
+- Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
   `DOC-*`, `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
@@ -56,7 +56,8 @@
   `RT-00i.2.5` retire the buildable `src-tauri` adapter, and `RT-00i.5`
   AISVS C05-C08 control cluster.
 - Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
-- Deferred task issue: `RT-00i.2.4` future workspace recheck.
+- Historical follow-up: the future workspace recheck was removed after the
+  workspace dependency proof showed no `glib` package.
 
 ## Rust Toolchain Modernization Track
 
@@ -105,7 +106,7 @@
 - `bd ready --json` currently returns no ready work; `RT-TC` and `RT-TC-001`
   through `RT-TC-006` are closed in the exported tracker snapshot.
 - `bd list --json` includes only deferred follow-ups: `AQ-054.4`, `AQ-054.5`,
-  `AQ-054.6`, and `RT-00i.2.4`.
+  and `AQ-054.6`.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 

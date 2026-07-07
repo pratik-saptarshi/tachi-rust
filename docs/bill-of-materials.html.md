@@ -194,7 +194,7 @@ The repository policy for these surfaces is:
 | Secret scan | `pre-commit run --all-files` or `gitleaks` / CI workflow | No secrets or private data leak into the publish set, including examples, fixtures, logs, and generated docs. |
 | Scaffold dependency gate | `make scaffold-dependency-gate` | Next.js/Supabase scaffold dependency ranges exclude currently known vulnerable `next` and `vitest` floors. |
 | Docs gate | `README.md`, `docs/platform-compatibility.md`, `docs/guides/DEVELOPER_GUIDE_TACHI.md`, `SECURITY.md`, `CHANGELOG.md`, and public docs cross-links | Public docs match the shipped behavior and the disclosure policy. |
-| AISVS security gate | `cargo test -p tachi-core --test aisvs_registry`, `cargo test -p tachi-core --test aisvs_controls`, `cargo test -p tachi-core --test scaffold_dependency_floors`, `cargo clippy --workspace --all-features --all-targets -- -D warnings` | AISVS C01-C12 remain typed, test-backed, and fail-closed while the live `glib` advisory proof stays reproducible in Beads, the registry exposes stable per-control validation commands, and the desktop workspace stays on the GTK-free host path. |
+| AISVS security gate | `cargo test -p tachi-core --test aisvs_registry`, `cargo test -p tachi-core --test aisvs_controls`, `cargo test -p tachi-core --test scaffold_dependency_floors`, `cargo clippy --workspace --all-features --all-targets -- -D warnings` | AISVS C01-C12 remain typed, test-backed, and fail-closed while the historical `glib` advisory proof stays reproducible in Beads, the current workspace stays on the GTK-free host path, and no active `gtk` or `glib` package remains in the Rust dependency graph. |
 | AISVS publish-readiness evidence | `RT-00i.6` | Closed Phase 5 docs/release-gate evidence stays visible in the BOM and issue cards so future AISVS work opens a new tracker slice instead of reusing the closed follow-up. |
 | Docs/version sweep | `make docs-version-gate` + `make docs-archive-version-gate` | Maintained docs stay current; archived docs and examples retain only intentional historical references. |
 | Publish gate | `make publish-gate` | The release candidate passes the full local publish-readiness suite before remote publication. |
@@ -240,7 +240,7 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
 - [ ] The MCP issue hierarchy is closed; `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` and `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` are retained as historical source records.
 - [ ] The docs-sweep roadmap and issue cards are retained as completed historical records: `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-roadmap.html.md` and `docs/roadmap/2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md`.
-- [ ] The live `glib` Dependabot alert proof is captured in `crates/tachi-core/tests/scaffold_dependency_floors.rs`, and `RT-00i.2` closes only when the GTK-free workspace no longer resolves `glib 0.18.5`.
+- [ ] The historical `glib` Dependabot alert proof is captured in `crates/tachi-core/tests/scaffold_dependency_floors.rs`, and the current workspace no longer resolves `gtk` or `glib`.
 - [ ] Archived roadmap docs are clearly marked as historical only.
 - [ ] `make docs-version-gate` passes.
 - [ ] `git status --short --branch` has no unexpected untracked or dirty state.

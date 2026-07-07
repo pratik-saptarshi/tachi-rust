@@ -23,16 +23,16 @@ with the exact commands named in the card.
 - `Next test seam`
 - `Notes`
 
-## Phase 0 - Live Dependabot containment
+## Phase 0 - Historical Dependabot containment
 
 ### RT-00i.2 - Replace workspace Tauri host with GTK-free boundary
 
 - `Epic`: RT-00i AISVS framework and Dependabot remediation
-- `Feature`: Phase 0 live Dependabot containment
-- `Capability`: supply-chain remediation for the open `glib` advisory
+- `Feature`: Phase 0 Dependabot containment
+- `Capability`: supply-chain remediation for the historical `glib` advisory
 - `Task`: reproduce the alert, move the workspace desktop surface to a GTK-free
-  host boundary, and close the live advisory without regressing the shared
-  shell command engine
+  host boundary, and close the advisory without regressing the shared shell
+  command engine
 - `Function`: `Cargo.toml`, `crates/tachi-desktop/`, `Cargo.lock`,
   `crates/tachi-core/tests/scaffold_dependency_floors.rs`,
   retired `src-tauri` manifest/lockfile/workflow, `Makefile scaffold-dependency-gate`
@@ -51,8 +51,8 @@ with the exact commands named in the card.
 - `Implementation owner`: `crates/tachi-desktop`
 - `Stage label`: Phase 0
 - `Next test seam`: `Cargo.lock`
-- `Notes`: This slice contains the live open alert. The in-progress
-  `RT-00i.2.5` task retires the remaining buildable adapter surface instead of
+- `Notes`: This slice is retained as historical evidence. The in-progress
+  `RT-00i.2.5` task retired the remaining buildable adapter surface instead of
   waiting for an upstream GTK/glib compatibility change.
 
 #### RT-00i.2 task beads
@@ -92,13 +92,9 @@ with the exact commands named in the card.
     `glib` or `gtk` package.
   - Dependencies: `RT-00i.2`, `RT-00i.7`
   - Status: closed after adapter retirement and dependency proof.
-- `RT-00i.2.4` Recheck workspace desktop compatibility after host migration
-  - Acceptance: a follow-up probe records whether the GTK-free workspace still
-    remains free of `glib 0.18.5`; the lockfile and dependency tree are
-    re-audited; and any future desktop adapter changes are tracked separately
-    from the closed advisory.
-  - Dependencies: `RT-00i.7`
-  - Status: deferred until upstream GTK/glib compatibility changes.
+  - Historical note: the deferred follow-up probe was deleted after workspace
+    dependency proof showed no `glib` package in the workspace graph or
+    lockfile.
 
 ## Phase 1 - AISVS framework foundation
 
