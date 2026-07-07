@@ -1,7 +1,7 @@
 # AISVS Dependabot Remediation Issue Cards
 
 **Last Updated**: 2026-07-05
-**Status**: active scope and acceptance record for the AISVS / Dependabot roadmap
+**Status**: completed scope and acceptance record for the AISVS / Dependabot roadmap
 **Source**: [2026-06-23-aisvs-dependabot-remediation-roadmap.html.md](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
 
 These cards are TDD-first and follow the roadmap ordering:
@@ -23,16 +23,16 @@ with the exact commands named in the card.
 - `Next test seam`
 - `Notes`
 
-## Phase 0 - Live Dependabot containment
+## Phase 0 - Historical Dependabot containment
 
 ### RT-00i.2 - Replace workspace Tauri host with GTK-free boundary
 
 - `Epic`: RT-00i AISVS framework and Dependabot remediation
-- `Feature`: Phase 0 live Dependabot containment
-- `Capability`: supply-chain remediation for the open `glib` advisory
+- `Feature`: Phase 0 Dependabot containment
+- `Capability`: supply-chain remediation for the historical `glib` advisory
 - `Task`: reproduce the alert, move the workspace desktop surface to a GTK-free
-  host boundary, and close the live advisory without regressing the shared
-  shell command engine
+  host boundary, and close the advisory without regressing the shared shell
+  command engine
 - `Function`: `Cargo.toml`, `crates/tachi-desktop/`, `Cargo.lock`,
   `crates/tachi-core/tests/scaffold_dependency_floors.rs`,
   retired `src-tauri` manifest/lockfile/workflow, `Makefile scaffold-dependency-gate`
@@ -51,8 +51,8 @@ with the exact commands named in the card.
 - `Implementation owner`: `crates/tachi-desktop`
 - `Stage label`: Phase 0
 - `Next test seam`: `Cargo.lock`
-- `Notes`: This slice contains the live open alert. The in-progress
-  `RT-00i.2.5` task retires the remaining buildable adapter surface instead of
+- `Notes`: This slice is retained as historical evidence. The in-progress
+  `RT-00i.2.5` task retired the remaining buildable adapter surface instead of
   waiting for an upstream GTK/glib compatibility change.
 
 #### RT-00i.2 task beads
@@ -69,22 +69,21 @@ with the exact commands named in the card.
     shared shell commands directly; and any Tauri compatibility concerns are
     recorded as an explicit transitional note.
   - Status: closed for the active GTK-free host boundary; final alert closure
-    remains blocked by the transitional desktop-stack compatibility constraint.
+    is now confirmed by Dependabot alert 16 closing after adapter retirement.
 - `RT-00i.7` Record gtk/glib compatibility decision for Dependabot alert
   - Acceptance: the upstream compatibility decision captures the current
     `tauri -> gtk -> glib 0.18.5` path, the failed `glib 0.20.0` update, and
     the condition required before the alert can be closed.
   - Notes: decision landing zone for the unresolved desktop-stack blocker.
   - Status: closed; the decision evidence now lives in the BOM, publish
-    checklist, and roadmap checkpoints while the alert remains open.
+    checklist, and roadmap checkpoints while the alert remained open.
 - `RT-00i.2.3` Prove alert closure and publish gate evidence
   - Acceptance: the post-fix scan or explicit exception is recorded; the
     release-readiness docs reflect the current state; and the Beads export
     matches the tracker state.
   - Dependencies: `RT-00i.2.2`
-  - Status: blocked with parent `RT-00i.2` until the vulnerable transitive
-    desktop-stack path can be removed or the alert is reduced to an approved
-    non-blocking exception.
+  - Status: closed; the fixed alert and retired adapter surface satisfy the
+    acceptance criteria.
 - `RT-00i.2.5` Retire transitional Tauri adapter from release dependency surface
   - Acceptance: `src-tauri` no longer contains an active `Cargo.toml` or
     `Cargo.lock`; the adapter compatibility workflow and Makefile target are
@@ -93,13 +92,9 @@ with the exact commands named in the card.
     `glib` or `gtk` package.
   - Dependencies: `RT-00i.2`, `RT-00i.7`
   - Status: closed after adapter retirement and dependency proof.
-- `RT-00i.2.4` Recheck workspace desktop compatibility after host migration
-  - Acceptance: a follow-up probe records whether the GTK-free workspace still
-    remains free of `glib 0.18.5`; the lockfile and dependency tree are
-    re-audited; and any future desktop adapter changes are tracked separately
-    from the closed advisory.
-  - Dependencies: `RT-00i.7`
-  - Status: deferred until upstream GTK/glib compatibility changes.
+  - Historical note: the deferred follow-up probe was deleted after workspace
+    dependency proof showed no `glib` package in the workspace graph or
+    lockfile.
 
 ## Phase 1 - AISVS framework foundation
 
@@ -189,9 +184,9 @@ with the exact commands named in the card.
 - `Next test seam`: `crates/tachi-core/tests/aisvs_controls.rs`
 - `Notes`: This phase should close the security/control gap between the AISVS
   plan and the core reporting path.
-- `Status`: control implementation and tests are landed, but the Beads issue
-  remains blocked because the C06 supply-chain acceptance criterion depends on
-  closing or explicitly excepting the live `glib` advisory through `RT-00i.2`.
+- `Status`: closed; control implementation and tests are landed, and the C06
+  supply-chain acceptance criterion is satisfied by the closed `glib`
+  advisory path through `RT-00i.2`.
 
 ## Phase 4 - AISVS C09-C12 cluster
 

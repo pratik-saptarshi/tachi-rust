@@ -14,15 +14,14 @@
 
 ## Current Status Snapshot
 
-- In progress: `RT-00i`
 - Open: none
-- Blocked: `RT-00i.2.3`, `RT-00i.5`
-- Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`, `RT-00i.2.4`
+- Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
   `DOC-*`, `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
-  `RT-TC-005`, `RT-TC-006`, `RT-00i.2.5`, `AQ-020`, `AQ-021`, and
-  completed `AQ-*` / `RT-*` migration slices.
+  `RT-TC-005`, `RT-TC-006`, `RT-00i`, `RT-00i.2`, `RT-00i.5`,
+  `RT-00i.2.5`, `AQ-020`, `AQ-021`, and completed `AQ-*` / `RT-*`
+  migration slices.
 
 ## Archive Records
 
@@ -53,12 +52,12 @@
 - Feature issues: `RT-00i.1` typed AISVS control registry, `RT-00i.3`
   AISVS C01-C04, `RT-00i.4` AISVS C09-C12, and `RT-00i.6` CI/docs
   readiness are closed.
-- Completed remediation slice: `RT-00i.2.5` retired the buildable `src-tauri`
-  adapter and removed its lockfile/workflow from the active dependency surface.
-- Blocked feature issue: `RT-00i.5` AISVS C05-C08 supply-chain closure remains
-  blocked until the live `glib` alert is closed or formally excepted.
+- Completed remediation slices: `RT-00i.2` remediate glib/tauri advisory,
+  `RT-00i.2.5` retire the buildable `src-tauri` adapter, and `RT-00i.5`
+  AISVS C05-C08 control cluster.
 - Decision issues: `RT-00i.7` gtk/glib compatibility decision for Dependabot alert (closed decision note)
-- Deferred task issue: `RT-00i.2.4` future workspace recheck.
+- Historical follow-up: the future workspace recheck was removed after the
+  workspace dependency proof showed no `glib` package.
 
 ## Rust Toolchain Modernization Track
 
@@ -106,8 +105,8 @@
   authoritative for scope and acceptance criteria.
 - `bd ready --json` currently returns no ready work; `RT-TC` and `RT-TC-001`
   through `RT-TC-006` are closed in the exported tracker snapshot.
-- `bd list --json` includes active non-ready work: `RT-00i`, blocked
-  `RT-00i.2.3` / `RT-00i.5`, and deferred follow-ups.
+- `bd list --json` includes only deferred follow-ups: `AQ-054.4`, `AQ-054.5`,
+  and `AQ-054.6`.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 
