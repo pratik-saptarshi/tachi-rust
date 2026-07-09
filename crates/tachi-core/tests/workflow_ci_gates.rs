@@ -430,6 +430,56 @@ fn transitional_init_workflow_uses_pinned_repo_toolchain() {
 }
 
 #[test]
+fn pr_facing_workflows_cancel_superseded_runs() {
+    for name in [
+        "ci-workflow-parse.yml",
+        "rust-workspace.yml",
+        "rust-clippy.yml",
+        "rust-supply-chain.yml",
+        "gitleaks.yml",
+        "tachi-mmdc-preflight.yml",
+        "tachi-pytest.yml",
+        "rustfmt.yml",
+    ] {
+        let workflow = parse_workflow(name, &workflow_text(name));
+
+        assert!(
+            workflow_has_cancelling_concurrency(&workflow),
+            "{name} must cancel superseded runs on the same ref"
+        );
+    }
+}
+
+#[test]
+fn ci_workflow_parse_gate_reports_actionlint() {
+    let text = workflow_text("ci-workflow-parse.yml");
+    let workflow = parse_workflow("ci-workflow-parse.yml", &text);
+
+    assert!(
+        workflow_declares_event(&workflow, "pull_request"),
+        "workflow parse gate must run on pull_request"
+    );
+    assert_workflow_has_run_line(
+        &workflow,
+        "go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12",
+    );
+    assert_workflow_has_run_line(&workflow, "actionlint .github/workflows/*.yml");
+}
+
+#[test]
+fn rustfmt_workflow_runs_as_a_dedicated_guardrail() {
+    let text = workflow_text("rustfmt.yml");
+    let workflow = parse_workflow("rustfmt.yml", &text);
+
+    assert_workflow_uses_pinned_repo_toolchain("rustfmt.yml", &text);
+    assert!(
+        workflow_declares_event(&workflow, "pull_request"),
+        "rustfmt workflow must run on pull_request"
+    );
+    assert_workflow_has_run_line(&workflow, "cargo fmt --all -- --check");
+}
+
+#[test]
 fn repo_pins_required_rust_toolchain_components() {
     let text = fs::read_to_string(repo_root().join("rust-toolchain.toml"))
         .expect("read rust-toolchain.toml");
@@ -667,4 +717,29 @@ fn workflow_step_field<'a>(
         })?
         .get(field)
         .and_then(serde_yaml::Value::as_str)
+}
+
+fn workflow_has_cancelling_concurrency(workflow: &serde_yaml::Value) -> bool {
+    let Some(concurrency) = workflow.get("concurrency").and_then(serde_yaml::Value::as_mapping)
+    else {
+        return false;
+    };
+
+    let group = workflow_mapping_value(concurrency, "group").and_then(serde_yaml::Value::as_str);
+    let cancel = workflow_mapping_value(concurrency, "cancel-in-progress")
+        .and_then(serde_yaml::Value::as_bool);
+
+    group.is_some_and(|group| {
+        group.contains("github.workflow") && group.contains("github.ref")
+    }) && cancel == Some(true)
+}
+
+fn workflow_mapping_value<'a>(
+    mapping: &'a serde_yaml::Mapping,
+    key: &str,
+) -> Option<&'a serde_yaml::Value> {
+    mapping
+        .iter()
+        .find(|(candidate, _)| candidate.as_str() == Some(key))
+        .map(|(_, value)| value)
 }

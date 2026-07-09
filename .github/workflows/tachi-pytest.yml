@@ -71,6 +71,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   init-suite:
     name: Rust init suite — ${{ matrix.os }}

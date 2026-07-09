@@ -1,23 +1,20 @@
-name: rust supply-chain gates
+name: rustfmt check
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: '41 3 * * 0'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  supply-chain:
-    name: cargo audit and cargo deny
+  rustfmt:
+    name: cargo fmt --all -- --check
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -35,16 +32,7 @@ jobs:
           which rustc
           which cargo
           rustup which rustc
+          rustup which rustfmt
 
-      - name: Install pinned supply-chain tools
-        run: |
-          cargo install --locked --version 0.22.2 cargo-audit
-          cargo install --locked --version 0.19.9 cargo-deny
-          cargo audit --version
-          cargo deny --version
-
-      - name: Run cargo audit
-        run: cargo audit
-
-      - name: Run cargo deny policy
-        run: cargo deny check advisories bans licenses sources
+      - name: Run rustfmt guardrail
+        run: cargo fmt --all -- --check
