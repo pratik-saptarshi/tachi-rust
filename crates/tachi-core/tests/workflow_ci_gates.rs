@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -162,6 +162,47 @@ fn gitleaks_workflow_uploads_sarif_but_fails_closed() {
         }),
         "gitleaks workflow must structurally validate SARIF before upload"
     );
+}
+
+#[test]
+fn privileged_workflows_keep_their_permission_contracts() {
+    let clippy = parse_workflow("rust-clippy.yml", &workflow_text("rust-clippy.yml"));
+    let gitleaks = parse_workflow("gitleaks.yml", &workflow_text("gitleaks.yml"));
+    let release = parse_workflow("release-please.yml", &workflow_text("release-please.yml"));
+
+    assert_eq!(
+        workflow_job_permissions(&clippy, "rust-clippy-analyze"),
+        vec![("actions", "read"), ("contents", "read"), ("security-events", "write")],
+        "clippy workflow must keep its code-scanning permission surface"
+    );
+    assert_eq!(
+        workflow_top_level_permissions(&gitleaks),
+        vec![("contents", "read"), ("security-events", "write")],
+        "gitleaks workflow must keep its code-scanning permission surface"
+    );
+    assert_eq!(
+        workflow_top_level_permissions(&release),
+        vec![("contents", "write"), ("issues", "write"), ("pull-requests", "write")],
+        "release-please workflow must keep its release-automation permission surface"
+    );
+}
+
+#[test]
+fn route_policy_manifest_records_full_mode_escalations() {
+    let text = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-route-policy.md"))
+        .expect("read route policy manifest");
+
+    for required in [
+        "main, release refs, tags, lockfiles, workflow files, and unknown routes force full mode",
+        "docs-only passive paths may narrow only when the active contract surface is not touched",
+        "observe-only routing must publish an explanation before any narrowing is enforced",
+        "unknown, incomplete, or parse-failed route inputs must widen to full mode",
+    ] {
+        assert!(
+            text.contains(required),
+            "route policy manifest must document {required}"
+        );
+    }
 }
 
 #[test]
@@ -741,6 +782,53 @@ fn workflow_declares_only_events(workflow: &serde_yaml::Value, allowed: &[&str])
     let allowed = allowed.iter().copied().collect::<BTreeSet<_>>();
 
     declared == allowed
+}
+
+fn workflow_job_permissions<'a>(
+    workflow: &'a serde_yaml::Value,
+    job_name: &'a str,
+) -> Vec<(&'a str, &'a str)> {
+    let Some(permissions) = workflow_job(workflow, job_name)
+        .get("permissions")
+        .and_then(serde_yaml::Value::as_mapping)
+    else {
+        return vec![];
+    };
+
+    let mut out = BTreeMap::new();
+    for (key, value) in permissions {
+        let Some(key) = key.as_str() else {
+            continue;
+        };
+        let Some(value) = value.as_str() else {
+            continue;
+        };
+        out.insert(key, value);
+    }
+
+    out.into_iter().collect()
+}
+
+fn workflow_top_level_permissions<'a>(workflow: &'a serde_yaml::Value) -> Vec<(&'a str, &'a str)> {
+    let Some(permissions) = workflow
+        .get("permissions")
+        .and_then(serde_yaml::Value::as_mapping)
+    else {
+        return vec![];
+    };
+
+    let mut out = BTreeMap::new();
+    for (key, value) in permissions {
+        let Some(key) = key.as_str() else {
+            continue;
+        };
+        let Some(value) = value.as_str() else {
+            continue;
+        };
+        out.insert(key, value);
+    }
+
+    out.into_iter().collect()
 }
 
 fn workflow_step_field<'a>(

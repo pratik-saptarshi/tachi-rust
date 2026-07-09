@@ -135,6 +135,8 @@ retired from the active dependency surface.
 - [ ] `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`,
       and `docs/tachi-rust-ci-review-panel.md` stay synchronized with the live
       RT-CI Beads hierarchy and the checked-in workflow gate changes.
+- [ ] `docs/tachi-rust-ci-route-policy.md` stays synchronized with the
+      routing-policy rules used by the RT-CI route and observe-only phases.
 - [ ] The AQ roadmap is archived at
       `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md`.
 - [ ] The active AISVS roadmap is
