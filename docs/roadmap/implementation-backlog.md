@@ -1,6 +1,6 @@
 # Implementation Backlog
 
-**Last Updated**: 2026-07-05
+**Last Updated**: 2026-07-09
 **Purpose**: navigation hub for the Beads-ready Rust/Tauri implementation backlog
 **Scope**: roadmap sequencing, issue-pack pointers, and task-template guidance
 
@@ -59,6 +59,20 @@
 - Historical follow-up: the future workspace recheck was removed after the
   workspace dependency proof showed no `glib` package.
 
+## Active CI Track
+
+- [Tachi-Rust CI execution plan](../tachi-rust-ci-execution-plan.md)
+- [Tachi-Rust CI Beads issue cards](../tachi-rust-ci-beads-issue-cards.md)
+- [Tachi-Rust CI review panel](../tachi-rust-ci-review-panel.md)
+- Epic: `RT-CI` Rust CI orchestration and delta-routing hardening
+- Closed phase-1 guardrails: `RT-CI-002`, `RT-CI-002.1`, `RT-CI-002.1.1`,
+  `RT-CI-002.2`, and `RT-CI-002.3`
+- Remaining open slices: `RT-CI-001.1`, `RT-CI-003*`, `RT-CI-004*`,
+  `RT-CI-005*`, `RT-CI-006*`, and `RT-CI-007*`
+- Tracker state: live Beads writes are exported to `../../.beads/issues.jsonl`
+  after each slice, and the publish inventory/checklist now names the RT-CI
+  workflows and docs as part of the current publish gate.
+
 ## Rust Toolchain Modernization Track
 
 - [Rust Toolchain Upgrade roadmap](./2026-07-05-rust-toolchain-upgrade-roadmap.html.md)
@@ -103,10 +117,11 @@
 
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready --json` currently returns no ready work; `RT-TC` and `RT-TC-001`
-  through `RT-TC-006` are closed in the exported tracker snapshot.
-- `bd list --json` includes only deferred follow-ups: `AQ-054.4`, `AQ-054.5`,
-  and `AQ-054.6`.
+- `bd ready --json` currently returns the open `RT-CI` slices, including
+  `RT-CI-001.1`, `RT-CI-003.1`, `RT-CI-003.2`, `RT-CI-004*`, `RT-CI-005*`,
+  `RT-CI-006*`, and `RT-CI-007*`.
+- `bd list --json` includes the deferred follow-ups `AQ-054.4`, `AQ-054.5`,
+  and `AQ-054.6`, plus the open `RT-CI` hierarchy.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 

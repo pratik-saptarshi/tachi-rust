@@ -1,5 +1,12 @@
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
+
+// Contract inventory:
+// - Breadth gate: rust-workspace.yml keeps the full PR matrix explicit.
+// - Fast-fail guardrails: PR concurrency, parse, and rustfmt lanes fail early.
+// - Security/release invariants: clippy, gitleaks, supply-chain, mmdc, and
+//   transitional init checks stay fail-closed and separately asserted.
 
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -480,6 +487,30 @@ fn rustfmt_workflow_runs_as_a_dedicated_guardrail() {
 }
 
 #[test]
+fn specialist_workflows_keep_their_trigger_contracts() {
+    for (name, allowed) in [
+        ("gitleaks.yml", ["pull_request"].as_slice()),
+        ("tachi-mmdc-preflight.yml", ["pull_request"].as_slice()),
+        ("rust-clippy.yml", ["push", "pull_request", "schedule"].as_slice()),
+        (
+            "rust-supply-chain.yml",
+            ["push", "pull_request", "schedule"].as_slice(),
+        ),
+        (
+            "tachi-pytest.yml",
+            ["push", "pull_request", "workflow_dispatch"].as_slice(),
+        ),
+    ] {
+        let workflow = parse_workflow(name, &workflow_text(name));
+
+        assert!(
+            workflow_declares_only_events(&workflow, allowed),
+            "{name} must keep its specialist trigger surface limited to {allowed:?}"
+        );
+    }
+}
+
+#[test]
 fn repo_pins_required_rust_toolchain_components() {
     let text = fs::read_to_string(repo_root().join("rust-toolchain.toml"))
         .expect("read rust-toolchain.toml");
@@ -696,6 +727,20 @@ fn workflow_declares_event(workflow: &serde_yaml::Value, event: &str) -> bool {
     workflow
         .get("on")
         .is_some_and(|events| events.get(event).is_some())
+}
+
+fn workflow_declares_only_events(workflow: &serde_yaml::Value, allowed: &[&str]) -> bool {
+    let Some(events) = workflow.get("on").and_then(serde_yaml::Value::as_mapping) else {
+        return false;
+    };
+
+    let declared = events
+        .keys()
+        .filter_map(serde_yaml::Value::as_str)
+        .collect::<BTreeSet<_>>();
+    let allowed = allowed.iter().copied().collect::<BTreeSet<_>>();
+
+    declared == allowed
 }
 
 fn workflow_step_field<'a>(

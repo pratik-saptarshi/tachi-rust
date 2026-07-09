@@ -1,7 +1,7 @@
 # Bill of Materials
 
 **Status**: Active publish inventory
-**Last Updated**: 2026-07-05
+**Last Updated**: 2026-07-09
 **Purpose**: enumerate the repository surfaces that are expected to ship, be
 reviewed, or be validated before publishing `tachi-rust` to remote origin
 **Scope**: source code, docs, tests, CI, security posture, and release gates
@@ -46,6 +46,9 @@ with the shipped release workflow before publication.
 | `CHANGELOG.md` | Release history | Publishable | Redaction-safe release notes only. |
 | `docs/bill-of-materials.html.md` | Publish inventory | Publishable | Canonical inventory of publication surfaces and validation gates. |
 | `docs/publish-readiness-checklist.html.md` | Publish readiness checklist | Publishable | Required pre-push gate for security, privacy, docs, CI, release hygiene, and public-doc alignment. Must describe `crates/tachi-desktop` as the active desktop host. |
+| `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation notes for the live RT-CI CI hardening track. |
+| `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Source text for the live RT-CI hierarchy and acceptance criteria. |
+| `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Validation notes from the plan-review and overseer pass. |
 | `docs/standards/PUBLISHING_SECURITY.md` | Security and privacy gate | Publishable | Source of truth for public-push safety rules, disclosure boundaries, and release-note hygiene. |
 | `docs/standards/PRECOMMIT_HOOKS.md` | Secret-scanning hook guide | Publishable with review | Must not imply weaker scanning than the current gate. |
 
@@ -113,7 +116,7 @@ with the shipped release workflow before publication.
 
 | Path | Purpose | Publish note |
 |---|---|---|
-| `docs/roadmap/implementation-backlog.md` | Backlog navigation hub | Canonical link target for active implementation sequencing and public roadmap context. |
+| `docs/roadmap/implementation-backlog.md` | Backlog navigation hub | Canonical link target for active implementation sequencing and live RT-CI / security / toolchain reconciliation. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md` | Active AISVS/security roadmap | Canonical sequencing for the live Dependabot alert, AISVS C01-C12 rollout, and TDD-backed validation gates. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md` | Active AISVS/security issue cards | Beads-ready execution templates for the RT-00i epic and its phase slices. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md#phase-5-publish-readiness-and-release-gates` | Completed Phase 5 publish-readiness slice | Historical evidence for closed `RT-00i.6`, which synchronized the AISVS docs and release-gate follow-up. |
@@ -142,6 +145,8 @@ with the shipped release workflow before publication.
 |---|---|---|
 | `.github/workflows/gitleaks.yml` | Full-repo secret scanning | Required publication gate. |
 | `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate | Required non-path-filtered behavior gate for package matrix tests under the checked-in Rust toolchain. |
+| `.github/workflows/ci-workflow-parse.yml` | Workflow syntax gate | Required PR-side `actionlint` lane for early GitHub Actions YAML failures. |
+| `.github/workflows/rustfmt.yml` | Rust formatting gate | Required PR-side `cargo fmt --all -- --check` lane for isolated formatting drift. |
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |
 | `.github/workflows/rust-feature-coverage-canary.yml` | Feature-combination and coverage-tool canary | Manual/scheduled lane that pins `cargo-hack 0.6.45` and `cargo-llvm-cov 0.8.7`; not a required PR or main-push gate until signal/noise review promotes it. |
@@ -235,7 +240,7 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `make feature-combination-canary` and `make coverage-tool-proof` pass
       serially before promoting feature/coverage canaries from advisory to
       required release gates.
-- [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
+- [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the live RT-CI track, closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
 - [ ] The MCP issue hierarchy is closed; `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` and `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` are retained as historical source records.

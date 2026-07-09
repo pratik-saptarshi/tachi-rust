@@ -1,7 +1,7 @@
 # Publish Readiness Checklist
 
 **Status**: Active release gate
-**Last Updated**: 2026-07-05
+**Last Updated**: 2026-07-09
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
@@ -130,8 +130,11 @@ retired from the active dependency surface.
 - [ ] `SECURITY.md` matches the current private-reporting and privacy policy.
 - [ ] `CHANGELOG.md` is redaction-safe and reflects only releasable notes.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the archived AQ
-      roadmap, active AISVS/security roadmap, closed docs-sweep/MCP/RT-TC
-      records, and archived provenance docs.
+      roadmap, active AISVS/security roadmap, live RT-CI execution track,
+      closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
+- [ ] `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`,
+      and `docs/tachi-rust-ci-review-panel.md` stay synchronized with the live
+      RT-CI Beads hierarchy and the checked-in workflow gate changes.
 - [ ] The AQ roadmap is archived at
       `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md`.
 - [ ] The active AISVS roadmap is
@@ -161,7 +164,8 @@ retired from the active dependency surface.
 - [ ] The DOC-00X documentation-update plan remains separate from the parity
       and docs-sweep tracks.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
-      agree on the publish gate, security surfaces, and remote publication flow.
+      agree on the publish gate, security surfaces, RT-CI workflow surfaces,
+      and remote publication flow.
 - [ ] `docs/bill-of-materials.html.md` includes the MCP roadmap and MCP issue
       cards as historical records for the closed `MCP-001*` hierarchy.
 - [ ] The public README, compatibility doc, developer guide, BOM, and
@@ -200,6 +204,10 @@ retired from the active dependency surface.
       instead of overriding the repo pin with floating `stable`.
 - [ ] `.github/workflows/rust-supply-chain.yml` is green and runs pinned
       `cargo-audit` and `cargo-deny` versions.
+- [ ] `.github/workflows/ci-workflow-parse.yml` is green and fails broken
+      workflow YAML before heavy jobs start.
+- [ ] `.github/workflows/rustfmt.yml` is green and isolates formatting drift
+      from the full workspace matrix.
 - [ ] `.github/workflows/rust-feature-coverage-canary.yml` stays manual or
       scheduled, installs pinned `cargo-hack` / `cargo-llvm-cov`, prints tool
       versions, and is not a required PR/main-push gate until reviewed.
@@ -216,6 +224,8 @@ retired from the active dependency surface.
 - [ ] MCP roadmap, issue cards, BOM, and publish checklist remain synchronized
       as closed MCP evidence before any future MCP release promotion opens a
       new tracker hierarchy.
+- [ ] RT-CI roadmap, issue cards, BOM, and publish checklist remain synchronized
+      as the live CI-hardening track evolves.
 - [ ] The scaffold dependency-floor audit passes via `make scaffold-dependency-gate`
       and is included in `make publish-gate`.
 - [ ] Any release workflow required for the branch has succeeded or is queued
