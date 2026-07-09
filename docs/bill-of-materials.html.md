@@ -47,6 +47,7 @@ with the shipped release workflow before publication.
 | `docs/bill-of-materials.html.md` | Publish inventory | Publishable | Canonical inventory of publication surfaces and validation gates. |
 | `docs/publish-readiness-checklist.html.md` | Publish readiness checklist | Publishable | Required pre-push gate for security, privacy, docs, CI, release hygiene, and public-doc alignment. Must describe `crates/tachi-desktop` as the active desktop host. |
 | `docs/tachi-rust-ci-route-policy.md` | RT-CI route policy manifest | Publishable with review | Human-readable escalation rules for the live RT-CI routing track before observe-only proof and fixture enforcement. |
+| `docs/tachi-rust-ci-route-fixtures.md` | RT-CI route fixture manifest | Publishable with review | Common change-set matrix and stable JSON examples for route decisions. |
 | `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation notes for the live RT-CI CI hardening track. |
 | `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Source text for the live RT-CI hierarchy and acceptance criteria. |
 | `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Validation notes from the plan-review and overseer pass. |

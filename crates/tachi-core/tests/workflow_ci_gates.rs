@@ -206,6 +206,30 @@ fn route_policy_manifest_records_full_mode_escalations() {
 }
 
 #[test]
+fn route_fixture_manifest_covers_common_change_shapes() {
+    let text = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-route-fixtures.md"))
+        .expect("read route fixture manifest");
+
+    for required in [
+        "docs-only",
+        "Rust crate",
+        "UI",
+        "workflow",
+        "lockfile",
+        "mixed",
+        "unknown-file",
+        "\"route\": \"full\"",
+        "\"route\": \"observe_only\"",
+        "\"fallback reason\"",
+    ] {
+        assert!(
+            text.contains(required),
+            "route fixture manifest must cover {required}"
+        );
+    }
+}
+
+#[test]
 fn publish_gate_runs_supply_chain_policy_checks() {
     let text = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
     let deny_config = fs::read_to_string(repo_root().join("deny.toml")).expect("read deny.toml");
