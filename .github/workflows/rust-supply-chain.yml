@@ -22,19 +22,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install pinned Rust toolchain
-        run: rustup toolchain install --no-self-update
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Print Rust toolchain proof
-        run: |
-          rustc -Vv
-          cargo -Vv
-          which rustc
-          which cargo
-          rustup which rustc
+      - name: Shared Rust setup
+        uses: ./.github/actions/rust-setup
 
       - name: Install pinned supply-chain tools
         run: |
@@ -44,7 +33,27 @@ jobs:
           cargo deny --version
 
       - name: Run cargo audit
-        run: cargo audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          start_ns="$(date +%s%N)"
+          cargo audit
+          end_ns="$(date +%s%N)"
+          elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          {
+            echo "### cargo audit"
+            echo "- elapsed_ms: ${elapsed_ms}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Run cargo deny policy
-        run: cargo deny check advisories bans licenses sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          start_ns="$(date +%s%N)"
+          cargo deny check advisories bans licenses sources
+          end_ns="$(date +%s%N)"
+          elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          {
+            echo "### cargo deny"
+            echo "- elapsed_ms: ${elapsed_ms}"
+          } >> "$GITHUB_STEP_SUMMARY"

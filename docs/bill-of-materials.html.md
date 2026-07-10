@@ -48,6 +48,10 @@ with the shipped release workflow before publication.
 | `docs/publish-readiness-checklist.html.md` | Publish readiness checklist | Publishable | Required pre-push gate for security, privacy, docs, CI, release hygiene, and public-doc alignment. Must describe `crates/tachi-desktop` as the active desktop host. |
 | `docs/tachi-rust-ci-route-policy.md` | RT-CI route policy manifest | Publishable with review | Human-readable escalation rules for the live RT-CI routing track before observe-only proof and fixture enforcement. |
 | `docs/tachi-rust-ci-route-fixtures.md` | RT-CI route fixture manifest | Publishable with review | Common change-set matrix and stable JSON examples for route decisions. |
+| `docs/tachi-rust-ci-route-artifact.md` | RT-CI route artifact manifest | Publishable with review | Observable `route.json` schema and stable orchestrator check notes for the route-observe lane. |
+| `docs/tachi-rust-ci-baseline.md` | RT-CI baseline snapshot | Publishable with review | Phase-0 inventory and local validation snapshot for the pre-routing CI contract. |
+| `docs/tachi-rust-ci-closeout.md` | RT-CI closeout notes | Publishable with review | Separates locally proven RT-CI changes from GitHub-side verification items that remain pending. |
+| `docs/ci-improvement-plan.html` | RT-CI source plan draft | Publishable with review | Original plan-review integrator output that feeds the live RT-CI execution docs and tracker cards. |
 | `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation notes for the live RT-CI CI hardening track. |
 | `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Source text for the live RT-CI hierarchy and acceptance criteria. |
 | `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Validation notes from the plan-review and overseer pass. |
@@ -146,8 +150,10 @@ with the shipped release workflow before publication.
 | Path | Purpose | Publish note |
 |---|---|---|
 | `.github/workflows/gitleaks.yml` | Full-repo secret scanning | Required publication gate. |
-| `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate | Required non-path-filtered behavior gate for package matrix tests under the checked-in Rust toolchain. |
+| `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate with passive-docs, dependency-closure, and emergency override route controls | Required behavior gate for package matrix tests under the checked-in Rust toolchain; skips the heavy matrix for passive-docs-only PRs, narrows crate-local changes to their dependency closure, and supports an emergency full-CI override while preserving the stable route classifier. |
+| `.github/actions/rust-setup/action.yml` | Shared Rust setup action | Local composite action that centralizes toolchain install, cache, and proof steps for Rust-facing workflows. |
 | `.github/workflows/ci-workflow-parse.yml` | Workflow syntax gate | Required PR-side `actionlint` lane for early GitHub Actions YAML failures. |
+| `.github/workflows/ci-route-observe.yml` | Route artifact gate | Observe-only PR lane that uploads `route.json` and preserves the stable orchestrator check while routing is non-enforcing. |
 | `.github/workflows/rustfmt.yml` | Rust formatting gate | Required PR-side `cargo fmt --all -- --check` lane for isolated formatting drift. |
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |

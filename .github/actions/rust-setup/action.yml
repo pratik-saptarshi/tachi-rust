@@ -1,0 +1,30 @@
+name: Rust setup
+description: Install the pinned Rust toolchain, cache dependencies, and print proof.
+
+inputs:
+  include-rustfmt-proof:
+    description: Include rustfmt in the proof step.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Install pinned Rust toolchain
+      shell: bash
+      run: rustup toolchain install --no-self-update
+
+    - name: Cache Rust dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Print Rust toolchain proof
+      shell: bash
+      run: |
+        rustc -Vv
+        cargo -Vv
+        which rustc
+        which cargo
+        rustup which rustc
+        if [ "${{ inputs.include-rustfmt-proof }}" = "true" ]; then
+          rustup which rustfmt
+        fi

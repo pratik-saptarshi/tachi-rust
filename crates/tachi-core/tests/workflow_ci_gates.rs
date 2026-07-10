@@ -29,9 +29,71 @@ fn parse_workflow(name: &str, text: &str) -> serde_yaml::Value {
 fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     let text = workflow_text("rust-workspace.yml");
     let workflow = parse_workflow("rust-workspace.yml", &text);
-    let active_packages = workspace_member_packages();
 
     assert_workflow_uses_pinned_repo_toolchain("rust-workspace.yml", &text);
+    assert!(
+        workflow_job_name(&workflow, "route")
+            == Some("route decision and stable orchestrator check"),
+        "rust-workspace workflow must expose the stable route classifier"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("active_contract_pattern")),
+        "route classifier must distinguish active contract surfaces"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("passive_docs_only")),
+        "route classifier must keep passive docs narrowing explicit"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("docs-only passive paths observed")),
+        "route classifier must record passive-docs reasons"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("dependency_closure")),
+        "route classifier must emit dependency-closure mode for crate-local changes"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("selected_packages_json")),
+        "route classifier must publish the selected package closure"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("active docs or shared surface touched")),
+        "route classifier must widen for active docs and shared surfaces"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("protected ref stays full mode")),
+        "route classifier must force full mode for protected refs"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("refs/heads/main")),
+        "route classifier must recognize the main ref as protected"
+    );
+    assert!(
+        text.contains("force_full_ci"),
+        "rust-workspace workflow must expose an emergency full-CI input"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("emergency full-ci override")),
+        "route classifier must record the emergency full-CI override"
+    );
+    assert!(
+        text.contains("fromJson(needs.route.outputs.packages_json)"),
+        "cargo-test matrix must consume route-selected packages"
+    );
+    assert!(
+        text.contains("[\"tachi-core\",\"tachi-mcp\",\"tachi-cli\",\"tachi-shell\",\"tachi-desktop\"]"),
+        "route classifier must preserve the full-package baseline"
+    );
+    assert!(
+        workflow_job_field(&workflow, "cargo-test", "if")
+            == Some("needs.route.outputs.mode != 'passive_docs_only'"),
+        "cargo-test matrix must skip passive docs-only changes"
+    );
+    assert!(
+        workflow_job_field(&workflow, "shell-tests", "if")
+            == Some("needs.route.outputs.mode != 'passive_docs_only'"),
+        "shell-tests matrix must skip passive docs-only changes"
+    );
     assert!(
         workflow_declares_unfiltered_event(&workflow, "pull_request"),
         "rust-workspace workflow must run on unfiltered pull_request events"
@@ -40,11 +102,6 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         workflow_job_name(&workflow, "cargo-test"),
         Some("cargo test -p ${{ matrix.package }} --all-targets"),
         "cargo-test job must use a package matrix"
-    );
-    assert_eq!(
-        workflow_matrix_values(&workflow, "cargo-test", "package"),
-        active_packages,
-        "cargo-test matrix must derive from active root workspace packages"
     );
     assert_job_has_run_command(
         &workflow,
@@ -194,9 +251,15 @@ fn route_policy_manifest_records_full_mode_escalations() {
 
     for required in [
         "main, release refs, tags, lockfiles, workflow files, and unknown routes force full mode",
+        "active docs, shared surfaces, dependency-closure changes, and release/mainline",
         "docs-only passive paths may narrow only when the active contract surface is not touched",
         "observe-only routing must publish an explanation before any narrowing is enforced",
         "unknown, incomplete, or parse-failed route inputs must widen to full mode",
+        "Passive docs: docs-only changes that do not touch active contract surfaces.",
+        "Active docs: roadmap, standards, guide, BOM",
+        "Shared surfaces: `README.md`, `CHANGELOG.md`, `SECURITY.md`",
+        "Dependency closure: changed crate roots stay on full mode",
+        "Release/mainline: `main`, release refs, and tag contexts always stay on full mode.",
     ] {
         assert!(
             text.contains(required),
@@ -212,10 +275,15 @@ fn route_fixture_manifest_covers_common_change_shapes() {
 
     for required in [
         "docs-only",
+        "active-docs",
         "Rust crate",
+        "dependency-closure",
         "UI",
+        "shared-surface",
         "workflow",
         "lockfile",
+        "release-mainline",
+        "aod",
         "mixed",
         "unknown-file",
         "\"route\": \"full\"",
@@ -225,6 +293,245 @@ fn route_fixture_manifest_covers_common_change_shapes() {
         assert!(
             text.contains(required),
             "route fixture manifest must cover {required}"
+        );
+    }
+}
+
+#[test]
+fn protected_workflow_contract_table_is_explicit() {
+    let text = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-execution-plan.md"))
+        .expect("read execution plan");
+
+    for required in [
+        "| `rust-clippy.yml` | `security-events: write` on analysis; `if: always()` SARIF upload; fail closed after capturing clippy, converter, formatter, and SARIF statuses. |",
+        "| `gitleaks.yml` | `security-events: write`; `if: always()` SARIF upload; fail closed after scanner and SARIF validation. |",
+        "| `rust-supply-chain.yml` | Pinned `cargo audit` / `cargo deny` versions; advisories, bans, licenses, and sources fail closed. |",
+        "| `tachi-pytest.yml` | Specialist trigger contract for docs-sensitive and compatibility coverage surfaces remains explicit. |",
+        "| `tachi-mmdc-preflight.yml` | Missing-renderer contract remains explicit and path-sensitive so template/render checks cannot drift. |",
+        "| `rust-feature-coverage-canary.yml` | Manual/scheduled only; not a required PR gate until signal/noise review promotes it. |",
+        "| `release-please.yml` | Release automation keeps its write permissions and does not gain PR-writeable shortcut paths. |",
+        "| `fuzz-mutation-audit.yml` | Non-blocking manual/scheduled audit lane remains offline-safe and baseline-report driven. |",
+    ] {
+        assert!(
+            text.contains(required),
+            "execution plan must document {required}"
+        );
+    }
+}
+
+#[test]
+fn required_check_migration_note_is_explicit() {
+    let execution_plan =
+        fs::read_to_string(repo_root().join("docs/tachi-rust-ci-execution-plan.md"))
+            .expect("read execution plan");
+    let checklist = fs::read_to_string(repo_root().join("docs/publish-readiness-checklist.html.md"))
+        .expect("read publish checklist");
+
+    for required in [
+        "Old broad-signal checks: `cargo test -p ${{ matrix.package }} --all-targets`",
+        "and `cargo test -p tachi-shell (${{ matrix.suite }})`",
+        "New stable route checks: `route decision and stable orchestrator check`",
+        "`cargo fmt --all -- --check`",
+        "`actionlint` parse gate",
+        "`rust-clippy analyze`",
+        "`cargo audit and cargo deny`",
+        "Rollback rule: if route selection misclassifies a protected branch, tag, or",
+    ] {
+        assert!(
+            execution_plan.contains(required),
+            "execution plan must document {required}"
+        );
+    }
+
+    for required in [
+        "required-check migration note",
+        "old matrix checks",
+        "new stable route checks",
+        "rollback rule for protected refs",
+    ] {
+        assert!(
+            checklist.contains(required),
+            "publish checklist must document {required}"
+        );
+    }
+}
+
+#[test]
+fn heavy_rust_workflows_emit_elapsed_runtime_summaries() {
+    let workflows = [
+        "rust-workspace.yml",
+        "rust-clippy.yml",
+        "rustfmt.yml",
+        "rust-supply-chain.yml",
+    ];
+
+    for workflow_name in workflows {
+        let text = workflow_text(workflow_name);
+        for required in ["GITHUB_STEP_SUMMARY", "elapsed_ms", "date +%s%N"] {
+            assert!(
+                text.contains(required),
+                "{workflow_name} must emit elapsed runtime summaries containing {required}"
+            );
+        }
+    }
+}
+
+#[test]
+fn baseline_snapshot_records_the_phase_zero_contract() {
+    let text = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-baseline.md"))
+        .expect("read baseline snapshot");
+
+    for required in [
+        "Workflow Inventory",
+        "ci-workflow-parse.yml",
+        "rust-workspace.yml",
+        "Required-Check Map",
+        "route decision and stable orchestrator check",
+        "Matrix Inventory",
+        "tachi-core",
+        "shell-init",
+        "Local Validation Snapshot",
+        "19 tests passed",
+        "elapsed runtime summaries",
+        "Local Timing Snapshot",
+        "real 1.62s",
+        "Warm Timing Comparison",
+        "`origin/main` warm run: `real 0.58s`",
+        "Current branch warm run: `real 1.39s",
+        "Timing Notes",
+        "live PR-run timing evidence required by the original baseline plan",
+    ] {
+        assert!(
+            text.contains(required),
+            "baseline snapshot must document {required}"
+        );
+    }
+}
+
+#[test]
+fn closeout_notes_separate_local_proof_from_external_verification() {
+    let text = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-closeout.md"))
+        .expect("read closeout notes");
+
+    for required in [
+        "Proven Locally",
+        "Route policy manifest and route artifact contracts exist",
+        "Passive-docs narrowing",
+        "dependency-closure routing",
+        "emergency full-CI",
+        "override",
+        "Protected refs (`main`, `release/*`, and tags) are forced to full mode.",
+        "Shared Rust setup is centralized",
+        "Heavy Rust-facing workflows emit elapsed runtime summaries.",
+        "Still Pending External Verification",
+        "Live GitHub Actions timing evidence",
+        "Branch-protection verification",
+        "Post-push monitoring of `main` after a publish step",
+        "Warm local timing comparison exists",
+    ] {
+        assert!(
+            text.contains(required),
+            "closeout notes must document {required}"
+        );
+    }
+}
+
+#[test]
+fn shared_rust_setup_action_is_reused_across_rust_workflows() {
+    let action = fs::read_to_string(repo_root().join(".github/actions/rust-setup/action.yml"))
+        .expect("read shared rust setup action");
+
+    for required in [
+        "Install pinned Rust toolchain",
+        "Cache Rust dependencies",
+        "Print Rust toolchain proof",
+        "include-rustfmt-proof",
+        "rustup which rustfmt",
+    ] {
+        assert!(
+            action.contains(required),
+            "shared rust setup action must document {required}"
+        );
+    }
+
+    for workflow_name in [
+        "rust-workspace.yml",
+        "rust-clippy.yml",
+        "rustfmt.yml",
+        "rust-supply-chain.yml",
+    ] {
+        let text = workflow_text(workflow_name);
+        assert!(
+            text.contains("./.github/actions/rust-setup"),
+            "{workflow_name} must reuse the shared rust setup action"
+        );
+    }
+}
+
+#[test]
+fn route_observe_workflow_emits_route_artifact_and_stable_check() {
+    let text = workflow_text("ci-route-observe.yml");
+    let workflow = parse_workflow("ci-route-observe.yml", &text);
+    let artifact_schema =
+        fs::read_to_string(repo_root().join("docs/tachi-rust-ci-route-artifact.md"))
+            .expect("read route artifact manifest");
+
+    assert!(
+        workflow_declares_event(&workflow, "pull_request"),
+        "route observe workflow must run on pull_request"
+    );
+    assert!(
+        workflow_declares_only_events(&workflow, ["pull_request"].as_slice()),
+        "route observe workflow must keep a single pull_request trigger"
+    );
+    assert!(
+        workflow_job_name(&workflow, "route-observe")
+            == Some("route decision artifact and stable orchestrator check"),
+        "route observe job must stay the required orchestrator check"
+    );
+    assert!(
+        workflow_step_field(&workflow, "Upload route decision artifact", "uses")
+            == Some("actions/upload-artifact@v4"),
+        "route observe workflow must upload the route artifact"
+    );
+    assert_workflow_has_run_line(&workflow, "cat > route.json <<EOF");
+    assert_workflow_has_run_line(&workflow, "cat route.json");
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("changed_paths_json")),
+        "route observe workflow must capture changed paths"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("selected_lanes_json")),
+        "route observe workflow must capture selected lanes"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("escalation_reasons_json")),
+        "route observe workflow must capture escalation reasons"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("policy_version")),
+        "route observe workflow must capture a policy version"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("active docs or shared surface touched")),
+        "route observe workflow must distinguish active docs and shared surfaces"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("passive docs only")),
+        "route observe workflow must keep passive docs separate"
+    );
+
+    for required in [
+        "\"mode\":",
+        "\"changed_paths\":",
+        "\"selected_lanes\":",
+        "\"escalation_reasons\":",
+        "\"policy_version\":",
+        "stable orchestrator check",
+    ] {
+        assert!(
+            artifact_schema.contains(required),
+            "route artifact manifest must document {required}"
         );
     }
 }
@@ -406,29 +713,6 @@ fn publish_gate_commands(makefile: &str) -> impl Iterator<Item = &str> {
         }
         in_publish_gate && line.starts_with('\t')
     })
-}
-
-fn workspace_members_section(manifest: &str) -> &str {
-    let start = manifest.find("members = [").expect("workspace members");
-    let end = manifest[start..]
-        .find(']')
-        .map(|offset| start + offset + 1)
-        .expect("workspace members close");
-    &manifest[start..end]
-}
-
-fn workspace_member_packages() -> Vec<String> {
-    let manifest =
-        fs::read_to_string(repo_root().join("Cargo.toml")).expect("read workspace Cargo.toml");
-    let mut packages = workspace_members_section(&manifest)
-        .lines()
-        .filter_map(|line| {
-            let member = line.trim().trim_end_matches(',').trim_matches('"');
-            member.strip_prefix("crates/").map(String::from)
-        })
-        .collect::<Vec<_>>();
-    packages.sort();
-    packages
 }
 
 fn assert_license_exceptions_require_metadata(deny_config: &str) {
@@ -634,6 +918,16 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
             .get("steps")
             .and_then(serde_yaml::Value::as_sequence)
             .unwrap_or_else(|| panic!("{name} job {job_name} must define steps"));
+        if !steps
+            .iter()
+            .any(|step| workflow_step_run(step).is_some_and(|run| run.contains("cargo ")))
+        {
+            continue;
+        }
+        if job_uses_shared_rust_setup(steps) {
+            assert_shared_rust_setup_action();
+            continue;
+        }
         let install_index = workflow_step_index(steps, "Install pinned Rust toolchain")
             .unwrap_or_else(|| panic!("{name} job {job_name} must install pinned Rust"));
         let proof_index = workflow_step_index(steps, "Print Rust toolchain proof")
@@ -668,6 +962,30 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
                 "{name} job {job_name} must print proof before cargo commands"
             );
         }
+    }
+}
+
+fn job_uses_shared_rust_setup(steps: &[serde_yaml::Value]) -> bool {
+    steps.iter().any(|step| {
+        step.get("uses")
+            .and_then(serde_yaml::Value::as_str)
+            == Some("./.github/actions/rust-setup")
+    })
+}
+
+fn assert_shared_rust_setup_action() {
+    let action = fs::read_to_string(repo_root().join(".github/actions/rust-setup/action.yml"))
+        .expect("read shared rust setup action");
+    for required in [
+        "Install pinned Rust toolchain",
+        "Cache Rust dependencies",
+        "Print Rust toolchain proof",
+        "include-rustfmt-proof",
+    ] {
+        assert!(
+            action.contains(required),
+            "shared rust setup action must include {required}"
+        );
     }
 }
 
@@ -872,6 +1190,16 @@ fn workflow_step_field<'a>(
                 .and_then(serde_yaml::Value::as_str)
                 .is_some_and(|name| name == step_name)
         })?
+        .get(field)
+        .and_then(serde_yaml::Value::as_str)
+}
+
+fn workflow_job_field<'a>(
+    workflow: &'a serde_yaml::Value,
+    job_name: &str,
+    field: &str,
+) -> Option<&'a str> {
+    workflow_job(workflow, job_name)
         .get(field)
         .and_then(serde_yaml::Value::as_str)
 }

@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tachi-Rust CI Improvement Plan</title>
+  <style>
+    :root {
+      --bg: #f7f4ee;
+      --paper: #fffdf8;
+      --ink: #1d2430;
+      --muted: #5a6472;
+      --line: #d9d2c3;
+      --accent: #0f4c5c;
+      --accent-soft: #dceff3;
+      --warn: #9a3412;
+      --warn-soft: #fff1e8;
+      --ok: #1f6f43;
+      --ok-soft: #e7f6ec;
+      --shadow: 0 18px 50px rgba(29, 36, 48, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(15, 76, 92, 0.08), transparent 30%),
+        linear-gradient(180deg, #efe8dc 0%, var(--bg) 24%, var(--bg) 100%);
+      color: var(--ink);
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 32px auto 56px;
+    }
+
+    .hero,
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -60px auto;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(15, 76, 92, 0.12), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.15;
+      color: #13202b;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-size: 1.55rem;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    p, li {
+      font-size: 1rem;
+    }
+
+    .hero-grid,
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1.6fr 1fr;
+      align-items: end;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .stack {
+      display: grid;
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    .card {
+      border-radius: 18px;
+      padding: 22px;
+    }
+
+    .metric {
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    .metric strong,
+    .callout strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    .callout {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+    }
+
+    .callout.warn {
+      background: var(--warn-soft);
+      border-color: #f1c5b0;
+      color: #6f250b;
+    }
+
+    .callout.ok {
+      background: var(--ok-soft);
+      border-color: #badcc7;
+      color: #184f31;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 0 8px 8px 0;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.84rem;
+      color: var(--muted);
+      background: #faf7f0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f1ece2;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.92rem;
+    }
+
+    code {
+      padding: 0 4px;
+      border-radius: 4px;
+      background: #f1ece2;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    ol, ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .phase {
+      border-top: 4px solid var(--accent);
+    }
+
+    .footer-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .grid.two,
+      .grid.three {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .card {
+        padding: 20px;
+      }
+
+      main {
+        width: min(100% - 20px, 1120px);
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Plan Review Integrator Output</div>
+          <h1>Tachi-Rust CI Improvement Plan</h1>
+          <p>
+            This plan integrates the CI comparison between <code>rocinante</code> and
+            <code>tachi-rust</code> into an execution-ready roadmap. The goal is to
+            reduce wasted CI runtime on pull requests, preserve strong governance
+            and SARIF-grade reporting, and add release-aware fan-out without
+            weakening current security or cross-platform guarantees.
+          </p>
+        </div>
+        <div class="grid">
+          <div class="metric">
+            <strong>Final Recommendation</strong>
+            Applied with caveats
+          </div>
+          <div class="metric">
+            <strong>Target Repo</strong>
+            <code>/Volumes/dev/Git-SCM/tachi-rust</code>
+          </div>
+          <div class="metric">
+            <strong>Primary Outcome</strong>
+            Delta-aware PR CI, full release CI
+          </div>
+          <div class="metric">
+            <strong>Non-Negotiables</strong>
+            Keep SARIF, keep path-specific contract lanes, keep cross-platform checks
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="stack">
+      <section class="card">
+        <h2>Executive Judgement</h2>
+        <div class="grid three">
+          <div class="callout ok">
+            <strong>Adopt</strong>
+            Add a <code>ci-scope</code> style router, release-vs-delta execution,
+            workflow parse checks, and explicit timeout discipline.
+          </div>
+          <div class="callout warn">
+            <strong>Do Not Copy Blindly</strong>
+            Do not reuse <code>rocinante</code>'s extension-based path rules as-is;
+            they would under-test workspace-level changes in <code>tachi-rust</code>.
+          </div>
+          <div class="callout ok">
+            <strong>Preserve</strong>
+            Keep <code>tachi-rust</code>'s stronger SARIF, supply-chain, and
+            path-filtered contract workflows as baseline policy.
+          </div>
+        </div>
+        <p class="footer-note">
+          Integration stance: merge orchestration improvements from
+          <code>rocinante</code> into <code>tachi-rust</code> while retaining
+          <code>tachi-rust</code>'s stronger lint, security, and specialized gate posture.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Source Recommendations Traceability</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Recommendation</th>
+              <th>Category</th>
+              <th>Disposition</th>
+              <th>Plan Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CI-01</td>
+              <td>Add PR delta routing instead of always paying the full Rust matrix.</td>
+              <td>Gap</td>
+              <td>Must-fix</td>
+              <td>Add scoped orchestration workflow and impacted-crate routing.</td>
+            </tr>
+            <tr>
+              <td>CI-02</td>
+              <td>Add fast workflow parse and formatting gates before expensive jobs.</td>
+              <td>Gap</td>
+              <td>Must-fix</td>
+              <td>Create dedicated <code>actionlint</code> and <code>cargo fmt --check</code> workflows.</td>
+            </tr>
+            <tr>
+              <td>CI-03</td>
+              <td>Do not weaken clippy or SARIF policy to match <code>rocinante</code>.</td>
+              <td>Correction</td>
+              <td>Bundle</td>
+              <td>Preserve <code>-D warnings</code>, SARIF upload, and supply-chain gates.</td>
+            </tr>
+            <tr>
+              <td>CI-04</td>
+              <td>Keep path-filtered contract workflows and cross-platform validation.</td>
+              <td>Already addressed</td>
+              <td>Informational</td>
+              <td>Protect current specialized workflows from accidental consolidation.</td>
+            </tr>
+            <tr>
+              <td>CI-05</td>
+              <td>Reduce duplication and improve reuse in repeated setup steps.</td>
+              <td>New concern</td>
+              <td>Bundle</td>
+              <td>Introduce shared composite setup action after orchestration lands.</td>
+            </tr>
+            <tr>
+              <td>CI-06</td>
+              <td>Add branch-level concurrency cancellation for PR-facing runs.</td>
+              <td>Gap</td>
+              <td>Must-fix</td>
+              <td>Add <code>concurrency</code> groups to PR-triggered workflows.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Guardrails</h2>
+        <span class="tag">Keep Code Scanning / SARIF</span>
+        <span class="tag">Keep Cross-Platform Init Matrix</span>
+        <span class="tag">Keep Supply-Chain Gates</span>
+        <span class="tag">Full CI on main and release</span>
+        <span class="tag">No docs-only full Rust fan-out on PRs</span>
+        <span class="tag">No relaxation of lint severity</span>
+        <div class="grid two" style="margin-top: 16px;">
+          <div class="callout warn">
+            <strong>Veto</strong>
+            Any proposal that downgrades <code>cargo clippy -D warnings</code>,
+            removes SARIF upload, or collapses the macOS/Ubuntu compatibility gate
+            is rejected by default.
+          </div>
+          <div class="callout ok">
+            <strong>Scope Rule</strong>
+            Full-workspace and release-grade execution remains mandatory for
+            <code>main</code>, release branches, lockfile changes, workflow changes,
+            shared manifests, and common scripts.
+          </div>
+        </div>
+      </section>
+
+      <section class="card phase">
+        <h2>Phase 1: Fast-Fail Baseline</h2>
+        <p>
+          Objective: fail broken workflow syntax and formatting drift before
+          expensive workspace builds start.
+        </p>
+        <ol>
+          <li>Create a dedicated workflow-parse job using <code>actionlint</code>.</li>
+          <li>Create a dedicated formatting workflow using <code>cargo fmt --check</code>.</li>
+          <li>Add <code>concurrency</code> to PR-facing workflows to cancel obsolete runs.</li>
+          <li>Standardize a short, visible bootstrap summary so failures are obvious in the Actions graph.</li>
+        </ol>
+        <h3>Deliverables</h3>
+        <ul>
+          <li><code>.github/workflows/ci-workflow-parse.yml</code> or equivalent parse lane.</li>
+          <li><code>.github/workflows/rust-fmt.yml</code> or equivalent formatting lane.</li>
+          <li>Branch concurrency groups across PR-heavy workflows.</li>
+        </ul>
+        <h3>Acceptance Criteria</h3>
+        <ul>
+          <li>A malformed workflow expression fails in under 90 seconds without invoking full Rust test matrices.</li>
+          <li>A formatting-only regression fails in an isolated lane with no dependency on package test execution.</li>
+          <li>Superseded PR pushes cancel earlier in-flight runs on the same ref.</li>
+        </ul>
+      </section>
+
+      <section class="card phase">
+        <h2>Phase 2: Repo-Aware Delta Routing</h2>
+        <p>
+          Objective: replace always-on full PR fan-out with impacted execution that
+          understands workspace semantics instead of using generic file extensions.
+        </p>
+        <h3>Design Rules</h3>
+        <ul>
+          <li>Treat <code>Cargo.lock</code>, workspace <code>Cargo.toml</code>, shared scripts, and workflow files as full-fan-out triggers.</li>
+          <li>Treat crate-local source changes as impacted-package triggers.</li>
+          <li>Treat specialized contract-surface changes as triggers for their existing path-filtered workflows, not for unrelated full matrices.</li>
+          <li>Docs-only PRs should still run cheap governance lanes, but not the full Rust workspace test graph.</li>
+        </ul>
+        <h3>Implementation Tasks</h3>
+        <ol>
+          <li>Add a routing job that computes changed files from PR base/head or push before/after SHA.</li>
+          <li>Map changed paths to impacted crates and to specialized workflows.</li>
+          <li>Expose router outputs as workflow outputs consumed by Rust test, lint, and canary lanes.</li>
+          <li>Document fallback behavior: if routing data is incomplete, default to safe full execution.</li>
+        </ol>
+        <h3>Acceptance Criteria</h3>
+        <ul>
+          <li>A docs-only PR does not run the full package matrix.</li>
+          <li>A change isolated to one crate runs only the impacted package set plus required shared gates.</li>
+          <li>A lockfile or shared-manifest change forces full Rust validation.</li>
+          <li>Fallback mode is explicit in logs and fails safe to broader coverage, never narrower coverage.</li>
+        </ul>
+      </section>
+
+      <section class="card phase">
+        <h2>Phase 3: Preserve Specialized Governance</h2>
+        <p>
+          Objective: integrate delta routing without breaking the workflows that
+          already encode domain-specific contracts.
+        </p>
+        <div class="grid two">
+          <div>
+            <h3>Must Preserve</h3>
+            <ul>
+              <li>Cross-platform init compatibility matrix.</li>
+              <li>Fresh-install mmdc preflight contract.</li>
+              <li>Gitleaks SARIF upload.</li>
+              <li>Rust clippy SARIF upload.</li>
+              <li>Supply-chain audit and deny policy.</li>
+              <li>Feature/coverage canary schedule.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Plan Tasks</h3>
+            <ul>
+              <li>Define which workflows remain standalone and why.</li>
+              <li>Add comments to prevent future "merge everything into one CI file" drift.</li>
+              <li>Ensure new router outputs do not bypass specialized path filters.</li>
+              <li>Document ownership boundaries between core CI and specialist gates.</li>
+            </ul>
+          </div>
+        </div>
+        <h3>Acceptance Criteria</h3>
+        <ul>
+          <li>All existing specialist workflows still trigger on their contract surface after refactoring.</li>
+          <li>No SARIF-producing workflow loses upload behavior or security-events permissions.</li>
+          <li>No cross-platform portability workflow is collapsed into Linux-only CI.</li>
+        </ul>
+      </section>
+
+      <section class="card phase">
+        <h2>Phase 4: Shared Setup and Cost Reduction</h2>
+        <p>
+          Objective: cut maintenance drag without erasing diagnostic separation.
+        </p>
+        <ol>
+          <li>Extract repeated Rust setup, cache, and diagnostic steps into a composite action or reusable workflow.</li>
+          <li>Keep per-lane commands isolated so failures still point to one responsibility.</li>
+          <li>Standardize timeout values and lane-level duration notices.</li>
+          <li>Record per-lane timing in job summaries to make future optimization evidence-based.</li>
+        </ol>
+        <h3>Acceptance Criteria</h3>
+        <ul>
+          <li>Shared setup logic is defined once and consumed by PR-facing Rust workflows.</li>
+          <li>Each heavy lane emits elapsed runtime in logs or summaries.</li>
+          <li>Setup refactor does not reduce failure localization.</li>
+        </ul>
+      </section>
+
+      <section class="card phase">
+        <h2>Phase 5: Release and Mainline Policy</h2>
+        <p>
+          Objective: ensure the optimization only narrows PR cost, not release confidence.
+        </p>
+        <ul>
+          <li>On <code>main</code> and release refs, run full Rust workspace validation regardless of delta analysis.</li>
+          <li>Keep scheduled canaries, supply-chain lanes, and security lanes independent from PR routing logic.</li>
+          <li>Prefer explicit "full" mode names in logs so operators know when the safe path is in force.</li>
+        </ul>
+        <h3>Acceptance Criteria</h3>
+        <ul>
+          <li>Release/mainline execution is equal to or broader than current validation breadth.</li>
+          <li>No delta optimization suppresses required release coverage, supply-chain, or security lanes.</li>
+          <li>Operators can identify full-mode versus delta-mode from the workflow summary alone.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>TDD Execution Loop</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Slice</th>
+              <th>Red</th>
+              <th>Green</th>
+              <th>Refactor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Workflow parse gate</td>
+              <td>Create a deliberately invalid workflow fixture or contract assertion.</td>
+              <td>Show parse lane fails before heavy Rust execution.</td>
+              <td>Extract reusable lint invocation and summary formatting.</td>
+            </tr>
+            <tr>
+              <td>Formatting gate</td>
+              <td>Introduce a rustfmt drift fixture.</td>
+              <td>Fail only the formatting lane.</td>
+              <td>Align formatting workflow naming with existing Rust workflow vocabulary.</td>
+            </tr>
+            <tr>
+              <td>Delta router</td>
+              <td>Add test vectors for docs-only, crate-local, lockfile, workflow, and shared-script changes.</td>
+              <td>Emit the expected route outputs for each vector.</td>
+              <td>Move route logic into a script or reusable action with clear logs.</td>
+            </tr>
+            <tr>
+              <td>Specialized workflow preservation</td>
+              <td>Define trigger matrix expectations for init and mmdc workflows.</td>
+              <td>Prove refactor keeps those workflows firing on the same change sets.</td>
+              <td>Document ownership and anti-consolidation notes inline.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>S.M.A.R.T. Acceptance Criteria</h2>
+        <ol>
+          <li><strong>Specific:</strong> Introduce delta-aware PR CI that narrows execution by impact while retaining full execution on <code>main</code>, release refs, lockfile changes, shared manifests, and workflow changes.</li>
+          <li><strong>Measurable:</strong> Reduce median PR CI wall-clock for docs-only and crate-local changes by at least 35% compared with the pre-router baseline across the first 10 successful PR runs after rollout.</li>
+          <li><strong>Measurable:</strong> Ensure 100% of malformed workflow changes fail in the dedicated parse lane before full Rust test matrices start.</li>
+          <li><strong>Achievable:</strong> Deliver Phase 1 and Phase 2 without removing existing SARIF, supply-chain, mmdc, or cross-platform workflows.</li>
+          <li><strong>Relevant:</strong> Preserve security, governance, and portability signals while cutting unnecessary PR compute and reviewer wait time.</li>
+          <li><strong>Time-Bound:</strong> Complete Phases 1-3 within 7 calendar days, Phase 4 within 10 calendar days, and Phase 5 validation by the next mainline release candidate.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>Workflow Topology</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Workflow</th>
+              <th>Role</th>
+              <th>Trigger Shape</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>ci-workflow-parse.yml</code></td>
+              <td>Validate workflow syntax, expressions, and structural policy before heavy execution.</td>
+              <td>All PRs touching workflows, reusable actions, or CI scripts; optional on all PRs for consistency.</td>
+              <td>P0</td>
+            </tr>
+            <tr>
+              <td><code>rust-fmt.yml</code></td>
+              <td>Isolated formatting gate.</td>
+              <td>All PRs that touch Rust source, tests, or workspace manifests.</td>
+              <td>P0</td>
+            </tr>
+            <tr>
+              <td><code>rust-routing.yml</code> or router job in core CI</td>
+              <td>Compute execution mode: docs-only, impacted-crate, full-mainline, full-release.</td>
+              <td>All PRs and pushes entering Rust-facing CI.</td>
+              <td>P0</td>
+            </tr>
+            <tr>
+              <td><code>rust-workspace.yml</code></td>
+              <td>Core Rust test and lint execution, now driven by router outputs.</td>
+              <td>Impacted PRs, all main pushes, all release refs, safe-fallback full mode.</td>
+              <td>P0</td>
+            </tr>
+            <tr>
+              <td><code>tachi-pytest.yml</code></td>
+              <td>Cross-platform init and active-doc compatibility contract.</td>
+              <td>Current path-filtered trigger set retained.</td>
+              <td>P1 preserve</td>
+            </tr>
+            <tr>
+              <td><code>tachi-mmdc-preflight.yml</code></td>
+              <td>Fresh-install renderer absence contract.</td>
+              <td>Current path-filtered trigger set retained.</td>
+              <td>P1 preserve</td>
+            </tr>
+            <tr>
+              <td><code>rust-clippy.yml</code></td>
+              <td>SARIF-producing lint analysis lane.</td>
+              <td>Retain current main/PR/scheduled behavior; optionally narrow duplicate execution once router lands.</td>
+              <td>P1 preserve</td>
+            </tr>
+            <tr>
+              <td><code>rust-supply-chain.yml</code></td>
+              <td>Audit and deny policy enforcement.</td>
+              <td>Retain current main/PR/scheduled behavior.</td>
+              <td>P1 preserve</td>
+            </tr>
+            <tr>
+              <td><code>gitleaks.yml</code></td>
+              <td>Secret scanning with SARIF upload.</td>
+              <td>Retain PR-facing behavior.</td>
+              <td>P1 preserve</td>
+            </tr>
+            <tr>
+              <td><code>rust-feature-coverage-canary.yml</code></td>
+              <td>Scheduled feature-combination and coverage proof lane.</td>
+              <td>Scheduled and manual only.</td>
+              <td>P2 preserve</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="footer-note">
+          Topology rule: one lightweight orchestration surface governs core Rust CI;
+          specialist workflows remain separate and intentional.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Exact Adoption Order</h2>
+        <ol>
+          <li><strong>P0.1:</strong> Add <code>concurrency</code> to PR-facing workflows. This is the lowest-risk compute reduction and does not change test semantics.</li>
+          <li><strong>P0.2:</strong> Add <code>ci-workflow-parse</code>. Fail broken workflow edits before any topology refactor begins.</li>
+          <li><strong>P0.3:</strong> Add isolated <code>cargo fmt --check</code> workflow. Remove formatting drift from the expensive Rust path.</li>
+          <li><strong>P0.4:</strong> Introduce router logic in read-only mode first. Emit mode and impacted targets in logs, but do not yet narrow execution.</li>
+          <li><strong>P0.5:</strong> Turn on router-controlled narrowing for docs-only and crate-local PRs with full-mode fallback for lockfiles, manifests, workflows, and shared scripts.</li>
+          <li><strong>P1.1:</strong> Update <code>rust-workspace.yml</code> to consume router outputs and split execution by impacted package group rather than unconditional full matrix.</li>
+          <li><strong>P1.2:</strong> Freeze and document specialist workflows as protected lanes: init matrix, mmdc preflight, clippy SARIF, supply-chain, and gitleaks.</li>
+          <li><strong>P1.3:</strong> Extract repeated setup, cache, and proof steps into a shared composite action or reusable workflow.</li>
+          <li><strong>P2.1:</strong> Review overlap between core Rust CI and dedicated clippy workflow, then decide whether duplicate lint execution should stay for visibility or be reduced for cost.</li>
+          <li><strong>P2.2:</strong> Add timing summaries and baseline reporting after the routing model is stable.</li>
+        </ol>
+        <div class="grid two" style="margin-top: 16px;">
+          <div class="callout ok">
+            <strong>Why This Order</strong>
+            The sequence front-loads cheap, low-risk guardrails, then adds observability,
+            then changes routing semantics, and only after that refactors shared setup.
+          </div>
+          <div class="callout warn">
+            <strong>Ordering Constraint</strong>
+            Do not narrow PR execution before router logs prove the classification is
+            correct across docs-only, crate-local, workflow, and lockfile change sets.
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Ownership and Sequencing</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Owner</th>
+              <th>Action</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>P0</td>
+              <td>CI maintainer</td>
+              <td>Add workflow parse gate, formatting gate, and PR concurrency.</td>
+              <td>CI-01, CI-02, CI-06</td>
+            </tr>
+            <tr>
+              <td>P0</td>
+              <td>CI maintainer</td>
+              <td>Implement repo-aware delta router with fail-safe full-mode fallback.</td>
+              <td>CI-01</td>
+            </tr>
+            <tr>
+              <td>P1</td>
+              <td>Rust workspace owner</td>
+              <td>Define impacted-crate routing rules and shared-manifest escalation rules.</td>
+              <td>CI-01, CI-05</td>
+            </tr>
+            <tr>
+              <td>P1</td>
+              <td>Security / governance owner</td>
+              <td>Verify SARIF, supply-chain, and gitleaks workflows remain unchanged in effect.</td>
+              <td>CI-03, CI-04</td>
+            </tr>
+            <tr>
+              <td>P2</td>
+              <td>DevEx maintainer</td>
+              <td>Extract composite shared setup and timing summaries.</td>
+              <td>CI-05</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Dissent Ledger</h2>
+        <p>
+          None on the destination state. The only explicit rejection is copying
+          <code>rocinante</code>'s current file-classification rules directly into
+          <code>tachi-rust</code>; that recommendation was overturned because the
+          workspace and contract topology in <code>tachi-rust</code> is materially different.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Completion Criteria</h2>
+        <div class="grid two">
+          <div class="callout ok">
+            <strong>Done Means</strong>
+            PR CI is narrower by impact, mainline CI remains full strength, specialist
+            governance workflows still fire, and reviewers can tell from logs why a
+            given route was selected.
+          </div>
+          <div class="callout warn">
+            <strong>Not Done Means</strong>
+            Delta routing exists but bypasses lockfile/workflow/shared-manifest changes,
+            weakens lint/security posture, or leaves no safe fallback to full execution.
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
+    inputs:
+      force_full_ci:
+        description: Force full CI regardless of route prediction
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,38 +21,151 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  route:
+    name: route decision and stable orchestrator check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.route.outputs.mode }}
+      reason: ${{ steps.route.outputs.reason }}
+      packages_json: ${{ steps.route.outputs.packages_json }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Capture route mode
+        id: route
+        shell: bash
+        env:
+          FORCE_FULL_CI: ${{ vars.FORCE_FULL_CI }}
+        run: |
+          set -euo pipefail
+
+          full_packages_json='["tachi-core","tachi-mcp","tachi-cli","tachi-shell","tachi-desktop"]'
+          mode="full_pr_matrix"
+          reason="non-pull_request events stay full mode"
+          packages_json="$full_packages_json"
+          active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/|crates/tachi-(cli|core|desktop|mcp|shell)/)'
+          protected_ref_pattern='^(refs/heads/main$|refs/heads/release/|refs/tags/)'
+
+          declare -A touched_crates=()
+          declare -A selected_packages=()
+
+          add_package() {
+            selected_packages["$1"]=1
+          }
+
+          closure_for() {
+            case "$1" in
+              tachi-core)
+                printf '%s\n' tachi-core tachi-mcp tachi-cli tachi-shell tachi-desktop
+                ;;
+              tachi-shell)
+                printf '%s\n' tachi-shell tachi-cli tachi-desktop
+                ;;
+              tachi-mcp)
+                printf '%s\n' tachi-mcp
+                ;;
+              tachi-cli)
+                printf '%s\n' tachi-cli
+                ;;
+              tachi-desktop)
+                printf '%s\n' tachi-desktop
+                ;;
+            esac
+          }
+
+          selected_packages_json() {
+            printf '%s\n' "${!selected_packages[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0)) | sort'
+          }
+
+          if [ "${FORCE_FULL_CI:-}" = "true" ]; then
+            reason="emergency full-ci override"
+          elif case "${GITHUB_REF:-}" in
+            refs/heads/main|refs/heads/release/*|refs/tags/*) true ;;
+            *) false ;;
+          esac; then
+            reason="protected ref stays full mode"
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            base_ref="${{ github.base_ref }}"
+            if [ -z "$base_ref" ]; then
+              base_ref="main"
+            fi
+
+            git fetch origin "$base_ref" --depth=1
+
+            changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
+            git diff --name-only "origin/${base_ref}...${{ github.sha }}" > "$changed_paths_file"
+
+            if [ -z "$(tr -d '\n' < "$changed_paths_file")" ]; then
+              reason="empty diff stays full mode"
+            elif grep -Eq "$active_contract_pattern" "$changed_paths_file"; then
+              reason="active docs or shared surface touched"
+            elif grep -vq '^docs/' "$changed_paths_file"; then
+              while IFS= read -r changed_path; do
+                case "$changed_path" in
+                  crates/tachi-core/*) touched_crates["tachi-core"]=1 ;;
+                  crates/tachi-shell/*) touched_crates["tachi-shell"]=1 ;;
+                  crates/tachi-mcp/*) touched_crates["tachi-mcp"]=1 ;;
+                  crates/tachi-cli/*) touched_crates["tachi-cli"]=1 ;;
+                  crates/tachi-desktop/*) touched_crates["tachi-desktop"]=1 ;;
+                esac
+              done < "$changed_paths_file"
+
+              if [ "${#touched_crates[@]}" -gt 0 ]; then
+                mode="dependency_closure"
+                reason="crate-local changes routed through dependency closure"
+                for crate in "${!touched_crates[@]}"; do
+                  while IFS= read -r package; do
+                    [ -n "$package" ] && add_package "$package"
+                  done < <(closure_for "$crate")
+                done
+                packages_json="$(selected_packages_json)"
+              else
+                reason="unknown non-docs paths stay full mode"
+              fi
+            else
+              mode="passive_docs_only"
+              reason="docs-only passive paths observed"
+            fi
+          fi
+
+          {
+            echo "mode=$mode"
+            echo "reason=$reason"
+            echo "packages_json=$packages_json"
+          } >> "$GITHUB_OUTPUT"
+
+          cat > route.json <<EOF
+          {
+            "mode": "${mode}",
+            "reason": "${reason}",
+            "packages": ${packages_json}
+          }
+          EOF
+
+          cat route.json
+
   cargo-test:
     name: cargo test -p ${{ matrix.package }} --all-targets
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: route
+    if: needs.route.outputs.mode != 'passive_docs_only'
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - package: tachi-core
-          - package: tachi-mcp
-          - package: tachi-cli
-          - package: tachi-shell
-          - package: tachi-desktop
+        package: ${{ fromJson(needs.route.outputs.packages_json) }}
     env:
       CARGO_TERM_COLOR: always
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install pinned Rust toolchain
-        run: rustup toolchain install --no-self-update
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Print Rust toolchain proof
-        run: |
-          rustc -Vv
-          cargo -Vv
-          which rustc
-          which cargo
-          rustup which rustc
+      - name: Shared Rust setup
+        uses: ./.github/actions/rust-setup
 
       - name: Install workspace test tools
         run: |
@@ -54,12 +173,24 @@ jobs:
           sudo apt-get install -y ripgrep pkg-config
 
       - name: Run full workspace test suite
-        run: cargo test -p ${{ matrix.package }} --all-targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          start_ns="$(date +%s%N)"
+          cargo test -p ${{ matrix.package }} --all-targets
+          end_ns="$(date +%s%N)"
+          elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          {
+            echo "### cargo-test ${{ matrix.package }}"
+            echo "- elapsed_ms: ${elapsed_ms}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   shell-tests:
     name: cargo test -p tachi-shell (${{ matrix.suite }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: route
+    if: needs.route.outputs.mode != 'passive_docs_only'
     strategy:
       fail-fast: false
       matrix:
@@ -76,19 +207,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install pinned Rust toolchain
-        run: rustup toolchain install --no-self-update
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Print Rust toolchain proof
-        run: |
-          rustc -Vv
-          cargo -Vv
-          which rustc
-          which cargo
-          rustup which rustc
+      - name: Shared Rust setup
+        uses: ./.github/actions/rust-setup
 
       - name: Install workspace test tools
         run: |
@@ -96,4 +216,14 @@ jobs:
           sudo apt-get install -y ripgrep pkg-config
 
       - name: Run shell test suite slice
-        run: ${{ matrix.command }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          start_ns="$(date +%s%N)"
+          ${{ matrix.command }}
+          end_ns="$(date +%s%N)"
+          elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          {
+            echo "### shell-tests ${{ matrix.suite }}"
+            echo "- elapsed_ms: ${elapsed_ms}"
+          } >> "$GITHUB_STEP_SUMMARY"

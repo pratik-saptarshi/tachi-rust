@@ -125,6 +125,17 @@ Purpose: freeze the workflows whose semantics must remain invariant before routi
 
 Work:
 
+| Workflow | Invariant set |
+|---|---|
+| `rust-clippy.yml` | `security-events: write` on analysis; `if: always()` SARIF upload; fail closed after capturing clippy, converter, formatter, and SARIF statuses. |
+| `gitleaks.yml` | `security-events: write`; `if: always()` SARIF upload; fail closed after scanner and SARIF validation. |
+| `rust-supply-chain.yml` | Pinned `cargo audit` / `cargo deny` versions; advisories, bans, licenses, and sources fail closed. |
+| `tachi-pytest.yml` | Specialist trigger contract for docs-sensitive and compatibility coverage surfaces remains explicit. |
+| `tachi-mmdc-preflight.yml` | Missing-renderer contract remains explicit and path-sensitive so template/render checks cannot drift. |
+| `rust-feature-coverage-canary.yml` | Manual/scheduled only; not a required PR gate until signal/noise review promotes it. |
+| `release-please.yml` | Release automation keeps its write permissions and does not gain PR-writeable shortcut paths. |
+| `fuzz-mutation-audit.yml` | Non-blocking manual/scheduled audit lane remains offline-safe and baseline-report driven. |
+
 - Define a `Protected Workflow Contracts` table for:
   - `rust-clippy.yml`
   - `gitleaks.yml`
@@ -279,6 +290,16 @@ Validation:
 - job summaries showing duration evidence
 - evidence table comparing pre-router and post-router median PR durations
 
+Current local evidence:
+
+- `cargo test -p tachi-core --test workflow_ci_gates` completed in
+  `real 1.62s`, `user 0.12s`, `sys 0.08s` during the current session.
+- Warm local comparison: `origin/main` ran the same test in `real 0.58s`,
+  `user 0.08s`, `sys 0.08s` after cache warm-up, while the current branch ran
+  it in `real 1.39s`, `user 0.10s`, `sys 0.08s`.
+- Live GitHub Actions timing evidence remains pending until network access to
+  `api.github.com` is available again.
+
 ### Phase 6 - Release Policy, Required-Check Migration, And Closeout
 
 Purpose: codify where delta routing applies and where the repository must always stay broad.
@@ -290,6 +311,18 @@ Work:
 - Add rollback criteria: any route misclassification, skipped specialist lane, or unexpected false green forces reversion to full mode.
 - Add a required-check migration step: old and new checks dual-run until branch protection is updated and verified; no protected check disappears in the same PR that introduces its replacement.
 - Update `implementation-backlog.md` and any roadmap/backlog references once live tracker writes happen.
+
+Required-check migration notes:
+
+- Old broad-signal checks: `cargo test -p ${{ matrix.package }} --all-targets`
+  and `cargo test -p tachi-shell (${{ matrix.suite }})` under the
+  `rust-workspace.yml` matrix jobs.
+- New stable route checks: `route decision and stable orchestrator check`,
+  `cargo fmt --all -- --check`, `actionlint` parse gate, `rust-clippy analyze`,
+  and `cargo audit and cargo deny`.
+- Rollback rule: if route selection misclassifies a protected branch, tag, or
+  release context, restore the previous broad required-check set before
+  changing any branch-protection entry.
 
 Acceptance criteria:
 

@@ -19,20 +19,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install pinned Rust toolchain
-        run: rustup toolchain install --no-self-update
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Print Rust toolchain proof
-        run: |
-          rustc -Vv
-          cargo -Vv
-          which rustc
-          which cargo
-          rustup which rustc
-          rustup which rustfmt
+      - name: Shared Rust setup
+        uses: ./.github/actions/rust-setup
+        with:
+          include-rustfmt-proof: true
 
       - name: Run rustfmt guardrail
-        run: cargo fmt --all -- --check
+        shell: bash
+        run: |
+          set -euo pipefail
+          start_ns="$(date +%s%N)"
+          cargo fmt --all -- --check
+          end_ns="$(date +%s%N)"
+          elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          {
+            echo "### rustfmt"
+            echo "- elapsed_ms: ${elapsed_ms}"
+          } >> "$GITHUB_STEP_SUMMARY"

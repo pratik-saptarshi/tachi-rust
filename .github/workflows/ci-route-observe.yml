@@ -1,0 +1,76 @@
+name: ci route observe
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  route-observe:
+    name: route decision artifact and stable orchestrator check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Capture route inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          base_ref="${{ github.base_ref }}"
+          if [ -z "$base_ref" ]; then
+            base_ref="main"
+          fi
+
+          git fetch origin "$base_ref" --depth=1
+
+          changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
+          git diff --name-only "origin/${base_ref}...${{ github.sha }}" > "$changed_paths_file"
+
+          changed_paths_json="$(jq -R -s -c 'split("\n") | map(select(length > 0))' "$changed_paths_file")"
+          selected_lanes_json='["full-pr-matrix"]'
+          escalation_reasons_json='["observe-only route proof pending"]'
+          mode="observe_only"
+          active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/|crates/tachi-(cli|core|desktop|mcp|shell)/)'
+
+          if [ -z "$(tr -d '\n' < "$changed_paths_file")" ]; then
+            selected_lanes_json='["stable-orchestrator-check"]'
+            escalation_reasons_json='["no changed paths detected"]'
+          elif grep -Eq "$active_contract_pattern" "$changed_paths_file"; then
+            selected_lanes_json='["full-pr-matrix"]'
+            escalation_reasons_json='["active docs or shared surface touched"]'
+          elif grep -Eq '^docs/' "$changed_paths_file"; then
+            selected_lanes_json='["docs-pr-gate","specialist-guards"]'
+            escalation_reasons_json='["passive docs only"]'
+          fi
+
+          cat > route.json <<EOF
+          {
+            "mode": "${mode}",
+            "changed_paths": ${changed_paths_json},
+            "selected_lanes": ${selected_lanes_json},
+            "escalation_reasons": ${escalation_reasons_json},
+            "policy_version": "2026-07-09"
+          }
+          EOF
+
+          cat route.json
+          {
+            echo "route.json"
+            echo "mode=${mode}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload route decision artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: route-decision
+          path: route.json

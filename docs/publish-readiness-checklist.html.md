@@ -83,6 +83,14 @@ retired from the active dependency surface.
       expiry, issue, and remediation metadata.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
       `.github/workflows/rust-workspace.yml` PR gate is green.
+- [ ] `.github/workflows/rust-workspace.yml` skips the heavy matrix for
+      passive-docs-only PRs, narrows crate-local changes to dependency
+      closure, and keeps the route classifier stable.
+- [ ] `.github/actions/rust-setup/action.yml` centralizes the shared Rust
+      toolchain, cache, and proof steps used by Rust-facing workflows.
+- [ ] The required-check migration note in
+      `docs/tachi-rust-ci-execution-plan.md` names the old matrix checks, the
+      new stable route checks, and the rollback rule for protected refs.
 - [ ] `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, and the adapter
       compatibility workflow remain absent after retiring the vulnerable
       Tauri/GTK adapter surface.
@@ -135,10 +143,18 @@ retired from the active dependency surface.
 - [ ] `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`,
       and `docs/tachi-rust-ci-review-panel.md` stay synchronized with the live
       RT-CI Beads hierarchy and the checked-in workflow gate changes.
+- [ ] `docs/tachi-rust-ci-baseline.md` stays synchronized as the Phase 0
+      baseline snapshot and local validation record for RT-CI.
+- [ ] `docs/tachi-rust-ci-closeout.md` stays synchronized as the current RT-CI
+      closeout note, separating local proofs from pending GitHub-side checks.
+- [ ] `docs/ci-improvement-plan.html` stays synchronized as the source plan
+      draft that feeds the RT-CI execution docs and tracker cards.
 - [ ] `docs/tachi-rust-ci-route-policy.md` stays synchronized with the
       routing-policy rules used by the RT-CI route and observe-only phases.
 - [ ] `docs/tachi-rust-ci-route-fixtures.md` stays synchronized with the
       route matrix and stable JSON examples used by the RT-CI fixture tests.
+- [ ] `docs/tachi-rust-ci-route-artifact.md` stays synchronized with the
+      emitted `route.json` schema and the stable orchestrator check contract.
 - [ ] The AQ roadmap is archived at
       `docs/roadmap/2026-06-22-adversarial-architecture-test-quality-roadmap.html.md`.
 - [ ] The active AISVS roadmap is
@@ -210,6 +226,8 @@ retired from the active dependency surface.
       `cargo-audit` and `cargo-deny` versions.
 - [ ] `.github/workflows/ci-workflow-parse.yml` is green and fails broken
       workflow YAML before heavy jobs start.
+- [ ] `.github/workflows/ci-route-observe.yml` is green and uploads a
+      `route.json` artifact while keeping the orchestrator check stable.
 - [ ] `.github/workflows/rustfmt.yml` is green and isolates formatting drift
       from the full workspace matrix.
 - [ ] `.github/workflows/rust-feature-coverage-canary.yml` stays manual or
