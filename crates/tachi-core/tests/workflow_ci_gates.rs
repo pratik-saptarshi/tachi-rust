@@ -262,6 +262,7 @@ fn route_policy_manifest_records_full_mode_escalations() {
 
     for required in [
         "main, release refs, tags, lockfiles, workflow files, and unknown routes force full mode",
+        "scheduled release/security/canary lanes",
         "active docs, shared surfaces, dependency-closure changes, and release/mainline",
         "docs-only passive paths may narrow only when the active contract surface is not touched",
         "observe-only routing must publish an explanation before any narrowing is enforced",
@@ -574,6 +575,15 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
     assert!(
         workflow_run_bodies(&workflow).any(|run| run.contains("passive docs only")),
         "route observe workflow must keep passive docs separate"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("protected ref stays full mode")),
+        "route observe workflow must keep protected refs in full-mode escalation mode"
+    );
+    assert!(
+        workflow_run_bodies(&workflow)
+            .any(|run| run.contains("unknown non-docs paths stay full mode")),
+        "route observe workflow must widen unknown non-doc routes"
     );
 
     for required in [

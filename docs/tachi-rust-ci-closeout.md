@@ -29,6 +29,29 @@ items that still require GitHub access
   finalize.
 - Post-push monitoring of `main` after a publish step.
 
+## Latest Attempted Remote Evidence Pull (2026-07-10)
+
+- `make rt-ci-latency-evidence` and direct API checks were executed from this
+  branch with elevated network privileges:
+  - `branch_protection=pratik-saptarshi/tachi-rust/main: unavailable`
+    (`gh api .../branches/main/protection` returns HTTP 404: branch is not
+    currently protected).
+  - `rust-workspace.yml` PR-side median evidence command (`pull_request` event):
+    `sample_size=2`, `run_med_ms=350000`, `queue_med_ms=0`,
+    `run_range_ms=93000..607000`.
+  - `ci-route-observe.yml` PR-side evidence command (`pull_request` event):
+    `sample_size=1`, `run_med_ms=16000`, `queue_med_ms=0`,
+    `run_range_ms=16000..16000`.
+- Route-observe artifact evidence was downloaded from PR run
+  `29091065279` (`ci route observe`); it reports:
+  - `mode=observe_only`
+  - `selected_lanes=[\"full-pr-matrix\"]`
+  - `escalation_reasons=[\"active docs or shared surface touched\"]`
+- Legacy `rust-workspace.yml` PR evidence from run `29091065263` reports
+  `mode=full_pr_matrix` and `reason=protected ref stays full mode`.
+- Evidence confirms the evidence collection path is now functional and
+  synchronized with docs and artifacts.
+
 ## Publish-Readiness Guardrails Before Merge Closure
 
 - `make publish-gate` must pass before any branch merge intended to close RT-CI.

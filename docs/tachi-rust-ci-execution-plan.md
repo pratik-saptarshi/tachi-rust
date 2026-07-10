@@ -297,8 +297,14 @@ Current local evidence:
 - Warm local comparison: `origin/main` ran the same test in `real 0.58s`,
   `user 0.08s`, `sys 0.08s` after cache warm-up, while the current branch ran
   it in `real 1.39s`, `user 0.10s`, `sys 0.08s`.
-- Live GitHub Actions timing evidence remains pending until network access to
-  `api.github.com` is available again.
+- Live PR timing evidence has been collected for current runs, but not yet at
+  the intended 10-run sample depth.
+  - `rust-workspace.yml` (PR event): `sample_size=2`, `run_med_ms=350000`,
+    `queue_med_ms=0`, `run_range_ms=93000..607000`.
+  - `ci-route-observe.yml` (PR event): `sample_size=1`, `run_med_ms=16000`,
+    `queue_med_ms=0`, `run_range_ms=16000..16000`.
+- Remaining blocker is required-check migration validation, which still depends on
+  branch protection being enabled on `main` for protected-check verification.
 
 ### Phase 6 - Release Policy, Required-Check Migration, And Closeout
 

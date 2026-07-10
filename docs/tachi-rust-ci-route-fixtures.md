@@ -19,6 +19,7 @@
 | aod | full | Shared agent-workflow surfaces under `.aod/` remain full-mode inputs. |
 | mixed | full | Mixed change sets default to the safest route. |
 | unknown-file | full | Unknown paths never narrow coverage. |
+| scheduled/security/canary | full | Scheduled and security/coverage lane contexts stay full coverage. |
 
 ## Stable JSON Shape
 

@@ -6,6 +6,8 @@
 ## Full-Mode Escalations
 
 - main, release refs, tags, lockfiles, workflow files, and unknown routes force full mode.
+- scheduled release/security/canary lanes (including scheduled coverage/audit jobs) must
+  remain full mode and may not be narrowed by route shape.
 - active docs, shared surfaces, dependency-closure changes, and release/mainline
   contexts force full mode.
 - docs-only passive paths may narrow only when the active contract surface is not touched.

@@ -31,6 +31,17 @@ jobs:
             base_ref="main"
           fi
 
+          is_protected_ref() {
+            case "$1" in
+              main|release/*|refs/heads/main|refs/heads/release/*|refs/tags/*)
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
           git fetch origin "$base_ref" --depth=1
 
           changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
@@ -42,7 +53,10 @@ jobs:
           mode="observe_only"
           active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/|crates/tachi-(cli|core|desktop|mcp|shell)/)'
 
-          if [ -z "$(tr -d '\n' < "$changed_paths_file")" ]; then
+          if is_protected_ref "$base_ref"; then
+            selected_lanes_json='["full-pr-matrix"]'
+            escalation_reasons_json='["protected ref stays full mode"]'
+          elif [ -z "$(tr -d '\n' < "$changed_paths_file")" ]; then
             selected_lanes_json='["stable-orchestrator-check"]'
             escalation_reasons_json='["no changed paths detected"]'
           elif grep -Eq "$active_contract_pattern" "$changed_paths_file"; then
@@ -51,6 +65,9 @@ jobs:
           elif grep -Eq '^docs/' "$changed_paths_file"; then
             selected_lanes_json='["docs-pr-gate","specialist-guards"]'
             escalation_reasons_json='["passive docs only"]'
+          else
+            selected_lanes_json='["full-pr-matrix"]'
+            escalation_reasons_json='["unknown non-docs paths stay full mode"]'
           fi
 
           cat > route.json <<EOF

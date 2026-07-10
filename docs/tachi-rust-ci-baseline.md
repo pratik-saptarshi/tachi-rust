@@ -58,12 +58,19 @@ reference
 
 ## Timing Notes
 
-- Local network access to GitHub Actions is unavailable in this session, so the
-  live PR-run timing evidence required by the original baseline plan could not
-  be refreshed here.
-- The next networked CI observation should capture per-shape durations for:
-  passive docs, dependency-closure crate-local, lockfile, and workflow-change
-  PRs.
+- PR-side timing evidence was collected via GitHub Actions APIs in this session.
+  Representative command lines:
+
+  ```bash
+  ./scripts/rt-ci-latency-evidence.sh "rust-workspace.yml,ci-route-observe.yml" main 40 pull_request
+  ```
+
+  - `rust-workspace.yml`: `sample_size=2`, `run_med_ms=350000`,
+    `queue_med_ms=0`, `run_range_ms=93000..607000`, `queue_range_ms=0..0`.
+  - `ci-route-observe.yml`: `sample_size=1`, `run_med_ms=16000`,
+    `queue_med_ms=0`, `run_range_ms=16000..16000`, `queue_range_ms=0..0`.
+
+  The session did not collect a full 10-run PR representative sample yet.
 
 - Suggested GitHub median evidence command set (run once a feature branch has
   remote visibility):
@@ -85,6 +92,19 @@ reference
 
 - Keep queue time and run time separated in notes so route narrowing impact is
   not masked by workflow scheduling delays.
+
+- live PR-run timing evidence required by the original baseline plan remains the
+  blocker for final RT-CI timing closure.
+
+## Route-Observe Evidence Snapshot
+
+- PR `29091065279` (`ci-route-observe`) artifact output shows:
+  - `mode`: `observe_only`
+  - `selected_lanes`: `["full-pr-matrix"]`
+  - `escalation_reasons`: `["active docs or shared surface touched"]`
+- PR `29091065263` (`rust-workspace`) route output indicates `mode=full_pr_matrix`
+  and `reason=protected ref stays full mode`, with `packages` unchanged from
+  `["tachi-core","tachi-mcp","tachi-cli","tachi-shell","tachi-desktop"]`.
 
 ## Local Timing Snapshot
 

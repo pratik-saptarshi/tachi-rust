@@ -114,5 +114,5 @@ publish-gate: ## Run end-to-end publish-readiness gates locally
 	@$(MAKE) coverage-audit
 	@$(MAKE) llvm-cov
 
-rt-ci-latency-evidence: ## Run queue-vs-run median evidence collection for workflow gate and route observe lanes
-	@./scripts/rt-ci-latency-evidence.sh "rust-workspace.yml" "main" 40
+rt-ci-latency-evidence: ## Run queue-vs-run median evidence collection for workflow gate and route-observe lanes
+	@./scripts/rt-ci-latency-evidence.sh "rust-workspace.yml,ci-route-observe.yml" "main" 40
