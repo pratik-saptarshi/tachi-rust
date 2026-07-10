@@ -67,8 +67,7 @@
 - Epic: `RT-CI` Rust CI orchestration and delta-routing hardening
 - Closed phase-1 guardrails: `RT-CI-002`, `RT-CI-002.1`, `RT-CI-002.1.1`,
   `RT-CI-002.2`, and `RT-CI-002.3`
-- Remaining open slices: `RT-CI-001.1`, `RT-CI-003*`, `RT-CI-004*`,
-  `RT-CI-005*`, `RT-CI-006*`, and `RT-CI-007*`
+- Remaining open slices: `RT-CI-006.2` and `RT-CI-007`
 - Tracker state: live Beads writes are exported to `../../.beads/issues.jsonl`
   after each slice, and the publish inventory/checklist now names the RT-CI
   workflows and docs as part of the current publish gate.
@@ -118,8 +117,7 @@
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
 - `bd ready --json` currently returns the open `RT-CI` slices, including
-  `RT-CI-001.1`, `RT-CI-003.1`, `RT-CI-003.2`, `RT-CI-004*`, `RT-CI-005*`,
-  `RT-CI-006*`, and `RT-CI-007*`.
+  `RT-CI-006.2` and `RT-CI-007*`.
 - `bd list --json` includes the deferred follow-ups `AQ-054.4`, `AQ-054.5`,
   and `AQ-054.6`, plus the open `RT-CI` hierarchy.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
