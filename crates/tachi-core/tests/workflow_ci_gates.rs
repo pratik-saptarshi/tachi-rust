@@ -57,7 +57,8 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "route classifier must publish the selected package closure"
     );
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("active docs or shared surface touched")),
+        workflow_run_bodies(&workflow)
+            .any(|run| run.contains("active docs or shared surface touched")),
         "route classifier must widen for active docs and shared surfaces"
     );
     assert!(
@@ -81,7 +82,9 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "cargo-test matrix must consume route-selected packages"
     );
     assert!(
-        text.contains("[\"tachi-core\",\"tachi-mcp\",\"tachi-cli\",\"tachi-shell\",\"tachi-desktop\"]"),
+        text.contains(
+            "[\"tachi-core\",\"tachi-mcp\",\"tachi-cli\",\"tachi-shell\",\"tachi-desktop\"]"
+        ),
         "route classifier must preserve the full-package baseline"
     );
     assert!(
@@ -229,7 +232,11 @@ fn privileged_workflows_keep_their_permission_contracts() {
 
     assert_eq!(
         workflow_job_permissions(&clippy, "rust-clippy-analyze"),
-        vec![("actions", "read"), ("contents", "read"), ("security-events", "write")],
+        vec![
+            ("actions", "read"),
+            ("contents", "read"),
+            ("security-events", "write")
+        ],
         "clippy workflow must keep its code-scanning permission surface"
     );
     assert_eq!(
@@ -239,7 +246,11 @@ fn privileged_workflows_keep_their_permission_contracts() {
     );
     assert_eq!(
         workflow_top_level_permissions(&release),
-        vec![("contents", "write"), ("issues", "write"), ("pull-requests", "write")],
+        vec![
+            ("contents", "write"),
+            ("issues", "write"),
+            ("pull-requests", "write")
+        ],
         "release-please workflow must keep its release-automation permission surface"
     );
 }
@@ -324,8 +335,9 @@ fn required_check_migration_note_is_explicit() {
     let execution_plan =
         fs::read_to_string(repo_root().join("docs/tachi-rust-ci-execution-plan.md"))
             .expect("read execution plan");
-    let checklist = fs::read_to_string(repo_root().join("docs/publish-readiness-checklist.html.md"))
-        .expect("read publish checklist");
+    let checklist =
+        fs::read_to_string(repo_root().join("docs/publish-readiness-checklist.html.md"))
+            .expect("read publish checklist");
 
     for required in [
         "Old broad-signal checks: `cargo test -p ${{ matrix.package }} --all-targets`",
@@ -391,13 +403,13 @@ fn baseline_snapshot_records_the_phase_zero_contract() {
         "tachi-core",
         "shell-init",
         "Local Validation Snapshot",
-        "19 tests passed",
+        "22 tests passed",
         "elapsed runtime summaries",
         "Local Timing Snapshot",
         "real 1.62s",
         "Warm Timing Comparison",
         "`origin/main` warm run: `real 0.58s`",
-        "Current branch warm run: `real 1.39s",
+        "Current branch warm run: `real 1.39s`",
         "Timing Notes",
         "live PR-run timing evidence required by the original baseline plan",
     ] {
@@ -513,7 +525,8 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
         "route observe workflow must capture a policy version"
     );
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("active docs or shared surface touched")),
+        workflow_run_bodies(&workflow)
+            .any(|run| run.contains("active docs or shared surface touched")),
         "route observe workflow must distinguish active docs and shared surfaces"
     );
     assert!(
@@ -840,7 +853,10 @@ fn specialist_workflows_keep_their_trigger_contracts() {
     for (name, allowed) in [
         ("gitleaks.yml", ["pull_request"].as_slice()),
         ("tachi-mmdc-preflight.yml", ["pull_request"].as_slice()),
-        ("rust-clippy.yml", ["push", "pull_request", "schedule"].as_slice()),
+        (
+            "rust-clippy.yml",
+            ["push", "pull_request", "schedule"].as_slice(),
+        ),
         (
             "rust-supply-chain.yml",
             ["push", "pull_request", "schedule"].as_slice(),
@@ -967,9 +983,7 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
 
 fn job_uses_shared_rust_setup(steps: &[serde_yaml::Value]) -> bool {
     steps.iter().any(|step| {
-        step.get("uses")
-            .and_then(serde_yaml::Value::as_str)
-            == Some("./.github/actions/rust-setup")
+        step.get("uses").and_then(serde_yaml::Value::as_str) == Some("./.github/actions/rust-setup")
     })
 }
 
@@ -1205,7 +1219,9 @@ fn workflow_job_field<'a>(
 }
 
 fn workflow_has_cancelling_concurrency(workflow: &serde_yaml::Value) -> bool {
-    let Some(concurrency) = workflow.get("concurrency").and_then(serde_yaml::Value::as_mapping)
+    let Some(concurrency) = workflow
+        .get("concurrency")
+        .and_then(serde_yaml::Value::as_mapping)
     else {
         return false;
     };
@@ -1214,9 +1230,8 @@ fn workflow_has_cancelling_concurrency(workflow: &serde_yaml::Value) -> bool {
     let cancel = workflow_mapping_value(concurrency, "cancel-in-progress")
         .and_then(serde_yaml::Value::as_bool);
 
-    group.is_some_and(|group| {
-        group.contains("github.workflow") && group.contains("github.ref")
-    }) && cancel == Some(true)
+    group.is_some_and(|group| group.contains("github.workflow") && group.contains("github.ref"))
+        && cancel == Some(true)
 }
 
 fn workflow_mapping_value<'a>(

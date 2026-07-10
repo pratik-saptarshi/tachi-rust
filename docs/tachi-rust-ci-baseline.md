@@ -42,7 +42,7 @@ reference
 ## Local Validation Snapshot
 
 - `cargo test -p tachi-core --test workflow_ci_gates`
-- Result: 19 tests passed
+- Result: 22 tests passed
 - `git diff --check`
 - Result: clean
 
@@ -64,6 +64,51 @@ reference
 - The next networked CI observation should capture per-shape durations for:
   passive docs, dependency-closure crate-local, lockfile, and workflow-change
   PRs.
+
+- Suggested GitHub median evidence command set (run once a feature branch has
+  remote visibility):
+
+  ```bash
+  # Collect the latest completed PR runs with queue/execution timing fields.
+  gh run list \
+    --workflow rust-workspace.yml \
+    --branch "$BRANCH" \
+    --status completed \
+    --limit 40 \
+    --json databaseId,createdAt,startedAt,completedAt,status,conclusion,displayTitle,headBranch,name \
+    > runs.json
+
+  # Optional: join with python to derive queue_ms and run_ms and compute medians.
+  python - <<'PY'
+  import json
+  from datetime import datetime, timezone
+  from statistics import median
+
+  def ts(value):
+      return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(
+          tzinfo=timezone.utc
+      ).timestamp()
+
+  runs = json.load(open("runs.json")) or []
+  queue_ms = []
+  run_ms = []
+  for run in runs:
+      if not run.get("startedAt") or not run.get("completedAt"):
+          continue
+      queue_ms.append((ts(run["startedAt"]) - ts(run["createdAt"])) * 1000)
+      run_ms.append((ts(run["completedAt"]) - ts(run["startedAt"])) * 1000)
+
+  if queue_ms and run_ms:
+      print(f"queue_ms_median={median(queue_ms)}")
+      print(f"run_ms_median={median(run_ms)}")
+  else:
+      print("queue_ms_median=")
+      print("run_ms_median=")
+  PY
+  ```
+
+- Keep queue time and run time separated in notes so route narrowing impact is
+  not masked by workflow scheduling delays.
 
 ## Local Timing Snapshot
 

@@ -1,7 +1,7 @@
 # Publish Readiness Checklist
 
 **Status**: Active release gate
-**Last Updated**: 2026-07-09
+**Last Updated**: 2026-07-10
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
@@ -37,6 +37,8 @@ retired from the active dependency surface.
 - [ ] No untracked scratch files, temporary exports, or local-only artifacts are
       present in the publish set.
 - [ ] The branch name and commit messages are conventional and self-explanatory.
+- [ ] `make docs-version-gate` and `make docs-archive-version-gate` pass after
+      documentation updates included in the release slice.
 
 ## 2. Security and privacy
 
@@ -236,6 +238,9 @@ retired from the active dependency surface.
 - [ ] `.github/workflows/gitleaks.yml` fails closed after SARIF upload when
       scanner execution or SARIF validation fails.
 - [ ] The latest main-push Actions run does not emit Node 20 deprecation warnings from the updated workflows.
+- [ ] `gh api repos/:owner/:repo/branches/:branch/protection` is checked and
+      documented when required-check migration is active. A 404 is a blocker until
+      branch protection-based required-check migration is confirmed by policy.
 - [ ] `.github/workflows/release-please.yml` ignores docs-only and roadmap-only
       pushes and does not churn release-PR branches on main pushes.
 - [ ] `.github/workflows/tachi-mmdc-preflight.yml` is green.
@@ -258,6 +263,12 @@ retired from the active dependency surface.
 ## 7. Remote publication
 
 - [ ] The branch to publish is up to date with the intended base branch.
+- [ ] `gh run list --workflow rust-workspace.yml --branch main --status completed --limit 5`
+      is checked after merge and before release claim.
+- [ ] `gh run watch <run-id>` completes with a green `rust-workspace.yml`,
+      `ci-route-observe.yml` (if scoped), and `release-please.yml` sequence.
+- [ ] All required-check migration evidence required by RT-CI remains in the
+      local closeout notes and the associated Beads issue note trail.
 - [ ] The publish commit history is linear or intentionally merged.
 - [ ] The push target is `origin/main` or a clearly named release branch.
 - [ ] `make publish-gate` runs clean on the branch being published, including

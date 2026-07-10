@@ -1,7 +1,7 @@
 # Bill of Materials
 
 **Status**: Active publish inventory
-**Last Updated**: 2026-07-09
+**Last Updated**: 2026-07-10
 **Purpose**: enumerate the repository surfaces that are expected to ship, be
 reviewed, or be validated before publishing `tachi-rust` to remote origin
 **Scope**: source code, docs, tests, CI, security posture, and release gates
@@ -45,7 +45,7 @@ with the shipped release workflow before publication.
 | `SECURITY.md` | Security policy | Publishable | Private vulnerability reporting only; keep public disclosure guidance current. |
 | `CHANGELOG.md` | Release history | Publishable | Redaction-safe release notes only. |
 | `docs/bill-of-materials.html.md` | Publish inventory | Publishable | Canonical inventory of publication surfaces and validation gates. |
-| `docs/publish-readiness-checklist.html.md` | Publish readiness checklist | Publishable | Required pre-push gate for security, privacy, docs, CI, release hygiene, and public-doc alignment. Must describe `crates/tachi-desktop` as the active desktop host. |
+| `docs/publish-readiness-checklist.html.md` | Publish readiness checklist | Publishable | Required pre-push gate for security, privacy, docs, CI, release hygiene, and public-doc alignment. Must describe `crates/tachi-desktop` as the active desktop host and include branch-protection/remote-evidence requirements before merge closure. |
 | `docs/tachi-rust-ci-route-policy.md` | RT-CI route policy manifest | Publishable with review | Human-readable escalation rules for the live RT-CI routing track before observe-only proof and fixture enforcement. |
 | `docs/tachi-rust-ci-route-fixtures.md` | RT-CI route fixture manifest | Publishable with review | Common change-set matrix and stable JSON examples for route decisions. |
 | `docs/tachi-rust-ci-route-artifact.md` | RT-CI route artifact manifest | Publishable with review | Observable `route.json` schema and stable orchestrator check notes for the route-observe lane. |
