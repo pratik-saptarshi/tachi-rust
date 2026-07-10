@@ -11,10 +11,12 @@
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
+- [Rust-native E2E coverage expansion roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
+- [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
 
 ## Current Status Snapshot
 
-- Open: `RT-CI-006.2`, `RT-CI-007` (remote evidence gates)
+- Open: `RT-CI-006.2`, `RT-CI-007` (remote evidence gates), `E2E-COV*` (new E2E coverage expansion hierarchy)
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
@@ -71,6 +73,14 @@
 - Tracker state: live Beads writes are exported to `../../.beads/issues.jsonl`
   after each slice, and the publish inventory/checklist now names the RT-CI
   workflows and docs as part of the current publish gate.
+
+## Active E2E Coverage Track
+
+- [Rust-native E2E coverage expansion roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
+- [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
+- Epic: `E2E-COV` Rust-native end-to-end coverage expansion
+- Planned wave: baseline contract → parallel CLI/Desktop/MCP boundary slices → lifecycle and resilience composition → branch/line/region publish evidence.
+- Current baseline: one E2E module (`crates/tachi-shell/tests/init_substitution.rs`), five passing tests, 85.25% lines / 84.77% regions, and no current branch-coverage report.
 
 ## Rust Toolchain Modernization Track
 

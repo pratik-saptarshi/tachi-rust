@@ -122,3 +122,31 @@ fn collect_audit_classifies_inline_source_tests_as_unit_coverage() {
     assert!(rendered.contains("Unit: 1"));
     assert!(rendered.contains("Integration: 1"));
 }
+
+#[test]
+fn live_e2e_inventory_has_one_explicit_init_boundary() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .expect("workspace root should be two levels above tachi-core manifest")
+        .to_path_buf();
+
+    let audit = collect_audit(&root);
+    assert_eq!(
+        audit.e2e,
+        vec![PathBuf::from(
+            "crates/tachi-shell/tests/init_substitution.rs"
+        )]
+    );
+    assert!(
+        audit
+            .integration
+            .iter()
+            .all(|path| path != &PathBuf::from("crates/tachi-shell/tests/init_substitution.rs")),
+        "the explicit E2E boundary must not be double-counted as integration"
+    );
+
+    let rendered = render(&audit, &root);
+    assert!(rendered.contains("True end-to-end: 1"));
+    assert!(rendered.contains("  - crates/tachi-shell/tests/init_substitution.rs"));
+}

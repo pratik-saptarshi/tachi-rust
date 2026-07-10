@@ -55,6 +55,8 @@ with the shipped release workflow before publication.
 | `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation notes for the live RT-CI CI hardening track. |
 | `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Source text for the live RT-CI hierarchy and acceptance criteria. |
 | `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Validation notes from the plan-review and overseer pass. |
+| `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md` | E2E coverage expansion roadmap | Publishable with review | Defines the CLI, desktop, MCP, lifecycle, resilience, and branch-coverage workstream. |
+| `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md` | E2E coverage issue cards | Publishable with review | Source text for the `E2E-COV*` Beads hierarchy and dependency order. |
 | `docs/standards/PUBLISHING_SECURITY.md` | Security and privacy gate | Publishable | Source of truth for public-push safety rules, disclosure boundaries, and release-note hygiene. |
 | `docs/standards/PRECOMMIT_HOOKS.md` | Secret-scanning hook guide | Publishable with review | Must not imply weaker scanning than the current gate. |
 | `scripts/rt-ci-latency-evidence.sh` | RT-CI latency evidence helper | Publishable with review | Collects queue vs run medians from GitHub Actions lanes; required for route evidence closeout. |
@@ -193,7 +195,8 @@ The repository policy for these surfaces is:
 | Rust toolchain proof | `rustup toolchain install --no-self-update`, `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, `rustup which rustc` | Required Rust workflows consume `rust-toolchain.toml` and prove the compiler path before running tests or lint. |
 | Full workspace PR behavior gate | `cargo test --workspace --all-targets` and `.github/workflows/rust-workspace.yml` | Pull requests apply routing: full mode is preserved on protected refs and active/shared surfaces, while passive docs and dependency-closure-aware changes are narrowed by design. |
 | Semantic CI contract tests | `cargo test -p tachi-core --test workflow_ci_gates -- --nocapture` | Workflow contracts parse YAML for events, jobs, matrices, steps, and run commands; package matrices derive from root workspace members instead of copied strings. |
-| Rust e2e and bridge checks | `cargo test -p tachi-shell --test init_substitution` and `cargo test -p tachi-core --test rt009_docs` | Must pass for CLI/tidy report contract parity surfaces. |
+| Rust E2E and bridge checks | `cargo test -p tachi-shell --test init_substitution`, the `E2E-COV*` focused suites, and `cargo test -p tachi-core --test rt009_docs` | Must cover the current initialization boundary and, as the roadmap lands, CLI, desktop, MCP, lifecycle, and resilience journeys. |
+| E2E coverage inventory | `cargo run -q -p tachi-cli --bin coverage-audit` | The audit must classify every critical journey exactly once and keep E2E distinct from integration/smoke modules. |
 | MCP scaffold and contract checks | `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio` and `cargo build -p tachi-mcp --features stdio` | MCP registry, stdio transport, request-id continuity, cancellation handling, schema snapshots, and contract snapshots remain deterministic. |
 | Core infographic and scaffold seams | `cargo test -p tachi-core` | Prompt scaffold, infographic payload, parser, and reporting seams remain green after boundary splits. |
 | Infographic payload seam | `cargo test -p tachi-core` | Payload orchestration remains behavior-compatible after moving filesystem loading and template assembly. |
