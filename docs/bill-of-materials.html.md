@@ -188,7 +188,7 @@ The repository policy for these surfaces is:
 |---|---|---|
 | Rust unit and integration tests | `cargo test -q` | Must pass cleanly. |
 | Rust toolchain proof | `rustup toolchain install --no-self-update`, `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, `rustup which rustc` | Required Rust workflows consume `rust-toolchain.toml` and prove the compiler path before running tests or lint. |
-| Full workspace PR behavior gate | `cargo test --workspace --all-targets` and `.github/workflows/rust-workspace.yml` | Pull requests run the whole Rust workspace without path filters. |
+| Full workspace PR behavior gate | `cargo test --workspace --all-targets` and `.github/workflows/rust-workspace.yml` | Pull requests apply routing: full mode is preserved on protected refs and active/shared surfaces, while passive docs and dependency-closure-aware changes are narrowed by design. |
 | Semantic CI contract tests | `cargo test -p tachi-core --test workflow_ci_gates -- --nocapture` | Workflow contracts parse YAML for events, jobs, matrices, steps, and run commands; package matrices derive from root workspace members instead of copied strings. |
 | Rust e2e and bridge checks | `cargo test -p tachi-shell --test init_substitution` and `cargo test -p tachi-core --test rt009_docs` | Must pass for CLI/tidy report contract parity surfaces. |
 | MCP scaffold and contract checks | `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio` and `cargo build -p tachi-mcp --features stdio` | MCP registry, stdio transport, request-id continuity, cancellation handling, schema snapshots, and contract snapshots remain deterministic. |
