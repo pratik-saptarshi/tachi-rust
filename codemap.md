@@ -25,13 +25,18 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 ## Directory Map
 
-| Directory | Responsibility Summary |
-|---|---|
-| `crates/tachi-core/` | Domain and data-transformation core. It parses generated threat-model artifacts, computes MAESTRO and coverage views, builds report data, emits SARIF payloads, owns the Rust coverage-audit catalog, and now exposes a stable facade module while hiding low-level utility modules behind it. |
-| `crates/tachi-cli/` | Thin CLI binary layer. Binaries parse flags, call shared core/shell functions, and write files or stdout. Business logic should move down into `tachi-core` or `tachi-shell`. |
-| `crates/tachi-mcp/` | Standalone MCP transport. The crate owns the initial contract snapshot, versioned command hash, registered analysis tools, and stdio request/response seam with request-id propagation and cancellation-aware policy checks. |
-| `crates/tachi-shell/` | Shared command facade for shell-style control-plane operations and Tauri-facing command dispatch. Keeps desktop and CLI command semantics aligned and now enforces bounded execution, output/input path containment, process cleanup for desktop bridge file IO, and serialized control-plane tests around shared shell state. |
-| `crates/tachi-desktop/` | Active GTK-free native desktop host. It routes directly through `tachi-shell`, owns host parity, typed boundary, offline-cache, release-artifact, and app-state tests, and provides the launchable desktop path without Tauri/Wry/GTK dependencies. |
+| Directory | Responsibility Summary | Detailed Map |
+|---|---|---|
+| `crates/` | Rust workspace packages and their dependency boundaries. | [View map](crates/codemap.md) |
+| `crates/tachi-core/` | Domain and data-transformation core. It parses generated threat-model artifacts, computes MAESTRO and coverage views, builds report data, emits SARIF payloads, owns the Rust coverage-audit catalog, and exposes a stable facade over internal utilities. | [View map](crates/tachi-core/codemap.md) |
+| `crates/tachi-core/src/infographic/` | Infographic payload orchestration, template parsing, MAESTRO rendering, and executive-architecture overlays. | [View map](crates/tachi-core/src/infographic/codemap.md) |
+| `crates/tachi-core/src/parsers/` | Structured parsing for findings, source attribution, agentic patterns, project metadata, and summaries. | [View map](crates/tachi-core/src/parsers/codemap.md) |
+| `crates/tachi-cli/` | Thin CLI binary layer. Binaries parse flags, call shared core/shell functions, and write files or stdout. | [View map](crates/tachi-cli/codemap.md) |
+| `crates/tachi-cli/src/bin/` | Executable entrypoints for control-plane, reporting, SARIF, infographic, and coverage-audit commands. | [View map](crates/tachi-cli/src/bin/codemap.md) |
+| `crates/tachi-mcp/` | Standalone MCP transport with contract snapshots, registered analysis tools, request-id propagation, cancellation, and policy checks. | [View map](crates/tachi-mcp/codemap.md) |
+| `crates/tachi-shell/` | Shared command facade that aligns desktop and CLI semantics and enforces bounded, root-contained execution. | [View map](crates/tachi-shell/codemap.md) |
+| `crates/tachi-shell/src/commands/` | Runtime execution adapters, process lifecycle controls, and output/progress handling behind the shell registry. | [View map](crates/tachi-shell/src/commands/codemap.md) |
+| `crates/tachi-desktop/` | Active GTK-free native desktop host routing through `tachi-shell`, with typed invocation, cache, artifact, and app-state boundaries. | [View map](crates/tachi-desktop/codemap.md) |
 | `schemas/` | Finding schema and taxonomy catalogs used by parser, source-attribution, coverage, AISVS, and crosswalk validation tests. |
 | `.claude/` | Agent, command, skill, and reference content inherited from the original Tachi workflow. This is data/configuration for threat-modeling behavior, not Rust runtime code. |
 | `.aod/` | AOD shell helpers, templates, and governance memory. Some shell helpers remain under Rust test coverage while migration continues. |
@@ -47,7 +52,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 |---|---|
 | Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` first resolved `src-tauri` as standalone evidence, then `RT-00i.2.5` retired that adapter from the active dependency surface to unblock the live GTK/GLib advisory; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
 | RT-CI live CI hardening | `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`, `docs/tachi-rust-ci-review-panel.md`, `docs/tachi-rust-ci-route-policy.md`, `docs/tachi-rust-ci-route-fixtures.md`, and `docs/tachi-rust-ci-closeout.md` define the live `RT-CI` hierarchy for PR concurrency, workflow parse, rustfmt, protected trigger contracts, route-policy escalation, route fixtures, dependency-closure routing, shared Rust setup, protected-ref enforcement, and privileged SARIF invariants. The branch currently carries the dedicated `ci-workflow-parse.yml` and `rustfmt.yml` gates plus the workflow contract audit in `crates/tachi-core/tests/workflow_ci_gates.rs`, the updated Phase-0 baseline snapshot, and the closeout runbook with branch-protection evidence checkpoints. |
-| Codemap automation state | `.slim/codemap.json` is absent in this checkout. The root atlas is updated manually for this package, and no folder-level codemap files were invented. The codemap script path `~/.config/opencode/skills/codemap/scripts/codemap.mjs` exists on this machine, but codemap initialization/update was not run in this docs-first slice. |
+| Codemap automation state | `.slim/codemap.json` tracks the core Rust/configuration surface (67 files), with hierarchical maps under `crates/` and each active workspace package. Tests and documentation remain excluded from hash-based change detection. |
 
 ## Rust Data And Control Flow
 
