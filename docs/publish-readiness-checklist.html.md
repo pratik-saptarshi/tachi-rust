@@ -111,8 +111,8 @@ retired from the active dependency surface.
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      baseline; validated at 85.42% region coverage and 86.15% line coverage
-      on 2026-07-05.
+      threshold; latest local run on 2026-07-10 measured 84.77% regions and
+      85.25% lines, with the configured 85% line threshold passing.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the

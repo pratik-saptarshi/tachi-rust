@@ -20,6 +20,12 @@ items that still require GitHub access
   is not a substitute for live PR median evidence.
 - Beads export and issue notes are updated after each slice and can be used by
   release operators when evidence gaps remain.
+- On 2026-07-10, the full workspace test gate passed 468 tests across 111
+  suites; the standalone coverage gate passed at 84.77% regions and 85.25%
+  lines. The combined publish gate had one transient workspace-parallel test
+  failure that did not reproduce in the workspace or coverage-only reruns.
+- The local gitleaks 8.30.1 scan passed with no leaks; this does not replace
+  the required GitHub gitleaks workflow result.
 
 ## Still Pending External Verification
 
