@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-09  
 **Source input**: `/Volumes/dev/Git-SCM/tachi-rust/docs/ci-improvement-plan.html`  
-**Status**: proposed execution package; not yet written back to the repository  
+**Status**: active execution package with remote evidence blockers
 **Primary objective**: reduce wasted pull-request CI time without weakening `tachi-rust`'s existing SARIF, supply-chain, cross-platform, and contract-specific guarantees
 
 ## Repo-State Reconciliation

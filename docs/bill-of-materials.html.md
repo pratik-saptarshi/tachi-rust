@@ -57,6 +57,7 @@ with the shipped release workflow before publication.
 | `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Validation notes from the plan-review and overseer pass. |
 | `docs/standards/PUBLISHING_SECURITY.md` | Security and privacy gate | Publishable | Source of truth for public-push safety rules, disclosure boundaries, and release-note hygiene. |
 | `docs/standards/PRECOMMIT_HOOKS.md` | Secret-scanning hook guide | Publishable with review | Must not imply weaker scanning than the current gate. |
+| `scripts/rt-ci-latency-evidence.sh` | RT-CI latency evidence helper | Publishable with review | Collects queue vs run medians from GitHub Actions lanes; required for route evidence closeout. |
 
 ## Top-Level Inventory
 
@@ -105,6 +106,7 @@ with the shipped release workflow before publication.
 | Path | Contents | Reviewer focus |
 |---|---|---|
 | `scripts/` | Init/bootstrap helpers and transitional tooling | No secret leakage, no unreviewed shell injection, clear retirement path. |
+| `scripts/rt-ci-latency-evidence.sh` | RT-CI timing evidence helper | No secret leakage, no shell injection, and documented requirement for network-bound API access. |
 | `.aod/` | Governance and operational helpers | Hook safety, no private state, no accidental publish of local settings. |
 | `.claude/` | Agent and permissions configuration | Public-safe policy, no credentials, no private repo-specific tokens. |
 | `stacks/nextjs-supabase/scaffold/` | Next.js/Supabase scaffold template | Dependency floors must exclude known vulnerable `next` and `vitest` ranges. |
@@ -162,6 +164,7 @@ with the shipped release workflow before publication.
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |
 | `.github/workflows/tachi-mmdc-preflight.yml` | Mermaid preflight | Protects docs and renderable diagram outputs. |
 | `.github/workflows/tachi-pytest.yml` | Transitional compatibility tests | Must be reviewed for retirement or narrowing as migration completes. |
+| `scripts/rt-ci-latency-evidence.sh` | CI timing evidence helper | Network-dependent helper used by RT-CI merge-closeout to record queue/run medians. |
 
 ## Security and Privacy BOM
 
@@ -211,6 +214,7 @@ The repository policy for these surfaces is:
 | AISVS publish-readiness evidence | `RT-00i.6` | Closed Phase 5 docs/release-gate evidence stays visible in the BOM and issue cards so future AISVS work opens a new tracker slice instead of reusing the closed follow-up. |
 | Docs/version sweep | `make docs-version-gate` + `make docs-archive-version-gate` | Maintained docs stay current; archived docs and examples retain only intentional historical references. |
 | Publish gate | `make publish-gate` | The release candidate passes the full local publish-readiness suite before remote publication. |
+| RT-CI timing evidence | `make rt-ci-latency-evidence` | Run when network and API access are available for remote PR and route-observe medians. |
 | CI gate | GitHub Actions run status | Release, security, lint, and docs workflows are green. |
 | Remote monitor | `git push origin main --follow-tags` + `gh run watch` | Post-push CI is observed to completion before the release is considered published. |
 | Release-please gate | `release-please.yml` push filter | Docs-only publishes do not churn release refs and push runs avoid PR-branch churn. |
@@ -261,3 +265,4 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `make scaffold-dependency-gate` is green for scaffold dependency floors.
 - [ ] `cargo clippy --all-targets -- -D warnings` is clean.
 - [ ] Public examples and fixtures are synthetic or redacted.
+- [ ] `make rt-ci-latency-evidence` is run for merge-closeout when GitHub API/network is available.

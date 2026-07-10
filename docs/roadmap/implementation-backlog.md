@@ -1,6 +1,6 @@
 # Implementation Backlog
 
-**Last Updated**: 2026-07-09
+**Last Updated**: 2026-07-10
 **Purpose**: navigation hub for the Beads-ready Rust/Tauri implementation backlog
 **Scope**: roadmap sequencing, issue-pack pointers, and task-template guidance
 
@@ -14,7 +14,7 @@
 
 ## Current Status Snapshot
 
-- Open: none
+- Open: `RT-CI-006.2`, `RT-CI-007` (remote evidence gates)
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,

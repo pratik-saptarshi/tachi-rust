@@ -24,7 +24,7 @@ items that still require GitHub access
 ## Still Pending External Verification
 
 - Live GitHub Actions timing evidence for pre-router vs post-router median PR
-  durations.
+  durations. Collect via `make rt-ci-latency-evidence`.
 - Branch-protection verification that the required-check migration is safe to
   finalize.
 - Post-push monitoring of `main` after a publish step.

@@ -403,7 +403,7 @@ fn baseline_snapshot_records_the_phase_zero_contract() {
         "tachi-core",
         "shell-init",
         "Local Validation Snapshot",
-        "22 tests passed",
+        "23 tests passed",
         "elapsed runtime summaries",
         "Local Timing Snapshot",
         "real 1.62s",
@@ -446,6 +446,48 @@ fn closeout_notes_separate_local_proof_from_external_verification() {
             "closeout notes must document {required}"
         );
     }
+}
+
+#[test]
+fn rt_ci_latency_evidence_target_is_documented_and_invocable() {
+    let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    let baseline = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-baseline.md"))
+        .expect("read baseline snapshot");
+    let closeout = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-closeout.md"))
+        .expect("read closeout notes");
+    let script = repo_root()
+        .join("scripts")
+        .join("rt-ci-latency-evidence.sh");
+    let helper = fs::read_to_string(script).expect("read rt-ci-latency-evidence script");
+
+    assert!(
+        makefile.contains("rt-ci-latency-evidence"),
+        "makefile must include the rt-ci-latency-evidence target"
+    );
+    assert!(
+        makefile.contains("./scripts/rt-ci-latency-evidence.sh"),
+        "makefile should call the rt-ci-latency-evidence script"
+    );
+    assert!(
+        baseline.contains("make rt-ci-latency-evidence"),
+        "baseline notes must reference the rt-ci-latency-evidence helper"
+    );
+    assert!(
+        closeout.contains("make rt-ci-latency-evidence"),
+        "closeout notes must reference the rt-ci-latency-evidence helper"
+    );
+    assert!(
+        helper.contains("run list"),
+        "latency evidence helper must document its GitHub run-list query"
+    );
+    assert!(
+        helper.contains("createdAt"),
+        "latency evidence helper must request createdAt for queue timing"
+    );
+    assert!(
+        helper.contains("updatedAt"),
+        "latency evidence helper must request updatedAt-equivalent timing completion"
+    );
 }
 
 #[test]
@@ -1165,7 +1207,7 @@ fn workflow_job_permissions<'a>(
     out.into_iter().collect()
 }
 
-fn workflow_top_level_permissions<'a>(workflow: &'a serde_yaml::Value) -> Vec<(&'a str, &'a str)> {
+fn workflow_top_level_permissions(workflow: &serde_yaml::Value) -> Vec<(&str, &str)> {
     let Some(permissions) = workflow
         .get("permissions")
         .and_then(serde_yaml::Value::as_mapping)
