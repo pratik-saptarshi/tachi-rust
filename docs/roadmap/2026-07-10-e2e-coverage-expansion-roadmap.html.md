@@ -19,7 +19,7 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 | Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; coverage-governance and branch evidence remain open. |
 | Workspace tests | 468 tests pass across 111 test suites | Suite count and coverage-audit module count are different metrics and must remain separate. |
 | LLVM coverage | 85.45% lines, 85.03% regions | Current gate passes its 85% line threshold; branch coverage is not currently reported. |
-| Branch coverage capability | `cargo llvm-cov --branch` is exposed by the installed tool but fails on the pinned Rust 1.96.1 stable toolchain because `-Z coverage-options=branch` requires nightly | E2E-COV-007 must first decide and document a reproducible nightly/toolchain policy; no branch threshold may be claimed or silently added to the stable publish gate. |
+| Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 produces a 69.39% baseline (1,408 branches, 431 missed) when `RUSTC` and `RUSTDOC` resolve through rustup | E2E-COV-007 must govern the nightly lane and uplift branch coverage to the requested 85% target; no lower threshold may be silently substituted. |
 | Security/privacy | Local gitleaks 8.30.1 scan passes; fixtures are local/synthetic | New E2E fixtures must remain deterministic, redaction-safe, and offline by default. |
 
 ## Goals
@@ -37,7 +37,7 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 - Do not require live GitHub, package registries, MCP servers, or external renderers for deterministic pull-request E2E tests.
 - Do not duplicate business logic inside tests. E2E tests invoke the same CLI, shell, desktop, and MCP boundaries used by production callers.
 - Do not treat golden-file equality as the only oracle; assert semantic output contracts, artifact bytes where byte stability is intentional, exit/status behavior, and cleanup invariants.
-- Do not claim branch coverage until `cargo llvm-cov --branch` produces a recorded baseline and the threshold is enforced.
+- Do not claim branch-target completion until the nightly branch baseline is reproducible and reaches the requested 85% threshold; the current 69.39% baseline is evidence, not completion.
 - Do not include credentials, private paths, user data, network tokens, or unsanitized generated reports in fixtures or artifacts.
 
 ## Target journey matrix
@@ -78,11 +78,11 @@ Phase 2 must not hide failures behind retries. Each scenario has one determinist
 
 ### Phase 3 — Coverage governance and publish gate (`E2E-COV-007`)
 
-Add branch coverage collection and reporting to the local evidence path, update the Rust coverage audit and docs, and enforce thresholds only after the measured baseline is reviewed. The current stable-toolchain attempt is an explicit blocker for measurement: `cargo llvm-cov --workspace --branch --summary-only` reaches the nightly-only `-Z coverage-options=branch` requirement and exits non-zero. E2E-COV-007 must choose one of two governed paths: a pinned nightly coverage-only lane isolated from the stable production toolchain, or a documented branch-coverage deferral with line/region evidence retained. The first enforcement target is:
+Add branch coverage collection and reporting to the local evidence path, update the Rust coverage audit and docs, and enforce thresholds only after the measured baseline is reviewed. The stable-toolchain attempt remains unsuitable for measurement because `cargo llvm-cov --workspace --branch --summary-only` reaches the nightly-only `-Z coverage-options=branch` requirement and exits non-zero. An explicit nightly 1.99.0 run now produces a 69.39% branch baseline, but the requested 85% target is not met. E2E-COV-007 must govern that nightly coverage-only lane and uplift the uncovered branches before enforcement. The first enforcement target is:
 
 - line coverage ≥ 85%;
 - region coverage ≥ 85%;
-- branch coverage baseline recorded with a documented threshold and no unexplained regression;
+- branch coverage ≥ 85%, with the current 69.39% baseline recorded and no unexplained regression;
 - every active critical journey has at least one E2E test;
 - unit/integration/smoke/E2E classifications remain synchronized with the audit binary;
 - full workspace, security, privacy, supply-chain, and publish gates remain green.

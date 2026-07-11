@@ -124,8 +124,9 @@ retired from the active dependency surface.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
       threshold; latest local run on 2026-07-10 measured 85.45% lines / 85.03%
       regions, with the configured 85% line threshold passing.
-- [ ] `cargo llvm-cov --workspace --branch --summary-only` produces a recorded
-      branch baseline before branch-coverage claims are made.
+- [ ] The governed nightly branch command produces at least 85% branch
+      coverage. Current evidence is 69.39% (1,408 total / 431 missed) on
+      nightly 1.99.0, so this publication item remains open.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the
