@@ -173,3 +173,67 @@ fn c12_monitoring_policy_redacts_secrets_and_rejects_empty_events() {
     assert_eq!(err, AisvsError::InvalidMonitoringEvent);
     assert_eq!(err.code(), "AISVS_INVALID_MONITORING_EVENT");
 }
+
+#[test]
+fn aisvs_validation_edges_remain_fail_closed_and_accessor_complete() {
+    let errors = [
+        AisvsError::InvalidControlId,
+        AisvsError::UnknownControl,
+        AisvsError::DuplicateControlId,
+        AisvsError::InvalidTrainingDataAsset,
+        AisvsError::InvalidPromptInput,
+        AisvsError::InvalidLifecycleTransition,
+        AisvsError::OverbroadInfrastructurePolicy,
+        AisvsError::InvalidAccessContext,
+        AisvsError::InvalidSupplyChainEvidence,
+        AisvsError::InvalidModelBehaviorPolicy,
+        AisvsError::InvalidMemoryScope,
+        AisvsError::InvalidOrchestrationPolicy,
+        AisvsError::InvalidMcpPolicy,
+        AisvsError::InvalidAdversarialCase,
+        AisvsError::InvalidMonitoringEvent,
+    ];
+    assert!(errors.iter().all(|error| !error.code().is_empty()));
+    assert!(errors.iter().all(|error| !error.to_string().is_empty()));
+
+    let context = AccessContext::new("subject", AccessMode::Service).unwrap();
+    assert!(context.permits(AccessMode::Observer));
+    assert!(context.permits(AccessMode::Operator));
+    assert!(context.permits(AccessMode::Service));
+    let observer = AccessContext::new("subject", AccessMode::Observer).unwrap();
+    assert!(!observer.permits(AccessMode::Operator));
+
+    assert!(TrainingDataAsset::parse("", "sha256:00", "source").is_err());
+    assert!(TrainingDataAsset::parse("source", "md5:00", "source").is_err());
+    assert!(TrainingDataAsset::parse("source", "sha256:zz", "source").is_err());
+    assert!(SupplyChainEvidence::new("", "1", "sha256:00", "https://x").is_err());
+    assert!(SupplyChainEvidence::new("pkg", "", "sha256:00", "https://x").is_err());
+    assert!(SupplyChainEvidence::new("pkg", "1", "sha256:00", "http://x").is_err());
+    assert!(ModelBehaviorPolicy::new("schema", 1, false).is_err());
+    assert!(ModelBehaviorPolicy::new("", 1, true).is_err());
+    assert!(ModelBehaviorPolicy::new("schema", 0, true).is_err());
+
+    assert!(MemoryScope::new(1, 0, false).is_err());
+    assert!(MemoryScope::new(1, 31, false).is_err());
+    assert!(MemoryScope::new(1, 1, true).is_err());
+    assert!(OrchestrationAction::new(" ", false).is_err());
+    assert!(McpPolicy::new("schema", &[]).is_err());
+    assert!(McpPolicy::new("schema", &["tool", "tool"]).is_err());
+    assert!(McpPolicy::new("schema", &["tool", " "]).is_err());
+    let policy = McpPolicy::new("schema", &["tool"]).unwrap();
+    assert!(policy.allows_tool(" tool "));
+    assert!(!policy.allows_tool(" "));
+    assert!(McpInvocation::new(" ", "payload").is_err());
+    assert!(McpInvocation::new("tool", " ").is_err());
+    assert!(AdversarialCase::new("family", " ").is_err());
+    assert!(MonitoringEvent::new("component", " ").is_err());
+
+    assert!(PromptInput::from_str("line\nfeed").is_ok());
+    assert!(PromptInput::from_str("bad\u{0007}").is_err());
+    assert!(InfrastructurePolicy::new(true, false, false).is_ok());
+    assert!(InfrastructurePolicy::new(false, true, false).is_ok());
+    assert!(InfrastructurePolicy::new(false, false, true).is_ok());
+
+    let gate = LifecycleGate::new(LifecycleStage::Retired);
+    assert!(gate.advance_to(LifecycleStage::Retired).is_err());
+}
