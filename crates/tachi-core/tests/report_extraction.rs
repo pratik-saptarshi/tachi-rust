@@ -75,7 +75,7 @@ fn remediation_actions_cover_control_and_timeline_modes() {
     let finding = remediation_finding();
     assert_eq!(build_remediation_actions(&[], 1, true, None), None);
 
-    let controls = build_remediation_actions(&[finding.clone()], 1, true, None)
+    let controls = build_remediation_actions(std::slice::from_ref(&finding), 1, true, None)
         .expect("controls should produce actions");
     assert_eq!(controls[0].sla, "14d");
     assert_eq!(controls[0].status, "pending");
@@ -87,7 +87,8 @@ fn remediation_actions_cover_control_and_timeline_modes() {
 
     let timeline = parse_threat_report_md(THREAT_REPORT_WITH_TIMELINE);
     let tier_two =
-        build_remediation_actions(&[finding.clone()], 2, false, Some(&timeline)).unwrap();
+        build_remediation_actions(std::slice::from_ref(&finding), 2, false, Some(&timeline))
+            .unwrap();
     assert_eq!(tier_two[0].severity, "Critical");
     assert_eq!(tier_two[0].recommendation, "Authentication bypass");
     assert_eq!(tier_two[0].sla, "7d");
