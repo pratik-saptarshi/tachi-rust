@@ -190,6 +190,73 @@ fn parse_attack_chains_returns_empty_for_missing_or_unparseable_content() {
 }
 
 #[test]
+fn parse_attack_chains_handles_optional_fields_and_target_without_layer() {
+    let content = r#"
+### CHAIN-099: Optional metadata
+**Layers**: L1 —> L2 → L3 ->
+**Max Severity**:
+**Surfaced**: maybe
+
+#### Member Findings
+| Finding ID | MAESTRO Layer | Role | Component | Category | Severity |
+| --- | --- | --- | --- | --- | --- |
+| F-1 | L1 — Presentation | | | | |
+
+#### Attack Progression
+Only the first sentence is retained.
+
+#### Chain-Breaking Controls
+**Target**: F-1
+**Rationale**: Use a layer-independent control.
+**Recommendation**: Validate input.
+
+### Not a chain heading
+"#;
+
+    let chains = parse_attack_chains(Some(content));
+    assert_eq!(chains.len(), 1);
+    assert_eq!(chains[0].layers, vec!["L1", "L2", "L3"]);
+    assert_eq!(chains[0].max_severity, "");
+    assert!(!chains[0].surfaced);
+    assert_eq!(chains[0].narrative, "Only the first sentence is retained.");
+    assert_eq!(chains[0].chain_breaking_controls[0].target_layer, "");
+}
+
+#[test]
+fn generate_chain_mermaid_normalizes_layer_spellings_and_unknown_colors() {
+    let chain = AttackChain {
+        findings: vec![
+            AttackChainFinding {
+                finding_id: String::from("F-1"),
+                maestro_layer: String::from("l1 — Presentation"),
+                component: String::from("Web UI"),
+                ..AttackChainFinding::default()
+            },
+            AttackChainFinding {
+                finding_id: String::new(),
+                maestro_layer: String::from("L99 Unknown Layer"),
+                ..AttackChainFinding::default()
+            },
+            AttackChainFinding {
+                finding_id: String::from("F-3"),
+                maestro_layer: String::from("custom-layer"),
+                ..AttackChainFinding::default()
+            },
+        ],
+        ..AttackChain::default()
+    };
+
+    let mermaid = generate_chain_mermaid(&chain);
+    assert!(mermaid.starts_with("flowchart TD"));
+    assert!(mermaid.contains("L1: Foundation Model"));
+    assert!(mermaid.contains("L99UnknownLayer"));
+    assert!(mermaid.contains("custom-layer"));
+    assert!(mermaid.contains("fill:#64748b"));
+    assert!(mermaid.matches("enables").count() >= 2);
+    assert_eq!(generate_chain_mermaid(&AttackChain::default()), "");
+}
+
+#[test]
 fn detect_artifacts_marks_attack_chains_as_present_when_file_exists() {
     let root = std::env::temp_dir().join("tachi-core-attack-chains-artifacts");
     let _ = std::fs::remove_dir_all(&root);
