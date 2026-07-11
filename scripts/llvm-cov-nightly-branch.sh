@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLCHAIN="${RUST_TOOLCHAIN_NIGHTLY:-nightly}"
+TOOLCHAIN="${RUST_TOOLCHAIN_NIGHTLY:-nightly-1.99.0}"
 HOST_TRIPLE="$(rustup run "$TOOLCHAIN" rustc -vV | sed -n 's/^host: //p')"
 SYSROOT="$(rustup run "$TOOLCHAIN" rustc --print sysroot)"
 LLVM_BIN="$SYSROOT/lib/rustlib/$HOST_TRIPLE/bin"

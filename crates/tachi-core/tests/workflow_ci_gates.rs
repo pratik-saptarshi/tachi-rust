@@ -617,6 +617,7 @@ fn publish_gate_runs_supply_chain_policy_checks() {
         "cargo deny check advisories bans licenses sources",
         "@$(MAKE) supply-chain-gate",
         "@$(MAKE) gitleaks-gate",
+        "@$(MAKE) llvm-cov-nightly-branch",
     ] {
         assert!(
             text.contains(command),

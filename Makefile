@@ -129,6 +129,7 @@ publish-gate: ## Run end-to-end publish-readiness gates locally
 	@$(MAKE) scaffold-dependency-gate
 	@$(MAKE) supply-chain-gate
 	@$(MAKE) gitleaks-gate
+	@$(MAKE) llvm-cov-nightly-branch
 	@$(MAKE) release-gate
 	@$(MAKE) fuzz-mutation-gate
 	@$(MAKE) test
