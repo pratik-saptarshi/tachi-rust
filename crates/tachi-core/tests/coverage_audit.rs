@@ -158,3 +158,34 @@ fn live_e2e_inventory_has_explicit_init_and_cli_artifact_boundaries() {
     assert!(rendered.contains("  - crates/tachi-mcp/tests/e2e_stdio_journey.rs"));
     assert!(rendered.contains("  - crates/tachi-shell/tests/init_substitution.rs"));
 }
+
+#[test]
+fn collect_audit_handles_missing_roots_and_all_python_categories() {
+    let missing = unique_temp_dir("tachi-coverage-audit-missing");
+    assert!(!missing.exists());
+    let empty_audit = collect_audit(&missing);
+    assert_eq!(empty_audit, Default::default());
+    assert!(render(&empty_audit, &missing).contains("Active test modules: 0"));
+
+    let root = unique_temp_dir("tachi-coverage-audit-categories");
+    write_file(&root.join("tests/scripts/test_example_e2e.py"));
+    write_file(&root.join("tests/scripts/test_example_smoke.py"));
+    write_file(&root.join("tests/scripts/test_example_unit.py"));
+    write_file(&root.join("tests/scripts/test_example_integration.py"));
+    write_file(&root.join("tests/scripts/test_helper.py"));
+    write_file(&root.join("crates/tachi-core/tests/support.rs"));
+    let inline_source = root.join("crates/tachi-core/src/inline.rs");
+    fs::create_dir_all(inline_source.parent().expect("inline source parent"))
+        .expect("create inline source parent");
+    fs::write(&inline_source, "#[cfg(test)]\nmod tests {}\n").expect("write inline test module");
+
+    let audit = collect_audit(&root);
+    assert_eq!(audit.e2e.len(), 1);
+    assert_eq!(audit.smoke.len(), 1);
+    assert_eq!(audit.unit.len(), 2);
+    assert_eq!(audit.integration.len(), 2);
+    assert_eq!(audit.support.len(), 1);
+    let rendered = render(&audit, &root);
+    assert!(rendered.contains("E2E: 1") || rendered.contains("True end-to-end: 1"));
+    assert!(rendered.contains("Support / regression: 1"));
+}
