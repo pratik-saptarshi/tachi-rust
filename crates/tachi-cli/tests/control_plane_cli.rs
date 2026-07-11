@@ -294,6 +294,50 @@ fn init_binary_rejects_missing_root_value() {
 }
 
 #[test]
+fn init_binary_forwards_root_and_passthrough_flags() {
+    let root = fixture_repo();
+    write_executable_file(
+        &root.join("scripts/init.sh"),
+        "#!/usr/bin/env bash\nprintf '%s\\n' \"$@\"",
+    );
+
+    let output = Command::new(binary_path("init"))
+        .args([
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--precommit",
+            "--custom-flag",
+        ])
+        .output()
+        .expect("run init binary");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<_> = stdout.lines().collect();
+    assert_eq!(lines, vec!["--precommit", "--custom-flag"]);
+}
+
+#[test]
+fn init_binary_accepts_no_precommit_passthrough_flag() {
+    let root = fixture_repo();
+    write_executable_file(
+        &root.join("scripts/init.sh"),
+        "#!/usr/bin/env bash\nprintf '%s\\n' \"$@\"",
+    );
+
+    let output = Command::new(binary_path("init"))
+        .args(["--root", root.to_string_lossy().as_ref(), "--no-precommit"])
+        .output()
+        .expect("run init binary without precommit");
+
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout).trim(),
+        "--no-precommit"
+    );
+}
+
+#[test]
 fn coverage_audit_binary_rejects_invalid_arguments() {
     let missing_root = Command::new(binary_path("coverage-audit"))
         .arg("--root")
