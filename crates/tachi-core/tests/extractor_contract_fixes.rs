@@ -120,6 +120,77 @@ fn parse_attack_trees_ignores_invalid_files_and_heading_fallbacks() {
 }
 
 #[test]
+fn parse_attack_trees_covers_unreadable_files_missing_blocks_and_severity_ties() {
+    let root = workspace_root().join("target/test-extractor-contract-fixes-edges");
+    let _ = fs::remove_dir_all(&root);
+    let trees = root.join("attack-trees");
+    fs::create_dir_all(&trees).expect("create attack-trees dir");
+    fs::create_dir(trees.join("directory.md")).expect("create unreadable directory fixture");
+    fs::write(
+        trees.join("missing-mermaid.md"),
+        "# Attack Tree: S-5 -- Missing diagram\n",
+    )
+    .expect("write missing block tree");
+    fs::write(
+        trees.join("tie.md"),
+        "# Attack Tree: S-6 -- Tie breaker\n\n```mermaid\ngraph TD\n A --> B\n```\n",
+    )
+    .expect("write tie tree");
+    fs::write(
+        trees.join("tie-two.md"),
+        "# Attack Tree: S-7 -- Tie breaker two\n\n```mermaid\ngraph TD\n C --> D\n```\n",
+    )
+    .expect("write second tie tree");
+
+    let findings = vec![
+        ThreatFinding {
+            id: String::from("S-6"),
+            risk_level: String::from("High"),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding {
+            id: String::from("S-7"),
+            risk_level: String::from("High"),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding {
+            id: String::from("S-5"),
+            risk_level: String::from("Critical"),
+            ..ThreatFinding::default()
+        },
+    ];
+
+    let entries = parse_attack_trees(&root, &findings, None);
+    assert_eq!(
+        entries
+            .iter()
+            .map(|entry| entry.id.as_str())
+            .collect::<Vec<_>>(),
+        ["S-6", "S-7"]
+    );
+    assert!(entries.iter().all(|entry| !entry.mermaid_code.is_empty()));
+}
+
+#[test]
+fn parse_attack_trees_rejects_unknown_and_empty_severities() {
+    let root = workspace_root().join("target/test-extractor-contract-fixes-severity");
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(root.join("attack-trees")).expect("create attack-trees dir");
+    fs::write(
+        root.join("attack-trees/unknown.md"),
+        "# Attack Tree: S-8 -- Unknown severity\n\n```mermaid\ngraph TD\n A --> B\n```\n",
+    )
+    .expect("write unknown severity tree");
+
+    let findings = [ThreatFinding {
+        id: String::from("S-8"),
+        risk_level: String::from("Note"),
+        ..ThreatFinding::default()
+    }];
+    assert!(parse_attack_trees(&root, &findings, None).is_empty());
+}
+
+#[test]
 fn parse_threat_report_md_falls_back_to_full_section1_prose() {
     let result = parse_threat_report_md(
         "# Threat Report\n\n## 1. Executive Summary\n\nThe system under review is a SaaS application with 42 active findings.\n\n**Risk profile by count**: 5 Critical, 12 High, 20 Medium, 5 Low.\n\n**Most critical unresolved exposure**: The auth service allows unauthenticated admin access via a legacy flag that was never removed.\n\n## 2. Architecture Overview\n\nComponents and trust boundaries follow below.\n",
