@@ -11,6 +11,7 @@ const SMOKE_MODULES: &[&str] = &[
 
 const E2E_MODULES: &[&str] = &[
     "crates/tachi-cli/tests/e2e_artifacts.rs",
+    "crates/tachi-desktop/tests/e2e_command_journey.rs",
     "crates/tachi-shell/tests/init_substitution.rs",
 ];
 

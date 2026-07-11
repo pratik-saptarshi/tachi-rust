@@ -7,7 +7,7 @@
 
 ## Executive decision
 
-The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The first expansion slice now adds `crates/tachi-cli/tests/e2e_artifacts.rs`, which composes the production report-data, threats-SARIF, and risk-scores-SARIF binaries. Initialization remains a strong black-box test of scope and personalized-tree parity; the CLI slice proves artifact delivery but does not yet prove the complete product journey.
+The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The first expansion slices now add `crates/tachi-cli/tests/e2e_artifacts.rs` and `crates/tachi-desktop/tests/e2e_command_journey.rs`, composing production artifact binaries and the desktop host state/dispatch path. Initialization, CLI artifact delivery, and desktop command behavior are covered; MCP, lifecycle, and broader resilience journeys remain open.
 
 This roadmap expands E2E coverage around stable user-facing boundaries while preserving the existing Rust-native unit and integration pyramid. The work is intentionally staged: freeze the boundary contract first, then execute independent CLI, desktop, and MCP slices in parallel, then compose lifecycle and failure/cancellation flows, and finally enforce coverage evidence.
 
@@ -15,8 +15,8 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 
 | Evidence | Current state | Consequence |
 |---|---|---|
-| Coverage audit | 110 active modules: 13 unit, 94 integration, 1 smoke, 2 E2E, 0 support | The E2E denominator is now explicitly classified and includes the CLI artifact journey. |
-| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs` and `crates/tachi-shell/tests/init_substitution.rs`; focused suites pass | Initialization and CLI artifact delivery are covered; desktop, MCP, lifecycle, and resilience remain open. |
+| Coverage audit | 111 active modules: 13 unit, 94 integration, 1 smoke, 3 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, and initialization journeys. |
+| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifact delivery, and desktop command behavior are covered; MCP, lifecycle, and resilience remain open. |
 | Workspace tests | 468 tests pass across 111 test suites | Suite count and coverage-audit module count are different metrics and must remain separate. |
 | LLVM coverage | 85.25% lines, 84.77% regions | Current gate passes its 85% line threshold; branch coverage is not currently reported. |
 | Branch coverage capability | `cargo llvm-cov --branch` is exposed by the installed tool but fails on the pinned Rust 1.96.1 stable toolchain because `-Z coverage-options=branch` requires nightly | E2E-COV-007 must first decide and document a reproducible nightly/toolchain policy; no branch threshold may be claimed or silently added to the stable publish gate. |

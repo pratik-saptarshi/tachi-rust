@@ -136,19 +136,22 @@ fn live_e2e_inventory_has_explicit_init_and_cli_artifact_boundaries() {
         audit.e2e,
         vec![
             PathBuf::from("crates/tachi-cli/tests/e2e_artifacts.rs"),
+            PathBuf::from("crates/tachi-desktop/tests/e2e_command_journey.rs"),
             PathBuf::from("crates/tachi-shell/tests/init_substitution.rs"),
         ]
     );
     assert!(
         audit.integration.iter().all(|path| {
             path != &PathBuf::from("crates/tachi-cli/tests/e2e_artifacts.rs")
+                && path != &PathBuf::from("crates/tachi-desktop/tests/e2e_command_journey.rs")
                 && path != &PathBuf::from("crates/tachi-shell/tests/init_substitution.rs")
         }),
         "the explicit E2E boundary must not be double-counted as integration"
     );
 
     let rendered = render(&audit, &root);
-    assert!(rendered.contains("True end-to-end: 2"));
+    assert!(rendered.contains("True end-to-end: 3"));
     assert!(rendered.contains("  - crates/tachi-cli/tests/e2e_artifacts.rs"));
+    assert!(rendered.contains("  - crates/tachi-desktop/tests/e2e_command_journey.rs"));
     assert!(rendered.contains("  - crates/tachi-shell/tests/init_substitution.rs"));
 }
