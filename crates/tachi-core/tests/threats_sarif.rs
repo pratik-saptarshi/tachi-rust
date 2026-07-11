@@ -118,3 +118,93 @@ fn build_threats_sarif_uses_shared_baseline_run_id_for_existing_finding() {
     );
     assert_eq!(result["properties"]["baselineState"], "unchanged");
 }
+
+#[test]
+fn build_threats_sarif_covers_prefix_risk_and_reference_fallbacks() {
+    let mut component_meta = BTreeMap::new();
+    component_meta.insert(
+        String::from("Known"),
+        ComponentMetadata {
+            zone: String::from("Zone"),
+            dfd_type: String::from("Process"),
+        },
+    );
+
+    let prefixes = [
+        "S", "T", "R", "I", "D", "E", "AGP", "LLM", "OI", "MI", "OTHER",
+    ];
+    let findings = prefixes
+        .iter()
+        .enumerate()
+        .map(
+            |(index, prefix)| tachi_core::threats_sarif::ThreatSarifFinding {
+                id: format!("{prefix}-{index}"),
+                prefix: String::from(*prefix),
+                status: if index == 0 {
+                    String::from("[NEW]")
+                } else {
+                    String::from("[UNCHANGED]")
+                },
+                component: if index == 0 {
+                    String::from("Known")
+                } else {
+                    String::from("Unknown")
+                },
+                maestro: if index == 1 {
+                    String::from("—")
+                } else if index == 2 {
+                    String::from("Unclassified")
+                } else {
+                    String::from("L2 — Data")
+                },
+                agentic_pattern: if index % 2 == 0 {
+                    String::from("pattern")
+                } else {
+                    String::new()
+                },
+                threat: String::from("Threat"),
+                owasp_ref: match index {
+                    0 => String::from("OWASP LLM01: Prompt Injection"),
+                    1 => String::from("ASI-7"),
+                    2 => String::from("MCP-2"),
+                    _ => String::new(),
+                },
+                likelihood: String::from("Medium"),
+                impact: String::from("Medium"),
+                risk_level: match index % 5 {
+                    0 => String::from("Critical"),
+                    1 => String::from("High"),
+                    2 => String::from("Medium"),
+                    3 => String::from("Low"),
+                    _ => String::from("Note"),
+                },
+                mitigation: String::from("Mitigate"),
+            },
+        )
+        .collect::<Vec<_>>();
+
+    let sarif = tachi_core::threats_sarif::build_threats_sarif(
+        &findings,
+        &component_meta,
+        "threats.md",
+        Some("baseline"),
+    );
+    let results = sarif["runs"][0]["results"]
+        .as_array()
+        .expect("results array");
+    assert_eq!(results.len(), prefixes.len());
+    assert_eq!(results[0]["level"], "error");
+    assert_eq!(results[2]["level"], "warning");
+    assert_eq!(results[3]["level"], "note");
+    assert_eq!(results[0]["properties"]["owasp_id"], "LLM-01");
+    assert_eq!(results[1]["properties"]["owasp_id"], "ASI-07");
+    assert_eq!(results[2]["properties"]["owasp_id"], "MCP-02");
+    assert_eq!(
+        results[0]["locations"][0]["logicalLocations"][0]["kind"],
+        "process"
+    );
+    assert_eq!(
+        results[1]["locations"][0]["logicalLocations"][0]["kind"],
+        "process"
+    );
+}
