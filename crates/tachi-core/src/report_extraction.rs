@@ -93,10 +93,7 @@ pub fn parse_threat_report_md(content: &str) -> ThreatReportData {
 
     if narrative_parts.is_empty() {
         let mut prose_end = sec1_end;
-        if let Some((_, start, _)) = subsections
-            .iter()
-            .find(|(name, _, _)| name == "Remediation Timeline")
-        {
+        if let Some((_, start, _)) = subsections.first() {
             prose_end = prose_end.min(start.saturating_sub(1));
         }
         let prose_text = lines[sec1_start..prose_end].join("\n").trim().to_string();

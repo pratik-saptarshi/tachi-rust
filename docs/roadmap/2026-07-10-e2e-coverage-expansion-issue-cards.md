@@ -117,6 +117,6 @@
   - stable line/region thresholds remain unchanged and green;
   - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
-- **Current baseline after uplift slices 1-9**: 78.98% branch coverage, 1,408 total branches / 296 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 9 covers CLI init root/passthrough and typed desktop offline error classification.
+- **Current baseline after uplift slice 10**: 80.11% branch coverage, 1,408 total branches / 280 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 10 covers report extraction fallback, remediation action modes, delta status, and source-attribution parsing.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
 - **Priority**: P1
