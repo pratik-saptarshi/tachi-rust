@@ -85,6 +85,42 @@ fn dispatch_command_rejects_unknown_command() {
 }
 
 #[test]
+fn dispatch_command_fails_closed_when_control_plane_script_is_missing() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+
+    let output = dispatch_command("install", &root, &[]);
+
+    assert_ne!(output.status, 0);
+    assert!(output.stderr.contains("install.sh") || output.stderr.contains("not found"));
+}
+
+#[test]
+fn dispatch_infographic_data_rejects_pre_cancelled_requests() {
+    let root = fixture_repo();
+    let token = CancellationToken::new();
+    cancel_running_command(&token);
+    let events = Arc::new(Mutex::new(Vec::new()));
+    let mut reporter = RecordingReporter(events.clone());
+
+    let output = dispatch_command_with_progress(
+        "infographic-data",
+        &root,
+        &["--root", ".", "--template", "maestro-stack"],
+        &token,
+        &mut reporter,
+    );
+
+    assert_eq!(output.status, 130);
+    assert!(output.stderr.contains("cancelled"));
+    assert!(events
+        .lock()
+        .expect("report events")
+        .iter()
+        .any(|event| event.message == "cancelled"));
+}
+
+#[test]
 fn dispatch_command_with_progress_can_cancel_running_install_script() {
     let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
     let root = fixture_repo();
