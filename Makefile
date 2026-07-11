@@ -84,13 +84,13 @@ supply-chain-gate: ## Run dependency advisory, license, ban, and source policy c
 
 gitleaks-gate: ## Run the local fail-closed secret scan used by the publish gate
 	@set -eu; \
-		report="$$(mktemp "$${TMPDIR:-/tmp}/tachi-gitleaks.XXXXXX.sarif")"; \
-		staged_report="$$(mktemp "$${TMPDIR:-/tmp}/tachi-gitleaks-staged.XXXXXX.sarif")"; \
+		report="$$(mktemp "$${TMPDIR:-/tmp}/tachi-gitleaks.XXXXXX")"; \
+		staged_report="$$(mktemp "$${TMPDIR:-/tmp}/tachi-gitleaks-staged.XXXXXX")"; \
 		trap 'rm -f "$$report" "$$staged_report"' EXIT; \
 		set +e; \
-		gitleaks detect --source . --config=.gitleaks.toml --report-format=sarif --report-path="$$report" --no-banner; \
+		gitleaks detect --no-git --source . --config=.gitleaks.toml --report-format=sarif --report-path="$$report" --no-banner; \
 		status=$$?; \
-		gitleaks git --pre-commit --config=.gitleaks.toml --report-format=sarif --report-path="$$staged_report" --no-banner; \
+		gitleaks git --staged --config=.gitleaks.toml --report-format=sarif --report-path="$$staged_report" --no-banner; \
 		staged_status=$$?; \
 		set -e; \
 		test -s "$$report"; \

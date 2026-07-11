@@ -66,6 +66,7 @@ paths = [
 description = "vendored, generated, or archived content not subject to scan"
 paths = [
   '''node_modules/.*''',
+  '''target/.*''',
   '''\.git/.*''',
   '''archive/.*''',
 ]
