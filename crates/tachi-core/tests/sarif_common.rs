@@ -45,6 +45,29 @@ fn parse_component_metadata_maps_components_to_zones() {
 }
 
 #[test]
+fn parse_component_metadata_skips_empty_components_boundaries_and_unknown_members() {
+    let threats_md = r#"
+### Components
+
+| Component | Type |
+| --- | --- |
+|  | Process |
+| API Gateway | Process |
+
+### Trust Zones
+
+| Zone | Components |
+| --- | --- |
+|  | API Gateway |
+| Edge | API Gateway, Missing Component |
+"#;
+
+    let metadata = parse_component_metadata(threats_md);
+    assert_eq!(metadata.len(), 1);
+    assert_eq!(metadata["API Gateway"].zone, "Edge");
+}
+
+#[test]
 fn build_sarif_envelope_places_schema_before_version_when_requested() {
     let driver = serde_json::json!({"name": "tachi"});
     let taxonomies = vec![serde_json::json!({"name": "OWASP"})];
@@ -55,4 +78,17 @@ fn build_sarif_envelope_places_schema_before_version_when_requested() {
 
     assert!(serialized.contains(SARIF_SCHEMA_URI));
     assert!(serialized.contains("\"version\":\"2.1.0\""));
+}
+
+#[test]
+fn build_sarif_envelope_can_place_version_before_schema() {
+    let envelope = build_sarif_envelope(
+        serde_json::json!({"name": "tachi"}),
+        Vec::new(),
+        Vec::new(),
+        false,
+    );
+    let object = envelope.as_object().expect("sarif object");
+    let keys = object.keys().cloned().collect::<Vec<_>>();
+    assert_eq!(keys, vec!["version", "$schema", "runs"]);
 }

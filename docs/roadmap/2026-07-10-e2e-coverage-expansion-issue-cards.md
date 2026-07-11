@@ -117,6 +117,6 @@
   - stable line/region thresholds remain unchanged and green;
   - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
-- **Current baseline after uplift slice 20**: 82.10% branch coverage, 1,408 total branches / 252 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 20 covers missing audit roots and all Python audit categories while preserving Rust unit, integration, smoke, fixture-copy, and E2E classification boundaries.
+- **Current baseline after uplift slice 21**: 82.67% branch coverage, 1,408 total branches / 244 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 21 covers fixture validation failures, SARIF metadata/envelope edges, Mermaid renderer availability, and empty report artifact generation.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
 - **Priority**: P1

@@ -435,3 +435,18 @@ fn build_report_data_typst_prefers_self_consistent_png_over_stale_jpg() {
         .expect("executive architecture path line");
     assert!(path_line.ends_with("threat-executive-architecture.png\""));
 }
+
+#[test]
+fn build_report_data_typst_handles_empty_report_without_images_or_attestation_rows() {
+    let target_dir = unique_temp_dir("tachi-empty-report");
+    let template_dir = unique_temp_dir("tachi-empty-template");
+    fs::create_dir_all(&target_dir).expect("create target dir");
+    fs::create_dir_all(&template_dir).expect("create template dir");
+
+    let rendered = build_report_data_typst(&target_dir, &template_dir);
+
+    assert!(rendered.contains("#let project-name = \"Unknown Project\""));
+    assert!(rendered.contains("#let has-funnel-image = false"));
+    assert!(rendered.contains("#let per-finding-rows = ()"));
+    assert!(rendered.contains("#let per-framework-aggregates = ("));
+}
