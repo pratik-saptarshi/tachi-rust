@@ -61,3 +61,32 @@ fn compute_most_exposed_layer_prefers_count_severity_then_layer_id() {
 
     assert_eq!(actual, "L7 — Agent Ecosystem");
 }
+
+#[test]
+fn maestro_distribution_and_exposure_handle_empty_and_malformed_rows() {
+    assert!(parse_maestro_layer_distribution("").is_empty());
+    let rows = parse_maestro_layer_distribution(
+        r#"#### Risk by MAESTRO Layer
+
+| MAESTRO Layer | Finding Count | Highest Severity |
+| --- | --- | --- |
+|  | invalid |  |
+| L3 | invalid | Medium |
+"#,
+    );
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].layer_id, "L3");
+    assert_eq!(rows[0].finding_count, 0);
+    assert_eq!(rows[0].highest_severity, "Medium");
+
+    assert_eq!(compute_most_exposed_layer(&[]), "");
+    assert_eq!(
+        compute_most_exposed_layer(&[MaestroLayerDistribution {
+            layer_id: String::from("L1"),
+            layer_name: String::new(),
+            finding_count: 1,
+            highest_severity: String::from("Low"),
+        }]),
+        "L1"
+    );
+}

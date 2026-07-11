@@ -115,3 +115,22 @@ fn extract_maestro_data_aggregates_sections_and_flags_presence() {
 
     assert_eq!(actual, expected);
 }
+
+#[test]
+fn component_layer_mapping_skips_rows_without_component_or_layer() {
+    let mapping = parse_component_layer_mapping(
+        r#"### Components
+
+| Component | Type | MAESTRO Layer |
+| --- | --- | --- |
+| API | Service | L1 |
+|  | Service | L2 |
+| Cache | Data |  |
+"#,
+    );
+    assert_eq!(mapping.len(), 1);
+    assert_eq!(
+        mapping.get("API").map(String::as_str),
+        Some("L1 — Foundation Model")
+    );
+}

@@ -122,10 +122,10 @@ retired from the active dependency surface.
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      threshold; latest local run on 2026-07-11 measured 88.40% lines / 87.83%
+      threshold; latest local run on 2026-07-11 measured 88.62% lines / 88.04%
       regions, with the configured 85% line threshold passing.
 - [ ] The governed nightly branch command produces at least 85% branch
-      coverage. Current evidence is 73.44% (1,408 total / 374 missed) on
+      coverage. Current evidence is 74.43% (1,408 total / 360 missed) on
       nightly 1.99.0, so this publication item remains open.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.

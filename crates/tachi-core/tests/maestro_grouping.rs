@@ -87,3 +87,38 @@ fn group_maestro_findings_by_layer_orders_canonical_layers_before_unclassified()
         vec!["I-1"]
     );
 }
+
+#[test]
+fn group_maestro_findings_retains_unclassified_and_replaces_empty_names() {
+    let data = MaestroData {
+        maestro_layer_distribution: vec![MaestroLayerDistribution {
+            layer_id: String::from("L1"),
+            layer_name: String::new(),
+            finding_count: 0,
+            highest_severity: String::new(),
+        }],
+        per_finding_maestro: vec![
+            MaestroFinding {
+                id: String::from("S-1"),
+                component: String::new(),
+                maestro_layer: String::new(),
+                risk_level: String::new(),
+                threat: String::new(),
+            },
+            MaestroFinding {
+                id: String::from("S-2"),
+                component: String::new(),
+                maestro_layer: String::from("L1 — Foundation Model"),
+                risk_level: String::new(),
+                threat: String::new(),
+            },
+        ],
+        ..Default::default()
+    };
+
+    let groups = group_maestro_findings_by_layer(&data);
+    assert_eq!(groups.len(), 2);
+    assert_eq!(groups[0].layer_id, "L1");
+    assert_eq!(groups[0].layer_name, "Foundation Model");
+    assert_eq!(groups[1].layer_id, "Unclassified");
+}

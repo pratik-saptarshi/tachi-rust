@@ -69,6 +69,18 @@ fn compute_severity_percentages_uses_canonical_order_and_colors() {
 }
 
 #[test]
+fn coverage_percentage_helpers_handle_empty_and_zero_inputs() {
+    assert!(largest_remainder(&BTreeMap::new(), 100).is_empty());
+
+    let severity = SeverityCounts::default();
+    let percentages = compute_severity_percentages(&severity);
+    assert_eq!(percentages.len(), 4);
+    assert!(percentages
+        .iter()
+        .all(|entry| entry.count == 0 && entry.percentage == 0));
+}
+
+#[test]
 fn parse_threats_and_risk_scores_severity_accumulate_counts() {
     let threats = r#"
 ## 6. Risk Summary

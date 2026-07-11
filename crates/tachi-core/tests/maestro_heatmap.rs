@@ -45,6 +45,40 @@ fn compute_maestro_heatmap_keeps_highest_severity_per_cell_and_sorts_components(
     assert_eq!(actual, expected);
 }
 
+#[test]
+fn compute_maestro_heatmap_skips_invalid_cells_and_limits_components() {
+    let mut findings = vec![
+        MaestroFinding {
+            id: String::from("empty-component"),
+            component: String::new(),
+            maestro_layer: String::from("L1"),
+            risk_level: String::from("High"),
+            threat: String::new(),
+        },
+        MaestroFinding {
+            id: String::from("bad-layer"),
+            component: String::from("Bad"),
+            maestro_layer: String::from("L9"),
+            risk_level: String::from("High"),
+            threat: String::new(),
+        },
+    ];
+
+    for index in 0..11 {
+        findings.push(MaestroFinding {
+            id: format!("S-{index}"),
+            component: format!("Component {index:02}"),
+            maestro_layer: String::from("L2"),
+            risk_level: String::from("Note"),
+            threat: String::new(),
+        });
+    }
+
+    let actual = compute_maestro_heatmap(&findings);
+    assert_eq!(actual.len(), 10);
+    assert!(actual.iter().all(|row| row.component != "Bad"));
+}
+
 fn layers(entries: &[(&str, Option<&str>)]) -> BTreeMap<String, Option<String>> {
     let mut layers = BTreeMap::new();
     for lid in ["L1", "L2", "L3", "L4", "L5", "L6", "L7"] {
