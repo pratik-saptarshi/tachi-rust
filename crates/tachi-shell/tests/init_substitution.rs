@@ -8,6 +8,10 @@ use std::sync::atomic::{AtomicU64, Ordering};
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
+use tachi_shell::commands::{
+    install_output, report_data_output, threats_sarif_output, update_output,
+};
+
 static TEMP_DIR_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[test]
@@ -204,6 +208,67 @@ fn personalized_tree_modes_match_baseline() {
     );
 }
 
+#[test]
+fn init_install_update_then_analysis_reaches_a_sarif_artifact() {
+    let temp_dir = unique_temp_dir("full-lifecycle");
+    fs::create_dir_all(&temp_dir).expect("create temp dir");
+
+    let clone_root = clone_into_tmpdir(&temp_dir);
+    let init_run = run_init_in_clone(&clone_root, &build_canonical_stdin(&clone_root));
+    assert_eq!(
+        init_run.status,
+        0,
+        "init.sh exit {}; stderr tail:\n{}",
+        init_run.status,
+        stderr_tail(&init_run.stderr, 1500)
+    );
+
+    let scripts_dir = clone_root.join("scripts");
+    fs::create_dir_all(&scripts_dir).expect("create control-plane scripts");
+    write_executable(
+        &scripts_dir.join("install.sh"),
+        "#!/bin/bash\nprintf 'install-complete:%s\\n' \"$*\"\n",
+    );
+    write_executable(
+        &scripts_dir.join("update.sh"),
+        "#!/bin/bash\nprintf 'update-complete:%s\\n' \"$*\"\n",
+    );
+
+    let installed = install_output(&clone_root, &["--version", "fixture-v1"]);
+    assert_eq!(installed.status, 0, "install failed: {}", installed.stderr);
+    assert!(installed.stdout.contains("install-complete"));
+
+    let updated = update_output(&clone_root, &["--dry-run"]);
+    assert_eq!(updated.status, 0, "update failed: {}", updated.stderr);
+    assert!(updated.stdout.contains("update-complete"));
+
+    let target_dir = clone_root.join("examples/agentic-app/sample-report");
+    let template_dir = clone_root.join("templates/tachi/security-report");
+    fs::create_dir_all(&target_dir).expect("create analysis target");
+    fs::create_dir_all(&template_dir).expect("create analysis template dir");
+    fs::write(
+        target_dir.join("threats.md"),
+        "# Lifecycle Fixture\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation | Status |\n| --- | --- | --- | --- | --- | --- |\n| AG-8 | Agent | Prompt injection | High | Harden prompts | [NEW] |\n",
+    )
+    .expect("write lifecycle analysis input");
+
+    let report = report_data_output(&target_dir, &template_dir);
+    assert!(report.contains("#let project-name ="));
+    let sarif = threats_sarif_output(&target_dir.join("threats.md")).expect("build SARIF");
+    let artifact_path = clone_root.join("generated/lifecycle-threats.sarif");
+    fs::create_dir_all(artifact_path.parent().expect("artifact parent"))
+        .expect("create artifact directory");
+    fs::write(&artifact_path, sarif.sarif).expect("write lifecycle SARIF");
+
+    let artifact: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(&artifact_path).expect("read lifecycle SARIF"))
+            .expect("valid lifecycle SARIF");
+    assert_eq!(
+        artifact["runs"][0]["results"][0]["partialFingerprints"]["findingId/v1"],
+        "AG-8"
+    );
+}
+
 fn personalized_contract_paths() -> BTreeSet<PathBuf> {
     let root = workspace_root();
     let manifest = root.join(".aod/template-manifest.txt");
@@ -299,6 +364,18 @@ fn unique_temp_dir(label: &str) -> PathBuf {
             .expect("clock")
             .as_nanos()
     ))
+}
+
+fn write_executable(path: &Path, content: &str) {
+    fs::write(path, content).expect("write executable fixture");
+    #[cfg(unix)]
+    {
+        let mut permissions = fs::metadata(path)
+            .expect("read executable metadata")
+            .permissions();
+        permissions.set_mode(0o755);
+        fs::set_permissions(path, permissions).expect("set executable permissions");
+    }
 }
 
 fn clone_into_tmpdir(temp_dir: &Path) -> PathBuf {

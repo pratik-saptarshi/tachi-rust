@@ -7,7 +7,7 @@
 
 ## Executive decision
 
-The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The first expansion slices now add `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, composing production artifact binaries, the desktop host state/dispatch path, and the actual MCP stdio process. Initialization, CLI artifacts, desktop commands, and MCP stdio behavior are covered; lifecycle and broader resilience journeys remain open.
+The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The expansion now adds `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, while the init module also composes install, update, and analysis artifact delivery. Initialization, CLI artifacts, desktop commands, MCP stdio, and the full local lifecycle are covered; the cross-boundary failure matrix remains open.
 
 This roadmap expands E2E coverage around stable user-facing boundaries while preserving the existing Rust-native unit and integration pyramid. The work is intentionally staged: freeze the boundary contract first, then execute independent CLI, desktop, and MCP slices in parallel, then compose lifecycle and failure/cancellation flows, and finally enforce coverage evidence.
 
@@ -16,7 +16,7 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 | Evidence | Current state | Consequence |
 |---|---|---|
 | Coverage audit | 112 active modules: 13 unit, 94 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys. |
-| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, and MCP stdio behavior are covered; lifecycle and broader resilience remain open. |
+| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, and init/install/update/analysis lifecycle behavior are covered; the cross-boundary failure matrix remains open. |
 | Workspace tests | 468 tests pass across 111 test suites | Suite count and coverage-audit module count are different metrics and must remain separate. |
 | LLVM coverage | 85.25% lines, 84.77% regions | Current gate passes its 85% line threshold; branch coverage is not currently reported. |
 | Branch coverage capability | `cargo llvm-cov --branch` is exposed by the installed tool but fails on the pinned Rust 1.96.1 stable toolchain because `-Z coverage-options=branch` requires nightly | E2E-COV-007 must first decide and document a reproducible nightly/toolchain policy; no branch threshold may be claimed or silently added to the stable publish gate. |
@@ -48,7 +48,7 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 | CLI analysis and artifacts | `crates/tachi-cli/src/bin/*` and shell facade | Report-data, threats-SARIF, and risk-SARIF outputs are valid and semantically consistent | Invalid args fail closed; no partial output; source URI and status remain stable | `E2E-COV-002` |
 | Desktop host command flow | `crates/tachi-desktop` → `tachi-shell` | Command status/stdout/stderr and saved bytes match shared dispatch | Typed errors, path escape rejection, timeout/cancel, and child cleanup | `E2E-COV-003` |
 | MCP stdio | `crates/tachi-mcp` stdio transport | Explicit startup and allowlisted request produce validated result | Cancelled/malformed/disallowed requests fail without artifact leakage | `E2E-COV-004` |
-| Full adopter lifecycle | init → install/update → analysis | A clean temporary clone reaches a usable analysis artifact | Missing input, failed subprocess, and interrupted lifecycle leave no unsafe residue | `E2E-COV-005` |
+| Full adopter lifecycle | init → install/update → analysis | A clean temporary clone reaches a usable analysis artifact | Missing input, failed subprocess, and interrupted lifecycle leave no unsafe residue | `E2E-COV-005` (implemented in init-substitution E2E) |
 | Cross-boundary failure/cancel | shell, desktop, CLI, MCP seams | Status taxonomy is consistent across callers | Timeout/cancel is observable and no child process or partial artifact survives | `E2E-COV-006` |
 
 ## Phased execution plan
@@ -74,7 +74,7 @@ Each slice follows red test → minimal production wiring only if required → g
 - `E2E-COV-005` composes init/install/update with one real analysis/artifact path in an isolated clone.
 - `E2E-COV-006` adds cross-boundary failure, timeout, cancellation, partial-write, and child-process cleanup scenarios, reusing the typed error/status contracts established in Phase 1.
 
-Phase 2 must not hide failures behind retries. Each scenario has one deterministic setup, one invocation, and explicit cleanup assertions.
+Phase 2 must not hide failures behind retries. Each scenario has one deterministic setup, one invocation, and explicit cleanup assertions. `E2E-COV-005` now proves the local init → install → update → SARIF path in an isolated sparse clone; `E2E-COV-006` remains the follow-up matrix for broader cross-boundary failure and cancellation consistency.
 
 ### Phase 3 — Coverage governance and publish gate (`E2E-COV-007`)
 
