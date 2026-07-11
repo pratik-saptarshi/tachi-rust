@@ -229,6 +229,14 @@ fn validate_invoke_input_rejects_missing_required_fields_and_unknown_commands() 
     )
     .expect_err("reject risk help payload");
     assert!(err.contains("help is not an invocation payload"));
+
+    for (command, args) in [
+        ("report-data", vec!["--help"]),
+        ("threats-sarif", vec!["--help"]),
+    ] {
+        let err = validate_invoke_input(command, &root, &args).expect_err("reject help payload");
+        assert!(err.contains("help is not an invocation payload"));
+    }
 }
 
 #[test]
@@ -292,6 +300,21 @@ fn validate_invoke_output_rejects_schema_drift() {
         stderr: String::from("report-data.typ generated\n"),
     };
     validate_invoke_output("report-data", &valid).expect("valid report-data output");
+
+    let generated_only = tachi_shell::commands::CommandOutput {
+        status: 0,
+        stdout: String::new(),
+        stderr: String::from("report-data.typ generated"),
+    };
+    validate_invoke_output("report-data", &generated_only)
+        .expect("generated report-data output is valid");
+
+    let valid_coverage = tachi_shell::commands::CommandOutput {
+        status: 0,
+        stdout: String::from("Coverage audit for /tmp\nActive test modules: 1"),
+        stderr: String::new(),
+    };
+    validate_invoke_output("coverage-audit", &valid_coverage).expect("valid coverage output");
 
     let invalid = tachi_shell::commands::CommandOutput {
         status: 0,

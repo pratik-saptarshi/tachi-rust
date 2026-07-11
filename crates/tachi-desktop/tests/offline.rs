@@ -142,6 +142,10 @@ fn restore_offline_cache_rejects_parent_traversal_roots() {
     let err = restore_offline_cache(&repo_root.join(".."), &cache_root)
         .expect_err("reject repo root traversal");
     assert!(err.contains("contains parent traversal"));
+
+    let err = restore_offline_cache(&repo_root, &cache_root.join(".."))
+        .expect_err("reject cache root traversal");
+    assert!(err.contains("offline cache root"));
 }
 
 #[test]
@@ -191,6 +195,39 @@ fn check_for_update_handles_missing_and_fallback_version_pins() {
     let cached = check_for_update(&repo_root, &cache_root).expect("cached version pin");
     assert_eq!(cached.cached_version, Some(String::from("cached-v2")));
     assert!(cached.update_available);
+
+    fs::write(repo_root.join(".aod/aod-kit-version"), "\n\n").expect("write empty pin");
+    let empty = check_for_update(&repo_root, &cache_root).expect("check empty pin");
+    assert_eq!(empty.current_version, None);
+}
+
+#[test]
+fn restore_offline_cache_reports_copy_failures_as_io_errors() {
+    let repo_root = fixture_root("offline-copy-failure-repo");
+    let cache_root = fixture_root("offline-copy-failure-cache");
+    write_executable_file(&cache_root.join("scripts/update.sh"), "#!/bin/bash\n");
+    fs::create_dir_all(repo_root.join("scripts/update.sh"))
+        .expect("create conflicting destination directory");
+
+    let err = restore_offline_cache_typed(&repo_root, &cache_root)
+        .expect_err("copying a directory as a file should fail");
+    assert_eq!(err.kind(), DesktopErrorKind::Io);
+    assert_eq!(err.code(), 4);
+}
+
+#[test]
+fn check_for_update_marks_cached_version_as_new_when_current_pin_is_missing() {
+    let repo_root = fixture_root("offline-current-missing");
+    let cache_root = fixture_root("offline-cache-present");
+    fs::create_dir_all(cache_root.join(".aod")).expect("create cache aod dir");
+    fs::write(cache_root.join(".aod/aod-kit-version"), "version=v4.0.0\n")
+        .expect("write cached version");
+
+    let check = check_for_update(&repo_root, &cache_root).expect("check update");
+
+    assert_eq!(check.current_version, None);
+    assert_eq!(check.cached_version, Some(String::from("v4.0.0")));
+    assert!(check.update_available);
 }
 
 #[test]
