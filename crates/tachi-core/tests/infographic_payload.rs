@@ -3,7 +3,8 @@ use serde_json::Value;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use tachi_core::infographic::{
-    build_infographic_payload, MaestroLayerDistribution, PerLayerSummary,
+    build_infographic_payload, build_infographic_payload_from_content, MaestroLayerDistribution,
+    PerLayerSummary, PromptScaffold,
 };
 
 static TEMP_DIR_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -214,6 +215,81 @@ fn build_infographic_payload_maestro_heatmap_includes_distribution_and_flags() {
         .find(|row| row["component"] == "LLM Agent Orchestrator")
         .expect("LLM row exists");
     assert_eq!(l2_row["L5"], Value::String("High".to_string()));
+}
+
+#[test]
+fn build_infographic_payload_from_content_covers_template_and_input_errors() {
+    assert_eq!(
+        build_infographic_payload_from_content(
+            MAESTRO_THREATS_MD,
+            2,
+            String::from("Demo"),
+            None,
+            None,
+            "   "
+        )
+        .expect_err("blank template should fail"),
+        "template is required"
+    );
+    assert!(build_infographic_payload_from_content(
+        "# no findings",
+        1,
+        String::new(),
+        None,
+        None,
+        "maestro-stack"
+    )
+    .expect_err("missing findings should fail")
+    .contains("no findings parsed"));
+    assert!(build_infographic_payload_from_content(
+        MAESTRO_THREATS_MD,
+        1,
+        String::new(),
+        None,
+        None,
+        "unknown"
+    )
+    .expect_err("unknown template should fail")
+    .contains("unsupported template"));
+
+    let scaffold = PromptScaffold {
+        preamble: String::from("before"),
+        postamble: String::from("after"),
+        found: true,
+    };
+    for template in ["baseball-card", "system-architecture", "risk-funnel"] {
+        let payload = build_infographic_payload_from_content(
+            MAESTRO_THREATS_MD,
+            1,
+            String::from("Demo"),
+            Some(scaffold.clone()),
+            None,
+            template,
+        )
+        .expect("base template payload");
+        assert_eq!(payload["template"], template);
+        assert_eq!(
+            payload["metadata"]["data_source_type"],
+            "compensating-controls"
+        );
+        assert_eq!(payload["prompt_scaffold"]["preamble"], "before");
+        assert_eq!(payload["prompt_scaffold"]["postamble"], "after");
+        assert_eq!(payload["template_data"]["has_maestro_data"], false);
+    }
+}
+
+#[test]
+fn build_infographic_payload_rejects_empty_threats_file() {
+    let root = std::env::temp_dir().join(format!(
+        "tachi-rust-infographic-empty-{}",
+        TEMP_DIR_COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    std::fs::create_dir_all(&root).expect("create empty payload root");
+    std::fs::write(root.join("threats.md"), " \n\n").expect("write empty threats");
+
+    let error = build_infographic_payload(&root, "maestro-stack").expect_err("empty threats");
+    assert_eq!(error, "threats.md is empty");
+    std::fs::remove_dir_all(root).ok();
 }
 
 fn temp_dir_with_threats() -> std::path::PathBuf {
