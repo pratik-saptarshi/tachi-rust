@@ -206,11 +206,11 @@ The repository policy for these surfaces is:
 | Retired adapter guard | `cargo test -p tachi-core --test scaffold_dependency_floors --test workflow_ci_gates` | `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, and `.github/workflows/tauri-adapter-compatibility.yml` stay absent; the active workspace release host is `crates/tachi-desktop`. |
 | Feature and coverage canary | `make feature-combination-canary`, `make coverage-tool-proof`, and `.github/workflows/rust-feature-coverage-canary.yml` | `cargo-hack 0.6.45` checks workspace feature combinations with no dev-dependencies; `cargo-llvm-cov 0.8.7` records coverage-tool proof through the active toolchain LLVM wrapper; lane stays advisory until promoted. |
 | Async runtime ADR boundary | `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md` and `cargo metadata --locked --format-version 1` | `smol-rs` runtime crates stay outside the toolchain track; any future adoption requires a separate async-runtime feature with benchmarks, cancellation/shutdown tests, compatibility evidence, dependency diff, and rollback plan. |
-| Coverage gate | `make llvm-cov`; nightly branch command with explicit `RUSTC`/`RUSTDOC` paths | Stable gate passes at 90.22% regions and 90.56% lines. Nightly 1.99.0 records 83.45% branch coverage (1,408 total / 233 missed), below the requested 85% target; E2E-COV-007 remains open. |
+| Coverage gate | `make llvm-cov`; governed nightly branch command with explicit `RUSTC`/`RUSTDOC`/`LLVM_COV`/`LLVM_PROFDATA` paths | Stable gate passes at 90.22% regions and 90.56% lines. Nightly 1.99.0 records 85.09% branch coverage (1,408 total / 210 missed), meeting the requested 85% target after E2E-COV-007.1 slice 24. |
 | Reporting goldens | `cargo test -p tachi-core --test reporting_goldens -- --nocapture` | Canonical report, threat, risk, coverage, Typst, and infographic outputs remain stable through parsed semantic projections and compact rendering-contract snapshots. |
 | Advisory fuzz/mutation lane | `make fuzz-mutation-gate` and `.github/workflows/fuzz-mutation-audit.yml` | Commands stay documented, scheduled/manual runs remain non-blocking, and survivor reports stay offline-safe. |
 | Diff hygiene | `git diff --check` | No whitespace or patch-format issues. |
-| Secret scan | `pre-commit run --all-files` or `gitleaks` / CI workflow | No secrets or private data leak into the publish set, including examples, fixtures, logs, and generated docs. |
+| Secret scan | `make gitleaks-gate`, `pre-commit run --all-files`, or `.github/workflows/gitleaks.yml` | Local publish-gate execution now runs a fail-closed gitleaks SARIF/schema check; no secrets or private data may leak into examples, fixtures, logs, or generated docs. |
 | Scaffold dependency gate | `make scaffold-dependency-gate` | Next.js/Supabase scaffold dependency ranges exclude currently known vulnerable `next` and `vitest` floors. |
 | Docs gate | `README.md`, `docs/platform-compatibility.md`, `docs/guides/DEVELOPER_GUIDE_TACHI.md`, `SECURITY.md`, `CHANGELOG.md`, and public docs cross-links | Public docs match the shipped behavior and the disclosure policy. |
 | AISVS security gate | `cargo test -p tachi-core --test aisvs_registry`, `cargo test -p tachi-core --test aisvs_controls`, `cargo test -p tachi-core --test scaffold_dependency_floors`, `cargo clippy --workspace --all-features --all-targets -- -D warnings` | AISVS C01-C12 remain typed, test-backed, and fail-closed while the historical `glib` advisory proof stays reproducible in Beads, the current workspace stays on the GTK-free host path, and no active `gtk` or `glib` package remains in the Rust dependency graph. |
@@ -246,6 +246,7 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] Required Rust workflows print `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and `rustup which rustc`.
 - [ ] `make supply-chain-gate` passes, including `cargo audit` and
       `cargo deny check advisories bans licenses sources`.
+- [ ] `make gitleaks-gate` passes locally and is included in `make publish-gate`.
 - [ ] `.github/workflows/gitleaks.yml` and `.github/workflows/rust-clippy.yml`
       upload SARIF with `if: always()` and fail closed after scanner,
       converter, formatter, or SARIF validation failures.

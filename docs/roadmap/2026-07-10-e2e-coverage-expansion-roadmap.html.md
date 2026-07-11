@@ -15,11 +15,11 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 
 | Evidence | Current state | Consequence |
 |---|---|---|
-| Coverage audit | 112 active modules: 13 unit, 94 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys. |
+| Coverage audit | 113 active modules: 13 unit, 95 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys. |
 | Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; coverage-governance and branch evidence remain open. |
-| Workspace tests | 468 tests pass across 111 test suites | Suite count and coverage-audit module count are different metrics and must remain separate. |
+| Workspace tests | Workspace suites pass; the live audit reports 113 active modules (95 integration, 13 unit, 1 smoke, 4 E2E) | Suite count and coverage-audit module count are different metrics and must remain separate. |
 | LLVM coverage | 90.56% lines, 90.22% regions | Current stable gate passes its 85% line threshold; explicit nightly 1.99.0 branch evidence is recorded separately at 83.45%. |
-| Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 produces an 83.45% baseline (1,408 branches, 233 missed) when `RUSTC` and `RUSTDOC` resolve through rustup | E2E-COV-007 must govern the nightly lane and uplift branch coverage to the requested 85% target; no lower threshold may be silently substituted. |
+| Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 now produces 85.09% (1,408 branches, 210 missed) when `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` resolve through rustup | E2E-COV-007.1 meets the requested 85% branch target; retain the separately governed nightly lane and do not silently lower the threshold. |
 | Security/privacy | Local gitleaks 8.30.1 scan passes; fixtures are local/synthetic | New E2E fixtures must remain deterministic, redaction-safe, and offline by default. |
 
 ## Goals
@@ -37,7 +37,7 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 - Do not require live GitHub, package registries, MCP servers, or external renderers for deterministic pull-request E2E tests.
 - Do not duplicate business logic inside tests. E2E tests invoke the same CLI, shell, desktop, and MCP boundaries used by production callers.
 - Do not treat golden-file equality as the only oracle; assert semantic output contracts, artifact bytes where byte stability is intentional, exit/status behavior, and cleanup invariants.
-- Do not claim branch-target completion until the nightly branch baseline is reproducible and reaches the requested 85% threshold; the current 83.45% baseline is evidence, not completion.
+- Do not claim branch-target completion without a reproducible nightly lane; the 2026-07-11 lane now reaches 85.09% (1,408 branches, 210 missed) after focused boundary-failure coverage.
 - Do not include credentials, private paths, user data, network tokens, or unsanitized generated reports in fixtures or artifacts.
 
 ## Target journey matrix
@@ -78,11 +78,11 @@ Phase 2 must not hide failures behind retries. Each scenario has one determinist
 
 ### Phase 3 — Coverage governance and publish gate (`E2E-COV-007`)
 
-Add branch coverage collection and reporting to the local evidence path, update the Rust coverage audit and docs, and enforce thresholds only after the measured baseline is reviewed. The stable-toolchain attempt remains unsuitable for measurement because `cargo llvm-cov --workspace --branch --summary-only` reaches the nightly-only `-Z coverage-options=branch` requirement and exits non-zero. An explicit nightly 1.99.0 run now produces an 83.45% branch baseline after twenty-three uplift slices, but the requested 85% target is not met. E2E-COV-007 must govern that nightly coverage-only lane and uplift the uncovered branches before enforcement. The first enforcement target is:
+Add branch coverage collection and reporting to the local evidence path, update the Rust coverage audit and docs, and enforce thresholds only after the measured baseline is reviewed. The stable-toolchain attempt remains unsuitable for measurement because `cargo llvm-cov --workspace --branch --summary-only` reaches the nightly-only `-Z coverage-options=branch` requirement and exits non-zero. The explicitly governed nightly 1.99.0 lane now produces 85.09% branch coverage after the follow-up uplift slice, meeting the requested target while stable line/region gates remain unchanged. E2E-COV-007.1 is ready for closure after publish/security evidence synchronization. The first enforcement target is:
 
 - line coverage ≥ 85%;
 - region coverage ≥ 85%;
-- branch coverage ≥ 85%, with the current 83.45% baseline recorded and no unexplained regression;
+- branch coverage ≥ 85%, with the current 85.09% result recorded and no unexplained regression;
 - every active critical journey has at least one E2E test;
 - unit/integration/smoke/E2E classifications remain synchronized with the audit binary;
 - full workspace, security, privacy, supply-chain, and publish gates remain green.

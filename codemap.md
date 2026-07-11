@@ -79,7 +79,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 | Integration | Rust integration tests under `crates/*/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, retired-adapter guard tests, the typed control-plane boundary audit, the RT-CI trigger/permission contract audit, the route-policy manifest contract audit, and the route-fixture manifest contract audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init, CLI analysis-to-artifact, desktop host command, MCP stdio, composed init/install/update/analysis lifecycle, and cross-boundary failure/cancellation flows are explicitly classified or exercised by `crates/tachi-core/tests/coverage_audit.rs` and the Rust E2E suites; E2E-COV-007 retains coverage-governance and branch evidence as the remaining work. |
-| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. Nightly 1.99.0 now records 83.45% branch coverage (1,408 branches / 233 missed), below the requested 85% target; E2E-COV-007 remains open for uplift and governance. The current audit has 112 active modules, 94 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
+| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane now records 85.09% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007.1 meets its branch target while publish-gate synchronization remains. The current audit has 113 active modules, 95 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
 
 The publish gate now includes `make scaffold-dependency-gate`, which runs the
 Rust-native `scaffold_dependency_floors` integration test against the real
@@ -166,10 +166,12 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   config/capabilities, typed argument policy, root-contained IO, bounded
   process execution, and typed desktop errors through the closed AQ-021 through
   AQ-025 task set.
-- Coverage gate: `crates/tachi-cli/tests/control_plane_cli.rs` now covers
-  `threats-sarif` and `risk-scores-sarif` invalid argument handling plus
-  optional SARIF metadata flags, keeping `make llvm-cov` above the 85% region
-  and line coverage release-quality floor.
+- Coverage gate: the E2E-COV-007.1 slice adds CLI artifact/error, desktop
+  headless/schema/offline, MCP stdio startup, and shell-bridge cancellation /
+  artifact-failure cases. The governed nightly 1.99.0 lane now reports 85.09%
+  branch coverage (1,408 total / 210 missed), while stable `make llvm-cov`
+  remains at 90.56% lines / 90.22% regions. `make gitleaks-gate` is now a
+  fail-closed member of `make publish-gate`.
 - RT-00i.5.1: `schemas/aisvs.yaml`, `schemas/taxonomy/aisvs.yaml`,
   `crates/tachi-shell/tests/tauri_bridge.rs`, and the public docs now ship
   the AISVS schema/catalog slice with bridge coverage for report-data,

@@ -616,6 +616,7 @@ fn publish_gate_runs_supply_chain_policy_checks() {
         "cargo audit",
         "cargo deny check advisories bans licenses sources",
         "@$(MAKE) supply-chain-gate",
+        "@$(MAKE) gitleaks-gate",
     ] {
         assert!(
             text.contains(command),

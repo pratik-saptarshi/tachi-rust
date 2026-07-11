@@ -43,6 +43,29 @@ fn stdio_transport_serves_one_tool_call() {
 }
 
 #[test]
+fn stdio_transport_skips_blank_lines_before_requests() {
+    let server = McpServer::default();
+    let request = json!({
+        "request_id": "blank-line-1",
+        "tool": "tachi.coverage-audit",
+        "input": {
+            "repo_root": std::env::temp_dir().join("tachi-mcp-blank-line"),
+            "output_mode": "in-band"
+        }
+    });
+    let mut output = Vec::new();
+    serve(
+        Cursor::new(format!("\n\n{request}\n")),
+        &mut output,
+        &server,
+    )
+    .expect("serve request after blank lines");
+    let response: StdioWireResponse = serde_json::from_slice(&output).expect("decode response");
+    assert!(response.ok);
+    assert_eq!(response.request_id, "blank-line-1");
+}
+
+#[test]
 fn stdio_transport_rejects_cancelled_requests_without_invoking_tools() {
     let server = McpServer::default();
     let request = json!({

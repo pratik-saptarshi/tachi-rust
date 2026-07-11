@@ -117,6 +117,6 @@
   - stable line/region thresholds remain unchanged and green;
   - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
-- **Current baseline after uplift slice 23**: 83.45% branch coverage, 1,408 total branches / 233 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 23 covers shell bridge post-validation cancellation, output-directory creation failures, and malformed risk payload dispatch while preserving existing path-policy and process-cleanup behavior.
+- **Current evidence after uplift slice 24**: 85.09% branch coverage, 1,408 total branches / 210 missed, measured with explicit nightly `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` paths. Slice 24 adds deterministic CLI help/error and artifact-write cases, desktop headless/schema/offline cases, MCP stdio blank-line/startup cases, shell-bridge cancellation and artifact failure edges, and a fail-closed local gitleaks publish target. Stable line/region gates remain 90.56% / 90.22%.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
 - **Priority**: P1

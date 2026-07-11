@@ -1,7 +1,7 @@
 # Publish Readiness Checklist
 
 **Status**: Active release gate
-**Last Updated**: 2026-07-10
+**Last Updated**: 2026-07-11
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
@@ -12,6 +12,8 @@ retired from the active dependency surface.
 ## 0. Canonical publish sequence
 
 - [ ] `pre-commit run --all-files` or the equivalent `gitleaks` scan passes.
+- [ ] `make gitleaks-gate` passes and is included in `make publish-gate`; the
+      local gate validates SARIF shape and propagates scanner failures.
 - [ ] `make publish-gate` passes on the release candidate branch.
 - [ ] `cargo test -p tachi-shell` passes after the script executor boundary
       slice and coverage-invariant cleanup.
@@ -125,8 +127,8 @@ retired from the active dependency surface.
       threshold; latest local run on 2026-07-11 measured 90.56% lines / 90.22%
       regions, with the configured 85% line threshold passing.
 - [ ] The governed nightly branch command produces at least 85% branch
-      coverage. Current evidence is 83.45% (1,408 total / 233 missed) on
-      nightly 1.99.0, so this publication item remains open.
+      coverage. Current evidence is 85.09% (1,408 total / 210 missed) on
+      nightly 1.99.0 using explicit rustup-resolved compiler and LLVM tools.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the

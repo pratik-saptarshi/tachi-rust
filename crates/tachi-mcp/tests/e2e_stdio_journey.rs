@@ -76,6 +76,15 @@ fn mcp_stdio_process_round_trips_artifact_request_and_metadata() {
 }
 
 #[test]
+fn mcp_process_requires_explicit_stdio_startup() {
+    let output = Command::new(binary_path())
+        .output()
+        .expect("run MCP process without startup mode");
+    assert_eq!(output.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("missing required --stdio flag"));
+}
+
+#[test]
 fn mcp_stdio_process_returns_fail_closed_responses_for_unknown_and_cancelled_requests() {
     let root = fixture_root();
     let requests = [
