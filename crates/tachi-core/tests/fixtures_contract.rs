@@ -64,3 +64,33 @@ fn validate_fixture_schema_rejects_version_skew_and_hash_mismatch() {
         "unexpected validation error: {err}"
     );
 }
+
+#[test]
+fn validate_fixture_schema_rejects_malformed_json_empty_command_and_each_hash() {
+    assert!(validate_fixture_schema("not-json").is_err());
+
+    let input = json!({"root": "/tmp"});
+    let output = json!({"status": "ok"});
+    let rendered = serialize_fixture("report-data", &input, &output).expect("serialize fixture");
+    let mut fixture: CommandFixture = serde_json::from_str(&rendered).expect("parse fixture");
+
+    fixture.command.clear();
+    let empty_command = serde_json::to_string(&fixture).expect("serialize empty command");
+    assert!(validate_fixture_schema(&empty_command)
+        .expect_err("reject empty command")
+        .contains("command name"));
+
+    fixture.command = String::from("report-data");
+    fixture.input_hash = String::from("wrong-input-hash");
+    let bad_input_hash = serde_json::to_string(&fixture).expect("serialize bad input hash");
+    assert!(validate_fixture_schema(&bad_input_hash)
+        .expect_err("reject input hash")
+        .contains("input hash mismatch"));
+
+    fixture.input_hash = hash_fixture_payload(&fixture.input).expect("hash input");
+    fixture.output_hash = String::from("wrong-output-hash");
+    let bad_output_hash = serde_json::to_string(&fixture).expect("serialize bad output hash");
+    assert!(validate_fixture_schema(&bad_output_hash)
+        .expect_err("reject output hash")
+        .contains("output hash mismatch"));
+}

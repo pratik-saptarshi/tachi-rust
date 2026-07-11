@@ -9,6 +9,11 @@ fn preflight_skips_renderer_lookup_when_no_attack_trees_exist() {
 }
 
 #[test]
+fn preflight_accepts_available_renderer_for_attack_trees() {
+    assert!(ensure_attack_path_renderer_available(2, true).is_ok());
+}
+
+#[test]
 fn preflight_errors_when_renderer_is_missing_for_attack_trees() {
     let error =
         ensure_attack_path_renderer_available(2, false).expect_err("expected preflight error");
