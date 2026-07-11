@@ -160,3 +160,74 @@ fn parse_compensating_controls_handles_empty_and_unparseable_metrics() {
     assert_eq!(data.risk_reduction, None);
     assert_eq!(data.control_coverage_pct, None);
 }
+
+#[test]
+fn parse_compensating_controls_handles_boundary_scores_and_summary_fallbacks() {
+    let markdown = r#"
+## 1. Executive Summary
+
+**Risk Reduction**: 9.0 inherent -> 7.0 residual (**22.2%** reduction)
+**Coverage**: 75% Found | 10% Partial | 15% Missing
+
+| Status | Count |
+| --- | --- |
+| Found | 2 |
+| Partial | 1 |
+| Missing | 1 |
+
+### Critical Residual Severity
+| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |
+| --- | --- | --- | --- | --- | --- |
+| S-9 | API | Boundary critical | 9.0 |  | found no exception |
+
+### High Residual Severity
+| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |
+| --- | --- | --- | --- | --- | --- |
+| T-9 | DB | Boundary high | 7.0 |  | FOUND |
+
+### Medium Residual Severity
+| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |
+| --- | --- | --- | --- | --- | --- |
+| R-9 | Audit | Boundary medium | 4.0 |  | Partial |
+
+### Low Residual Severity
+| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |
+| --- | --- | --- | --- | --- | --- |
+| D-9 | API | Boundary low | 3.9 |  | No Control |
+
+## 3. Control Details
+
+### Availability
+**Status**: Planned | **Effectiveness**: Unknown
+**Detected in**: `controls/availability.md`
+
+## 4. Recommendations
+
+#### malformed heading
+**What to Implement**: ignored
+"#;
+
+    let data = parse_compensating_controls_md(markdown);
+
+    assert_eq!(data.inherent_score, Some(9.0));
+    assert_eq!(data.residual_score, Some(7.0));
+    assert_eq!(data.risk_reduction, Some(22.2));
+    assert_eq!(data.coverage_summary.total_found, 2);
+    assert_eq!(data.coverage_summary.total_partial, 1);
+    assert_eq!(data.coverage_summary.total_missing, 1);
+    assert_eq!(data.findings.len(), 4);
+    assert_eq!(data.severity.critical, 1);
+    assert_eq!(data.severity.high, 1);
+    assert_eq!(data.severity.medium, 1);
+    assert_eq!(data.severity.low, 1);
+    assert_eq!(
+        data.coverage_matrix
+            .iter()
+            .find(|row| row.category == "Spoofing")
+            .map(|row| row.missing),
+        Some(1)
+    );
+    assert_eq!(data.controls.len(), 1);
+    assert_eq!(data.controls[0].category, "Availability");
+    assert_eq!(data.controls[0].evidence, "controls/availability.md");
+}
