@@ -289,3 +289,83 @@ fn generate_chain_mermaid_returns_empty_for_empty_findings() {
 
     assert_eq!(generate_chain_mermaid(&chain), "");
 }
+
+#[test]
+fn attack_chain_parser_handles_optional_sections_and_layer_spellings() {
+    let content = r#"### CHAIN-EDGE: Optional fields
+
+**Layers**: L1 — Foundation → L2 – Model -> L3-custom | L4
+**Surfaced**: true
+
+#### Member Findings
+
+| Finding ID | MAESTRO Layer | Role | Component | Category | Severity |
+| --- | --- | --- | --- | --- | --- |
+|  | L1 |  |  |  |  |
+| S-1 | L9 | edge |  |  | Low |
+
+#### Attack Progression
+
+First step.
+
+Second step.
+
+#### Chain-Breaking Controls
+
+**Target**: S-1
+**Rationale**: isolate the edge
+**Recommendation**: add a boundary
+**Target**: S-2 (L2)
+
+### CHAIN-NEXT: Empty sections
+**Layers**:
+**Max Severity**:
+**Surfaced**: no
+"#;
+
+    let chains = parse_attack_chains(Some(content));
+    assert_eq!(chains.len(), 2);
+    assert_eq!(
+        chains[0].layers,
+        vec!["L1 — Foundation", "L2 – Model", "L3-custom", "L4"]
+    );
+    assert!(chains[0].surfaced);
+    assert_eq!(chains[0].narrative, "First step. Second step.");
+    assert_eq!(chains[0].chain_breaking_controls.len(), 2);
+    assert_eq!(chains[0].chain_breaking_controls[0].target_layer, "");
+    assert_eq!(chains[0].chain_breaking_controls[1].target_layer, "L2");
+    assert!(!chains[1].surfaced);
+    assert!(chains[1].layers.is_empty());
+}
+
+#[test]
+fn attack_chain_parser_ignores_invalid_headings_and_mermaid_uses_fallbacks() {
+    assert!(parse_attack_chains(Some("### NOT-A-CHAIN: ignored")).is_empty());
+
+    let chain = AttackChain {
+        findings: vec![
+            AttackChainFinding {
+                finding_id: String::new(),
+                maestro_layer: String::from("unknown layer"),
+                role: String::new(),
+                component: String::new(),
+                category: String::new(),
+                severity: String::new(),
+            },
+            AttackChainFinding {
+                finding_id: String::from("S-2"),
+                maestro_layer: String::from("L2 - Model"),
+                role: String::new(),
+                component: String::from("API"),
+                category: String::new(),
+                severity: String::new(),
+            },
+        ],
+        ..AttackChain::default()
+    };
+    let mermaid = generate_chain_mermaid(&chain);
+    assert!(mermaid.contains("unknownlayer"));
+    assert!(mermaid.contains("L2:"));
+    assert!(mermaid.contains("S-2"));
+    assert_eq!(mermaid.matches("-->|\"enables\"|").count(), 1);
+}
