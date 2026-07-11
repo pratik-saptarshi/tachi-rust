@@ -446,3 +446,30 @@ fn dispatch_command_writes_threats_sarif_and_risk_scores_sarif() {
         "AG-8"
     );
 }
+
+#[test]
+fn dispatch_command_rejects_missing_analysis_argument_values() {
+    let root = fixture_repo();
+    let cases = [
+        ("report-data", vec!["--target-dir"]),
+        ("report-data", vec!["--template-dir"]),
+        ("report-data", vec!["--output"]),
+        ("threats-sarif", vec!["--input"]),
+        ("threats-sarif", vec!["--output"]),
+        ("risk-scores-sarif", vec!["--risk-scores"]),
+        ("risk-scores-sarif", vec!["--threats"]),
+        ("risk-scores-sarif", vec!["--output"]),
+        ("infographic-data", vec!["--root"]),
+        ("infographic-data", vec!["--output"]),
+    ];
+
+    for (command, args) in cases {
+        let output = dispatch_command(command, &root, args.as_slice());
+        assert_eq!(output.status, 2, "{command} should reject missing value");
+        assert!(
+            output.stderr.contains("requires a path argument"),
+            "{command} should report the missing value: {}",
+            output.stderr
+        );
+    }
+}

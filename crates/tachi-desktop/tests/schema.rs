@@ -232,6 +232,59 @@ fn validate_invoke_input_rejects_missing_required_fields_and_unknown_commands() 
 }
 
 #[test]
+fn validate_invoke_input_rejects_missing_values_across_analysis_commands() {
+    let root = workspace_root();
+    let cases = [
+        ("coverage-audit", vec!["--root"], "requires a path argument"),
+        (
+            "infographic-data",
+            vec!["--root"],
+            "requires a path argument",
+        ),
+        (
+            "report-data",
+            vec!["--target-dir"],
+            "requires a path argument",
+        ),
+        (
+            "report-data",
+            vec!["--template-dir"],
+            "requires a path argument",
+        ),
+        ("threats-sarif", vec!["--input"], "requires a path argument"),
+        (
+            "threats-sarif",
+            vec!["--output"],
+            "requires a path argument",
+        ),
+        (
+            "risk-scores-sarif",
+            vec!["--risk-scores"],
+            "requires a path argument",
+        ),
+        (
+            "risk-scores-sarif",
+            vec!["--threats"],
+            "requires a path argument",
+        ),
+        (
+            "risk-scores-sarif",
+            vec!["--output"],
+            "requires a path argument",
+        ),
+    ];
+
+    for (command, args, expected) in cases {
+        let err = validate_invoke_input(command, &root, &args)
+            .expect_err("missing option value should fail closed");
+        assert!(
+            err.contains(expected),
+            "{command} error should mention {expected}: {err}"
+        );
+    }
+}
+
+#[test]
 fn validate_invoke_output_rejects_schema_drift() {
     let valid = tachi_shell::commands::CommandOutput {
         status: 0,

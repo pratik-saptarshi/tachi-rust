@@ -161,3 +161,60 @@ fn restore_offline_cache_rejects_symlinked_cache_files() {
     let err = restore_offline_cache(&repo_root, &cache_root).expect_err("reject symlink escape");
     assert!(err.contains("path policy failed for offline cache file"));
 }
+
+#[test]
+fn check_for_update_handles_missing_and_fallback_version_pins() {
+    let repo_root = fixture_root("offline-version-fallback-repo");
+    let cache_root = fixture_root("offline-version-fallback-cache");
+    fs::create_dir_all(repo_root.join(".aod")).expect("create repo aod dir");
+    fs::create_dir_all(cache_root.join(".aod")).expect("create cache aod dir");
+
+    fs::write(
+        repo_root.join(".aod/aod-kit-version"),
+        "  local-fallback  \n",
+    )
+    .expect("write fallback current pin");
+    let missing_cache = check_for_update(&repo_root, &cache_root).expect("missing cache pin");
+    assert_eq!(
+        missing_cache.current_version,
+        Some(String::from("local-fallback"))
+    );
+    assert_eq!(missing_cache.cached_version, None);
+    assert!(!missing_cache.update_available);
+
+    fs::write(
+        cache_root.join(".aod/aod-kit-version"),
+        "comment-before-version\nversion=cached-v2\n",
+    )
+    .expect("write cached version pin");
+    let cached = check_for_update(&repo_root, &cache_root).expect("cached version pin");
+    assert_eq!(cached.cached_version, Some(String::from("cached-v2")));
+    assert!(cached.update_available);
+}
+
+#[test]
+fn bootstrap_from_cache_reports_not_ready_when_update_script_is_missing() {
+    let repo_root = fixture_root("offline-not-ready-repo");
+    let cache_root = fixture_root("offline-not-ready-cache");
+    fs::create_dir_all(cache_root.join(".aod")).expect("create cache aod dir");
+    fs::write(cache_root.join(".aod/aod-kit-version"), "version=v3.0.0\n")
+        .expect("write cached version");
+
+    let report = bootstrap_from_cache(&repo_root, &cache_root).expect("bootstrap report");
+    assert!(!report.offline_ready);
+    assert_eq!(report.restore.restored_files.len(), 1);
+}
+
+#[test]
+fn restore_offline_cache_rejects_symlinked_restore_directory() {
+    let repo_root = fixture_root("offline-restore-symlink-repo");
+    let cache_root = fixture_root("offline-restore-symlink-cache");
+    let outside = fixture_root("offline-restore-symlink-outside");
+    fs::create_dir_all(cache_root.join("scripts")).expect("create cache scripts");
+    fs::write(cache_root.join("scripts/update.sh"), "#!/bin/bash\n").expect("write cache script");
+    symlink(&outside, repo_root.join("scripts")).expect("create destination symlink");
+
+    let err = restore_offline_cache(&repo_root, &cache_root)
+        .expect_err("reject symlinked restore destination");
+    assert!(err.contains("traverses symlink"));
+}
