@@ -28,9 +28,10 @@ retired from the active dependency surface.
       current E2E journey matrix and no critical user-facing boundary is
       represented only by a unit or integration test.
 - [ ] The explicit E2E inventory is current: CLI artifact, desktop command,
-      MCP stdio, initialization, and composed init/install/update/analysis
-      lifecycle journeys have focused suites; the cross-boundary
-      failure/cancellation slice remains open until its matrix lands.
+      MCP stdio, initialization, composed init/install/update/analysis
+      lifecycle, and cross-boundary failure/cancellation journeys have
+      focused suites; E2E-COV-007 remains for coverage evidence and publish
+      enforcement.
 - [ ] `cargo run -q -p tachi-cli --bin coverage-audit` reports the intended
       E2E inventory, with no double-counting between integration, smoke, and
       true end-to-end categories.
