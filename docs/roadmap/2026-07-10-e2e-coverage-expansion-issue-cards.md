@@ -119,4 +119,16 @@
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
 - **Current evidence after uplift slice 24**: 85.09% branch coverage, 1,408 total branches / 210 missed, measured with explicit nightly `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` paths. Slice 24 adds deterministic CLI help/error and artifact-write cases, desktop headless/schema/offline cases, MCP stdio blank-line/startup cases, shell-bridge cancellation and artifact failure edges, and a fail-closed local gitleaks publish target. Stable line/region gates remain 90.56% / 90.22%.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
+
+### E2E-COV-007.3 — Resolve aggregate local publish-gate test runtime boundary
+
+- **Type**: task
+- **Dependencies**: child of `E2E-COV-007`
+- **Acceptance**:
+  - the aggregate local test phase reaches a terminal green result, or a deterministic documented runner workaround is contract-tested;
+  - no coverage, security, or privacy gate is weakened;
+  - Beads, codemap, BOM, and publish checklist record the final evidence.
+- **Current evidence**: crate-level suites pass independently (core 372, shell 78, CLI 31, desktop 46, MCP 20); remote workspace CI is green, but local aggregate `cargo test -q` repeatedly produced no terminal output.
+- **Validation**: `make publish-gate`, package-level regression suites, workflow contract tests, and synchronized release documentation.
+- **Priority**: P2
 - **Priority**: P1
