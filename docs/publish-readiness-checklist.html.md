@@ -125,7 +125,7 @@ retired from the active dependency surface.
       threshold; latest local run on 2026-07-11 measured 90.56% lines / 90.22%
       regions, with the configured 85% line threshold passing.
 - [ ] The governed nightly branch command produces at least 85% branch
-      coverage. Current evidence is 83.24% (1,408 total / 236 missed) on
+      coverage. Current evidence is 83.45% (1,408 total / 233 missed) on
       nightly 1.99.0, so this publication item remains open.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
