@@ -473,3 +473,147 @@ fn dispatch_command_rejects_missing_analysis_argument_values() {
         );
     }
 }
+
+#[test]
+fn dispatch_command_routes_init_update_and_coverage_audit_errors() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    write_executable_file(
+        &root.join("scripts/init.sh"),
+        "#!/usr/bin/env bash\nprintf 'init:%s\\n' \"$1\"\n",
+    );
+    write_executable_file(
+        &root.join("scripts/update.sh"),
+        "#!/usr/bin/env bash\nprintf 'update:%s\\n' \"$1\"\n",
+    );
+
+    let init = dispatch_command("init", &root, &["--name", "demo"]);
+    assert_eq!(init.status, 0);
+    assert_eq!(init.stdout, "init:--name\n");
+
+    let update = dispatch_command("update", &root, &["--refresh"]);
+    assert_eq!(update.status, 0);
+    assert_eq!(update.stdout, "update:--refresh\n");
+
+    let audit = dispatch_command("coverage-audit", &root, &["--root", "."]);
+    assert_eq!(audit.status, 0);
+    assert!(audit.stdout.contains("Active test modules:"));
+
+    for args in [["--help"].as_slice(), &["--unknown"]] {
+        let output = dispatch_command("coverage-audit", &root, args);
+        assert_eq!(output.status, 2);
+        assert!(output.stderr.contains("usage:") || output.stderr.contains("unrecognized"));
+    }
+}
+
+#[test]
+fn dispatch_command_rejects_help_unknown_and_missing_required_analysis_args() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    let cases = [
+        ("report-data", vec!["--help"], "usage:"),
+        ("report-data", vec!["--unknown"], "unrecognized argument"),
+        (
+            "report-data",
+            vec!["--target-dir", "target"],
+            "template-dir is required",
+        ),
+        ("threats-sarif", vec!["--help"], "usage:"),
+        ("threats-sarif", vec!["--unknown"], "unrecognized argument"),
+        (
+            "threats-sarif",
+            vec!["--input", "threats.md"],
+            "output is required",
+        ),
+        ("risk-scores-sarif", vec!["--help"], "usage:"),
+        (
+            "risk-scores-sarif",
+            vec!["--unknown"],
+            "unrecognized argument",
+        ),
+        (
+            "risk-scores-sarif",
+            vec!["--risk-scores", "risk.md"],
+            "threats is required",
+        ),
+        ("infographic-data", vec!["--help"], "usage:"),
+        (
+            "infographic-data",
+            vec!["--unknown"],
+            "unrecognized argument",
+        ),
+        (
+            "infographic-data",
+            vec!["--root", "."],
+            "template is required",
+        ),
+    ];
+
+    for (command, args, expected) in cases {
+        let output = dispatch_command(command, &root, args.as_slice());
+        assert_eq!(output.status, 2, "{command} should reject invalid args");
+        assert!(
+            output.stderr.contains(expected),
+            "{command} should report {expected}: {}",
+            output.stderr
+        );
+    }
+}
+
+#[test]
+fn dispatch_command_fails_closed_for_missing_inputs_relative_outputs_and_write_errors() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    let missing_target = dispatch_command(
+        "report-data",
+        &root,
+        &["--target-dir", "missing", "--template-dir", "templates"],
+    );
+    assert_eq!(missing_target.status, 2);
+    assert!(missing_target.stderr.contains("failed to resolve"));
+
+    let missing_input = dispatch_command(
+        "threats-sarif",
+        &root,
+        &["--input", "missing.md", "--output", "generated/out.sarif"],
+    );
+    assert_eq!(missing_input.status, 2);
+    assert!(missing_input.stderr.contains("failed to resolve"));
+
+    let root_for_output = root.to_string_lossy().to_string();
+    fs::write(
+        root.join("threats.md"),
+        "# Agentic AI Application\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation | Status |\n| --- | --- | --- | --- | --- | --- |\n| AG-8 | Agent | Prompt injection | High | Harden prompts | [NEW] |\n",
+    )
+        .expect("write threats input");
+    fs::create_dir(root.join("existing-output")).expect("create output directory");
+    let output_error = dispatch_command(
+        "threats-sarif",
+        &root,
+        &[
+            "--input",
+            root.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            "existing-output",
+        ],
+    );
+    assert_eq!(output_error.status, 1);
+    assert!(output_error.stderr.contains("failed to write output file"));
+
+    let infographic_output_error = dispatch_command(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root_for_output.as_str(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            "existing-output",
+        ],
+    );
+    assert_eq!(infographic_output_error.status, 1);
+    assert!(infographic_output_error
+        .stderr
+        .contains("failed to write output file"));
+}

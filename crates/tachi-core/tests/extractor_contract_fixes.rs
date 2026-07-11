@@ -52,6 +52,74 @@ fn parse_attack_trees_accepts_agent_emitted_slugged_filenames() {
 }
 
 #[test]
+fn parse_attack_trees_uses_inline_fallbacks_and_filters_low_severity_entries() {
+    let root = workspace_root().join("target/test-extractor-contract-fixes-inline");
+    fs::create_dir_all(&root).expect("create target dir");
+    let findings = vec![
+        ThreatFinding {
+            id: String::from("S-1"),
+            component: String::from("API"),
+            risk_level: String::from("Critical"),
+            threat: String::from("Auth bypass"),
+            mitigation: String::from("Rotate credentials"),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding {
+            id: String::from("S-2"),
+            component: String::from("DB"),
+            risk_level: String::from("Low"),
+            threat: String::from("Minor issue"),
+            ..ThreatFinding::default()
+        },
+    ];
+    let report = r#"## 5. Attack Trees
+
+| Finding ID | Component | Threat | Risk Level | Mermaid |
+| --- | --- | --- | --- | --- |
+| S-1 |  |  |  | graph TD; A --> B |
+| S-2 | DB | Minor issue | Low | graph TD; C --> D |
+| S-3 | Net | Unknown | High | graph TD; E --> F |
+"#;
+
+    let entries = parse_attack_trees(&root, &findings, Some(report));
+
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].id, "S-1");
+    assert_eq!(entries[0].component, "API");
+    assert_eq!(entries[0].mitigation, "Rotate credentials");
+    assert_eq!(entries[1].id, "S-3");
+    assert_eq!(entries[1].severity, "High");
+}
+
+#[test]
+fn parse_attack_trees_ignores_invalid_files_and_heading_fallbacks() {
+    let root = workspace_root().join("target/test-extractor-contract-fixes-invalid");
+    let trees = root.join("attack-trees");
+    fs::create_dir_all(&trees).expect("create attack-trees dir");
+    fs::write(trees.join("invalid.md"), "# Not an attack tree\n").expect("write invalid tree");
+    fs::write(
+        trees.join("heading.md"),
+        "# S-4: Heading fallback\n\n```mermaid\ngraph TD\n A --> B\n```\n",
+    )
+    .expect("write heading tree");
+
+    let entries = parse_attack_trees(&root, &[], None);
+    assert_eq!(entries.len(), 0);
+
+    let entries = parse_attack_trees(
+        &root,
+        &[ThreatFinding {
+            id: String::from("S-4"),
+            risk_level: String::from("High"),
+            ..ThreatFinding::default()
+        }],
+        None,
+    );
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].id, "S-4");
+}
+
+#[test]
 fn parse_threat_report_md_falls_back_to_full_section1_prose() {
     let result = parse_threat_report_md(
         "# Threat Report\n\n## 1. Executive Summary\n\nThe system under review is a SaaS application with 42 active findings.\n\n**Risk profile by count**: 5 Critical, 12 High, 20 Medium, 5 Low.\n\n**Most critical unresolved exposure**: The auth service allows unauthenticated admin access via a legacy flag that was never removed.\n\n## 2. Architecture Overview\n\nComponents and trust boundaries follow below.\n",
