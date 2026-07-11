@@ -103,6 +103,54 @@ fn parser_helpers_cover_fallback_headers_counts_and_optional_fields() {
 }
 
 #[test]
+fn parser_helpers_cover_empty_tables_delta_statuses_and_risk_fallbacks() {
+    assert_eq!(parse_threats_severity("# no tables"), Default::default());
+    assert_eq!(
+        parse_risk_scores_severity("# no tables"),
+        Default::default()
+    );
+    assert!(parse_risk_scores_findings("## 2. Scored Threat Table\n").is_empty());
+
+    let risk = r#"## 2. Scored Threat Table
+
+| ID | Component | Threat | Composite | Severity | CVSS | Exploit. |
+| --- | --- | --- | --- | --- | --- | --- |
+| S-1 | API | Auth | 8 | High | 7.1 | 6.2 |
+| S-2 | | | | | | |
+"#;
+    let findings = parse_risk_scores_findings(risk);
+    assert_eq!(findings.len(), 2);
+    assert_eq!(findings[0].exploitability, "6.2");
+    assert_eq!(findings[1].component, "");
+
+    let findings = vec![
+        ThreatFinding {
+            delta_status: Some(String::from("new")),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding {
+            delta_status: Some(String::from("UNCHANGED")),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding {
+            delta_status: Some(String::from("updated")),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding {
+            delta_status: Some(String::from("ignored")),
+            ..ThreatFinding::default()
+        },
+        ThreatFinding::default(),
+    ];
+    let resolved = vec![ResolvedFinding::default(), ResolvedFinding::default()];
+    let counts = compute_delta_counts(&findings, &resolved);
+    assert_eq!(counts.get("new"), Some(&1));
+    assert_eq!(counts.get("unchanged"), Some(&1));
+    assert_eq!(counts.get("updated"), Some(&1));
+    assert_eq!(counts.get("resolved"), Some(&2));
+}
+
+#[test]
 fn parse_project_name_prefers_title_override_then_threats_then_architecture_then_unknown() {
     let root = temp_dir();
     write_text(
