@@ -790,6 +790,40 @@ fn compute_has_source_attribution_is_true_only_for_non_empty_attribution() {
 }
 
 #[test]
+fn parse_component_asset_map_handles_malformed_fences_quotes_and_duplicate_tags() {
+    let malformed = r#"```mermaid
+    Broken["Unclosed label [asset:pii]
+```"#;
+    assert!(parse_component_asset_map(malformed).is_empty());
+
+    let unterminated_fence = r#"```mermaid
+    Store["Store<br>[asset:pii]
+"#;
+    assert!(parse_component_asset_map(unterminated_fence).is_empty());
+
+    let duplicate_same_tags = r#"```mermaid
+    Store["Store<br>[asset:pii]"]
+    Store["Store<br>[asset:pii]"]
+```"#;
+    assert_eq!(
+        parse_component_asset_map(duplicate_same_tags)
+            .get("Store")
+            .map(|tags| tags.iter().map(String::as_str).collect::<Vec<_>>()),
+        Some(vec!["pii"])
+    );
+
+    let malformed_asset_block = r#"```mermaid
+    Empty["Empty [asset:]"]
+    MissingEnd["Missing [asset:pii"]
+    BrokenBreak["Broken<br label [asset:auth]"]
+```"#;
+    assert!(parse_component_asset_map(malformed_asset_block)
+        .values()
+        .any(|tags| tags == &[String::from("auth")]));
+    assert!(!parse_component_asset_map(malformed_asset_block).contains_key("Empty"));
+}
+
+#[test]
 fn compute_delta_counts_trims_case_and_ignores_unknown_statuses() {
     let findings = vec![
         ThreatFinding {
