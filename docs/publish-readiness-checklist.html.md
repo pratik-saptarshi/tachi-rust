@@ -122,8 +122,8 @@ retired from the active dependency surface.
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      threshold; latest local run on 2026-07-10 measured 84.77% regions and
-      85.25% lines, with the configured 85% line threshold passing.
+      threshold; latest local run on 2026-07-10 measured 85.45% lines / 85.03%
+      regions, with the configured 85% line threshold passing.
 - [ ] `cargo llvm-cov --workspace --branch --summary-only` produces a recorded
       branch baseline before branch-coverage claims are made.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
