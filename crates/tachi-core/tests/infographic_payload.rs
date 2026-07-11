@@ -308,3 +308,96 @@ fn build_infographic_payload_executive_architecture_requires_scope_data() {
         "expected no_scope_data error, got {err}"
     );
 }
+
+#[test]
+fn build_infographic_payload_executive_architecture_uses_dfd_fallback_without_callouts() {
+    let root = temp_dir_with_executive_architecture_threats(
+        r#"# Agentic AI Application
+
+### Components
+
+| Component | Type | MAESTRO Layer |
+| --- | --- | --- |
+| Data Store | Database | L1 |
+| API Gateway | Service | L2 |
+| Ignored |  | L3 |
+
+## 7. Recommended Actions
+
+| Finding ID | Component | Threat | Risk Level | Mitigation | Status |
+| --- | --- | --- | --- | --- | --- |
+| S-1 | Data Store | Medium issue | Medium | Review access | [NEW] |
+"#,
+    );
+
+    let payload = build_infographic_payload(&root, "executive-architecture").expect("payload");
+    let layers = payload["template_data"]["layers"]
+        .as_array()
+        .expect("layers array");
+    assert_eq!(layers.len(), 2);
+    assert_eq!(layers[0]["source_kind"], "dfd_type");
+    assert!(payload["template_data"]["callouts"]
+        .as_array()
+        .expect("callouts")
+        .is_empty());
+}
+
+#[test]
+fn build_infographic_payload_executive_architecture_truncates_large_flow_sets() {
+    let mut content = String::from(
+        "# Agentic AI Application\n\n### Components\n\n| Component | Type | MAESTRO Layer |\n| --- | --- | --- |\n| API | Service | L1 |\n\n### Data Flows\n\n| Source | Destination | Data | Protocol |\n| --- | --- | --- | --- |\n",
+    );
+    for index in 0..51 {
+        content.push_str(&format!(
+            "| Source {index:02} | Destination {index:02} | Data | HTTPS |\n"
+        ));
+    }
+    content.push_str(
+        "\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation | Status |\n| --- | --- | --- | --- | --- | --- |\n| S-1 | API | Medium issue | Medium | Review access | [NEW] |\n",
+    );
+
+    let root = temp_dir_with_executive_architecture_threats(&content);
+    let payload = build_infographic_payload(&root, "executive-architecture").expect("payload");
+    assert_eq!(
+        payload["template_data"]["flow_edges"]
+            .as_array()
+            .expect("flow edges")
+            .len(),
+        50
+    );
+}
+
+#[test]
+fn build_infographic_payload_executive_architecture_caps_callouts_across_many_zones() {
+    let mut content = String::from(
+        "# Agentic AI Application\n\n### Components\n\n| Component | Type | MAESTRO Layer |\n| --- | --- | --- |\n",
+    );
+    for index in 0..9 {
+        content.push_str(&format!("| Component {index} | Service | L1 |\n"));
+    }
+    content.push_str(
+        "\n### Trust Zones\n\n| Zone | Trust Level | Components |\n| --- | --- | --- |\n",
+    );
+    for index in 0..9 {
+        let trust = if index == 8 { "unknown" } else { "trusted" };
+        content.push_str(&format!("| Zone {index} | {trust} | Component {index} |\n"));
+    }
+    content.push_str(
+        "\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation | Status |\n| --- | --- | --- | --- | --- | --- |\n",
+    );
+    for index in 0..9 {
+        content.push_str(&format!(
+            "| S-{index} | Component {index} | Critical issue | Critical | Review access | [NEW] |\n"
+        ));
+    }
+
+    let root = temp_dir_with_executive_architecture_threats(&content);
+    let payload = build_infographic_payload(&root, "executive-architecture").expect("payload");
+    assert_eq!(
+        payload["template_data"]["callouts"]
+            .as_array()
+            .expect("callouts")
+            .len(),
+        8
+    );
+}
