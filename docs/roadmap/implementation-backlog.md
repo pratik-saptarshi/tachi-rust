@@ -135,9 +135,9 @@
 
 ## Local Branch Reconciliation
 
-- `main` is synced with `origin/main` after the active backlog status
-  reconciliation. Re-check GitHub Actions live before release
-  because CI status is not encoded in the roadmap snapshot.
+- `main` is 34 commits ahead of the cached `origin/main` ref in the current
+  workspace. A live `git ls-remote` check is blocked by DNS resolution for
+  GitHub, so publish and GitHub Actions status remain unverified.
 - One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on `main`.
 - `feat/tauri-minimal-features` is a stale pre-main desktop branch. Its
   portable temp-root test changes and GTK-free desktop host work are already

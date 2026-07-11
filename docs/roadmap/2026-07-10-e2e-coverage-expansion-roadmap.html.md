@@ -18,7 +18,7 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 | Coverage audit | 112 active modules: 13 unit, 94 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys. |
 | Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; coverage-governance and branch evidence remain open. |
 | Workspace tests | 468 tests pass across 111 test suites | Suite count and coverage-audit module count are different metrics and must remain separate. |
-| LLVM coverage | 90.56% lines, 90.22% regions | Current gate passes its 85% line threshold; branch coverage is not currently reported. |
+| LLVM coverage | 90.56% lines, 90.22% regions | Current stable gate passes its 85% line threshold; explicit nightly 1.99.0 branch evidence is recorded separately at 80.11%. |
 | Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 produces an 80.11% baseline (1,408 branches, 280 missed) when `RUSTC` and `RUSTDOC` resolve through rustup | E2E-COV-007 must govern the nightly lane and uplift branch coverage to the requested 85% target; no lower threshold may be silently substituted. |
 | Security/privacy | Local gitleaks 8.30.1 scan passes; fixtures are local/synthetic | New E2E fixtures must remain deterministic, redaction-safe, and offline by default. |
 

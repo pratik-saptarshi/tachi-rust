@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: ready for live Beads creation
+**Status**: live Beads hierarchy created; E2E-COV-007.1 remains open for branch uplift
 
 ## Epic
 
@@ -23,7 +23,7 @@
 - **Dependencies**: none
 - **Acceptance**:
   - journey matrix and boundary ownership are recorded;
-  - current 109-module / one-E2E baseline is captured;
+  - current 112-module / four-E2E baseline is captured;
   - semantic coverage-audit tests distinguish module inventory from test-suite count;
   - deterministic fixture and privacy rules are documented.
 - **Validation**: `cargo test -p tachi-core --test coverage_audit --test coverage_catalog --test reporting_goldens`; `cargo run -q -p tachi-cli --bin coverage-audit`.
