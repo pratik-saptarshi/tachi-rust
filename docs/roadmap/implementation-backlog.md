@@ -80,7 +80,7 @@
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
 - Epic: `E2E-COV` Rust-native end-to-end coverage expansion
 - Planned wave: baseline contract → parallel CLI/Desktop/MCP boundary slices → lifecycle and resilience composition → branch/line/region publish evidence.
-- Current baseline after `E2E-COV-007.1` slices 1-8: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), 112 active modules, with lifecycle and cross-boundary failure/cancellation evidence; 90.14% lines / 89.74% regions. Nightly 1.99.0 records 78.27% branch coverage (1,408 total / 306 missed), below the requested 85% target; E2E-COV-007.1 remains open.
+- Current baseline after `E2E-COV-007.1` slices 1-9: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), 112 active modules, with lifecycle and cross-boundary failure/cancellation evidence; 90.56% lines / 90.22% regions. Nightly 1.99.0 records 78.98% branch coverage (1,408 total / 296 missed), below the requested 85% target; E2E-COV-007.1 remains open.
 
 ## Rust Toolchain Modernization Track
 

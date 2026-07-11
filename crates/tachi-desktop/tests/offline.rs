@@ -5,7 +5,8 @@ use std::path::PathBuf;
 
 use pretty_assertions::assert_eq;
 use tachi_desktop::{
-    bootstrap_from_cache, check_for_update, restore_offline_cache, BootstrapReport,
+    bootstrap_from_cache, bootstrap_from_cache_typed, check_for_update, check_for_update_typed,
+    restore_offline_cache, restore_offline_cache_typed, BootstrapReport, DesktopErrorKind,
     OfflineRestoreReport, UpdateCheck,
 };
 
@@ -217,4 +218,34 @@ fn restore_offline_cache_rejects_symlinked_restore_directory() {
     let err = restore_offline_cache(&repo_root, &cache_root)
         .expect_err("reject symlinked restore destination");
     assert!(err.contains("traverses symlink"));
+}
+
+#[test]
+fn typed_offline_errors_preserve_policy_io_and_internal_classification() {
+    let repo_root = fixture_root("offline-typed-repo");
+    let cache_root = fixture_root("offline-typed-cache");
+
+    let policy = restore_offline_cache_typed(&repo_root.join(".."), &cache_root)
+        .expect_err("parent traversal should be policy error");
+    assert_eq!(policy.kind(), DesktopErrorKind::Policy);
+    assert_eq!(policy.code(), 3);
+
+    let missing_root = restore_offline_cache_typed(
+        &repo_root.join("missing-repo"),
+        &cache_root.join("missing-cache"),
+    )
+    .expect_err("missing roots should classify as path policy");
+    assert_eq!(missing_root.kind(), DesktopErrorKind::Policy);
+    assert_eq!(missing_root.code(), 3);
+
+    fs::create_dir_all(repo_root.join(".aod/aod-kit-version"))
+        .expect("create invalid version directory");
+    let io = check_for_update_typed(&repo_root, &cache_root)
+        .expect_err("directory version pin should classify as io");
+    assert_eq!(io.kind(), DesktopErrorKind::Io);
+    assert_eq!(io.code(), 4);
+
+    let bootstrap = bootstrap_from_cache_typed(&repo_root, &cache_root)
+        .expect_err("bootstrap should preserve io classification");
+    assert_eq!(bootstrap.kind(), DesktopErrorKind::Io);
 }
