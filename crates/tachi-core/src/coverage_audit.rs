@@ -9,7 +9,10 @@ const SMOKE_MODULES: &[&str] = &[
     "crates/tachi-core/tests/coverage_attestation_pagination.rs",
 ];
 
-const E2E_MODULES: &[&str] = &["crates/tachi-shell/tests/init_substitution.rs"];
+const E2E_MODULES: &[&str] = &[
+    "crates/tachi-cli/tests/e2e_artifacts.rs",
+    "crates/tachi-shell/tests/init_substitution.rs",
+];
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct CoverageAudit {

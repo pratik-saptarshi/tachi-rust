@@ -80,7 +80,7 @@
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
 - Epic: `E2E-COV` Rust-native end-to-end coverage expansion
 - Planned wave: baseline contract → parallel CLI/Desktop/MCP boundary slices → lifecycle and resilience composition → branch/line/region publish evidence.
-- Current baseline: one E2E module (`crates/tachi-shell/tests/init_substitution.rs`), five passing tests, 85.25% lines / 84.77% regions, and no current branch-coverage report.
+- Current baseline after `E2E-COV-002`: two E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs` and `crates/tachi-shell/tests/init_substitution.rs`), 110 active modules, 85.25% lines / 84.77% regions, and no current branch-coverage report.
 
 ## Rust Toolchain Modernization Track
 

@@ -124,7 +124,7 @@ fn collect_audit_classifies_inline_source_tests_as_unit_coverage() {
 }
 
 #[test]
-fn live_e2e_inventory_has_one_explicit_init_boundary() {
+fn live_e2e_inventory_has_explicit_init_and_cli_artifact_boundaries() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .and_then(Path::parent)
@@ -134,19 +134,21 @@ fn live_e2e_inventory_has_one_explicit_init_boundary() {
     let audit = collect_audit(&root);
     assert_eq!(
         audit.e2e,
-        vec![PathBuf::from(
-            "crates/tachi-shell/tests/init_substitution.rs"
-        )]
+        vec![
+            PathBuf::from("crates/tachi-cli/tests/e2e_artifacts.rs"),
+            PathBuf::from("crates/tachi-shell/tests/init_substitution.rs"),
+        ]
     );
     assert!(
-        audit
-            .integration
-            .iter()
-            .all(|path| path != &PathBuf::from("crates/tachi-shell/tests/init_substitution.rs")),
+        audit.integration.iter().all(|path| {
+            path != &PathBuf::from("crates/tachi-cli/tests/e2e_artifacts.rs")
+                && path != &PathBuf::from("crates/tachi-shell/tests/init_substitution.rs")
+        }),
         "the explicit E2E boundary must not be double-counted as integration"
     );
 
     let rendered = render(&audit, &root);
-    assert!(rendered.contains("True end-to-end: 1"));
+    assert!(rendered.contains("True end-to-end: 2"));
+    assert!(rendered.contains("  - crates/tachi-cli/tests/e2e_artifacts.rs"));
     assert!(rendered.contains("  - crates/tachi-shell/tests/init_substitution.rs"));
 }
