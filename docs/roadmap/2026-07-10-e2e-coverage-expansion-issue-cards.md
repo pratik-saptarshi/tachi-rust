@@ -107,3 +107,16 @@
 - **Validation**: `cargo llvm-cov --workspace --branch --summary-only` under a separately governed nightly lane or an explicitly documented deferral, `make coverage-audit`, `make publish-gate`, gitleaks, docs contract tests.
 - **Next test seam**: red threshold/documentation drift assertion.
 - **Priority**: P2
+
+### E2E-COV-007.1 — Raise nightly branch coverage to 85 percent
+
+- **Type**: task
+- **Dependencies**: child of `E2E-COV-007`
+- **Acceptance**:
+  - the governed nightly 1.99.0 branch lane reaches at least 85%;
+  - stable line/region thresholds remain unchanged and green;
+  - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
+  - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
+- **Current baseline**: 69.39% branch coverage, 1,408 total branches / 431 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths.
+- **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
+- **Priority**: P1
