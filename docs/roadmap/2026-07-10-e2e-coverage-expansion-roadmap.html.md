@@ -1,13 +1,13 @@
 # Rust-Native End-to-End Coverage Expansion Roadmap
 
-**Status**: Proposed for Beads materialization and TDD execution
+**Status**: Active evidence; E2E-COV-007.1 branch target met, publish-gate closeout pending
 **Date**: 2026-07-10
 **Scope**: CLI, desktop-host, MCP-stdio, lifecycle, and cross-boundary failure/cancellation workflows
 **Primary tracker namespace**: `E2E-COV*`
 
 ## Executive decision
 
-The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The expansion now adds `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, while the init module also composes install, update, and analysis artifact delivery. Initialization, CLI artifacts, desktop commands, MCP stdio, the full local lifecycle, and the cross-boundary failure matrix are now covered; coverage-governance and branch-evidence work remains open.
+The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The expansion now adds `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, while the init module also composes install, update, and analysis artifact delivery. Initialization, CLI artifacts, desktop commands, MCP stdio, the full local lifecycle, and the cross-boundary failure matrix are now covered; the 85% nightly branch target is met and publish-gate closeout remains open.
 
 This roadmap expands E2E coverage around stable user-facing boundaries while preserving the existing Rust-native unit and integration pyramid. The work is intentionally staged: freeze the boundary contract first, then execute independent CLI, desktop, and MCP slices in parallel, then compose lifecycle and failure/cancellation flows, and finally enforce coverage evidence.
 
@@ -16,9 +16,9 @@ This roadmap expands E2E coverage around stable user-facing boundaries while pre
 | Evidence | Current state | Consequence |
 |---|---|---|
 | Coverage audit | 113 active modules: 13 unit, 95 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys. |
-| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; coverage-governance and branch evidence remain open. |
+| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; the 85% nightly branch target is met and publish-gate closeout remains open. |
 | Workspace tests | Workspace suites pass; the live audit reports 113 active modules (95 integration, 13 unit, 1 smoke, 4 E2E) | Suite count and coverage-audit module count are different metrics and must remain separate. |
-| LLVM coverage | 90.56% lines, 90.22% regions | Current stable gate passes its 85% line threshold; explicit nightly 1.99.0 branch evidence is recorded separately at 83.45%. |
+| LLVM coverage | 90.56% lines, 90.22% regions | Current stable gate passes its 85% line threshold; governed nightly branch evidence is 85.09% (1,408 covered / 210 missed). |
 | Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 now produces 85.09% (1,408 branches, 210 missed) when `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` resolve through rustup | E2E-COV-007.1 meets the requested 85% branch target; retain the separately governed nightly lane and do not silently lower the threshold. |
 | Security/privacy | Local gitleaks 8.30.1 scan passes; fixtures are local/synthetic | New E2E fixtures must remain deterministic, redaction-safe, and offline by default. |
 

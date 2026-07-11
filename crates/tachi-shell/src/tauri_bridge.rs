@@ -172,6 +172,7 @@ fn dispatch_infographic_data(
                         };
                     }
                 };
+                emit_progress_event(reporter, "infographic-data", "infographic-output-validated");
                 if token.is_cancelled() {
                     emit_progress_event(reporter, "infographic-data", "cancelled");
                     return CommandOutput {

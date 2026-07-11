@@ -22,6 +22,11 @@ struct CancelOnBuildingReporter {
     events: Arc<Mutex<Vec<ProgressEvent>>>,
 }
 
+struct CancelOnOutputValidatedReporter {
+    token: CancellationToken,
+    events: Arc<Mutex<Vec<ProgressEvent>>>,
+}
+
 static FIXTURE_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 static EXEC_POLICY_LOCK: Mutex<()> = Mutex::new(());
 
@@ -34,6 +39,15 @@ impl ProgressReporter for RecordingReporter {
 impl ProgressReporter for CancelOnBuildingReporter {
     fn emit(&mut self, event: ProgressEvent) {
         if event.message == "building" {
+            cancel_running_command(&self.token);
+        }
+        self.events.lock().expect("reporter mutex").push(event);
+    }
+}
+
+impl ProgressReporter for CancelOnOutputValidatedReporter {
+    fn emit(&mut self, event: ProgressEvent) {
+        if event.message == "infographic-output-validated" {
             cancel_running_command(&self.token);
         }
         self.events.lock().expect("reporter mutex").push(event);
@@ -174,7 +188,11 @@ fn dispatch_infographic_data_cancels_after_root_validation() {
 #[test]
 fn dispatch_infographic_data_cancels_before_and_after_artifact_validation() {
     let root = fixture_repo();
-    fs::write(root.join("threats.md"), "# Agentic AI Application\n").expect("write threats");
+    fs::write(
+        root.join("threats.md"),
+        include_str!("../../../examples/maestro-reference/threats.md"),
+    )
+    .expect("write threats");
 
     let pre_cancelled = CancellationToken::new();
     cancel_running_command(&pre_cancelled);
@@ -215,6 +233,46 @@ fn dispatch_infographic_data_cancels_before_and_after_artifact_validation() {
         &mut after_reporter,
     );
     assert_eq!(after_output.status, 130);
+}
+
+#[test]
+fn dispatch_infographic_data_cancels_after_output_path_validation() {
+    let root = fixture_repo();
+    fs::write(
+        root.join("threats.md"),
+        include_str!("../../../examples/maestro-reference/threats.md"),
+    )
+    .expect("write threats");
+    let token = CancellationToken::new();
+    let events = Arc::new(Mutex::new(Vec::new()));
+    let mut reporter = CancelOnOutputValidatedReporter {
+        token: token.clone(),
+        events: events.clone(),
+    };
+
+    let output = dispatch_command_with_progress(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            "out.json",
+        ],
+        &token,
+        &mut reporter,
+    );
+
+    assert_eq!(output.status, 130, "{}", output.stderr);
+    assert!(output.stderr.contains("cancelled"));
+    assert!(!root.join("out.json").exists());
+    assert!(events
+        .lock()
+        .expect("report events")
+        .iter()
+        .any(|event| event.message == "infographic-output-validated"));
 }
 
 #[test]

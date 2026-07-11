@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -44,6 +44,9 @@ coverage-audit: ## Report the repository test surface by category
 llvm-cov: ## Run cargo llvm-cov with the active toolchain's LLVM tools
 	@./scripts/llvm-cov.sh
 
+llvm-cov-nightly-branch: ## Run the governed nightly branch coverage gate (>=85%)
+	@./scripts/llvm-cov-nightly-branch.sh
+
 workflow-gate: ## Validate workflow action versions and checkout modernization
 	@if rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows; then \
 	  echo "FAIL: stale GitHub Actions or CodeQL pins are still present in workflows"; \
@@ -82,16 +85,20 @@ supply-chain-gate: ## Run dependency advisory, license, ban, and source policy c
 gitleaks-gate: ## Run the local fail-closed secret scan used by the publish gate
 	@set -eu; \
 		report="$$(mktemp "$${TMPDIR:-/tmp}/tachi-gitleaks.XXXXXX.sarif")"; \
-		trap 'rm -f "$$report"' EXIT; \
+		staged_report="$$(mktemp "$${TMPDIR:-/tmp}/tachi-gitleaks-staged.XXXXXX.sarif")"; \
+		trap 'rm -f "$$report" "$$staged_report"' EXIT; \
 		set +e; \
-		gitleaks git --config=.gitleaks.toml --report-format=sarif --report-path="$$report" --no-banner; \
+		gitleaks detect --source . --config=.gitleaks.toml --report-format=sarif --report-path="$$report" --no-banner; \
 		status=$$?; \
+		gitleaks git --pre-commit --config=.gitleaks.toml --report-format=sarif --report-path="$$staged_report" --no-banner; \
+		staged_status=$$?; \
 		set -e; \
-		if [ ! -s "$$report" ]; then \
-			echo '{"version":"2.1.0","$$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}' > "$$report"; \
-		fi; \
+		test -s "$$report"; \
+		test -s "$$staged_report"; \
 		jq -e '.version == "2.1.0" and (.runs | type == "array")' "$$report" >/dev/null; \
-		test "$$status" -eq 0
+		jq -e '.version == "2.1.0" and (.runs | type == "array")' "$$staged_report" >/dev/null; \
+		test "$$status" -eq 0; \
+		test "$$staged_status" -eq 0
 
 feature-combination-canary: ## Run cargo-hack feature-combination canary
 	@cargo hack --version

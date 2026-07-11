@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0.0",
-    "last_run": "2026-07-11T21:36:44.548Z",
+    "last_run": "2026-07-11T22:21:22.402Z",
     "root": "/Volumes/dev/Git-SCM/tachi-rust",
     "include_patterns": [
       "crates/*/src/**/*.rs",
@@ -28,7 +28,7 @@
   },
   "file_hashes": {
     "Cargo.toml": "7312f425f0412fe1d61513d983fbf5d6",
-    "Makefile": "70cffd317d8d5e1b1d6bc68abbb349e5",
+    "Makefile": "f73612951c7aad68a800cdba16a1006d",
     "crates/tachi-cli/Cargo.toml": "01f2b7b74bcd7e3cf9b3bd06574e2878",
     "crates/tachi-cli/src/bin/bootstrap.rs": "d7a93445d581e6c1839bed0883430c3b",
     "crates/tachi-cli/src/bin/coverage-audit.rs": "9d4752c852882750625dbfaa5feb55f5",
@@ -93,11 +93,11 @@
     "crates/tachi-shell/src/commands/script_executor.rs": "1077a32013b9e7eac97ed67545bfd0b0",
     "crates/tachi-shell/src/lib.rs": "de1413fccdb859bc74ddab9fde3dd9b2",
     "crates/tachi-shell/src/progress.rs": "ea0c0f0e057e6addc21e9a0019a7ceb6",
-    "crates/tachi-shell/src/tauri_bridge.rs": "511575a1804ec6248e37162e30fa8c2a"
+    "crates/tachi-shell/src/tauri_bridge.rs": "30fd6292cdb139a66255c2c39a651a7d"
   },
   "folder_hashes": {
-    ".": "bb23ad34a45e07da5f78a52e24bb27fc",
-    "crates": "bccac77711d1040a3815a14b2997a5e6",
+    ".": "6228ad2daceee1fa473817145fa67b01",
+    "crates": "9aa2c5351af9c1d06240447c9dc75251",
     "crates/tachi-cli": "a391e4912913c25755d18e614d588e15",
     "crates/tachi-cli/src": "e009088a549ab53245ff18bbd123a91c",
     "crates/tachi-cli/src/bin": "e009088a549ab53245ff18bbd123a91c",
@@ -109,8 +109,8 @@
     "crates/tachi-desktop/src": "6277dbdd6fa8812c460973d310d38fa6",
     "crates/tachi-mcp": "1db724da7c3adb3bd3c5d9c4c94b163d",
     "crates/tachi-mcp/src": "e9c64e5061cee196a3bc174579eff9ab",
-    "crates/tachi-shell": "2786c4c546bdf192432915cfdd458725",
-    "crates/tachi-shell/src": "127b6c745a5185c1f1fec429efbdb052",
+    "crates/tachi-shell": "19b2a370e445b00bd5b42ffa07688225",
+    "crates/tachi-shell/src": "76d7737c8c7282143a5f13ff399a3eee",
     "crates/tachi-shell/src/commands": "51f3d1e0097a27d4fc8262b157d99cda"
   }
 }

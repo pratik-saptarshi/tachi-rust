@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: live Beads hierarchy created; E2E-COV-007.1 remains open for branch uplift
+**Status**: live Beads hierarchy; E2E-COV-007.1 branch target met, publish-gate closeout pending
 
 ## Epic
 
