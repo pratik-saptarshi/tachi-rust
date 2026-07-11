@@ -179,6 +179,22 @@ fn validate_invoke_input_returns_typed_requests() {
 fn validate_invoke_input_rejects_missing_required_fields_and_unknown_commands() {
     let root = workspace_root();
 
+    let err = validate_invoke_input("coverage-audit", &root, &[])
+        .expect("coverage audit should default to the selected root");
+    assert_eq!(
+        err,
+        DesktopInvokeInput::CoverageAudit { root: root.clone() }
+    );
+
+    for (command, args, expected) in [
+        ("report-data", vec![], "--target-dir is required"),
+        ("threats-sarif", vec![], "--input is required"),
+        ("risk-scores-sarif", vec![], "--risk-scores is required"),
+    ] {
+        let err = validate_invoke_input(command, &root, &args).expect_err("missing required field");
+        assert!(err.contains(expected), "{command}: {err}");
+    }
+
     let err = validate_invoke_input("report-data", &root, &["--target-dir", "target"])
         .expect_err("missing template-dir");
     assert!(err.contains("schema validation failed for report-data"));
@@ -199,8 +215,18 @@ fn validate_invoke_input_rejects_missing_required_fields_and_unknown_commands() 
         .expect_err("unknown infographic arg");
     assert!(err.contains("unrecognized argument: --wat"));
 
+    let err = validate_invoke_input("infographic-data", &root, &["--help"])
+        .expect_err("reject infographic help payload");
+    assert!(err.contains("help is not an invocation payload"));
+
     let err = validate_invoke_input("install", &root, &["--wat"]).expect_err("unknown install arg");
     assert!(err.contains("unrecognized argument: --wat"));
+
+    for command in ["report-data", "threats-sarif", "risk-scores-sarif"] {
+        let err = validate_invoke_input(command, &root, &["--wat"])
+            .expect_err("unknown analysis argument");
+        assert!(err.contains("unrecognized argument: --wat"));
+    }
 
     let err = validate_invoke_input("init", &root, &["--precommit", "--no-precommit"])
         .expect_err("conflicting init flags");

@@ -22,6 +22,11 @@ struct CancelOnBuildingReporter {
     events: Arc<Mutex<Vec<ProgressEvent>>>,
 }
 
+struct CancelOnOutputValidatedReporter {
+    token: CancellationToken,
+    events: Arc<Mutex<Vec<ProgressEvent>>>,
+}
+
 static FIXTURE_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 static EXEC_POLICY_LOCK: Mutex<()> = Mutex::new(());
 
@@ -34,6 +39,15 @@ impl ProgressReporter for RecordingReporter {
 impl ProgressReporter for CancelOnBuildingReporter {
     fn emit(&mut self, event: ProgressEvent) {
         if event.message == "building" {
+            cancel_running_command(&self.token);
+        }
+        self.events.lock().expect("reporter mutex").push(event);
+    }
+}
+
+impl ProgressReporter for CancelOnOutputValidatedReporter {
+    fn emit(&mut self, event: ProgressEvent) {
+        if event.message == "infographic-output-validated" {
             cancel_running_command(&self.token);
         }
         self.events.lock().expect("reporter mutex").push(event);
@@ -169,6 +183,96 @@ fn dispatch_infographic_data_cancels_after_root_validation() {
         .expect("report events")
         .iter()
         .any(|event| event.message == "building"));
+}
+
+#[test]
+fn dispatch_infographic_data_cancels_before_and_after_artifact_validation() {
+    let root = fixture_repo();
+    fs::write(
+        root.join("threats.md"),
+        include_str!("../../../examples/maestro-reference/threats.md"),
+    )
+    .expect("write threats");
+
+    let pre_cancelled = CancellationToken::new();
+    cancel_running_command(&pre_cancelled);
+    let mut pre_reporter = RecordingReporter(Arc::new(Mutex::new(Vec::new())));
+    let pre_output = dispatch_command_with_progress(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            "out.json",
+        ],
+        &pre_cancelled,
+        &mut pre_reporter,
+    );
+    assert_eq!(pre_output.status, 130);
+
+    let after_build = CancellationToken::new();
+    let mut after_reporter = CancelOnBuildingReporter {
+        token: after_build.clone(),
+        events: Arc::new(Mutex::new(Vec::new())),
+    };
+    let after_output = dispatch_command_with_progress(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            "out.json",
+        ],
+        &after_build,
+        &mut after_reporter,
+    );
+    assert_eq!(after_output.status, 130);
+}
+
+#[test]
+fn dispatch_infographic_data_cancels_after_output_path_validation() {
+    let root = fixture_repo();
+    fs::write(
+        root.join("threats.md"),
+        include_str!("../../../examples/maestro-reference/threats.md"),
+    )
+    .expect("write threats");
+    let token = CancellationToken::new();
+    let events = Arc::new(Mutex::new(Vec::new()));
+    let mut reporter = CancelOnOutputValidatedReporter {
+        token: token.clone(),
+        events: events.clone(),
+    };
+
+    let output = dispatch_command_with_progress(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            "out.json",
+        ],
+        &token,
+        &mut reporter,
+    );
+
+    assert_eq!(output.status, 130, "{}", output.stderr);
+    assert!(output.stderr.contains("cancelled"));
+    assert!(!root.join("out.json").exists());
+    assert!(events
+        .lock()
+        .expect("report events")
+        .iter()
+        .any(|event| event.message == "infographic-output-validated"));
 }
 
 #[test]
@@ -776,4 +880,100 @@ fn dispatch_command_reports_output_directory_and_risk_payload_failures() {
     );
     assert_eq!(risk.status, 1);
     assert!(risk.stderr.contains("failed to parse") || risk.stderr.contains("malformed"));
+}
+
+#[test]
+fn dispatch_command_rejects_risk_output_directory_creation_failure() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    fs::write(
+        root.join("threats.md"),
+        "# Agentic AI Application\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation | Status |\n| --- | --- | --- | --- | --- | --- |\n| AG-8 | Agent | Prompt injection | High | Harden prompts | [NEW] |\n",
+    )
+    .expect("write threats");
+    let fixture_risk_scores = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("workspace root")
+        .parent()
+        .expect("repository root")
+        .join("tests/scripts/fixtures/exec_arch/agentic_app/risk-scores.md");
+    fs::copy(fixture_risk_scores, root.join("risk-scores.md")).expect("copy risk scores");
+    fs::write(root.join("risk-output"), "blocking parent").expect("write blocking parent");
+
+    let risk = dispatch_command(
+        "risk-scores-sarif",
+        &root,
+        &[
+            "--risk-scores",
+            root.join("risk-scores.md").to_string_lossy().as_ref(),
+            "--threats",
+            root.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            "risk-output/risk.sarif",
+        ],
+    );
+    assert_eq!(risk.status, 1);
+    assert!(risk.stderr.contains("failed to create output directory"));
+
+    fs::create_dir(root.join("risk-directory")).expect("create risk output directory");
+    let risk_write = dispatch_command(
+        "risk-scores-sarif",
+        &root,
+        &[
+            "--risk-scores",
+            root.join("risk-scores.md").to_string_lossy().as_ref(),
+            "--threats",
+            root.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            "risk-directory",
+        ],
+    );
+    assert_eq!(risk_write.status, 1);
+    assert!(risk_write.stderr.contains("failed to write output file"));
+}
+
+#[test]
+fn dispatch_command_reports_artifact_write_and_parent_creation_failures() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    let target_dir = root.join("target");
+    let template_dir = root.join("templates");
+    fs::create_dir_all(&target_dir).expect("create target dir");
+    fs::create_dir_all(&template_dir).expect("create template dir");
+    fs::write(
+        target_dir.join("threats.md"),
+        "# Threat Model: Write Error\n",
+    )
+    .expect("write threats");
+    fs::create_dir(root.join("report-output")).expect("create report output directory");
+
+    let report = dispatch_command(
+        "report-data",
+        &root,
+        &[
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            template_dir.to_string_lossy().as_ref(),
+            "--output",
+            "report-output",
+        ],
+    );
+    assert_eq!(report.status, 1);
+    assert!(report.stderr.contains("failed to write output file"));
+
+    fs::write(root.join("threats.md"), "# Agentic AI Application\n").expect("write input");
+    fs::write(root.join("threats-parent"), "blocking parent").expect("write blocking parent");
+    let threats = dispatch_command(
+        "threats-sarif",
+        &root,
+        &[
+            "--input",
+            root.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            "threats-parent/threats.sarif",
+        ],
+    );
+    assert_eq!(threats.status, 1);
+    assert!(threats.stderr.contains("failed to create output directory"));
 }

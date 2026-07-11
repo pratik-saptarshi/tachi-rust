@@ -616,6 +616,8 @@ fn publish_gate_runs_supply_chain_policy_checks() {
         "cargo audit",
         "cargo deny check advisories bans licenses sources",
         "@$(MAKE) supply-chain-gate",
+        "@$(MAKE) gitleaks-gate",
+        "@$(MAKE) llvm-cov-nightly-branch",
     ] {
         assert!(
             text.contains(command),
@@ -764,6 +766,23 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
             "llvm-cov wrapper must keep llvm-tools-preview proof for {proof}"
         );
     }
+}
+
+#[test]
+fn nightly_branch_coverage_gate_is_checked_in_and_fail_closed() {
+    let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    let script = fs::read_to_string(repo_root().join("scripts/llvm-cov-nightly-branch.sh"))
+        .expect("read nightly branch coverage script");
+
+    assert!(makefile.contains("llvm-cov-nightly-branch:"));
+    assert!(makefile.contains("./scripts/llvm-cov-nightly-branch.sh"));
+    assert!(script.contains("--branch"));
+    assert!(script.contains("--summary-only"));
+    assert!(script.contains("RUSTC"));
+    assert!(script.contains("RUSTDOC"));
+    assert!(script.contains("LLVM_COV"));
+    assert!(script.contains("LLVM_PROFDATA"));
+    assert!(script.contains("85"));
 }
 
 fn publish_gate_commands(makefile: &str) -> impl Iterator<Item = &str> {

@@ -71,6 +71,22 @@ fn restore_offline_cache_restores_expected_files() {
 }
 
 #[test]
+fn restore_offline_cache_reports_all_files_missing_from_an_empty_cache() {
+    let repo_root = fixture_root("offline-empty-repo");
+    let cache_root = fixture_root("offline-empty-cache");
+
+    let report = restore_offline_cache(&repo_root, &cache_root).expect("restore empty cache");
+
+    assert!(report.restored_files.is_empty());
+    assert_eq!(report.missing_cache_files.len(), 4);
+    let canonical_repo_root = canonical(&repo_root);
+    assert!(report
+        .missing_cache_files
+        .iter()
+        .all(|path| path.starts_with(&canonical_repo_root)));
+}
+
+#[test]
 fn check_for_update_reports_cached_version_difference() {
     let repo_root = fixture_root("offline-current");
     let cache_root = fixture_root("offline-updated");

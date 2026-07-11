@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0.0",
-    "last_run": "2026-07-10T11:09:39.093Z",
+    "last_run": "2026-07-11T22:21:22.402Z",
     "root": "/Volumes/dev/Git-SCM/tachi-rust",
     "include_patterns": [
       "crates/*/src/**/*.rs",
@@ -28,7 +28,7 @@
   },
   "file_hashes": {
     "Cargo.toml": "7312f425f0412fe1d61513d983fbf5d6",
-    "Makefile": "f25b6cf2d5a7c4f5039857905ec3f381",
+    "Makefile": "f73612951c7aad68a800cdba16a1006d",
     "crates/tachi-cli/Cargo.toml": "01f2b7b74bcd7e3cf9b3bd06574e2878",
     "crates/tachi-cli/src/bin/bootstrap.rs": "d7a93445d581e6c1839bed0883430c3b",
     "crates/tachi-cli/src/bin/coverage-audit.rs": "9d4752c852882750625dbfaa5feb55f5",
@@ -47,7 +47,7 @@
     "crates/tachi-core/src/attack_trees.rs": "bf57c1eb9f0690c3b96ef1ee55e8173d",
     "crates/tachi-core/src/compensating_controls.rs": "dbe803c5f454c1f414d3d02f088d29b0",
     "crates/tachi-core/src/coverage_attestation.rs": "8c2ba512e427663c124db697330bfb0e",
-    "crates/tachi-core/src/coverage_audit.rs": "356b2fa3e5aac035ae6a04da3b952a54",
+    "crates/tachi-core/src/coverage_audit.rs": "420a1841d752de30cc19660d32d56a78",
     "crates/tachi-core/src/coverage_taxonomy.rs": "c37276935c17473160f3d61f67c00d80",
     "crates/tachi-core/src/facade.rs": "b0a9029e86e557c0c01004eec646a073",
     "crates/tachi-core/src/fixtures.rs": "d35d93096acfe6922de2ddd985f8c654",
@@ -67,7 +67,7 @@
     "crates/tachi-core/src/parsers/scope.rs": "1a7cbfed255768d7a2a8b73d65e2dfd7",
     "crates/tachi-core/src/parsers/table.rs": "9975079335b5e4241c42d617769da1fa",
     "crates/tachi-core/src/report_data.rs": "bd6549d03a46e7e60618844141b47be3",
-    "crates/tachi-core/src/report_extraction.rs": "244d6373632f2f65c04552a8e182bcb2",
+    "crates/tachi-core/src/report_extraction.rs": "7d19f198b2d7efd45c7a871bb3fc833d",
     "crates/tachi-core/src/risk_scores.rs": "9994c2ec767e2dc4c52ebac61979d833",
     "crates/tachi-core/src/sarif_common.rs": "f85239a63d72587cb281c01b03364218",
     "crates/tachi-core/src/threats_sarif.rs": "b1c6660e292c4d35c5e5726d2e2453ee",
@@ -93,24 +93,24 @@
     "crates/tachi-shell/src/commands/script_executor.rs": "1077a32013b9e7eac97ed67545bfd0b0",
     "crates/tachi-shell/src/lib.rs": "de1413fccdb859bc74ddab9fde3dd9b2",
     "crates/tachi-shell/src/progress.rs": "ea0c0f0e057e6addc21e9a0019a7ceb6",
-    "crates/tachi-shell/src/tauri_bridge.rs": "511575a1804ec6248e37162e30fa8c2a"
+    "crates/tachi-shell/src/tauri_bridge.rs": "30fd6292cdb139a66255c2c39a651a7d"
   },
   "folder_hashes": {
-    ".": "923851e339b086bd784c7798473ce5fb",
-    "crates": "0211022aeb625c3112e73418fdb96062",
+    ".": "6228ad2daceee1fa473817145fa67b01",
+    "crates": "9aa2c5351af9c1d06240447c9dc75251",
     "crates/tachi-cli": "a391e4912913c25755d18e614d588e15",
     "crates/tachi-cli/src": "e009088a549ab53245ff18bbd123a91c",
     "crates/tachi-cli/src/bin": "e009088a549ab53245ff18bbd123a91c",
-    "crates/tachi-core": "5d07ba535f81573a64574a2478269d4e",
-    "crates/tachi-core/src": "331b39223c7ff17080773e2de41e4317",
+    "crates/tachi-core": "e774fe0648fd0fe2352d81a457f3590e",
+    "crates/tachi-core/src": "8608c4ca4ab8e1c43838a8451e2c73c9",
     "crates/tachi-core/src/infographic": "398a3c48c223cdc55bbf94c0240dfb59",
     "crates/tachi-core/src/parsers": "bb0864fb6d5adcf7cb5675729d1c81c6",
     "crates/tachi-desktop": "4dbf348234465918191a5953f88128a0",
     "crates/tachi-desktop/src": "6277dbdd6fa8812c460973d310d38fa6",
     "crates/tachi-mcp": "1db724da7c3adb3bd3c5d9c4c94b163d",
     "crates/tachi-mcp/src": "e9c64e5061cee196a3bc174579eff9ab",
-    "crates/tachi-shell": "2786c4c546bdf192432915cfdd458725",
-    "crates/tachi-shell/src": "127b6c745a5185c1f1fec429efbdb052",
+    "crates/tachi-shell": "19b2a370e445b00bd5b42ffa07688225",
+    "crates/tachi-shell/src": "76d7737c8c7282143a5f13ff399a3eee",
     "crates/tachi-shell/src/commands": "51f3d1e0097a27d4fc8262b157d99cda"
   }
 }

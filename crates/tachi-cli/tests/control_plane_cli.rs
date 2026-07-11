@@ -282,6 +282,38 @@ fn init_binary_prints_help() {
 }
 
 #[test]
+fn init_binary_accepts_short_help() {
+    let output = Command::new(binary_path("init"))
+        .arg("-h")
+        .output()
+        .expect("run init short help");
+    assert!(output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("usage: init"));
+}
+
+#[test]
+fn control_plane_binaries_accept_short_help_and_forward_stderr() {
+    let help = Command::new(binary_path("update"))
+        .arg("-h")
+        .output()
+        .expect("run update short help");
+    assert!(help.status.success());
+    assert!(String::from_utf8_lossy(&help.stderr).contains("usage: update"));
+
+    let root = fixture_repo();
+    write_executable_file(
+        &root.join("scripts/install.sh"),
+        "#!/usr/bin/env bash\nprintf 'install warning\\n' >&2\n",
+    );
+    let output = Command::new(binary_path("install"))
+        .args(["--root", root.to_string_lossy().as_ref()])
+        .output()
+        .expect("run install with stderr");
+    assert!(output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("install warning"));
+}
+
+#[test]
 fn init_binary_rejects_missing_root_value() {
     let output = Command::new(binary_path("init"))
         .arg("--root")
@@ -388,6 +420,30 @@ fn update_binary_forwards_flags() {
 }
 
 #[test]
+fn update_binary_fails_closed_for_missing_root_and_preserves_stderr() {
+    let missing_root = Command::new(binary_path("update"))
+        .arg("--root")
+        .output()
+        .expect("run update with missing root");
+    assert_eq!(missing_root.status.code(), Some(2));
+    assert!(
+        String::from_utf8_lossy(&missing_root.stderr).contains("--root requires a path argument")
+    );
+
+    let root = fixture_repo();
+    write_executable_file(
+        &root.join("scripts/update.sh"),
+        "#!/usr/bin/env bash\nprintf 'update warning\\n' >&2\n",
+    );
+    let output = Command::new(binary_path("update"))
+        .args(["--root", root.to_string_lossy().as_ref()])
+        .output()
+        .expect("run update with stderr");
+    assert!(output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("update warning"));
+}
+
+#[test]
 fn bootstrap_binary_forwards_bootstrap_prefix() {
     let root = fixture_repo();
     write_executable_file(
@@ -404,6 +460,56 @@ fn bootstrap_binary_forwards_bootstrap_prefix() {
     let bootstrap_stdout = String::from_utf8_lossy(&output.stdout);
     let lines: Vec<_> = bootstrap_stdout.lines().collect();
     assert_eq!(lines, vec!["--bootstrap", "--yes"]);
+}
+
+#[test]
+fn control_plane_binaries_fail_closed_for_help_and_missing_root_values() {
+    for binary in ["install", "bootstrap"] {
+        let help = Command::new(binary_path(binary))
+            .arg("-h")
+            .output()
+            .expect("run control-plane help");
+        assert!(help.status.success(), "{binary} help should succeed");
+        assert!(String::from_utf8_lossy(&help.stderr).contains("usage:"));
+
+        let long_help = Command::new(binary_path(binary))
+            .arg("--help")
+            .output()
+            .expect("run control-plane long help");
+        assert!(
+            long_help.status.success(),
+            "{binary} long help should succeed"
+        );
+        assert!(String::from_utf8_lossy(&long_help.stderr).contains("usage:"));
+
+        let missing_root = Command::new(binary_path(binary))
+            .args(["--root"])
+            .output()
+            .expect("run control-plane with missing root");
+        assert_eq!(missing_root.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&missing_root.stderr)
+            .contains("--root requires a path argument"));
+    }
+}
+
+#[test]
+fn infographic_binary_rejects_unknown_arguments_without_running_analysis() {
+    let output = Command::new(binary_path("infographic-data"))
+        .args(["--wat"])
+        .output()
+        .expect("run infographic-data with unknown argument");
+
+    assert_eq!(output.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("unrecognized argument: --wat"));
+
+    for flag in ["--root", "--output"] {
+        let missing_value = Command::new(binary_path("infographic-data"))
+            .arg(flag)
+            .output()
+            .expect("run infographic-data with a missing option value");
+        assert_eq!(missing_value.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&missing_value.stderr).contains("requires"));
+    }
 }
 
 #[test]
@@ -492,6 +598,73 @@ fn infographic_data_binary_writes_output_file_when_requested() {
     assert!(value["template_data"]["has_maestro_data"]
         .as_bool()
         .unwrap_or(false));
+}
+
+#[test]
+fn artifact_binaries_fail_closed_when_output_path_is_a_directory() {
+    let infographic_repo = fixture_infographic_repo();
+    let infographic = Command::new(binary_path("infographic-data"))
+        .args([
+            "--root",
+            infographic_repo.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            infographic_repo.to_string_lossy().as_ref(),
+        ])
+        .output()
+        .expect("run infographic-data with directory output");
+    assert_eq!(infographic.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&infographic.stderr).contains("failed to write output file"));
+
+    let report_repo = fixture_report_data_repo();
+    let report = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            report_repo
+                .join(REPORT_TARGET_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--template-dir",
+            report_repo
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--output",
+            report_repo.to_string_lossy().as_ref(),
+        ])
+        .output()
+        .expect("run report-data with directory output");
+    assert_eq!(report.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&report.stderr).contains("failed to write output file"));
+
+    let threats_repo = fixture_threats_sarif_repo();
+    let threats = Command::new(binary_path("threats-sarif"))
+        .args([
+            "--input",
+            threats_repo.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            threats_repo.to_string_lossy().as_ref(),
+        ])
+        .output()
+        .expect("run threats-sarif with directory output");
+    assert_eq!(threats.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&threats.stderr).contains("failed to write output file"));
+
+    let risk_repo = fixture_risk_scores_sarif_repo();
+    let risk = Command::new(binary_path("risk-scores-sarif"))
+        .args([
+            "--risk-scores",
+            risk_repo.join("risk-scores.md").to_string_lossy().as_ref(),
+            "--threats",
+            risk_repo.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            risk_repo.to_string_lossy().as_ref(),
+        ])
+        .output()
+        .expect("run risk-scores-sarif with directory output");
+    assert_eq!(risk.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&risk.stderr).contains("failed to write output file"));
 }
 
 #[test]
@@ -746,6 +919,15 @@ fn threats_sarif_binary_rejects_invalid_arguments_and_accepts_optional_metadata_
         String::from_utf8_lossy(&missing_value.stderr).contains("--input requires a path argument")
     );
 
+    for flag in ["--output", "--baseline-run-id", "--source-threats-uri"] {
+        let missing_value = Command::new(binary_path("threats-sarif"))
+            .arg(flag)
+            .output()
+            .expect("run threats-sarif with a missing option value");
+        assert_eq!(missing_value.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&missing_value.stderr).contains("requires"));
+    }
+
     let unknown_arg = Command::new(binary_path("threats-sarif"))
         .arg("--unknown")
         .output()
@@ -826,6 +1008,20 @@ fn risk_scores_sarif_binary_rejects_invalid_arguments_and_accepts_optional_metad
     assert_eq!(missing_value.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&missing_value.stderr)
         .contains("--risk-scores requires a path argument"));
+
+    for flag in [
+        "--threats",
+        "--output",
+        "--baseline-run-id",
+        "--source-threats-uri",
+    ] {
+        let missing_value = Command::new(binary_path("risk-scores-sarif"))
+            .arg(flag)
+            .output()
+            .expect("run risk-scores-sarif with a missing option value");
+        assert_eq!(missing_value.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&missing_value.stderr).contains("requires"));
+    }
 
     let missing_required = Command::new(binary_path("risk-scores-sarif"))
         .args(["--risk-scores", "risk-scores.md"])
