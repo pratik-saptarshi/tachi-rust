@@ -24,6 +24,17 @@ retired from the active dependency surface.
       and cancellation handling without artifact leakage.
 - [ ] `make scaffold-dependency-gate` passes before publishing scaffold or template changes.
 - [ ] `make fuzz-mutation-gate` passes and `.github/workflows/fuzz-mutation-audit.yml` remains scheduled/manual and non-blocking.
+- [ ] The `E2E-COV*` roadmap and Beads hierarchy are synchronized with the
+      current E2E journey matrix and no critical user-facing boundary is
+      represented only by a unit or integration test.
+- [ ] The explicit E2E inventory is current: CLI artifact, desktop command,
+      MCP stdio, initialization, composed init/install/update/analysis
+      lifecycle, and cross-boundary failure/cancellation journeys have
+      focused suites; E2E-COV-007 remains for coverage evidence and publish
+      enforcement.
+- [ ] `cargo run -q -p tachi-cli --bin coverage-audit` reports the intended
+      E2E inventory, with no double-counting between integration, smoke, and
+      true end-to-end categories.
 - [ ] Feature and coverage canaries are run serially when promoted for release
       evidence: `make feature-combination-canary`, then `make coverage-tool-proof`.
 - [ ] `git push origin main --follow-tags` is the intended publish command.
@@ -113,6 +124,8 @@ retired from the active dependency surface.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
       threshold; latest local run on 2026-07-10 measured 84.77% regions and
       85.25% lines, with the configured 85% line threshold passing.
+- [ ] `cargo llvm-cov --workspace --branch --summary-only` produces a recorded
+      branch baseline before branch-coverage claims are made.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the
