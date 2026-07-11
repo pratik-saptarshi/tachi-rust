@@ -3,9 +3,11 @@ use std::path::Path;
 use tachi_core::normalization::{normalize_optional_text, normalize_value, stable_trim_text};
 use tachi_core::parsers::{
     compute_delta_counts, compute_has_source_attribution, escape_typst_string,
-    parse_component_asset_map, parse_finding_pattern, parse_markdown_table, parse_project_name,
-    parse_threats_findings, strip_bold, validate_source_attribution, ResolvedFinding,
-    ThreatFinding, VALID_AGENTIC_PATTERNS, VALID_ASSET_TAGS,
+    parse_component_asset_map, parse_component_distribution, parse_finding_pattern,
+    parse_markdown_table, parse_project_name, parse_resolved_findings, parse_risk_scores_findings,
+    parse_risk_scores_severity, parse_threats_findings, parse_threats_severity, strip_bold,
+    validate_source_attribution, ResolvedFinding, ThreatFinding, VALID_AGENTIC_PATTERNS,
+    VALID_ASSET_TAGS,
 };
 
 static PARSER_TEMP_DIR_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
@@ -46,6 +48,58 @@ fn parse_markdown_table_reads_rows_after_header() {
         Some("Broken auth")
     );
     assert_eq!(rows[1].get("ID").map(String::as_str), Some("S-2"));
+}
+
+#[test]
+fn parser_helpers_cover_fallback_headers_counts_and_optional_fields() {
+    let findings = vec![
+        std::collections::BTreeMap::from([(String::from("component"), String::from("API"))]),
+        std::collections::BTreeMap::from([(String::from("component"), String::new())]),
+        std::collections::BTreeMap::new(),
+        std::collections::BTreeMap::from([(String::from("component"), String::from("API"))]),
+    ];
+    assert_eq!(
+        parse_component_distribution(&findings),
+        vec![(String::from("API"), 2)]
+    );
+
+    let threats = r#"## 6. Risk Summary
+
+| Risk Level | Count |
+| --- | --- |
+| Critical | 2 |
+| High | invalid |
+| Unknown | 4 |
+| Total | 6 (9) |
+"#;
+    let severity = parse_threats_severity(threats);
+    assert_eq!(severity.critical, 2);
+    assert_eq!(severity.high, 0);
+    assert_eq!(severity.total, 9);
+
+    let risk = r#"## 1. Executive Summary
+
+| Severity | Count |
+| --- | --- |
+| Medium | 3 |
+| Total | 3 |
+"#;
+    assert_eq!(parse_risk_scores_severity(risk).medium, 3);
+
+    let scored = r#"## 2. Scored Threat Table
+
+| ID | Component | Threat | Composite | Severity | Exploitability |
+| --- | --- | --- | --- | --- | --- |
+| S-1 | API | Auth | 8.0 | High | 7.5 |
+"#;
+    let scored_findings = parse_risk_scores_findings(scored);
+    assert_eq!(scored_findings.len(), 1);
+    assert_eq!(scored_findings[0].exploitability, "7.5");
+
+    let resolved = parse_resolved_findings(
+        "## 4b. Resolved Findings\n\n| ID | Component | Threat | Last Risk Level | Resolution Reason |\n| --- | --- | --- | --- | --- |\n| S-1 | API | Auth | High | fixed |\n",
+    );
+    assert_eq!(resolved[0].delta_status, "RESOLVED");
 }
 
 #[test]

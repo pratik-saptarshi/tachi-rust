@@ -117,6 +117,6 @@
   - stable line/region thresholds remain unchanged and green;
   - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
-- **Current baseline after uplift slices 1-6**: 77.27% branch coverage, 1,408 total branches / 320 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 6 covers AISVS validation edges and attack-chain parser/rendering fallbacks.
+- **Current baseline after uplift slices 1-7**: 77.49% branch coverage, 1,408 total branches / 317 missed, measured with explicit nightly `RUSTC`/`RUSTDOC` paths. Slice 7 covers parser helper fallback headers, count totals, optional scored fields, and resolved-finding extraction.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
 - **Priority**: P1
