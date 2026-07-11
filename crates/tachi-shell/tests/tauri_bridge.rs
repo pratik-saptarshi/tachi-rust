@@ -17,12 +17,26 @@ use tachi_shell::tauri_bridge::dispatch_command_with_progress;
 #[derive(Clone)]
 struct RecordingReporter(Arc<Mutex<Vec<ProgressEvent>>>);
 
+struct CancelOnBuildingReporter {
+    token: CancellationToken,
+    events: Arc<Mutex<Vec<ProgressEvent>>>,
+}
+
 static FIXTURE_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 static EXEC_POLICY_LOCK: Mutex<()> = Mutex::new(());
 
 impl ProgressReporter for RecordingReporter {
     fn emit(&mut self, event: ProgressEvent) {
         self.0.lock().expect("reporter mutex").push(event);
+    }
+}
+
+impl ProgressReporter for CancelOnBuildingReporter {
+    fn emit(&mut self, event: ProgressEvent) {
+        if event.message == "building" {
+            cancel_running_command(&self.token);
+        }
+        self.events.lock().expect("reporter mutex").push(event);
     }
 }
 
@@ -106,7 +120,12 @@ fn dispatch_infographic_data_rejects_pre_cancelled_requests() {
     let output = dispatch_command_with_progress(
         "infographic-data",
         &root,
-        &["--root", ".", "--template", "maestro-stack"],
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+        ],
         &token,
         &mut reporter,
     );
@@ -118,6 +137,38 @@ fn dispatch_infographic_data_rejects_pre_cancelled_requests() {
         .expect("report events")
         .iter()
         .any(|event| event.message == "cancelled"));
+}
+
+#[test]
+fn dispatch_infographic_data_cancels_after_root_validation() {
+    let root = fixture_repo();
+    let token = CancellationToken::new();
+    let events = Arc::new(Mutex::new(Vec::new()));
+    let mut reporter = CancelOnBuildingReporter {
+        token: token.clone(),
+        events: events.clone(),
+    };
+
+    let output = dispatch_command_with_progress(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+        ],
+        &token,
+        &mut reporter,
+    );
+
+    assert_eq!(output.status, 130, "{}", output.stderr);
+    assert!(output.stderr.contains("cancelled"));
+    assert!(events
+        .lock()
+        .expect("report events")
+        .iter()
+        .any(|event| event.message == "building"));
 }
 
 #[test]
@@ -652,4 +703,77 @@ fn dispatch_command_fails_closed_for_missing_inputs_relative_outputs_and_write_e
     assert!(infographic_output_error
         .stderr
         .contains("failed to write output file"));
+}
+
+#[test]
+fn dispatch_command_reports_output_directory_and_risk_payload_failures() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    let target_dir = root.join("target");
+    let template_dir = root.join("templates");
+    fs::create_dir_all(&target_dir).expect("create target dir");
+    fs::create_dir_all(&template_dir).expect("create template dir");
+    fs::write(
+        target_dir.join("threats.md"),
+        "# Threat Model: Output Error\n",
+    )
+    .expect("write threats");
+    fs::write(
+        root.join("threats.md"),
+        "# Agentic AI Application\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation | Status |\n| --- | --- | --- | --- | --- | --- |\n| AG-8 | Agent | Prompt injection | High | Harden prompts | [NEW] |\n",
+    )
+    .expect("write infographic threats");
+    fs::write(root.join("generated"), "parent is a file").expect("write blocking parent");
+
+    let report = dispatch_command(
+        "report-data",
+        &root,
+        &[
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            template_dir.to_string_lossy().as_ref(),
+            "--output",
+            "generated/report-data.typ",
+        ],
+    );
+    assert_eq!(report.status, 1);
+    assert!(report.stderr.contains("failed to create output directory"));
+
+    let infographic = dispatch_command(
+        "infographic-data",
+        &root,
+        &[
+            "--root",
+            root.to_string_lossy().as_ref(),
+            "--template",
+            "maestro-stack",
+            "--output",
+            "generated/infographic.json",
+        ],
+    );
+    assert_eq!(infographic.status, 1);
+    assert!(infographic
+        .stderr
+        .contains("failed to create output directory"));
+
+    fs::write(
+        root.join("risk-scores.md"),
+        "## 2. Scored Threat Table\n\n| ID | CVSS |\n| --- | --- |\n| AG-8 | malformed |\n",
+    )
+    .expect("write malformed risk scores");
+    let risk = dispatch_command(
+        "risk-scores-sarif",
+        &root,
+        &[
+            "--risk-scores",
+            root.join("risk-scores.md").to_string_lossy().as_ref(),
+            "--threats",
+            target_dir.join("threats.md").to_string_lossy().as_ref(),
+            "--output",
+            "risk.sarif",
+        ],
+    );
+    assert_eq!(risk.status, 1);
+    assert!(risk.stderr.contains("failed to parse") || risk.stderr.contains("malformed"));
 }
