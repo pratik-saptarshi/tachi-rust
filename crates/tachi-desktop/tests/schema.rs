@@ -362,6 +362,30 @@ fn validate_invoke_output_rejects_schema_drift() {
     };
     validate_invoke_output("risk-scores-sarif", &valid_risk_scores)
         .expect("valid risk scores sarif marker");
+
+    let empty_json = tachi_shell::commands::CommandOutput {
+        status: 0,
+        stdout: String::new(),
+        stderr: String::new(),
+    };
+    validate_invoke_output("infographic-data", &empty_json)
+        .expect("empty JSON output is allowed for a no-op invocation");
+
+    let malformed_json = tachi_shell::commands::CommandOutput {
+        status: 0,
+        stdout: String::from("not json"),
+        stderr: String::new(),
+    };
+    let err = validate_invoke_output("infographic-data", &malformed_json)
+        .expect_err("malformed JSON should fail schema validation");
+    assert!(err.contains("failed validation"));
+
+    let plain = tachi_shell::commands::CommandOutput {
+        status: 0,
+        stdout: String::from("plain output"),
+        stderr: String::new(),
+    };
+    validate_invoke_output("install", &plain).expect("plain control-plane output is valid");
 }
 
 #[test]
