@@ -2,8 +2,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLCHAIN="${RUST_TOOLCHAIN_NIGHTLY:-nightly-1.99.0}"
-HOST_TRIPLE="$(rustup run "$TOOLCHAIN" rustc -vV | sed -n 's/^host: //p')"
+TOOLCHAIN="${RUST_TOOLCHAIN_NIGHTLY:-nightly}"
+RUSTC_VERSION="$(rustup run "$TOOLCHAIN" rustc -Vv)"
+grep -q '^release: 1\.99\.0-nightly$' <<<"$RUSTC_VERSION" || {
+  echo "nightly branch gate requires Rust 1.99.0-nightly" >&2
+  exit 1
+}
+HOST_TRIPLE="$(sed -n 's/^host: //p' <<<"$RUSTC_VERSION")"
 SYSROOT="$(rustup run "$TOOLCHAIN" rustc --print sysroot)"
 LLVM_BIN="$SYSROOT/lib/rustlib/$HOST_TRIPLE/bin"
 REPORT="$(mktemp "${TMPDIR:-/tmp}/tachi-nightly-coverage.XXXXXX.json")"

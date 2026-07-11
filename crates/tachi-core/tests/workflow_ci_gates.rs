@@ -782,6 +782,7 @@ fn nightly_branch_coverage_gate_is_checked_in_and_fail_closed() {
     assert!(script.contains("RUSTDOC"));
     assert!(script.contains("LLVM_COV"));
     assert!(script.contains("LLVM_PROFDATA"));
+    assert!(script.contains("1.99.0"));
     assert!(script.contains("85"));
 }
 
