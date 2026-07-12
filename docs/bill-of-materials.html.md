@@ -191,7 +191,7 @@ The repository policy for these surfaces is:
 
 | Gate | Evidence | Acceptance |
 |---|---|---|
-| Rust unit and integration tests | `cargo test -q` | Must pass cleanly. |
+| Rust unit and integration tests | `make test` (`scripts/ci-local-runner.sh --mode local-full`) plus `make test-route` | Must pass with per-unit JSON results, provenance, bounded logs, cleanup proof, and CI-manifest parity. |
 | Rust toolchain proof | `rustup toolchain install --no-self-update`, `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, `rustup which rustc` | Required Rust workflows consume `rust-toolchain.toml` and prove the compiler path before running tests or lint. |
 | Full workspace PR behavior gate | `cargo test --workspace --all-targets` and `.github/workflows/rust-workspace.yml` | Pull requests apply routing: full mode is preserved on protected refs and active/shared surfaces, while passive docs and dependency-closure-aware changes are narrowed by design. |
 | Semantic CI contract tests | `cargo test -p tachi-core --test workflow_ci_gates -- --nocapture` | Workflow contracts parse YAML for events, jobs, matrices, steps, and run commands; package matrices derive from root workspace members instead of copied strings. |
@@ -217,6 +217,8 @@ The repository policy for these surfaces is:
 | AISVS publish-readiness evidence | `RT-00i.6` | Closed Phase 5 docs/release-gate evidence stays visible in the BOM and issue cards so future AISVS work opens a new tracker slice instead of reusing the closed follow-up. |
 | Docs/version sweep | `make docs-version-gate` + `make docs-archive-version-gate` | Maintained docs stay current; archived docs and examples retain only intentional historical references. |
 | Publish gate | `make publish-gate` | Remote main CI is green for `ec7277b`; local supply-chain, docs, gitleaks, nightly branch, stable coverage, and crate-level suites pass, while the aggregate local `make test` runtime remains pending before claiming the full local gate green. |
+| Local CI-parity runner | `.github/ci-test-units.json`, `schemas/ci-test-units.schema.json`, `schemas/ci-run-result.schema.json`, `scripts/ci-local-runner.sh`, `make test`, `make test-route` | Planned E2E-COV-008 capability. Must preserve all package/all-target and shell-suite units, rustup provenance, timeout/signal/cleanup semantics, secure temp roots, redaction, and deterministic aggregate exit behavior. |
+| Advisory workflow emulation | `scripts/act-smoke.sh`, `tests/fixtures/act/pull-request.json`, `make act-smoke` | Planned E2E-COV-009 capability. Opt-in only; rootless Podman Docker-API compatibility is best-effort and preflighted; no secrets, host sockets, privileged/networked execution, or hosted-CI claims. |
 | RT-CI timing evidence | `make rt-ci-latency-evidence` | Run when network and API access are available for remote PR and route-observe medians. |
 | CI gate | GitHub Actions run status | Release, security, lint, and docs workflows are green. |
 | Remote monitor | `git push origin main --follow-tags` + `gh run watch` | Post-push CI is observed to completion before the release is considered published. |
@@ -265,7 +267,7 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] Archived roadmap docs are clearly marked as historical only.
 - [ ] `make docs-version-gate` passes.
 - [ ] `git status --short --branch` has no unexpected untracked or dirty state.
-- [ ] `cargo test -q` and `make llvm-cov` are green on the release candidate branch.
+- [ ] `make test` and `make test-route` are green with machine-readable per-unit results and provenance; `make llvm-cov` is green on the release candidate branch.
 - [ ] `make scaffold-dependency-gate` is green for scaffold dependency floors.
 - [ ] `cargo clippy --all-targets -- -D warnings` is clean.
 - [ ] Public examples and fixtures are synthetic or redacted.

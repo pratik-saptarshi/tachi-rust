@@ -83,7 +83,9 @@ retired from the active dependency surface.
 
 ## 4. Rust validation
 
-- [ ] `cargo test -q` passes.
+- [ ] `make test` passes through the manifest-driven local runner, with JSON result/provenance output, per-unit timeout and cleanup evidence; `make test-route` also passes or its deterministic environment limitation is documented.
+- [ ] The local runner preserves all five package/all-target units and all three `tachi-shell` suite slices from `.github/ci-test-units.json`; `cargo test -q` is not used as the opaque publish-gate runner.
+- [ ] `make act-smoke` is opt-in and advisory only. If used, rootless Podman Docker-API preflight, image digest, empty secrets, disabled network, no host/socket mounts, resource profile, and `SKIPPED_UNAVAILABLE`/failure distinction are recorded.
 - [ ] `Cargo.toml` declares workspace `rust-version = "1.96"` and active
       crates inherit it with `rust-version.workspace = true`.
 - [ ] `rust-toolchain.toml` pins the approved release toolchain and includes
