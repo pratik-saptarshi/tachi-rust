@@ -29,7 +29,8 @@ items that still require GitHub access
 
 ## Still Pending External Verification
 
-- Repeated PR-specific timing evidence for pre-router vs post-router median PR
+- Live GitHub Actions timing evidence: repeated PR-specific timing evidence for
+  pre-router vs post-router median PR
   durations. The current mainline sample is recorded in
   `docs/tachi-rust-ci-baseline.md`; collect PR/event-filtered samples via
   `make rt-ci-latency-evidence` when representative PR runs exist.
