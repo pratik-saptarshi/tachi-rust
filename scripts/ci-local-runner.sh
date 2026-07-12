@@ -119,22 +119,22 @@ terminate_tree() {
 
 redact_log() {
     if [ -n "${CI_LOCAL_SECRET:-}" ]; then
-        CI_LOCAL_SECRET="$CI_LOCAL_SECRET" perl -0pi -e 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g' "$1"
+        CI_LOCAL_SECRET="$CI_LOCAL_SECRET" perl -0pi -e 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g' "$1" || return 1
     fi
     if command -v perl >/dev/null 2>&1; then
-        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/$1[REDACTED]/g; s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/$1[REDACTED]/gi; s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs' "$1"
+        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/$1[REDACTED]/g; s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/$1[REDACTED]/gi; s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs' "$1" || return 1
     fi
     if [ "$(wc -c < "$1")" -gt "$MAX_LOG_BYTES" ]; then
         local marker='[log truncated]'
         local marker_bytes=$(( ${#marker} + 1 ))
         if [ "$MAX_LOG_BYTES" -le "$marker_bytes" ]; then
-            head -c "$MAX_LOG_BYTES" "$1" > "$1.tmp"
+            head -c "$MAX_LOG_BYTES" "$1" > "$1.tmp" || return 1
         else
             local keep_bytes=$(( MAX_LOG_BYTES - marker_bytes ))
-            head -c "$keep_bytes" "$1" > "$1.tmp"
-            printf '\n%s' "$marker" >> "$1.tmp"
+            head -c "$keep_bytes" "$1" > "$1.tmp" || return 1
+            printf '\n%s' "$marker" >> "$1.tmp" || return 1
         fi
-        mv -- "$1.tmp" "$1"
+        mv -- "$1.tmp" "$1" || return 1
     fi
 }
 
@@ -281,7 +281,12 @@ run_unit() {
     [ -n "$status" ] || { [ "$exit_code" -eq 0 ] && status=passed || status=failed; }
     finished="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     duration=$(( $(now_ms) - start_ms ))
-    redact_log "$log_path"
+    if ! redact_log "$log_path"; then
+        printf 'ci-local-runner: failed to redact or bound log for %s\n' "$id" >&2
+        status=failed
+        exit_code=1
+        signal=null
+    fi
     rm -f -- "$exit_path" "$exit_path.tmp"
     local safe_argv_json
     safe_argv_json="$(printf '%s\n' "${argv[@]}" | while IFS= read -r arg; do sanitize_arg "$arg"; printf '\n'; done | jq -R -s 'split("\n") | map(select(length > 0))')"
