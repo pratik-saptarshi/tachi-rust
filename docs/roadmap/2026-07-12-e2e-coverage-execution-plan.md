@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Slices 1–2 complete; executing `E2E-COV-007`
+**Status**: Active execution plan; E2E-COV-007 complete; next active issue is `E2E-COV.2`
 **Baseline**: `main` / `origin/main` at `36f5eaa`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -11,15 +11,16 @@ Local `main` and `origin/main` are synchronized at `36f5eaa`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
-85.23% and stable coverage is 90.56% lines / 90.22% regions. The live
+85.15625% and stable coverage is 90.56% lines / 90.22% regions. The live
 coverage-audit run reports 114 active modules: 13 unit, 96 integration, 1
 smoke, 4 E2E, and 0 support/regression. The older 113/95 baseline remains
 historical and must not be used for new closeout claims.
 
 The remaining evidence is narrower than the product journey inventory:
 
-- the aggregate local publish gate now has terminal full-mode runner evidence,
-  but the complete uninterrupted `make publish-gate` still needs recording;
+- the complete uninterrupted `make publish-gate` now exited 0 with terminal
+  full-mode runner evidence; E2E-COV-007 is ready for Beads closure after this
+  synchronized documentation checkpoint;
 - E2E-COV-008 and RT-CI-006.2 now have repeated hosted PR timing,
   artifact-integrity, queue/run, and branch-protection evidence; historical
   failed runs remain visible rather than being removed from the sample;
@@ -42,8 +43,8 @@ divergence.
 
 | Finding | Evidence | Category | Disposition |
 |---|---|---|---|
-| F-01 | Live audit reports 114 modules / 96 integration modules while roadmap issue cards still say 113 / 95. | Correction | Must fix in the closeout synchronization pass; keep historical counts labeled. |
-| F-02 | Current governed nightly output is 85.23%; older docs and Beads notes say 85.09%. | Correction | Update only after the current run is captured; never lower the 85% threshold. |
+| F-01 | Live audit reports 114 modules / 96 integration modules while historical roadmap text said 113 / 95. | Correction | Synchronized in the E2E-COV-007 closeout pass; historical counts remain labeled. |
+| F-02 | Current governed nightly output is 85.15625%; older docs and Beads notes said 85.09%. | Correction | Synchronized from the terminal gate; the 85% threshold remains unchanged. |
 | F-03 | `E2E-COV-007` Beads notes still describe the interrupted aggregate gate. | Gap | Keep open until a terminal uninterrupted `make publish-gate` result is recorded. |
 | F-04 | `E2E-COV.2` remains open for GitHub run metadata binding and local log retention/redaction. | Security/privacy gap | Execute as a separate TDD slice after the publish-gate evidence; do not claim broad privacy closure early. |
 | F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Podman lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
@@ -59,8 +60,8 @@ silent deferral.
 
 | Order | Beads issue | Priority | Execution decision | Exit evidence |
 |---:|---|:---:|---|---|
-| 1 | `E2E-COV-007` | P2 | Close only after an uninterrupted local publish-gate run and standalone coverage evidence are proven together. | Stable line/region gate, governed nightly branch gate, security/supply-chain/privacy gates, and synchronized baseline. |
-| 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation, after E2E-COV-008. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
+| 1 | `E2E-COV.2` | P2 | Harden provenance and local artifact privacy before broad publish/privacy claims. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, and no secret persistence. |
+| 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
 | 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
 | 4 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
 | 5 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
@@ -68,12 +69,12 @@ silent deferral.
 | 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
 | 8 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
 
-`E2E-COV-007.3` is complete and intentionally omitted from the active queue;
-its terminal local-runner evidence remains documented in Slice 1 and in the
-roadmap/BOM/checklist. The remaining `E2E-COV-007` work is the uninterrupted
-aggregate publish-gate recording.
+`E2E-COV-007` and `E2E-COV-007.3` are complete and intentionally omitted from the active queue;
+their terminal local-runner and publish-gate evidence remains documented in the
+roadmap/BOM/checklist. The current remaining work is E2E-COV.2 provenance/privacy
+hardening.
 
-`E2E-COV-008` and `RT-CI-006.2` are closed in Beads. The
+`E2E-COV-008`, `RT-CI-006.2`, and `E2E-COV-007` are closed in Beads. The
 merged PR #24 evidence run `29203699709` validated all eight timing artifacts;
 the current pull-request timing collector reports workspace 22-run median 85s
 and route-observe 23-run median 14s, both with zero queue median. The latest

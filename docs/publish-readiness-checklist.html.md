@@ -14,7 +14,8 @@ retired from the active dependency surface.
 - [ ] `pre-commit run --all-files` or the equivalent `gitleaks` scan passes.
 - [ ] `make gitleaks-gate` passes and is included in `make publish-gate`; the
       local gate validates SARIF shape and propagates scanner failures.
-- [ ] `make publish-gate` passes on the release candidate branch.
+- [x] `make publish-gate` passes on the release candidate branch; the complete
+      fail-closed run on `feat/e2e-publish-gate-closeout-007` exited 0.
 - [ ] `cargo test -p tachi-shell` passes after the script executor boundary
       slice and coverage-invariant cleanup.
 - [ ] `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio`
@@ -91,7 +92,7 @@ retired from the active dependency surface.
 - [x] Local runner evidence records per-stage and aggregate build/test duration, cold/warm cache context, toolchain/host provenance, pass/fail/timeout/cancellation counts, result/log paths, and cleanup status. Terminal local-full run `20260712T173705Z-72397` passed 8/8 in 536,162 ms (compile/test 466,327 ms; test slices 68,906 ms), with zero failures/timeouts/cancellations and verified cleanup. Hosted timing-artifact validation is recorded separately below.
 - [x] Local route-equivalent evidence records 8/8 passed units with zero failure/timeout/cancellation outcomes: initial 320,184 ms, full 294,483 ms, labeled warm 304,650 ms, and controlled cold 321,636 ms (compile/test 266,987 ms; test slices 53,842 ms). Hosted comparison and repeated reliability evidence are recorded below.
 - [x] Hosted timing artifact integrity is verified for main run `29178308727`, prior PR run `29178255153`, and merged PR #24 run `29203699709`: eight artifacts per run, with commit/run/stage/unit/duration fields validated by `make verify-ci-timing-artifacts`; pull-request evidence uses the synthetic merge commit embedded in `GITHUB_SHA` artifacts.
-- [ ] Hosted timing verification independently binds artifact provenance to GitHub run metadata, and local log retention/redaction policy is contract-tested (`E2E-COV.2`). Current verification is artifact self-consistency plus run-download identity; the hardening follow-up remains open.
+- [ ] Hosted timing verification independently binds artifact provenance to GitHub run metadata, and local log retention/redaction policy is contract-tested (`E2E-COV.2`). The verifier now checks workflow, completed-success status, run ID, event, attempt, and artifact runner metadata; remaining work is stronger push/PR commit binding and complete local redaction/path/size hardening.
 - [x] Hosted CI evidence records comparable per-job elapsed timing and queue-versus-run timing where available; local and hosted measurements are clearly labeled and not treated as interchangeable. Pull-request samples report a 22-run workspace median of 85s (79–101s) and a 23-run route-observe median of 14s (11–17s), both with 0s queue median. The latest five PR #24 workspace/route runs completed successfully.
 - [x] Current mainline timing evidence is recorded: workspace 40-run median 71s and route-observe 11-run median 14s, both with 0s queue median.
 - [x] Repository branch protection is enabled and required checks are verified; `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection` returns 16 required contexts with strict up-to-date enforcement, linear history, conversation resolution, and force-push/deletion protection.
@@ -141,7 +142,7 @@ retired from the active dependency surface.
       threshold; latest local run on 2026-07-11 measured 90.56% lines / 90.22%
       regions, with the configured 85% line threshold passing.
 - [ ] The governed nightly branch command produces at least 85% branch
-      coverage. Current evidence is 85.09% (1,408 total / 210 missed) on
+      coverage. Current evidence is 85.15625% (1,408 total / 210 missed) on
       nightly 1.99.0 using explicit rustup-resolved compiler and LLVM tools.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.

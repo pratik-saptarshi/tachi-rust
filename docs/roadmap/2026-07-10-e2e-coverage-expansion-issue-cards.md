@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: live Beads hierarchy; overseer remediation integrated; E2E-COV-007.1 branch target met, E2E-COV-007.3 terminal local runner evidence complete, aggregate publish-gate closeout pending
+**Status**: live Beads hierarchy; overseer remediation integrated; E2E-COV-007 publish-gate closeout complete, E2E-COV.2 and advisory/agentic follow-ups open
 
 ## Epic
 
@@ -19,7 +19,7 @@
 
 The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces.
 
-The canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **113 active modules** — 13 unit, 95 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. Older 109/110/112-module references are historical and must not be copied into new acceptance criteria.
+The canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **114 active modules** — 13 unit, 96 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. Older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
 
 | Capability | User-facing function | Current boundary | Required evidence | Feature |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Every new or reopened card must include:
 - **Dependencies**: none
 - **Acceptance**:
   - journey matrix and boundary ownership are recorded;
-  - current dated 113-module / four-E2E baseline is captured from the coverage-audit binary;
+  - current dated 114-module / four-E2E baseline is captured from the coverage-audit binary;
   - semantic coverage-audit tests distinguish module inventory from test-suite count;
   - deterministic fixture and privacy rules are documented.
 - **Validation**: `cargo test -p tachi-core --test coverage_audit --test coverage_catalog --test reporting_goldens`; `cargo run -q -p tachi-cli --bin coverage-audit`.
@@ -197,7 +197,7 @@ Every new or reopened card must include:
   - stable line/region thresholds remain unchanged and green;
   - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
-- **Current evidence after uplift slice 24**: 85.09% branch coverage, 1,408 total branches / 210 missed, measured with explicit nightly `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` paths. Slice 24 adds deterministic CLI help/error and artifact-write cases, desktop headless/schema/offline cases, MCP stdio blank-line/startup cases, shell-bridge cancellation and artifact failure edges, and a fail-closed local gitleaks publish target. Stable line/region gates remain 90.56% / 90.22%.
+- **Current evidence after uplift slice 24**: 85.15625% branch coverage, 1,408 total branches / 210 missed, measured with explicit nightly `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` paths. Slice 24 adds deterministic CLI help/error and artifact-write cases, desktop headless/schema/offline cases, MCP stdio blank-line/startup cases, shell-bridge cancellation and artifact failure edges, and a fail-closed local gitleaks publish target. Stable line/region gates remain 90.56% / 90.22%.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
 
 ### E2E-COV-007.3 — Resolve aggregate local publish-gate test runtime boundary

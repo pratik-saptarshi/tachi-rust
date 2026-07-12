@@ -65,6 +65,7 @@ fn run_runner(
     fake_bin: &Path,
     output: &Path,
     secret: Option<&str>,
+    retention: Option<&str>,
 ) -> std::process::Output {
     let path = format!(
         "{}{}{}",
@@ -87,6 +88,9 @@ fn run_runner(
         .env("PATH", path);
     if let Some(secret) = secret {
         command.env("CI_LOCAL_SECRET", secret);
+    }
+    if let Some(retention) = retention {
+        command.env("CI_LOCAL_RETENTION", retention);
     }
     command.output().expect("run local CI runner")
 }
@@ -114,7 +118,13 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "--version"], 5);
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, Some("local-secret"));
+    let run = run_runner(
+        &manifest_path,
+        &fake_bin,
+        &output,
+        Some("local-secret"),
+        Some("retain"),
+    );
     assert!(run.status.success(), "runner failed: {:?}", run);
     assert_eq!(
         fs::read_to_string(args_file).expect("argv capture"),
@@ -154,7 +164,7 @@ fn runner_records_timeout_and_kills_descendant_processes() {
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "hang"], 1);
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, None);
+    let run = run_runner(&manifest_path, &fake_bin, &output, None, Some("retain"));
     assert!(!run.status.success(), "timeout must fail aggregate run");
     let result = result_json(&output);
     assert_eq!(result["timed_out"], 1);
@@ -166,6 +176,25 @@ fn runner_records_timeout_and_kills_descendant_processes() {
     assert!(
         fs::metadata(pid_file).is_ok(),
         "fake cargo did not start a child"
+    );
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn runner_default_retention_removes_run_directory_after_success() {
+    let root = temp_dir("tachi-ci-runner-ephemeral");
+    let fake_bin = root.join("bin");
+    fs::create_dir(&fake_bin).expect("fake bin");
+    executable(&fake_bin.join("cargo"), "#!/bin/sh\nexit 0\n");
+    let manifest_path = root.join("manifest.json");
+    manifest(&manifest_path, &["cargo", "--version"], 5);
+    let output = root.join("output");
+    let run = run_runner(&manifest_path, &fake_bin, &output, None, None);
+    assert!(run.status.success(), "runner failed: {:?}", run);
+    let entries = fs::read_dir(output).expect("read output").count();
+    assert_eq!(
+        entries, 0,
+        "default retention must remove the run directory"
     );
     fs::remove_dir_all(root).expect("cleanup");
 }

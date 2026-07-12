@@ -486,6 +486,14 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         "expected_artifacts:8",
         ".commit == $commit",
         "[ \"$COMMIT\" = \"auto\" ]",
+        "gh run view",
+        "workflowName",
+        "conclusion",
+        "completed",
+        "attempt",
+        "workflow_name",
+        "source_head_sha",
+        "GITHUB_REF",
     ] {
         assert!(
             timing_script_text.contains(required),
@@ -496,6 +504,19 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         makefile.contains("verify-ci-timing-artifacts:"),
         "Makefile must expose hosted timing artifact verification"
     );
+    let runner_text = fs::read_to_string(repo_root().join("scripts/ci-local-runner.sh"))
+        .expect("read local runner");
+    for required in [
+        "CI_LOCAL_RETENTION",
+        "ephemeral",
+        "retain",
+        "rm -rf -- \"$RUN_DIR\"",
+    ] {
+        assert!(
+            runner_text.contains(required),
+            "local runner must define retention contract: {required}"
+        );
+    }
 }
 
 #[test]
