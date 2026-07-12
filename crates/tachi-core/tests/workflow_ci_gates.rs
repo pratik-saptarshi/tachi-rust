@@ -65,9 +65,15 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
         .collect();
     assert_eq!(
         packages,
-        ["tachi-core", "tachi-cli", "tachi-desktop", "tachi-mcp", "tachi-shell"]
-            .into_iter()
-            .collect(),
+        [
+            "tachi-core",
+            "tachi-cli",
+            "tachi-desktop",
+            "tachi-mcp",
+            "tachi-shell"
+        ]
+        .into_iter()
+        .collect(),
         "manifest package units must match the hosted workspace matrix"
     );
 
@@ -102,7 +108,10 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
         "schemas/ci-run-result.schema.json",
     ] {
         let path = repo_root().join(schema);
-        assert!(path.is_file(), "planned CI contract artifact is missing: {schema}");
+        assert!(
+            path.is_file(),
+            "planned CI contract artifact is missing: {schema}"
+        );
         let text = fs::read_to_string(path).expect("read CI contract artifact");
         serde_json::from_str::<serde_json::Value>(&text)
             .unwrap_or_else(|err| panic!("{schema} must be valid JSON: {err}"));
@@ -138,7 +147,13 @@ fn local_runner_contract_is_argv_only_and_has_bounded_execution_controls() {
         );
     }
     assert!(
-        runner_path.metadata().expect("runner metadata").permissions().mode() & 0o111 != 0,
+        runner_path
+            .metadata()
+            .expect("runner metadata")
+            .permissions()
+            .mode()
+            & 0o111
+            != 0,
         "local runner must be executable"
     );
 }
