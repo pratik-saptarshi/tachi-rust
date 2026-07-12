@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tachi.example/schemas/ci-test-units.schema.json",
+  "title": "Tachi local CI test units",
+  "type": "object",
+  "required": ["$schema", "version", "source_workflow", "toolchain", "modes", "units"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "version": {"const": 1},
+    "source_workflow": {"const": ".github/workflows/rust-workspace.yml"},
+    "toolchain": {"type": "string", "minLength": 1},
+    "modes": {
+      "type": "object",
+      "required": ["local-full", "local-route-equivalent"],
+      "additionalProperties": {"type": "string"}
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/unit"}
+    }
+  },
+  "$defs": {
+    "unit": {
+      "type": "object",
+      "required": ["id", "kind", "stage", "argv", "modes", "timeout_seconds"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
+        "kind": {"enum": ["package", "shell"]},
+        "stage": {"enum": ["compile-and-test", "test-slice"]},
+        "package": {"type": "string"},
+        "suite": {"type": "string"},
+        "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "modes": {"type": "array", "minItems": 1, "items": {"enum": ["local-full", "local-route-equivalent"]}},
+        "timeout_seconds": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

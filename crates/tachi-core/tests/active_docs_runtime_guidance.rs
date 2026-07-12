@@ -347,8 +347,8 @@ fn active_makefile_test_target_uses_rust_test_invocation() {
 
     let makefile = read_lines(&root.join("Makefile"), 33, 42);
     assert!(
-        makefile.contains("cargo test -q"),
-        "Makefile test target should show a Rust test invocation"
+        makefile.contains("./scripts/ci-local-runner.sh --mode local-full"),
+        "Makefile test target should show the canonical local CI runner"
     );
     assert!(
         !makefile.contains("pytest tests/scripts/"),

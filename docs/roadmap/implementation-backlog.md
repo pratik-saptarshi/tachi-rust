@@ -80,7 +80,7 @@
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
 - Epic: `E2E-COV` Rust-native end-to-end coverage expansion
 - Planned wave: baseline contract → parallel CLI/Desktop/MCP boundary slices → lifecycle and resilience composition → branch/line/region publish evidence.
-- Current evidence after `E2E-COV-007.1` slice 24: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), 113 active modules, with lifecycle and cross-boundary failure/cancellation evidence; 90.56% lines / 90.22% regions. Nightly 1.99.0 records 85.09% branch coverage (1,408 total / 210 missed), meeting the requested target; E2E-COV-007.1 is ready for tracker closeout after publish/security evidence is synchronized.
+- Current evidence after `E2E-COV-007.1` slice 24: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), 113 active modules (13 unit, 95 integration, 1 smoke, 4 E2E), with success journeys present but the complete failure/cancellation matrix and local CI-parity runner still open; 90.56% lines / 90.22% regions. Nightly 1.99.0 records 85.09% branch coverage (1,408 total / 210 missed), meeting the requested target.
 
 ## Rust Toolchain Modernization Track
 
@@ -135,9 +135,10 @@
 
 ## Local Branch Reconciliation
 
-- `main` is 34 commits ahead of the cached `origin/main` ref in the current
-  workspace. A live `git ls-remote` check is blocked by DNS resolution for
-  GitHub, so publish and GitHub Actions status remain unverified.
+- `main` equals `origin/main` in the current workspace at the last local
+  reconciliation. This backlog section is a dated snapshot and must be
+  refreshed before any publish claim; current plan edits are intentionally
+  uncommitted.
 - One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on `main`.
 - `feat/tauri-minimal-features` is a stale pre-main desktop branch. Its
   portable temp-root test changes and GTK-free desktop host work are already

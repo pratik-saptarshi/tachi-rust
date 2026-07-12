@@ -75,11 +75,11 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 | Level | Current Rust-Native Surface |
 |---|---|
-| Unit | Rust unit tests; current audit shows 2 Rust unit modules and 0 remaining Python unit modules. |
+| Unit | Rust unit tests; current audit shows 13 Rust unit modules and 0 remaining Python unit modules. |
 | Integration | Rust integration tests under `crates/*/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, retired-adapter guard tests, the typed control-plane boundary audit, the RT-CI trigger/permission contract audit, the route-policy manifest contract audit, and the route-fixture manifest contract audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init, CLI analysis-to-artifact, desktop host command, MCP stdio, composed init/install/update/analysis lifecycle, and cross-boundary failure/cancellation flows are explicitly classified or exercised by `crates/tachi-core/tests/coverage_audit.rs` and the Rust E2E suites; E2E-COV-007 branch evidence is governed by the pinned nightly lane and publish gate. |
-| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane now records 85.09% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007.1 meets its branch target and remote CI is green, while local aggregate publish-gate test runtime remains unresolved. The current audit has 113 active modules, 95 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
+| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane now records 85.09% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007.1 meets its branch target and remote CI is green, while local aggregate publish-gate test runtime remains unresolved. The canonical dated audit baseline is 113 active modules, 95 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
 
 The publish gate now includes `make scaffold-dependency-gate`, which runs the
 Rust-native `scaffold_dependency_floors` integration test against the real
@@ -94,13 +94,30 @@ Primary validation commands:
 ```bash
 cargo fmt --check
 git diff --check
-cargo test -q
+make test
+make test-route
 cargo test --workspace --all-targets
 cargo test -p tachi-desktop --all-targets
 cargo clippy --all-targets -- -D warnings
 make llvm-cov
 cargo run -q -p tachi-cli --bin coverage-audit
 ```
+
+E2E-COV-008 now provides `.github/ci-test-units.json` as the shared local/CI
+manifest and `scripts/ci-local-runner.sh` as the observable local test
+entrypoint. The runner emits stage-aware per-unit and aggregate timing,
+toolchain provenance, exit/timeout/cancellation state, and cleanup evidence;
+the first route-equivalent functional run passed all 8 units in 320,184 ms,
+the subsequent full run passed all 8 in 294,483 ms, and a labeled warm route
+run passed all 8 in 304,650 ms. A controlled cold sample and the hosted
+comparison remain publish-closeout gates. Hosted workspace run `29175545285`
+passed all eight timing-artifact units and the workflow fan-out in about 79
+seconds, with job durations from 37 to 67 seconds. The hosted
+workspace workflow emits matching package/shell timing artifacts so local
+build/test performance can be compared with GitHub job execution without
+claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
+opt-in `act` smoke lane using preflighted rootless Podman Docker-API
+compatibility; it remains advisory and does not replace hosted CI.
 
 ## Migration Map
 

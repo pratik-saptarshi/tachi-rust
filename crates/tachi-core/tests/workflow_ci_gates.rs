@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
 // Contract inventory:
@@ -23,6 +24,165 @@ fn workflow_text(name: &str) -> String {
 
 fn parse_workflow(name: &str, text: &str) -> serde_yaml::Value {
     serde_yaml::from_str(text).unwrap_or_else(|err| panic!("parse workflow {name}: {err}"))
+}
+
+#[test]
+fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
+    let manifest_text = fs::read_to_string(repo_root().join(".github/ci-test-units.json"))
+        .expect("read canonical local CI manifest");
+    let manifest: serde_json::Value =
+        serde_json::from_str(&manifest_text).expect("manifest must be valid JSON");
+    let units = manifest
+        .get("units")
+        .and_then(serde_json::Value::as_array)
+        .expect("manifest must contain a units array");
+
+    let ids: BTreeSet<&str> = units
+        .iter()
+        .map(|unit| {
+            unit.get("id")
+                .and_then(serde_json::Value::as_str)
+                .expect("each CI unit needs an id")
+        })
+        .collect();
+    assert_eq!(ids.len(), units.len(), "CI unit ids must be unique");
+    assert!(
+        units.iter().all(|unit| matches!(
+            unit.get("stage").and_then(serde_json::Value::as_str),
+            Some("compile-and-test") | Some("test-slice")
+        )),
+        "every CI unit must declare a measurable execution stage"
+    );
+
+    let packages: BTreeSet<&str> = units
+        .iter()
+        .filter(|unit| unit.get("kind").and_then(serde_json::Value::as_str) == Some("package"))
+        .map(|unit| {
+            unit.get("package")
+                .and_then(serde_json::Value::as_str)
+                .expect("package units need a package")
+        })
+        .collect();
+    assert_eq!(
+        packages,
+        [
+            "tachi-core",
+            "tachi-cli",
+            "tachi-desktop",
+            "tachi-mcp",
+            "tachi-shell"
+        ]
+        .into_iter()
+        .collect(),
+        "manifest package units must match the hosted workspace matrix"
+    );
+
+    let shell_commands: BTreeSet<String> = units
+        .iter()
+        .filter(|unit| unit.get("kind").and_then(serde_json::Value::as_str) == Some("shell"))
+        .map(|unit| {
+            unit.get("argv")
+                .and_then(serde_json::Value::as_array)
+                .expect("shell units need argv")
+                .iter()
+                .map(|arg| arg.as_str().expect("argv entries must be strings"))
+                .collect::<Vec<_>>()
+                .join(" ")
+                .to_owned()
+        })
+        .collect();
+    for command in [
+        "cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane",
+        "cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary",
+        "cargo test -p tachi-shell --test tauri_bridge --test template_config_load --test template_git_clone_timeout",
+    ] {
+        assert!(
+            shell_commands.contains(command),
+            "manifest must preserve hosted shell slice: {command}"
+        );
+    }
+
+    for schema in [
+        ".github/ci-test-units.json",
+        "schemas/ci-test-units.schema.json",
+        "schemas/ci-run-result.schema.json",
+    ] {
+        let path = repo_root().join(schema);
+        assert!(
+            path.is_file(),
+            "planned CI contract artifact is missing: {schema}"
+        );
+        let text = fs::read_to_string(path).expect("read CI contract artifact");
+        serde_json::from_str::<serde_json::Value>(&text)
+            .unwrap_or_else(|err| panic!("{schema} must be valid JSON: {err}"));
+    }
+}
+
+#[test]
+fn local_runner_contract_is_argv_only_and_has_bounded_execution_controls() {
+    let runner_path = repo_root().join("scripts/ci-local-runner.sh");
+    let runner = fs::read_to_string(&runner_path).expect("read local CI runner");
+
+    for forbidden in ["eval ", "sh -c", "bash -c", "sudo ", "docker.sock"] {
+        assert!(
+            !runner.contains(forbidden),
+            "local runner must not contain unsafe execution primitive: {forbidden}"
+        );
+    }
+    for required in [
+        "local-full",
+        "local-route-equivalent",
+        "timeout",
+        "0700",
+        "rustup",
+        "redact",
+        "SIGTERM",
+        "SIGINT",
+        "cleanup",
+        "ci-run-result.schema.json",
+    ] {
+        assert!(
+            runner.contains(required),
+            "local runner must document or implement {required}"
+        );
+    }
+    assert!(
+        runner_path
+            .metadata()
+            .expect("runner metadata")
+            .permissions()
+            .mode()
+            & 0o111
+            != 0,
+        "local runner must be executable"
+    );
+}
+
+#[test]
+fn make_targets_use_the_canonical_runner_and_keep_publish_gate_hosted_only() {
+    let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    assert!(
+        makefile.contains("test: ## Run the canonical local-full CI unit runner")
+            && makefile.contains("./scripts/ci-local-runner.sh --mode local-full"),
+        "make test must invoke the canonical local-full runner"
+    );
+    assert!(
+        makefile.contains("test-route: ## Run the route-equivalent CI unit runner")
+            && makefile.contains("./scripts/ci-local-runner.sh --mode local-route-equivalent"),
+        "make test-route must invoke the route-equivalent runner"
+    );
+    let publish_gate = makefile
+        .split_once("publish-gate:")
+        .expect("publish gate target")
+        .1;
+    assert!(
+        publish_gate.contains("@$(MAKE) test"),
+        "publish gate must retain the canonical local runner"
+    );
+    assert!(
+        !publish_gate.contains("act") && !publish_gate.contains("podman"),
+        "publish gate must not depend on advisory workflow emulation"
+    );
 }
 
 #[test]
@@ -139,6 +299,20 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "cargo-test",
         "sudo apt-get install -y ripgrep pkg-config",
     );
+    for required in [
+        "Capture package timing artifact",
+        "Upload package timing artifact",
+        "ci-timing-package-${{ matrix.package }}",
+        "Capture shell timing artifact",
+        "Upload shell timing artifact",
+        "ci-timing-shell-${{ matrix.suite }}",
+        "duration_ms",
+    ] {
+        assert!(
+            text.contains(required),
+            "rust-workspace workflow must emit stage timing evidence: {required}"
+        );
+    }
 }
 
 #[test]

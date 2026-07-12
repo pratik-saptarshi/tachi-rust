@@ -2,7 +2,7 @@
 
 **Last Updated**: {{CURRENT_DATE}}
 **Owner**: Architect + Team Lead
-**Status**: Template
+**Status**: Repository-specific guidance; E2E-COV-008 through E2E-COV-010 define the active runner and test-governance plan.
 
 ---
 
@@ -14,6 +14,7 @@ This document provides guidance on testing strategy for {{PROJECT_NAME}}. It doe
 
 - Run `make coverage-audit` to classify the current test surface with the Rust-backed audit binary.
 - The audit now includes Rust-native test modules under `crates/*/tests` alongside the archived compatibility fixtures still present in the tree.
+- Run `make test` for the manifest-driven, observable local-full runner and `make test-route` for the route-equivalent surface; these replace opaque `cargo test -q` guidance.
 - Run `make llvm-cov` to generate the workspace coverage report with LLVM tools resolved from the active toolchain.
 - See `coverage-summary.md` for the current counts, category meanings, and smoke-vs-e2e boundary.
 - See `2026-06-04-rust-native-coverage-audit.md` for the Rust-native migration target and current workspace skeleton baseline.
@@ -195,7 +196,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - run: cargo test -q
+      - run: make test
       - run: make llvm-cov
 ```
 
@@ -203,7 +204,12 @@ jobs:
 
 - **Minimum Coverage**: 80%
 - **No Failing Tests**: All tests must pass
-- **Performance**: Test suite completes in <5 minutes
+- **Performance and reliability**: The local runner records per-stage and per-unit timing, aggregate wall time, cold/warm cache context, toolchain/host provenance, exit/timeout/cancellation counts, artifact integrity, and cleanup. Hosted workflows record comparable job summaries and queue/run medians where available. Do not impose a generic <5-minute promise on subprocess-heavy Rust E2E suites; compare repeated observations and open a tracked regression when a stage degrades. Podman/act cold and warm baselines are measured separately and remain advisory.
+- **Runner safety behavior**: `crates/tachi-core/tests/ci_local_runner_contract.rs` executes fake cargo binaries to prove direct argv forwarding, secret/token redaction, timeout status, and descendant cleanup. These tests must remain deterministic and offline.
+
+### TDD and test-level promotion
+
+Each implementation issue must show RED → GREEN → REFACTOR evidence. Required layers are unit (manifest/provenance/policy helpers), integration (workflow/manifest and subprocess contracts), functional (real five-package runner), E2E (CLI/Desktop/MCP/lifecycle/failure journeys), and agentic (scripted fake model/tool replay only; no live model or network calls). Every failure case asserts timeout/signal status, process-tree cleanup, artifact-tree policy, redacted diagnostics, and a machine-readable result. `act` is an opt-in workflow smoke aid, not a replacement for Rust tests or GitHub CI.
 
 ---
 

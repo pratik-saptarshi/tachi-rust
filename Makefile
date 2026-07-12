@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -35,8 +35,11 @@ review-plan: ## Review plan.md with PM + Architect
 	@echo "Use product-manager + architect agents or /aod.plan for auto-review"
 
 # Rust test suite
-test: ## Run the Rust test suite
-	@cargo test -q
+test: ## Run the canonical local-full CI unit runner
+	@./scripts/ci-local-runner.sh --mode local-full
+
+test-route: ## Run the route-equivalent CI unit runner
+	@./scripts/ci-local-runner.sh --mode local-route-equivalent
 
 coverage-audit: ## Report the repository test surface by category
 	@./scripts/coverage-audit.sh --root .

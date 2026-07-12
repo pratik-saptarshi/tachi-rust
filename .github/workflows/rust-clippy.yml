@@ -62,10 +62,12 @@ jobs:
           FORMATTER_STATUS=${PIPE_STATUSES[3]}
           jq -e '.version == "2.1.0" and (.runs | type == "array")' rust-clippy-results.sarif
           SARIF_STATUS=$?
-          echo "CLIPPY_STATUS=${CLIPPY_STATUS}" >> "$GITHUB_ENV"
-          echo "CONVERTER_STATUS=${CONVERTER_STATUS}" >> "$GITHUB_ENV"
-          echo "FORMATTER_STATUS=${FORMATTER_STATUS}" >> "$GITHUB_ENV"
-          echo "SARIF_STATUS=${SARIF_STATUS}" >> "$GITHUB_ENV"
+          {
+            echo "CLIPPY_STATUS=${CLIPPY_STATUS}"
+            echo "CONVERTER_STATUS=${CONVERTER_STATUS}"
+            echo "FORMATTER_STATUS=${FORMATTER_STATUS}"
+            echo "SARIF_STATUS=${SARIF_STATUS}"
+          } >> "$GITHUB_ENV"
           end_ns="$(date +%s%N)"
           elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
           {
