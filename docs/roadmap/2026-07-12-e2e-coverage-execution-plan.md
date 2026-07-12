@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Slice 1 (`E2E-COV-007.3`) complete
+**Status**: Active execution plan; Slice 1 (`E2E-COV-007.3`) complete; Slice 2 (`E2E-COV-008`) next
 **Baseline**: `main` / `origin/main` at `298618c`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -30,17 +30,21 @@ The remaining evidence is narrower than the product journey inventory:
 
 | Order | Beads issue | Priority | Execution decision | Exit evidence |
 |---:|---|:---:|---|---|
-| 1 | `E2E-COV-007.3` | P1 | Execute first. Diagnose the local aggregate boundary and make the runner contract the canonical local path without weakening gates. | Terminal `make publish-gate`, or a deterministic documented workaround with contract tests and preserved breadth. |
-| 2 | `E2E-COV-008` | P1 | Reconcile runner, hosted artifact, timing, queue, cache, reliability, and cleanup evidence. | 8/8 local units across labeled cache states, hosted artifact verification, repeated timing sample, and synchronized docs/tracker. |
-| 3 | `RT-CI-006.2` | P2 | Keep open while PR timing sample remains below the acceptance target. | Representative PR samples, separated queue/run medians, variance, and no unexplained reliability regression. |
-| 4 | `E2E-COV-007` | P2 | Close only after local publish-gate and coverage evidence are proven together. | Stable line/region gate, governed nightly branch gate, security/supply-chain/privacy gates, and synchronized baseline. |
-| 5 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
-| 6 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
-| 7 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
-| 8 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
-| 9 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
-| 10 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
-| 11 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
+| 1 | `E2E-COV-008` | P1 | Reconcile runner, hosted artifact, timing, queue, cache, reliability, and cleanup evidence. | 8/8 local units across labeled cache states, hosted artifact verification, repeated PR timing sample, and synchronized docs/tracker. |
+| 2 | `RT-CI-006.2` | P2 | Keep open while representative PR timing samples remain below the acceptance target. | Representative PR samples, separated queue/run medians, variance, and no unexplained reliability regression. |
+| 3 | `E2E-COV-007` | P2 | Close only after an uninterrupted local publish-gate run and standalone coverage evidence are proven together. | Stable line/region gate, governed nightly branch gate, security/supply-chain/privacy gates, and synchronized baseline. |
+| 4 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation, after E2E-COV-008. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
+| 5 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
+| 6 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
+| 7 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
+| 8 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
+| 9 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
+| 10 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
+
+`E2E-COV-007.3` is complete and intentionally omitted from the active queue;
+its terminal local-runner evidence remains documented in Slice 1 and in the
+roadmap/BOM/checklist. The remaining `E2E-COV-007` work is the uninterrupted
+aggregate publish-gate recording.
 
 ## Slice 1: aggregate local publish-gate boundary — complete
 
