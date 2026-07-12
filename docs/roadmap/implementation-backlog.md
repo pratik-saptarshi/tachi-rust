@@ -84,7 +84,7 @@
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
 - Epic: `E2E-COV` Rust-native end-to-end coverage expansion
 - Planned wave: baseline contract → parallel CLI/Desktop/MCP boundary slices → lifecycle and resilience composition → branch/line/region publish evidence.
-- Current evidence after `E2E-COV-007.1` slice 24: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), 113 active modules (13 unit, 95 integration, 1 smoke, 4 E2E), with success journeys present but the complete failure/cancellation matrix and local CI-parity runner still open; 90.56% lines / 90.22% regions. Nightly 1.99.0 records 85.09% branch coverage (1,408 total / 210 missed), meeting the requested target.
+- Current evidence after `E2E-COV-007` closeout: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), 114 active modules (13 unit, 96 integration, 1 smoke, 4 E2E), with success journeys present and the complete local publish gate green; 90.56% lines / 90.22% regions. Nightly 1.99.0 records 85.15625% branch coverage (1,408 total / 210 missed), meeting the requested target.
 
 ## Rust Toolchain Modernization Track
 
@@ -130,8 +130,8 @@
 
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready` currently returns the open `RT-CI` umbrella, E2E-COV umbrella,
-  `E2E-COV-007`, `E2E-COV-009*`, and security follow-up `E2E-COV.2`.
+- `bd ready --json` currently returns the open `RT-CI` umbrella, E2E-COV umbrella,
+  security follow-up `E2E-COV.2`, and `E2E-COV-009*`; `E2E-COV-007` is closed.
 - `bd list --json` includes the deferred follow-ups `AQ-054.4`, `AQ-054.5`,
   and `AQ-054.6`, plus the open `RT-CI` hierarchy.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and

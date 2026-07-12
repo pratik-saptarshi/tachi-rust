@@ -65,6 +65,8 @@ fn run_runner(
     fake_bin: &Path,
     output: &Path,
     secret: Option<&str>,
+    retention: Option<&str>,
+    max_log_bytes: Option<&str>,
 ) -> std::process::Output {
     let path = format!(
         "{}{}{}",
@@ -88,6 +90,12 @@ fn run_runner(
     if let Some(secret) = secret {
         command.env("CI_LOCAL_SECRET", secret);
     }
+    if let Some(retention) = retention {
+        command.env("CI_LOCAL_RETENTION", retention);
+    }
+    if let Some(max_log_bytes) = max_log_bytes {
+        command.env("CI_LOCAL_MAX_LOG_BYTES", max_log_bytes);
+    }
     command.output().expect("run local CI runner")
 }
 
@@ -107,14 +115,22 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
     let fake_bin = root.join("bin");
     fs::create_dir(&fake_bin).expect("fake bin");
     let args_file = root.join("args");
+    let pem_begin = format!("{}{}", "-----BEGIN ", "PRIVATE KEY-----");
     executable(
         &fake_bin.join("cargo"),
-        &format!("#!/bin/sh\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' 'local-secret ghp_example-token'\n", args_file.display()),
+        &format!("#!/bin/sh\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' 'local-secret ghp_example-token'\nprintf '%s\\n' '{} secret-without-end-marker'\n", args_file.display(), pem_begin),
     );
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "--version"], 5);
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, Some("local-secret"));
+    let run = run_runner(
+        &manifest_path,
+        &fake_bin,
+        &output,
+        Some("local-secret"),
+        Some("retain"),
+        None,
+    );
     assert!(run.status.success(), "runner failed: {:?}", run);
     assert_eq!(
         fs::read_to_string(args_file).expect("argv capture"),
@@ -132,6 +148,7 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
     let log = fs::read_to_string(run_dir.join("fake-cargo-unit.log")).expect("log");
     assert!(!log.contains("local-secret"));
     assert!(!log.contains("ghp_example-token"));
+    assert!(!log.contains("BEGIN PRIVATE KEY"));
     assert!(log.contains("[REDACTED]"));
     fs::remove_dir_all(root).expect("cleanup");
 }
@@ -154,7 +171,14 @@ fn runner_records_timeout_and_kills_descendant_processes() {
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "hang"], 1);
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, None);
+    let run = run_runner(
+        &manifest_path,
+        &fake_bin,
+        &output,
+        None,
+        Some("retain"),
+        None,
+    );
     assert!(!run.status.success(), "timeout must fail aggregate run");
     let result = result_json(&output);
     assert_eq!(result["timed_out"], 1);
@@ -167,5 +191,108 @@ fn runner_records_timeout_and_kills_descendant_processes() {
         fs::metadata(pid_file).is_ok(),
         "fake cargo did not start a child"
     );
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn runner_default_retention_removes_run_directory_after_success() {
+    let root = temp_dir("tachi-ci-runner-ephemeral");
+    let fake_bin = root.join("bin");
+    fs::create_dir(&fake_bin).expect("fake bin");
+    executable(&fake_bin.join("cargo"), "#!/bin/sh\nexit 0\n");
+    let manifest_path = root.join("manifest.json");
+    manifest(&manifest_path, &["cargo", "--version"], 5);
+    let output = root.join("output");
+    let run = run_runner(&manifest_path, &fake_bin, &output, None, None, None);
+    assert!(run.status.success(), "runner failed: {:?}", run);
+    let run_directories = fs::read_dir(&output)
+        .expect("read output")
+        .map(|entry| entry.expect("output entry").path())
+        .filter(|path| path.is_dir())
+        .count();
+    assert_eq!(
+        run_directories, 0,
+        "default retention must remove the run directory"
+    );
+    let receipts = fs::read_dir(&output)
+        .expect("read cleanup receipts")
+        .map(|entry| entry.expect("receipt entry").path())
+        .filter(|path| path.extension().and_then(|ext| ext.to_str()) == Some("json"))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        receipts.len(),
+        1,
+        "ephemeral cleanup must leave one receipt; stderr={:?}",
+        run.stderr
+    );
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&fs::read(&receipts[0]).expect("read receipt"))
+            .expect("receipt JSON");
+    assert_eq!(receipt["verified"], true);
+    assert_eq!(receipt["retention"], "ephemeral");
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
+    let root = temp_dir("tachi-ci-runner-privacy");
+    let fake_bin = root.join("bin");
+    fs::create_dir(&fake_bin).expect("fake bin");
+    let pem_begin = format!("{}{}", "-----BEGIN ", "PRIVATE KEY-----");
+    executable(
+        &fake_bin.join("cargo"),
+        &format!("#!/bin/sh\nprintf '%s' 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA supersecretvalue AWS_SECRET_ACCESS_KEY=secret Authorization: Basic YWJj {} hidden -----END PRIVATE KEY-----'\nhead -c 1100000 /dev/zero | tr '\\0' A\n", pem_begin),
+    );
+    let manifest_path = root.join("manifest.json");
+    manifest(
+        &manifest_path,
+        &[
+            "cargo",
+            root.to_str().expect("root path"),
+            "Bearer secret-token",
+            "AWS_SECRET_ACCESS_KEY=argv-secret",
+            "AZURE_CLIENT_SECRET=azure-secret",
+        ],
+        5,
+    );
+    let output = root.join("output");
+    let run = run_runner(
+        &manifest_path,
+        &fake_bin,
+        &output,
+        Some("supersecretvalue"),
+        Some("retain"),
+        Some("64"),
+    );
+    assert!(run.status.success(), "runner failed: {:?}", run);
+    let result = result_json(&output);
+    assert_eq!(result["results"][0]["cleanup"]["verified"], false);
+    assert_eq!(result["cleanup"]["retention"], "retain");
+    assert_eq!(result["results"][0]["log_path"], "fake-cargo-unit.log");
+    assert!(result["results"][0]["argv"][1]
+        .as_str()
+        .expect("sanitized argv")
+        .starts_with("<path>/tachi-ci-runner-privacy-"));
+    assert_eq!(result["results"][0]["argv"][2], "[REDACTED]");
+    assert_eq!(
+        result["results"][0]["argv"][3],
+        "AWS_SECRET_ACCESS_KEY=[REDACTED]"
+    );
+    assert_eq!(
+        result["results"][0]["argv"][4],
+        "AZURE_CLIENT_SECRET=[REDACTED]"
+    );
+    let run_dir = fs::read_dir(&output)
+        .expect("read output")
+        .map(|entry| entry.expect("entry").path())
+        .find(|path| path.is_dir())
+        .expect("run dir");
+    let log = fs::read_to_string(run_dir.join("fake-cargo-unit.log")).expect("log");
+    assert!(log.contains("[REDACTED]"));
+    assert!(!log.contains("secret"));
+    assert!(!log.contains("super"));
+    assert!(!log.contains("YWJj"));
+    assert!(!log.contains("hidden"));
+    assert!(log.len() <= 64, "log must be bounded");
     fs::remove_dir_all(root).expect("cleanup");
 }
