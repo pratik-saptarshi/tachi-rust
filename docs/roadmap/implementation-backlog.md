@@ -130,7 +130,7 @@
 
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready` currently returns the open `RT-CI` umbrella, E2E-COV umbrella,
+- `bd ready --json` currently returns the open `RT-CI` umbrella, E2E-COV umbrella,
   `E2E-COV-007`, `E2E-COV-009*`, and security follow-up `E2E-COV.2`.
 - `bd list --json` includes the deferred follow-ups `AQ-054.4`, `AQ-054.5`,
   and `AQ-054.6`, plus the open `RT-CI` hierarchy.
@@ -139,7 +139,7 @@
 
 ## Local Branch Reconciliation
 
-- `main` equals `origin/main` at `b70e0f4` in the current workspace. This
+- `main` equals `origin/main` at `36f5eaa` in the current workspace. This
   backlog section is a dated snapshot and must be refreshed before any publish
   claim; PR #25 carries the latest timing-closeout corrections.
 - One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on
