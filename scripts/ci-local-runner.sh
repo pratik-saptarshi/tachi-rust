@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Manifest-driven local CI runner. Commands are always executed as argv arrays.
 set -u
+set -m
 
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)"
-MANIFEST="$ROOT_DIR/.github/ci-test-units.json"
-RESULT_SCHEMA="$ROOT_DIR/schemas/ci-run-result.schema.json"
+MANIFEST="${CI_LOCAL_MANIFEST:-$ROOT_DIR/.github/ci-test-units.json}"
+RESULT_SCHEMA="${CI_LOCAL_RESULT_SCHEMA:-$ROOT_DIR/schemas/ci-run-result.schema.json}"
 MODE="local-full"
 OUTPUT_DIR="${CI_LOCAL_OUTPUT_DIR:-$ROOT_DIR/target/ci-local-results}"
 CACHE_CONTEXT="${CI_LOCAL_CACHE_STATE:-unknown}"
@@ -59,6 +60,28 @@ toolchain_json() {
         '{active_toolchain:$active,rustc_path:$path,rustc_version:$version}'
 }
 TOOLCHAIN_JSON="$(toolchain_json)"
+
+terminate_tree() {
+    local root="$1" signal="$2" child
+    # Bash job control gives each background job a process group on supported
+    # hosts; signal the group first so grandchildren cannot outlive a timeout.
+    kill -"$signal" "-$root" 2>/dev/null || true
+    for child in $(pgrep -P "$root" 2>/dev/null || true); do
+        terminate_tree "$child" "$signal"
+    done
+    kill -"$signal" "$root" 2>/dev/null || true
+}
+
+redact_log() {
+    if [ -n "${CI_LOCAL_SECRET:-}" ]; then
+        command -v perl >/dev/null 2>&1 || fail "perl is required when CI_LOCAL_SECRET is set"
+        CI_LOCAL_SECRET="$CI_LOCAL_SECRET" perl -0pi -e 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g' "$1"
+    fi
+    if command -v perl >/dev/null 2>&1; then
+        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/g' "$1"
+    fi
+}
+
 now_ms() {
     if command -v perl >/dev/null 2>&1; then
         perl -MTime::HiRes -e 'printf "%.0f", Time::HiRes::time() * 1000'
@@ -96,11 +119,11 @@ run_unit() {
     signal="null"
     status=""
     while [ ! -f "$exit_path" ]; do
-        if [ "$INTERRUPTED" -eq 1 ]; then kill -TERM "$pid" 2>/dev/null || true; status=cancelled; signal=15; break; fi
+        if [ "$INTERRUPTED" -eq 1 ]; then terminate_tree "$pid" TERM; status=cancelled; signal=15; break; fi
         if [ "$(date +%s)" -ge "$deadline" ]; then
-            kill -TERM "$pid" 2>/dev/null || true
+            terminate_tree "$pid" TERM
             sleep 1
-            kill -KILL "$pid" 2>/dev/null || true
+            terminate_tree "$pid" KILL
             status=timed_out
             signal=9
             break
@@ -114,6 +137,7 @@ run_unit() {
     [ -n "$status" ] || { [ "$exit_code" -eq 0 ] && status=passed || status=failed; }
     finished="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     duration=$(( $(now_ms) - start_ms ))
+    redact_log "$log_path"
     rm -f -- "$exit_path" "$exit_path.tmp"
     jq -n --arg run_id "$RUN_ID" --arg id "$id" --arg stage "$stage" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" \
         --arg status "$status" --arg started "$started" --arg finished "$finished" \
