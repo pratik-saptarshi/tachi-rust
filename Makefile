@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate codeql-maintenance-gate docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -57,6 +57,9 @@ workflow-gate: ## Validate workflow action versions and checkout modernization
 	else \
 	  echo "workflow action gate passed"; \
 	fi
+
+codeql-maintenance-gate: ## Validate active CodeQL v4 references and release policy
+	@./scripts/codeql-maintenance-check.sh
 
 docs-version-gate: ## Validate docs and examples workflow-version hygiene
 	@if rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|codeql/upload-sarif@v3|::set-output|Node 20" \
@@ -127,6 +130,7 @@ fuzz-mutation-gate: ## Validate documented fuzz/mutation lane and baseline repor
 publish-gate: ## Run end-to-end publish-readiness gates locally
 	@$(MAKE) check
 	@$(MAKE) workflow-gate
+	@$(MAKE) codeql-maintenance-gate
 	@$(MAKE) docs-version-gate
 	@$(MAKE) docs-archive-version-gate
 	@$(MAKE) scaffold-dependency-gate

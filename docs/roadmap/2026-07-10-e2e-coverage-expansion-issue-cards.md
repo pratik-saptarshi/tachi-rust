@@ -232,5 +232,5 @@ Every new or reopened card must include:
   - any immutable SHA pin is verified and updated atomically across all CodeQL action uses;
   - SARIF producer/category, repository-contained paths, size/message bounds, redaction, checked-out-commit provenance, and trusted-event permission boundaries are contract-tested;
   - workflow parsing, SARIF validation, and remote CodeQL/SARIF execution pass.
-- **Validation**: workflow contract gate, `rg` inventory, SARIF schema checks, remote GitHub CI, and a scheduled upstream-release check.
+- **Validation**: `make codeql-maintenance-gate`, workflow contract gate, `rg` inventory, SARIF schema checks, remote GitHub CI/CodeQL, and a scheduled upstream-release check; current immutable SHA pinning remains an explicitly tracked follow-up risk.
 - **Priority**: P2

@@ -80,7 +80,7 @@ Required negative cases include missing rustup toolchain, Homebrew-vs-rustup mis
 
 ### R3 — CodeQL maintenance and upgrade path (`E2E-COV-007.5`, P2)
 
-The workflows currently use the supported `github/codeql-action/*@v4` major for SARIF upload. GitHub's current release is [`v4.37.0`](https://github.com/github/codeql-action/releases/tag/v4.37.0), whose default bundle is CodeQL `2.26.0`; v4 runs on Node 24. This is not an urgent major-version upgrade for this repository, but it is a supply-chain and compatibility maintenance item.
+The workflows currently use the supported `github/codeql-action/*@v4` major for SARIF upload. The checked-in maintenance contract records GitHub release [`v4.37.0`](https://github.com/github/codeql-action/releases/tag/v4.37.0), default bundle CodeQL `2.26.0`, and Node 24 compatibility. `make codeql-maintenance-gate` now fails closed on active v3 references or missing risk-policy evidence. This is not an urgent major-version upgrade; immutable pinning remains an explicitly accepted follow-up risk.
 
 1. Add a contract inventory for every CodeQL action reference, including historical documentation references that must remain explicitly labeled archival rather than current guidance.
 2. Require immutable commit pins for active security-sensitive CodeQL action uses, with one documented release mapping to the verified `v4.37.0` release and an owner/cadence for updates. Do not mix v3/v4 or independently pin `upload-sarif` and analysis actions to different releases. If policy owners explicitly retain floating `@v4`, record a risk acceptance with monitoring, rollback, and review ownership before closing `E2E-COV-007.5`.

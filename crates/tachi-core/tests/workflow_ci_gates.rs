@@ -399,6 +399,62 @@ fn gitleaks_workflow_uploads_sarif_but_fails_closed() {
 }
 
 #[test]
+fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
+    let gitleaks = workflow_text("gitleaks.yml");
+    let clippy = workflow_text("rust-clippy.yml");
+    let policy_path = repo_root().join("docs/security/codeql-maintenance.md");
+    let policy = fs::read_to_string(&policy_path).expect("read CodeQL maintenance policy");
+    let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    let maintenance_script = repo_root().join("scripts/codeql-maintenance-check.sh");
+
+    for (name, text) in [("gitleaks.yml", gitleaks), ("rust-clippy.yml", clippy)] {
+        assert!(
+            text.contains("github/codeql-action/upload-sarif@v4"),
+            "{name} must use the supported CodeQL action v4 line"
+        );
+        assert!(
+            !text.contains("github/codeql-action/upload-sarif@v3"),
+            "{name} must not regress to CodeQL action v3"
+        );
+        assert!(
+            text.contains("sarif_file:") && text.contains("category:"),
+            "{name} must identify the SARIF input and upload category"
+        );
+        assert!(
+            text.contains("if: always()"),
+            "{name} must preserve SARIF upload evidence after scanner failure"
+        );
+    }
+
+    for required in [
+        "v4.37.0",
+        "2.26.0",
+        "Node 24",
+        "floating @v4 risk acceptance",
+        "repository-contained",
+        "redaction",
+        "trusted-event",
+        "rollback",
+        "quarterly",
+        "historical",
+    ] {
+        assert!(
+            policy.contains(required),
+            "CodeQL maintenance policy must document {required}"
+        );
+    }
+    assert!(
+        makefile.contains("codeql-maintenance-gate:")
+            && makefile.contains("@$(MAKE) codeql-maintenance-gate"),
+        "publish gate must include the CodeQL maintenance gate"
+    );
+    assert!(
+        maintenance_script.is_file(),
+        "CodeQL maintenance inventory script must be checked in"
+    );
+}
+
+#[test]
 fn privileged_workflows_keep_their_permission_contracts() {
     let clippy = parse_workflow("rust-clippy.yml", &workflow_text("rust-clippy.yml"));
     let gitleaks = parse_workflow("gitleaks.yml", &workflow_text("gitleaks.yml"));
