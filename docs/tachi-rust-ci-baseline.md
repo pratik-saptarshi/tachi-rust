@@ -58,7 +58,7 @@ reference
 
 ## Timing Notes
 
-### Current hosted mainline sample (2026-07-11)
+### Current hosted mainline sample (2026-07-12)
 
 The current `make rt-ci-latency-evidence` run collected the following live
 mainline sample:
@@ -66,7 +66,7 @@ mainline sample:
 - `rust-workspace.yml`: sample size 40, median run `71,000 ms`, queue median
   `0 ms`, run range `2,000..361,000 ms`, queue range `0..0 ms`.
 - `ci-route-observe.yml`: sample size 11, median run `14,000 ms`, queue median
-  `0 ms`, run range `12,000..16,000 ms`, queue range `0..0 ms`.
+  `0 ms`, run range `12,000..17,000 ms`, queue range `0..0 ms`.
 
 These are hosted workflow medians, not local wall-time equivalents. The
 branch protection is now enabled on `pratik-saptarshi/tachi-rust/main` with the

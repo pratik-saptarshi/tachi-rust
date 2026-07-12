@@ -1,7 +1,7 @@
 # Publish Readiness Checklist
 
 **Status**: Active release gate
-**Last Updated**: 2026-07-11
+**Last Updated**: 2026-07-12
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
@@ -92,8 +92,8 @@ retired from the active dependency surface.
 - [x] Local route-equivalent evidence records 8/8 passed units with zero failure/timeout/cancellation outcomes: initial 320,184 ms, full 294,483 ms, labeled warm 304,650 ms, and controlled cold 321,636 ms (compile/test 266,987 ms; test slices 53,842 ms). Hosted comparison and artifact-download verification remain required.
 - [x] Hosted timing artifact integrity is verified for main run `29178308727` and PR run `29178255153`: eight artifacts each, commit/run/stage/unit/duration fields validated by `make verify-ci-timing-artifacts`; PR evidence uses the synthetic merge commit embedded in `GITHUB_SHA` artifacts.
 - [ ] Hosted CI evidence records comparable per-job elapsed timing and queue-versus-run timing where available; local and hosted measurements are clearly labeled and not treated as interchangeable.
-- [x] Current mainline timing evidence is recorded: workspace 40-run median 67s and route-observe 5-run median 16s, both with 0s queue median.
-- [x] Repository branch protection is enabled and required checks are verified; `gh api .../branches/main/protection` returns the documented route, security, formatting, package, and shell contexts with strict up-to-date enforcement, linear history, conversation resolution, and force-push/deletion protection.
+- [x] Current mainline timing evidence is recorded: workspace 40-run median 71s and route-observe 11-run median 14s, both with 0s queue median.
+- [x] Repository branch protection is enabled and required checks are verified; `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection` returns the documented route, security, formatting, package, and shell contexts with strict up-to-date enforcement, linear history, conversation resolution, and force-push/deletion protection.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Queue/run medians and repeated samples remain open.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
 - [ ] `make act-smoke` is opt-in and advisory only. If used, rootless Podman Docker-API preflight, image digest, empty secrets, disabled network, no host/socket mounts, resource profile, and `SKIPPED_UNAVAILABLE`/failure distinction are recorded.
