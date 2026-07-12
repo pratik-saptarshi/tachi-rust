@@ -113,6 +113,10 @@ run passed all 8 in 304,650 ms. A controlled cold sample and the hosted
 comparison remain publish-closeout gates. Hosted workspace run `29175545285`
 passed all eight timing-artifact units and the workflow fan-out in about 79
 seconds, with job durations from 37 to 67 seconds. The hosted
+mainline timing collector now reports a 40-run workspace median of 67 seconds
+and a five-run route-observe median of 16 seconds, with zero queue median in
+both samples; branch protection is still unconfigured (HTTP 404), so the
+publish gate remains fail-closed.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an

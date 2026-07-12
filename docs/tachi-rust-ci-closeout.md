@@ -29,13 +29,17 @@ items that still require GitHub access
 
 ## Still Pending External Verification
 
-- Live GitHub Actions timing evidence for pre-router vs post-router median PR
-  durations. Collect via `make rt-ci-latency-evidence`.
+- Repeated PR-specific timing evidence for pre-router vs post-router median PR
+  durations. The current mainline sample is recorded in
+  `docs/tachi-rust-ci-baseline.md`; collect PR/event-filtered samples via
+  `make rt-ci-latency-evidence` when representative PR runs exist.
 - Branch-protection verification that the required-check migration is safe to
-  finalize.
+  finalize. The current collector reports `main` unprotected (HTTP 404), so
+  publish closure must remain fail-closed until repository governance is
+  configured and rechecked.
 - Post-push monitoring of `main` after a publish step.
 
-## Latest Attempted Remote Evidence Pull (2026-07-10)
+## Latest Attempted Remote Evidence Pull (2026-07-11)
 
 - `make rt-ci-latency-evidence` and direct API checks were executed from this
   branch with elevated network privileges:
@@ -57,6 +61,10 @@ items that still require GitHub access
   `mode=full_pr_matrix` and `reason=protected ref stays full mode`.
 - Evidence confirms the evidence collection path is now functional and
   synchronized with docs and artifacts.
+- Current mainline median collection: `rust-workspace.yml` sample size 40,
+  run median 67 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
+  size 5, run median 16 seconds, queue median 0 seconds. Branch protection
+  remains unavailable with HTTP 404.
 
 ## Publish-Readiness Guardrails Before Merge Closure
 
