@@ -36,6 +36,7 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
             .expect("replay JSON");
     assert_eq!(value["status"], "passed");
     assert_eq!(value["network_used"], false);
+    assert_eq!(value["network_policy"], "deny");
     assert_eq!(value["model"], "scripted-fake");
     assert_eq!(value["promotion_status"], "skipped");
     assert!(value["seed"].is_number());
@@ -48,6 +49,9 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
             .unwrap_or_else(|| panic!("missing replay case: {case}"));
         assert_eq!(entry["status"], "passed");
         assert!(!entry["audit_id"].as_str().unwrap().is_empty());
+        assert_eq!(entry["audit_events"].as_array().unwrap().len(), 3);
+        assert_eq!(entry["audit_events"][2]["correlated_to"], entry["audit_id"]);
+        assert_eq!(entry["outcome"], entry["expected"]);
     }
     fs::remove_dir_all(root).expect("cleanup");
 }
