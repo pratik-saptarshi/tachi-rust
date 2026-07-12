@@ -126,7 +126,7 @@ claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
 opt-in `act` smoke lane using preflighted rootless Podman Docker-API
 compatibility; it remains advisory and does not replace hosted CI.
 The controlled cold route-equivalent runner sample now passes all 8 units in
-321,636 ms (compile-and-test 266,987 ms; shell slices 53,842 ms), extending
+321,636 ms (compile-and-test 266,987 ms; test-slice 53,842 ms), extending
 the local evidence to 40/40 successful unit executions across full, warm, cold,
 and terminal local-full runs. Hosted timing artifact verification now covers all eight
 artifacts on merged main run `29178308727` and PR run `29178255153`; the
