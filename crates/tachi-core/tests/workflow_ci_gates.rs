@@ -271,6 +271,11 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "cargo-test",
         "cargo test -p ${{ matrix.package }} --all-targets",
     );
+    assert!(
+        workflow_run_bodies(&workflow).any(|command| command
+            .contains("cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1")),
+        "core package process-tree tests must run with serialized test threads"
+    );
     assert_eq!(
         workflow_job_name(&workflow, "shell-tests"),
         Some("cargo test -p tachi-shell (${{ matrix.suite }})"),
