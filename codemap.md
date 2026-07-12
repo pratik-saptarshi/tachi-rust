@@ -123,7 +123,10 @@ build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
 opt-in `act` smoke lane using preflighted rootless Podman Docker-API
 compatibility; it remains advisory and does not replace hosted CI.
-The CodeQL maintenance contract now also includes a read-only manual/weekly
+The controlled cold route-equivalent runner sample now passes all 8 units in
+321,636 ms (compile-and-test 266,987 ms; shell slices 53,842 ms), extending
+the local evidence to 32/32 successful unit executions across full, warm, and
+cold-labeled runs. The CodeQL maintenance contract now also includes a read-only manual/weekly
 upstream release check (`scripts/codeql-upstream-release-check.sh` and
 `.github/workflows/codeql-maintenance.yml`). The current live API validation
 matched policy `v4.37.0`; the lane reports drift but does not mutate GitHub
