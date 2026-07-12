@@ -1,0 +1,21 @@
+name: CodeQL upstream maintenance
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  upstream-release:
+    name: verify latest CodeQL v4 release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Verify upstream CodeQL release mapping
+        run: ./scripts/codeql-upstream-release-check.sh

@@ -81,6 +81,7 @@ retired from the active dependency surface.
 - [ ] No new warnings were introduced by hook configuration changes.
 - [ ] `rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows` returns no matches.
 - [x] `make codeql-maintenance-gate` passes; active SARIF uploads use CodeQL Action v4 with the documented v4.37.0 / CodeQL 2.26.0 mapping and explicit floating-tag risk acceptance.
+- [x] `make codeql-upstream-release-check` passes against the public release API; `.github/workflows/codeql-maintenance.yml` provides the read-only weekly/manual upstream-release signal.
 - [ ] Any future immutable CodeQL SHA pin is verified against its upstream release and updated atomically across all active references.
 
 ## 4. Rust validation
