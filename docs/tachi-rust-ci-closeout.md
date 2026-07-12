@@ -27,26 +27,26 @@ items that still require GitHub access
 - The local gitleaks 8.30.1 scan passed with no leaks; this does not replace
   the required GitHub gitleaks workflow result.
 
-## Still Pending External Verification
+## Remaining Follow-up Verification
 
 - Live GitHub Actions timing evidence: repeated PR-specific timing evidence for
   pre-router vs post-router median PR
   durations. The current mainline sample is recorded in
   `docs/tachi-rust-ci-baseline.md`; collect PR/event-filtered samples via
   `make rt-ci-latency-evidence` when representative PR runs exist.
-- Branch-protection verification that the required-check migration is safe to
-  finalize. The current collector reports `main` unprotected (HTTP 404), so
-  publish closure must remain fail-closed until repository governance is
-  configured and rechecked.
+- Branch-protection verification is complete for the current migration: the
+  live API reports `main` protected with the required contexts, strict
+  up-to-date enforcement, linear history, conversation resolution, and
+  force-push/deletion protection. Continue monitoring after future policy
+  changes.
 - Post-push monitoring of `main` after a publish step.
 
-## Latest Attempted Remote Evidence Pull (2026-07-11)
+## Latest Remote Evidence Pull (2026-07-12)
 
 - `make rt-ci-latency-evidence` and direct API checks were executed from this
   branch with elevated network privileges:
-  - `branch_protection=pratik-saptarshi/tachi-rust/main: unavailable`
-    (`gh api .../branches/main/protection` returns HTTP 404: branch is not
-    currently protected).
+  - `branch_protection=pratik-saptarshi/tachi-rust/main: enabled`; the
+    replayable command is `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection`.
   - `rust-workspace.yml` PR-side median evidence command (`pull_request` event):
     `sample_size=2`, `run_med_ms=350000`, `queue_med_ms=0`,
     `run_range_ms=93000..607000`.
@@ -63,9 +63,9 @@ items that still require GitHub access
 - Evidence confirms the evidence collection path is now functional and
   synchronized with docs and artifacts.
 - Current mainline median collection: `rust-workspace.yml` sample size 40,
-  run median 67 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
-  size 5, run median 16 seconds, queue median 0 seconds. Branch protection
-  remains unavailable with HTTP 404.
+  run median 71 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
+  size 11, run median 14 seconds, queue median 0 seconds. Branch protection is
+  enabled and the required-check API response matches the documented contract.
 
 ## Publish-Readiness Guardrails Before Merge Closure
 
