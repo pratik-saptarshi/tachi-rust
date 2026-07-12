@@ -123,8 +123,12 @@ queue median; the latest five PR #24 runs passed and historical failures remain
 visible in the raw sample. Branch protection is enabled with the verified
 required-check contract, so governance evidence is complete while final
 publish-gate closure remains separately tracked.
-The security follow-up `E2E-COV.2` remains open for independent GitHub run
-metadata binding and an explicit local-log retention/redaction contract.
+The security follow-up `E2E-COV.2` remains open for complete schema consumption
+and valid new-format PR fixture coverage. Its
+current partial-green slice binds hosted metadata and exact push refs, defaults
+local retention to ephemeral, normalizes retained paths, bounds logs, expands
+credential redaction, records truthful retained-cleanup state, and emits a
+0600 schema-backed ephemeral cleanup receipt.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an

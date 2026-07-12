@@ -205,7 +205,7 @@ jobs:
 - **Minimum Coverage**: 80%
 - **No Failing Tests**: All tests must pass
 - **Performance and reliability**: The local runner records per-stage and per-unit timing, aggregate wall time, cold/warm cache context, toolchain/host provenance, exit/timeout/cancellation counts, artifact integrity, and cleanup. Hosted workflows record comparable job summaries and queue/run medians where available. Do not impose a generic <5-minute promise on subprocess-heavy Rust E2E suites; compare repeated observations and open a tracked regression when a stage degrades. Podman/act cold and warm baselines are measured separately and remain advisory.
-- **Runner safety behavior**: `crates/tachi-core/tests/ci_local_runner_contract.rs` executes fake cargo binaries to prove direct argv forwarding, secret/token redaction, timeout status, descendant cleanup, and the explicit `CI_LOCAL_RETENTION=ephemeral|retain` contract. The default is ephemeral cleanup; diagnostic retention is opt-in. These tests must remain deterministic and offline.
+- **Runner safety behavior**: `crates/tachi-core/tests/ci_local_runner_contract.rs` executes fake cargo binaries to prove direct argv forwarding, expanded credential redaction, bounded logs, path-normalized retained metadata, timeout status, descendant cleanup, schema-backed required/property validation, a 0600 `ci-cleanup-receipt.schema.json`, and the explicit `CI_LOCAL_RETENTION=ephemeral|retain` contract. The default is ephemeral cleanup; diagnostic retention is opt-in. These tests must remain deterministic and offline.
 
 ### TDD and test-level promotion
 

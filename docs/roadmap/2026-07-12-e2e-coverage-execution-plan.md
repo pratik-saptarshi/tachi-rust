@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; E2E-COV-007 complete; next active issue is `E2E-COV.2`
+**Status**: Active execution plan; E2E-COV-007 complete; E2E-COV.2 privacy slice is partial-green; next ready runtime issue is `E2E-COV-009.1`
 **Baseline**: `main` / `origin/main` at `36f5eaa`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -24,8 +24,11 @@ The remaining evidence is narrower than the product journey inventory:
 - E2E-COV-008 and RT-CI-006.2 now have repeated hosted PR timing,
   artifact-integrity, queue/run, and branch-protection evidence; historical
   failed runs remain visible rather than being removed from the sample;
-- security follow-up `E2E-COV.2` remains open for independent GitHub run
-  metadata binding and an explicit local-log retention/redaction contract;
+- security follow-up `E2E-COV.2` remains open for full JSON-schema enforcement
+  and new-format PR fixture coverage; its hosted
+  metadata binding, exact push-ref binding, bounded log, path normalization,
+  expanded redaction, retention, and 0600 cleanup-receipt contracts are now
+  implemented and tested;
 - the act/Podman lane is advisory and must remain unavailable-safe and
   security-isolated;
 - TDD and agentic replay evidence must be promoted through explicit test-level
@@ -46,7 +49,7 @@ divergence.
 | F-01 | Live audit reports 114 modules / 96 integration modules while historical roadmap text said 113 / 95. | Correction | Synchronized in the E2E-COV-007 closeout pass; historical counts remain labeled. |
 | F-02 | Current governed nightly output is 85.15625%; older docs and Beads notes said 85.09%. | Correction | Synchronized from the terminal gate; the 85% threshold remains unchanged. |
 | F-03 | `E2E-COV-007` Beads notes still describe the interrupted aggregate gate. | Gap | Keep open until a terminal uninterrupted `make publish-gate` result is recorded. |
-| F-04 | `E2E-COV.2` remains open for GitHub run metadata binding and local log retention/redaction. | Security/privacy gap | Execute as a separate TDD slice after the publish-gate evidence; do not claim broad privacy closure early. |
+| F-04 | `E2E-COV.2` review found incomplete provenance, schema, cleanup, redaction, path, and size contracts. | Security/privacy gap | Implemented metadata/ref/path/log/retention/receipt slice; keep issue open for complete schema keyword and PR-fixture evidence. |
 | F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Podman lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
 | F-06 | Remote DNS prevented a fresh `git ls-remote`; PR #26 is open and CI is still pending. | Environment / delivery caveat | Retry outside the sandbox before any remote-sync or merge claim; keep PR #26 separate from this implementation branch. |
 
@@ -71,8 +74,8 @@ silent deferral.
 
 `E2E-COV-007` and `E2E-COV-007.3` are complete and intentionally omitted from the active queue;
 their terminal local-runner and publish-gate evidence remains documented in the
-roadmap/BOM/checklist. The current remaining work is E2E-COV.2 provenance/privacy
-hardening.
+roadmap/BOM/checklist. The current remaining work is E2E-COV.2 complete schema
+and new-format PR-fixture hardening.
 
 `E2E-COV-008`, `RT-CI-006.2`, and `E2E-COV-007` are closed in Beads. The
 merged PR #24 evidence run `29203699709` validated all eight timing artifacts;
@@ -127,8 +130,11 @@ metadata.
 
 **REFACTOR:** run the focused contract tests, gitleaks, JSON/schema validation,
 and local runner tests; update security notes, BOM, checklist, codemap, Beads,
-and integration log. Do not close the issue if any secret-bearing output or
-unbound provenance path remains.
+and integration log. The current partial-green slice proves exact push refs,
+path-normalized metadata, bounded logs, expanded credential redaction, and
+truthful retained cleanup state and durable ephemeral receipts. Do not close the issue until
+  the result validator consumes the complete schema contract and valid
+  new-format PR fixtures cover accept/reject paths.
 
 ### E2E-COV-009.1 — act/Podman capability preflight
 

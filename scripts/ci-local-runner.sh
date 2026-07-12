@@ -6,12 +6,15 @@ set -m
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)"
 MANIFEST="${CI_LOCAL_MANIFEST:-$ROOT_DIR/.github/ci-test-units.json}"
 RESULT_SCHEMA="${CI_LOCAL_RESULT_SCHEMA:-$ROOT_DIR/schemas/ci-run-result.schema.json}"
+CLEANUP_SCHEMA="${CI_LOCAL_CLEANUP_SCHEMA:-$ROOT_DIR/schemas/ci-cleanup-receipt.schema.json}"
 MODE="local-full"
 OUTPUT_DIR="${CI_LOCAL_OUTPUT_DIR:-$ROOT_DIR/target/ci-local-results}"
 CACHE_CONTEXT="${CI_LOCAL_CACHE_STATE:-unknown}"
 RETENTION="${CI_LOCAL_RETENTION:-ephemeral}"
+MAX_LOG_BYTES="${CI_LOCAL_MAX_LOG_BYTES:-1048576}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$$"
 RUN_DIR=""
+CLEANUP_RECEIPT=""
 INTERRUPTED=0
 RUN_START_MS=""
 
@@ -19,6 +22,9 @@ usage() {
     cat <<'EOF'
 Usage: scripts/ci-local-runner.sh [--mode local-full|local-route-equivalent]
        [--output-dir DIRECTORY]
+
+Environment: CI_LOCAL_RETENTION=ephemeral|retain (default: ephemeral),
+CI_LOCAL_MAX_LOG_BYTES (default: 1048576).
 EOF
 }
 
@@ -35,13 +41,17 @@ done
 
 case "$MODE" in local-full|local-route-equivalent) ;; *) fail "unsupported mode: $MODE" ;; esac
 case "$RETENTION" in ephemeral|retain) ;; *) fail "unsupported retention mode: $RETENTION" ;; esac
+case "$MAX_LOG_BYTES" in ''|*[!0-9]*) fail "CI_LOCAL_MAX_LOG_BYTES must be a positive integer" ;; esac
+[ "$MAX_LOG_BYTES" -gt 0 ] || fail "CI_LOCAL_MAX_LOG_BYTES must be positive"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 [ -r "$MANIFEST" ] || fail "missing manifest: $MANIFEST"
 [ -r "$RESULT_SCHEMA" ] || fail "missing result schema: $RESULT_SCHEMA"
+[ -r "$CLEANUP_SCHEMA" ] || fail "missing cleanup receipt schema: $CLEANUP_SCHEMA"
 jq -e '(.units | type == "array" and length > 0) and (.units | map(.id) | length == (unique | length))' "$MANIFEST" >/dev/null || fail "invalid manifest"
 
 mkdir -p -- "$OUTPUT_DIR" || fail "cannot create output directory"
 chmod 0700 "$OUTPUT_DIR" || fail "cannot secure output directory"
+CLEANUP_RECEIPT="$OUTPUT_DIR/cleanup-$RUN_ID.json"
 RUN_DIR="$OUTPUT_DIR/run-$RUN_ID"
 mkdir -- "$RUN_DIR" || fail "cannot create run directory"
 chmod 0700 "$RUN_DIR" || fail "cannot secure run directory"
@@ -49,8 +59,20 @@ chmod 0700 "$RUN_DIR" || fail "cannot secure run directory"
 cleanup() {
     [ -z "$RUN_DIR" ] && return
     if [ "$RETENTION" = ephemeral ]; then
+        local verified=false
         rm -rf -- "$RUN_DIR"
-        [ ! -e "$RUN_DIR" ] || printf 'ci-local-runner: failed to remove ephemeral run directory\n' >&2
+        if [ ! -e "$RUN_DIR" ]; then
+            verified=true
+        else
+            printf 'ci-local-runner: failed to remove ephemeral run directory\n' >&2
+        fi
+        if [ -n "$CLEANUP_RECEIPT" ]; then
+            jq -n --arg run_id "$RUN_ID" --arg retention "$RETENTION" --argjson verified "$verified" \
+                '{schema_version:1,run_id:$run_id,retention:$retention,verified:$verified}' \
+                > "$CLEANUP_RECEIPT.tmp" && \
+                jq -e '.schema_version == 1 and (.run_id | type == "string" and length > 0) and .retention == "ephemeral" and (.verified | type == "boolean")' "$CLEANUP_RECEIPT.tmp" >/dev/null && \
+                chmod 0600 "$CLEANUP_RECEIPT.tmp" && mv -- "$CLEANUP_RECEIPT.tmp" "$CLEANUP_RECEIPT"
+        fi
     fi
 }
 # SIGINT and SIGTERM request cooperative cancellation; the child is terminated
@@ -64,6 +86,7 @@ toolchain_json() {
     active="$(rustup show active-toolchain 2>/dev/null || printf '%s' unavailable)"
     rustc_path="$(rustup which rustc 2>/dev/null || printf '%s' unavailable)"
     rustc_version="$(rustc -Vv 2>/dev/null || printf '%s' unavailable)"
+    rustc_path="$(basename -- "$rustc_path")"
     jq -n --arg active "$active" --arg path "$rustc_path" --arg version "$rustc_version" \
         '{active_toolchain:$active,rustc_path:$path,rustc_version:$version}'
 }
@@ -86,11 +109,46 @@ redact_log() {
         CI_LOCAL_SECRET="$CI_LOCAL_SECRET" perl -0pi -e 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g' "$1"
     fi
     if command -v perl >/dev/null 2>&1; then
-        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/g' "$1"
+        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/$1[REDACTED]/g; s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/$1[REDACTED]/gi; s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs' "$1"
+    fi
+    if [ "$(wc -c < "$1")" -gt "$MAX_LOG_BYTES" ]; then
+        local marker='[log truncated]'
+        local marker_bytes=$(( ${#marker} + 1 ))
+        local keep_bytes=$(( MAX_LOG_BYTES - marker_bytes ))
+        [ "$keep_bytes" -gt 0 ] || keep_bytes=0
+        head -c "$keep_bytes" "$1" > "$1.tmp"
+        printf '\n%s' "$marker" >> "$1.tmp"
+        mv -- "$1.tmp" "$1"
     fi
 }
 
+redact_metadata() {
+    if command -v perl >/dev/null 2>&1; then
+        CI_LOCAL_SECRET="${CI_LOCAL_SECRET:-}" perl -pe 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g if length $ENV{CI_LOCAL_SECRET}; s/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/[REDACTED]/g; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/[REDACTED]/gi' <<<"$1"
+    else
+        printf '%s\n' "$1"
+    fi
+}
+
+sanitize_arg() {
+    local sanitized
+    case "$1" in
+        "$ROOT_DIR"/*) sanitized="<repo>/${1#"$ROOT_DIR"/}" ;;
+        /*) sanitized="<path>/$(basename -- "$1")" ;;
+        *) sanitized="$1" ;;
+    esac
+    redact_metadata "$sanitized"
+}
+
 validate_unit_result() {
+    local required allowed
+    required="$(jq -c '.required' "$RESULT_SCHEMA")"
+    allowed="$(jq -c '.properties | keys' "$RESULT_SCHEMA")"
+    jq -e --argjson required "$required" --argjson allowed "$allowed" '
+        . as $object
+        | (all($required[]; . as $key | ($object | has($key))))
+        and (all($object | to_entries[]; .key as $key | ($allowed | index($key))))
+    ' "$1" >/dev/null || fail "result schema required/properties validation failed: $1"
     jq -e '
         .schema_version == 1
         and (.run_id | type == "string" and length > 0)
@@ -161,12 +219,14 @@ run_unit() {
     duration=$(( $(now_ms) - start_ms ))
     redact_log "$log_path"
     rm -f -- "$exit_path" "$exit_path.tmp"
+    local safe_argv_json
+    safe_argv_json="$(printf '%s\n' "${argv[@]}" | while IFS= read -r arg; do sanitize_arg "$arg"; printf '\n'; done | jq -R -s 'split("\n") | map(select(length > 0))')"
     jq -n --arg run_id "$RUN_ID" --arg id "$id" --arg stage "$stage" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" \
         --arg status "$status" --arg started "$started" --arg finished "$finished" \
         --arg log "$log_path" --argjson exit_code "$exit_code" --argjson signal "$signal" \
-        --argjson argv "$(printf '%s\n' "${argv[@]}" | jq -R -s 'split("\n") | map(select(length > 0)) | .')" \
+        --argjson argv "$safe_argv_json" \
         --argjson toolchain "$TOOLCHAIN_JSON" --argjson duration "$duration" --arg retention "$RETENTION" \
-        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,stage:$stage,cache_context:$cache_context,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:$duration,exit_code:$exit_code,signal:$signal,log_path:$log,retention:$retention,cleanup:{verified:false,retention:$retention},redactions:["environment values are not copied to result JSON"]}' \
+        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,stage:$stage,cache_context:$cache_context,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:$duration,exit_code:$exit_code,signal:$signal,log_path:($id + ".log"),retention:$retention,cleanup:{verified:($retention == "ephemeral"),retention:$retention},redactions:["environment values are not copied to result JSON","machine paths normalized","credential patterns redacted","log size bounded"]}' \
         > "$result_path"
     validate_unit_result "$result_path"
     [ "$status" = passed ]
@@ -180,8 +240,8 @@ done < <(jq -r --arg mode "$MODE" '.units[] | select(.modes | index($mode)) | @b
 
 jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" --argjson started_ms "$RUN_START_MS" --argjson finished_ms "$(now_ms)" \
     --arg retention "$RETENTION" \
-    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:false,mode:$retention},results:.}' \
+    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:($retention == "ephemeral"),mode:$retention},results:.}' \
     "$RUN_DIR"/*.json > "$RUN_DIR/results.json"
 jq -e '.schema_version == 1 and (.retention | IN("ephemeral", "retain")) and ((.results | length) == .unit_count)' "$RUN_DIR/results.json" >/dev/null || fail "aggregate result schema validation failed"
-printf 'run_id=%s\nmode=%s\nresults=%s\n' "$RUN_ID" "$MODE" "$RUN_DIR/results.json"
+printf 'run_id=%s\nmode=%s\nresults=results.json\n' "$RUN_ID" "$MODE"
 exit "$overall"

@@ -191,10 +191,73 @@ fn runner_default_retention_removes_run_directory_after_success() {
     let output = root.join("output");
     let run = run_runner(&manifest_path, &fake_bin, &output, None, None);
     assert!(run.status.success(), "runner failed: {:?}", run);
-    let entries = fs::read_dir(output).expect("read output").count();
+    let run_directories = fs::read_dir(&output)
+        .expect("read output")
+        .map(|entry| entry.expect("output entry").path())
+        .filter(|path| path.is_dir())
+        .count();
     assert_eq!(
-        entries, 0,
+        run_directories, 0,
         "default retention must remove the run directory"
     );
+    let receipts = fs::read_dir(&output)
+        .expect("read cleanup receipts")
+        .map(|entry| entry.expect("receipt entry").path())
+        .filter(|path| path.extension().and_then(|ext| ext.to_str()) == Some("json"))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        receipts.len(),
+        1,
+        "ephemeral cleanup must leave one receipt"
+    );
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&fs::read(&receipts[0]).expect("read receipt"))
+            .expect("receipt JSON");
+    assert_eq!(receipt["verified"], true);
+    assert_eq!(receipt["retention"], "ephemeral");
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
+    let root = temp_dir("tachi-ci-runner-privacy");
+    let fake_bin = root.join("bin");
+    fs::create_dir(&fake_bin).expect("fake bin");
+    executable(
+        &fake_bin.join("cargo"),
+        "#!/bin/sh\nprintf '%s' 'AWS_SECRET_ACCESS_KEY=secret Authorization: Basic YWJj -----BEGIN PRIVATE KEY----- hidden -----END PRIVATE KEY-----'\nhead -c 1100000 /dev/zero | tr '\\0' A\n",
+    );
+    let manifest_path = root.join("manifest.json");
+    manifest(
+        &manifest_path,
+        &[
+            "cargo",
+            root.to_str().expect("root path"),
+            "Bearer secret-token",
+        ],
+        5,
+    );
+    let output = root.join("output");
+    let run = run_runner(&manifest_path, &fake_bin, &output, None, Some("retain"));
+    assert!(run.status.success(), "runner failed: {:?}", run);
+    let result = result_json(&output);
+    assert_eq!(result["results"][0]["cleanup"]["verified"], false);
+    assert_eq!(result["results"][0]["log_path"], "fake-cargo-unit.log");
+    assert!(result["results"][0]["argv"][1]
+        .as_str()
+        .expect("sanitized argv")
+        .starts_with("<path>/tachi-ci-runner-privacy-"));
+    assert_eq!(result["results"][0]["argv"][2], "[REDACTED]");
+    let run_dir = fs::read_dir(&output)
+        .expect("read output")
+        .map(|entry| entry.expect("entry").path())
+        .find(|path| path.is_dir())
+        .expect("run dir");
+    let log = fs::read_to_string(run_dir.join("fake-cargo-unit.log")).expect("log");
+    assert!(log.contains("[REDACTED]"));
+    assert!(!log.contains("secret"));
+    assert!(!log.contains("YWJj"));
+    assert!(!log.contains("hidden"));
+    assert!(log.len() <= 1_048_576 + 64, "log must be bounded");
     fs::remove_dir_all(root).expect("cleanup");
 }
