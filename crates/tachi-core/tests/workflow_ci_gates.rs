@@ -476,6 +476,26 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
             && upstream_workflow.contains("codeql-upstream-release-check.sh"),
         "CodeQL upstream release check must be manual and scheduled"
     );
+
+    let timing_script = repo_root().join("scripts/verify-ci-timing-artifacts.sh");
+    let timing_script_text = fs::read_to_string(&timing_script).expect("read timing verifier");
+    for required in [
+        "gh run download",
+        "ci-timing-package-tachi-core",
+        "ci-timing-shell-shell-integration",
+        "expected_artifacts:8",
+        ".commit == $commit",
+        "[ \"$COMMIT\" = \"auto\" ]",
+    ] {
+        assert!(
+            timing_script_text.contains(required),
+            "timing verifier must contain {required}"
+        );
+    }
+    assert!(
+        makefile.contains("verify-ci-timing-artifacts:"),
+        "Makefile must expose hosted timing artifact verification"
+    );
 }
 
 #[test]

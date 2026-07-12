@@ -151,7 +151,7 @@ Every new or reopened card must include:
   - `make test` uses the runner, while `make publish-gate` remains fail-closed and does not call act.
 - **Functions/tasks**: manifest projection, rustup provenance collector, argv executor, timeout/signal supervisor, result writer, cleanup verifier, workflow drift contract.
 - **Child issues**: `E2E-COV-008.1` manifest/schema parity; `E2E-COV-008.2` runner safety/observability; `E2E-COV-008.3` Make/docs integration.
-- **Validation**: RED/GREEN unit and integration tests, executable fake-cargo argv/redaction/timeout/descendant-cleanup tests in `ci_local_runner_contract.rs`, real five-package functional run, repeated cold/warm measurements, `make workflow-gate`, focused workspace contracts, comparable hosted job/queue timing, and remote package-matrix CI.
+  - **Validation**: RED/GREEN unit and integration tests, executable fake-cargo argv/redaction/timeout/descendant-cleanup tests in `ci_local_runner_contract.rs`, real five-package functional run, repeated cold/warm measurements, `make workflow-gate`, focused workspace contracts, `make verify-ci-timing-artifacts` for all eight hosted artifacts, comparable hosted job/queue timing, and remote package-matrix CI. For pull requests, artifact commit provenance is the synthetic merge commit exposed to the workflow, not necessarily the API run `headSha`.
 - **Priority**: P1
 
 ### E2E-COV-009 — Advisory act workflow emulation with Podman
