@@ -1,17 +1,20 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Slices 1–2 complete; next active issue is `E2E-COV-007`
-**Baseline**: `main` / `origin/main` at `b70e0f4`
+**Status**: Active execution plan; Slices 1–2 complete; executing `E2E-COV-007`
+**Baseline**: `main` / `origin/main` at `36f5eaa`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `b70e0f4`; no main push is
+Local `main` and `origin/main` are synchronized at `36f5eaa`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
-85.09% and stable coverage is 90.56% lines / 90.22% regions.
+85.23% and stable coverage is 90.56% lines / 90.22% regions. The live
+coverage-audit run reports 114 active modules: 13 unit, 96 integration, 1
+smoke, 4 E2E, and 0 support/regression. The older 113/95 baseline remains
+historical and must not be used for new closeout claims.
 
 The remaining evidence is narrower than the product journey inventory:
 
@@ -26,6 +29,31 @@ The remaining evidence is narrower than the product journey inventory:
   security-isolated;
 - TDD and agentic replay evidence must be promoted through explicit test-level
   contracts before the E2E epic can close.
+
+### Plan-review-integrator audit and traceability
+
+The 2026-07-12 state audit treated `codemap.md`, this plan, the live Beads
+database, `.beads/issues.jsonl`, the publish checklist/BOM, and current branch
+artifacts as controlling context. The codebase-memory graph transport was
+unavailable during this run, so code discovery used the repository atlas and
+direct contract files; GitHub DNS was also unavailable for a live `ls-remote`
+refresh and is recorded as an environment limitation, not as proof of remote
+divergence.
+
+| Finding | Evidence | Category | Disposition |
+|---|---|---|---|
+| F-01 | Live audit reports 114 modules / 96 integration modules while roadmap issue cards still say 113 / 95. | Correction | Must fix in the closeout synchronization pass; keep historical counts labeled. |
+| F-02 | Current governed nightly output is 85.23%; older docs and Beads notes say 85.09%. | Correction | Update only after the current run is captured; never lower the 85% threshold. |
+| F-03 | `E2E-COV-007` Beads notes still describe the interrupted aggregate gate. | Gap | Keep open until a terminal uninterrupted `make publish-gate` result is recorded. |
+| F-04 | `E2E-COV.2` remains open for GitHub run metadata binding and local log retention/redaction. | Security/privacy gap | Execute as a separate TDD slice after the publish-gate evidence; do not claim broad privacy closure early. |
+| F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Podman lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
+| F-06 | Remote DNS prevented a fresh `git ls-remote`; PR #26 is open and CI is still pending. | Environment / delivery caveat | Retry outside the sandbox before any remote-sync or merge claim; keep PR #26 separate from this implementation branch. |
+
+Actionability: F-01–F-05 pass (0.90–0.99) with full repository context;
+F-06 passes with a context caveat because remote state could not be refreshed.
+No finding was dropped. No scope-expansion veto was triggered. Security/privacy
+follow-up F-04 remains a P2 implementation item with a security veto against
+silent deferral.
 
 ## Priority and dependency order
 
@@ -51,6 +79,109 @@ the current pull-request timing collector reports workspace 22-run median 85s
 and route-observe 23-run median 14s, both with zero queue median. The latest
 five PR #24 runs passed; historical failures remain included in the raw sample
 and are documented as limitations rather than discarded.
+
+## Ready-issue execution cards
+
+Each card is a bounded implementation unit. The card must be completed with a
+conventional commit, a RED/GREEN/REFACTOR transcript, a focused test result,
+updated Beads notes/export, and a codemap/BOM/checklist checkpoint before the
+next dependent card is started.
+
+### E2E-COV-007 — uninterrupted publish-gate enforcement
+
+**Goal:** prove the complete fail-closed local publish gate, not merely its
+manifest runner.
+
+**RED:** run `make publish-gate` on the supported rustup toolchain and capture
+the first nonzero stage, elapsed time, run ID, coverage-audit count, and output
+paths. If the gate passes, the RED evidence is the pre-existing Beads/docs
+claim that the uninterrupted result was missing; do not manufacture a failure.
+
+**GREEN:** rerun the unchanged gate with bounded output capture and preserve
+all security, supply-chain, docs, coverage, release, and cleanup stages. A
+passing result must include stable line/region coverage, nightly branch
+coverage >=85%, 114-module audit reconciliation, gitleaks, dependency policy,
+and terminal local runner results with zero failures/timeouts/cancellations.
+
+**REFACTOR:** update `integration_log.jsonl`, `.beads/issues.jsonl`, the
+roadmap, issue cards, BOM, readiness checklist, and `codemap.md` from the same
+captured result. Close `E2E-COV-007` only when every acceptance field is
+evidenced; otherwise record the exact failed stage and keep it open.
+
+### E2E-COV.2 — timing provenance and local artifact privacy
+
+**Goal:** prevent self-consistent but misbound hosted artifacts and prevent
+local logs from retaining secrets or unnecessary machine-specific data.
+
+**RED:** add focused contract tests that reject mismatched workflow/event/ref/
+head/conclusion metadata and expose the current implicit retention/cleanup
+contract. Tests must use synthetic GitHub metadata and fake runner output; no
+network, credentials, or live artifacts are required.
+
+**GREEN:** implement explicit metadata binding for push head provenance and PR
+synthetic-merge provenance; define a retention mode with documented default,
+redaction of secrets/absolute paths where feasible, secure permissions, and
+verified cleanup. Preserve diagnostic usefulness and fail closed on unverifiable
+metadata.
+
+**REFACTOR:** run the focused contract tests, gitleaks, JSON/schema validation,
+and local runner tests; update security notes, BOM, checklist, codemap, Beads,
+and integration log. Do not close the issue if any secret-bearing output or
+unbound provenance path remains.
+
+### E2E-COV-009.1 — act/Podman capability preflight
+
+**Goal:** make runtime availability and policy safety explicit before invoking
+`nektos/act`.
+
+**RED:** add tests for missing `act`, missing Podman, incompatible Docker API,
+unsafe mounts/secrets, and unavailable architecture/runtime. Each unavailable
+case must produce `SKIPPED_UNAVAILABLE`, while policy violations are failures.
+
+**GREEN:** implement a read-only preflight that reports versions, API
+compatibility, image/runtime identity, architecture, resource limits, and
+policy decisions. Default to empty secrets, no privileged mode, no host or
+socket mounts, no SSH/cloud credentials, and network disabled unless an
+explicit synthetic test requires otherwise.
+
+**REFACTOR:** validate shell quoting, JSON output, redaction, deterministic
+exit semantics, and macOS/Linux behavior. Record the result without making the
+advisory lane a required CI or publish gate.
+
+### E2E-COV-009.2 — advisory smoke/resource benchmark
+
+**Goal:** execute one named synthetic workflow/job only after a passing
+preflight and collect reproducible cold/warm resource evidence.
+
+**RED:** add a fixture-driven test proving the command rejects missing or
+unsafe preflight state and cannot upload SARIF, call release/security steps, or
+use live secrets.
+
+**GREEN:** run the named job with the synthetic pull-request event and record
+startup/wall time, CPU/memory where supported, image/cache identity,
+provenance, cleanup, and `SKIPPED_UNAVAILABLE` when the runtime is absent.
+
+**REFACTOR:** compare cold/warm samples without conflating local and hosted
+queue time, publish an advisory baseline, and retain the no-side-effect
+contract in workflow tests and the readiness checklist.
+
+### E2E-COV-010.1/.2 — TDD promotion and deterministic agentic replay
+
+`E2E-COV-010.1` defines the AC-to-test matrix, durable RED/GREEN/REFACTOR
+records, and pass/fail/skipped/inconclusive semantics across unit, integration,
+functional, E2E, and agentic levels. `E2E-COV-010.2` then implements a fixed,
+scripted fake model/tool replay with bounded iterations, deterministic seed,
+allowlisted commands, audit correlation, and approval/denial/timeout/cancel/
+circuit-breaker cases. No live model or network is permitted. The evidence
+contract must land before replay implementation.
+
+### Umbrella closeout: E2E-COV-010, E2E-COV, RT-CI
+
+Close each umbrella only after all child cards are closed, the coverage audit
+and threshold evidence agree, all docs and Beads exports are synchronized, and
+the protected remote checks have reached terminal success. An advisory act
+lane, a local-only result, or a stale documentation count cannot substitute for
+the required product or hosted evidence.
 
 ## Slice 1: aggregate local publish-gate boundary — complete
 
