@@ -9,7 +9,8 @@
       "green": "cargo test -p tachi-core --lib",
       "refactor": "cargo fmt --all -- --check",
       "promotion_status": "passed",
-      "tests": ["crates/tachi-core/src/* unit tests"]
+      "promotion_note": "Rust unit suite is promoted by the local and workspace gates.",
+      "tests": ["cargo test -p tachi-core --lib"]
     },
     {
       "level": "integration",
@@ -18,6 +19,7 @@
       "green": "cargo test -p tachi-core --test workflow_ci_gates -- --nocapture",
       "refactor": "make workflow-gate && make gitleaks-gate",
       "promotion_status": "passed",
+      "promotion_note": "Workflow and provenance contracts are promoted by focused Rust tests and security gates.",
       "tests": ["crates/tachi-core/tests/workflow_ci_gates.rs", "crates/tachi-core/tests/ci_timing_artifacts_contract.rs"]
     },
     {
@@ -27,6 +29,7 @@
       "green": "cargo test -p tachi-core --test ci_local_runner_contract -- --nocapture --test-threads=1",
       "refactor": "make test-route",
       "promotion_status": "passed",
+      "promotion_note": "Manifest-driven local runner success/failure/timeout evidence is promoted by focused contracts and route execution.",
       "tests": ["crates/tachi-core/tests/ci_local_runner_contract.rs"]
     },
     {
@@ -36,7 +39,8 @@
       "green": "make publish-gate",
       "refactor": "make llvm-cov && make llvm-cov-nightly-branch",
       "promotion_status": "passed",
-      "tests": ["coverage-audit", "E2E-COV-007 publish-gate evidence", "crates/tachi-shell/tests/*", "crates/tachi-mcp/tests/*"]
+      "promotion_note": "Rust-owned E2E suites and the durable E2E-COV-007 closeout are recorded in integration_log.jsonl.",
+      "tests": ["cargo run -q -p tachi-cli --bin coverage-audit", "crates/tachi-shell/tests/init_adversarial.rs", "crates/tachi-mcp/tests/stdio.rs", "integration_log.jsonl:E2E-COV-007-CLOSEOUT"]
     },
     {
       "level": "agentic",
@@ -45,7 +49,8 @@
       "green": "cargo test -p tachi-core --test agentic_replay_contract -- --nocapture",
       "refactor": "make gitleaks-gate",
       "promotion_status": "skipped",
-      "tests": ["pending E2E-COV-010.2 deterministic replay harness"]
+      "promotion_note": "Harness is present and offline-executable, but promotion remains skipped until E2E-COV-010.2 adds behavioral replay evidence and review.",
+      "tests": ["crates/tachi-core/tests/agentic_replay_contract.rs"]
     }
   ]
 }

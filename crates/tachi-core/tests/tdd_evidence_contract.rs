@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -18,6 +19,12 @@ fn tdd_evidence_maps_acceptance_criteria_to_all_test_levels() {
     .expect("TDD evidence must be valid JSON");
     assert_eq!(value["schema_version"], 1);
     let levels = value["levels"].as_array().expect("levels array");
+    assert_eq!(levels.len(), 5, "exactly five test levels are required");
+    let names = levels
+        .iter()
+        .map(|entry| entry["level"].as_str().expect("level name"))
+        .collect::<BTreeSet<_>>();
+    assert_eq!(names.len(), 5, "test levels must be unique");
     for level in ["unit", "integration", "functional", "e2e", "agentic"] {
         let entry = levels
             .iter()
@@ -30,11 +37,25 @@ fn tdd_evidence_maps_acceptance_criteria_to_all_test_levels() {
                 "missing {phase} for {level}"
             );
         }
+        let status = entry["promotion_status"].as_str().unwrap();
         assert!(
-            ["passed", "failed", "skipped", "inconclusive"]
-                .contains(&entry["promotion_status"].as_str().unwrap()),
+            ["passed", "failed", "skipped", "inconclusive"].contains(&status),
             "invalid promotion status for {level}"
         );
-        assert!(!entry["tests"].as_array().unwrap().is_empty());
+        if level == "agentic" {
+            assert_eq!(
+                status, "skipped",
+                "agentic promotion requires E2E-COV-010.2"
+            );
+        } else {
+            assert_eq!(status, "passed", "established level must be promoted");
+        }
+        assert!(!entry["promotion_note"].as_str().unwrap().is_empty());
+        let tests = entry["tests"].as_array().unwrap();
+        assert!(!tests.is_empty());
+        assert!(tests.iter().all(|test| {
+            let value = test.as_str().unwrap();
+            !value.is_empty() && !value.contains('*')
+        }));
     }
 }

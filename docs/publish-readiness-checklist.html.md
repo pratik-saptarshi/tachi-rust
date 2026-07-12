@@ -216,6 +216,11 @@ retired from the active dependency surface.
       individual test names.
 - [ ] The DOC-00X documentation-update plan remains separate from the parity
       and docs-sweep tracks.
+- [x] `E2E-COV-010.1` has direct promotion traceability in
+      `docs/testing/tdd-evidence.json` and
+      `crates/tachi-core/tests/tdd_evidence_contract.rs`: unit, integration,
+      functional, and E2E levels are passed; agentic is explicitly skipped
+      until `E2E-COV-010.2` behavioral replay evidence is reviewed.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
       agree on the publish gate, security surfaces, RT-CI workflow surfaces,
       and remote publication flow.
