@@ -1,7 +1,7 @@
 # Bill of Materials
 
 **Status**: Active publish inventory
-**Last Updated**: 2026-07-10
+**Last Updated**: 2026-07-12
 **Purpose**: enumerate the repository surfaces that are expected to ship, be
 reviewed, or be validated before publishing `tachi-rust` to remote origin
 **Scope**: source code, docs, tests, CI, security posture, and release gates
@@ -220,7 +220,7 @@ The repository policy for these surfaces is:
 | Local CI-parity runner | `.github/ci-test-units.json`, `schemas/ci-test-units.schema.json`, `schemas/ci-run-result.schema.json`, `scripts/ci-local-runner.sh`, `make test`, `make test-route` | E2E-COV-007.3 evidence complete. Terminal local-full run `20260712T173705Z-72397` passed 8/8 in 536,162 ms (compile-and-test 466,327 ms; test slices 68,906 ms); labeled warm route-equivalent evidence passed 8/8 in 304,650 ms; controlled cold route-equivalent evidence passed 8/8 in 321,636 ms. JSON provenance records stage totals, cache context, toolchain, cleanup, and outcome; hosted repeated timing and reliability evidence remain open under E2E-COV-008. |
 | Local/hosted performance and reliability evidence | Local runner `results.json`, hosted run `29175545285` timing artifacts, `scripts/verify-ci-timing-artifacts.sh`, workflow job summaries, `make rt-ci-latency-evidence` | Local full/route/warm/cold evidence now has 32/32 successful unit executions across four runs, with no timeout/cancellation; the controlled cold run took 321,636 ms (compile/test 266,987 ms; shell slices 53,842 ms). All eight timing artifacts were downloaded and validated for merged main run `29178308727` and PR run `29178255153`; PR verification binds to the synthetic merge commit recorded in artifact provenance. Repeated remote samples and queue/run timing remain required before publish closeout. |
 | Advisory workflow emulation | `scripts/act-smoke.sh`, `tests/fixtures/act/pull-request.json`, `make act-smoke` | Planned E2E-COV-009 capability. Opt-in only; rootless Podman Docker-API compatibility is best-effort and preflighted; no secrets, host sockets, privileged/networked execution, or hosted-CI claims. |
-| RT-CI timing evidence | `make rt-ci-latency-evidence`, `docs/tachi-rust-ci-baseline.md` | Current mainline sample: workspace 40-run median 71s (2–361s), route-observe 11-run median 14s (12–17s), queue medians 0s. Branch protection and required-check evidence are verified; future policy changes should repeat the collector. |
+| RT-CI timing evidence | `make rt-ci-latency-evidence`, `docs/tachi-rust-ci-baseline.md` | Current mainline sample: workspace 40-run median 71s (2–361s), route-observe 11-run median 14s (12–17s), queue medians 0s. Branch protection and required-check evidence are verified; representative PR timing samples remain required. |
 | CI gate | GitHub Actions run status | Release, security, lint, and docs workflows are green. |
 | Remote monitor | `git push origin main --follow-tags` + `gh run watch` | Post-push CI is observed to completion before the release is considered published. |
 | Release-please gate | `release-please.yml` push filter | Docs-only publishes do not churn release refs and push runs avoid PR-branch churn. |
