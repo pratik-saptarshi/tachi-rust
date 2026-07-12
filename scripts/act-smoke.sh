@@ -9,13 +9,11 @@ podman_available=false
 act_version="unavailable"
 podman_version="unavailable"
 
-if command -v act >/dev/null 2>&1; then
+if command -v act >/dev/null 2>&1 && act_version="$(act --version 2>/dev/null | head -n 1)" && [ -n "$act_version" ]; then
     act_available=true
-    act_version="$(act --version 2>/dev/null | head -n 1 || printf '%s' unavailable)"
 fi
-if command -v podman >/dev/null 2>&1; then
+if command -v podman >/dev/null 2>&1 && podman_version="$(podman version --format '{{.Client.Version}}' 2>/dev/null)" && [ -n "$podman_version" ]; then
     podman_available=true
-    podman_version="$(podman version --format '{{.Client.Version}}' 2>/dev/null || printf '%s' unavailable)"
 fi
 
 status="READY"

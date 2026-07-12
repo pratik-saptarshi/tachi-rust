@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -27,6 +28,8 @@ fn benchmark_skips_without_runtime_and_cannot_trigger_side_effects() {
     let root = temp_dir();
     let bin = root.join("bin");
     fs::create_dir(&bin).expect("create fake bin");
+    executable(&bin.join("act"), "#!/bin/sh\nexit 127\n");
+    executable(&bin.join("podman"), "#!/bin/sh\nexit 127\n");
     let output = root.join("benchmark.json");
     let caller_preflight = root.join("caller-owned-preflight.json");
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
@@ -53,4 +56,11 @@ fn benchmark_skips_without_runtime_and_cannot_trigger_side_effects() {
         "caller-owned preflight must not be deleted"
     );
     fs::remove_dir_all(root).expect("cleanup");
+}
+
+fn executable(path: &Path, body: &str) {
+    fs::write(path, body).expect("write runtime shim");
+    let mut permissions = fs::metadata(path).expect("shim metadata").permissions();
+    permissions.set_mode(0o700);
+    fs::set_permissions(path, permissions).expect("shim permissions");
 }

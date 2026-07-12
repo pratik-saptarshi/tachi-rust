@@ -154,9 +154,11 @@ if [ "$COMMIT" = "auto" ]; then
     COMMIT="$observed_commit"
 fi
 
-if [ "$run_event" = "push" ] && [ "$COMMIT" != "$run_head_sha" ]; then
+if [ "$run_event" = "push" ] || [ "$run_event" = "workflow_dispatch" ]; then
+  if [ "$COMMIT" != "$run_head_sha" ]; then
     echo "FAIL: push timing artifacts do not match the GitHub run head SHA" >&2
     exit 1
+  fi
 fi
 
 jq -n --arg repo "$REPO" --arg run_id "$RUN_ID" --arg commit "$COMMIT" --argjson verified "$verified" \

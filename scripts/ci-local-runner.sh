@@ -45,6 +45,7 @@ case "$RETENTION" in ephemeral|retain) ;; *) fail "unsupported retention mode: $
 case "$MAX_LOG_BYTES" in ''|*[!0-9]*) fail "CI_LOCAL_MAX_LOG_BYTES must be a positive integer" ;; esac
 [ "$MAX_LOG_BYTES" -gt 0 ] || fail "CI_LOCAL_MAX_LOG_BYTES must be positive"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
+command -v perl >/dev/null 2>&1 || fail "perl is required for bounded capture and redaction"
 [ -r "$MANIFEST" ] || fail "missing manifest: $MANIFEST"
 [ -r "$RESULT_SCHEMA" ] || fail "missing result schema: $RESULT_SCHEMA"
 [ -r "$CLEANUP_SCHEMA" ] || fail "missing cleanup receipt schema: $CLEANUP_SCHEMA"
@@ -118,7 +119,6 @@ terminate_tree() {
 
 redact_log() {
     if [ -n "${CI_LOCAL_SECRET:-}" ]; then
-        command -v perl >/dev/null 2>&1 || fail "perl is required when CI_LOCAL_SECRET is set"
         CI_LOCAL_SECRET="$CI_LOCAL_SECRET" perl -0pi -e 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g' "$1"
     fi
     if command -v perl >/dev/null 2>&1; then
@@ -136,6 +136,24 @@ redact_log() {
         fi
         mv -- "$1.tmp" "$1"
     fi
+}
+
+bounded_capture() {
+    local max_bytes="$1"
+    shift
+    "$@" 2>&1 | perl -e '
+        my $max = shift @ARGV;
+        my $written = 0;
+        while (read(STDIN, my $buffer, 8192)) {
+            next if $written >= $max;
+            my $remaining = $max - $written;
+            my $chunk = length($buffer) > $remaining ? substr($buffer, 0, $remaining) : $buffer;
+            syswrite(STDOUT, $chunk);
+            $written += length($chunk);
+        }
+    ' "$max_bytes"
+    local command_status="${PIPESTATUS[0]}"
+    return "$command_status"
 }
 
 redact_metadata() {
@@ -232,7 +250,8 @@ run_unit() {
     started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     start_ms="$(now_ms)"
     (
-        "${argv[@]}" > "$log_path" 2>&1
+        set +e
+        bounded_capture "$MAX_LOG_BYTES" "${argv[@]}" > "$log_path"
         rc=$?
         printf '%s\n' "$rc" > "$exit_path.tmp"
         mv "$exit_path.tmp" "$exit_path"
@@ -268,10 +287,10 @@ run_unit() {
     safe_argv_json="$(printf '%s\n' "${argv[@]}" | while IFS= read -r arg; do sanitize_arg "$arg"; printf '\n'; done | jq -R -s 'split("\n") | map(select(length > 0))')"
     jq -n --arg run_id "$RUN_ID" --arg id "$id" --arg stage "$stage" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" \
         --arg status "$status" --arg started "$started" --arg finished "$finished" \
-        --arg log "$log_path" --argjson exit_code "$exit_code" --argjson signal "$signal" \
+        --argjson exit_code "$exit_code" --argjson signal "$signal" \
         --argjson argv "$safe_argv_json" \
         --argjson toolchain "$TOOLCHAIN_JSON" --argjson duration "$duration" --arg retention "$RETENTION" \
-        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,stage:$stage,cache_context:$cache_context,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:$duration,exit_code:$exit_code,signal:$signal,log_path:($id + ".log"),retention:$retention,cleanup:{verified:($retention == "ephemeral"),retention:$retention},redactions:["environment values are not copied to result JSON","machine paths normalized","credential patterns redacted","log size bounded"]}' \
+        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,stage:$stage,cache_context:$cache_context,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:$duration,exit_code:$exit_code,signal:$signal,log_path:($id + ".log"),retention:$retention,cleanup:{verified:false,retention:$retention},redactions:["environment values are not copied to result JSON","machine paths normalized","credential patterns redacted","log size bounded"]}' \
         > "$result_path"
     validate_unit_result "$result_path"
     validate_against_schema "$RESULT_SCHEMA" "$result_path"
@@ -286,9 +305,13 @@ done < <(jq -r --arg mode "$MODE" '.units[] | select(.modes | index($mode)) | @b
 
 jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" --argjson started_ms "$RUN_START_MS" --argjson finished_ms "$(now_ms)" \
     --arg retention "$RETENTION" \
-    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:($retention == "ephemeral"),retention:$retention},results:.}' \
+    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:false,retention:$retention},results:.}' \
     "$RUN_DIR"/*.json > "$RUN_DIR/results.json"
 jq -e '.schema_version == 1 and (.retention | IN("ephemeral", "retain")) and ((.results | length) == .unit_count)' "$RUN_DIR/results.json" >/dev/null || fail "aggregate result schema validation failed"
 validate_against_schema "$AGGREGATE_SCHEMA" "$RUN_DIR/results.json"
-printf 'run_id=%s\nmode=%s\nresults=results.json\n' "$RUN_ID" "$MODE"
+if [ "$RETENTION" = retain ]; then
+    printf 'run_id=%s\nmode=%s\nresults=run-%s/results.json\n' "$RUN_ID" "$MODE" "$RUN_ID"
+else
+    printf 'run_id=%s\nmode=%s\nresults=cleanup-%s.json\n' "$RUN_ID" "$MODE" "$RUN_ID"
+fi
 exit "$overall"
