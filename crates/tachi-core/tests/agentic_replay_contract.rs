@@ -50,7 +50,7 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
     assert_eq!(value["network_used"], false);
     assert_eq!(value["network_policy"], "deny");
     assert_eq!(value["model"], "scripted-fake");
-    assert_eq!(value["promotion_status"], "skipped");
+    assert_eq!(value["promotion_status"], "passed");
     assert_eq!(value["audit_sink"], "audit.jsonl");
     assert!(value["seed"].is_number());
     let expected_transitions = [
