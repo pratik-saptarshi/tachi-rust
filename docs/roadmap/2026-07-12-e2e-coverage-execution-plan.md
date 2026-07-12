@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Slices 1–2 complete; Slice 3 (`E2E-COV-007`) next
+**Status**: Active execution plan; Slices 1–2 complete; next active issue is `E2E-COV-007`
 **Baseline**: `main` / `origin/main` at `b70e0f4`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
