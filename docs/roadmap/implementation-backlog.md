@@ -1,6 +1,6 @@
 # Implementation Backlog
 
-**Last Updated**: 2026-07-10
+**Last Updated**: 2026-07-12
 **Purpose**: navigation hub for the Beads-ready Rust/Tauri implementation backlog
 **Scope**: roadmap sequencing, issue-pack pointers, and task-template guidance
 
@@ -16,7 +16,10 @@
 
 ## Current Status Snapshot
 
-- Open: `RT-CI-006.2`, `RT-CI-007` (remote evidence gates), `E2E-COV*` (new E2E coverage expansion hierarchy)
+- Open: `RT-CI` umbrella closeout; `E2E-COV` umbrella; `E2E-COV-007`,
+  `E2E-COV-009*`, `E2E-COV-010*`, and security follow-up `E2E-COV.2`
+- Closed in the latest timing closeout: `RT-CI-006.2`, `E2E-COV-008`, and
+  `RT-CI-007` plus its completed child slices
 - Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`
 - Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
   including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
@@ -69,7 +72,8 @@
 - Epic: `RT-CI` Rust CI orchestration and delta-routing hardening
 - Closed phase-1 guardrails: `RT-CI-002`, `RT-CI-002.1`, `RT-CI-002.1.1`,
   `RT-CI-002.2`, and `RT-CI-002.3`
-- Remaining open slices: `RT-CI-006.2` and `RT-CI-007`
+- Remaining open work: `RT-CI` umbrella closeout; timing evidence
+  `RT-CI-006.2` is closed and its evidence is retained in the CI baseline/BOM.
 - Tracker state: live Beads writes are exported to `../../.beads/issues.jsonl`
   after each slice, and the publish inventory/checklist now names the RT-CI
   workflows and docs as part of the current publish gate.
@@ -126,8 +130,8 @@
 
 - Live Beads state is authoritative for status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready --json` currently returns the open `RT-CI` slices, including
-  `RT-CI-006.2` and `RT-CI-007*`.
+- `bd ready` currently returns the open `RT-CI` umbrella, E2E-COV umbrella,
+  `E2E-COV-007`, `E2E-COV-009*`, and security follow-up `E2E-COV.2`.
 - `bd list --json` includes the deferred follow-ups `AQ-054.4`, `AQ-054.5`,
   and `AQ-054.6`, plus the open `RT-CI` hierarchy.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
@@ -135,11 +139,11 @@
 
 ## Local Branch Reconciliation
 
-- `main` equals `origin/main` in the current workspace at the last local
-  reconciliation. This backlog section is a dated snapshot and must be
-  refreshed before any publish claim; current plan edits are intentionally
-  uncommitted.
-- One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on `main`.
+- `main` equals `origin/main` at `b70e0f4` in the current workspace. This
+  backlog section is a dated snapshot and must be refreshed before any publish
+  claim; PR #25 carries the latest timing-closeout corrections.
+- One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on
+  `feat/e2e-ci-timing-closeout` while PR #25 is under protected review.
 - `feat/tauri-minimal-features` is a stale pre-main desktop branch. Its
   portable temp-root test changes and GTK-free desktop host work are already
   represented on `main`; direct merge would reintroduce obsolete toolchain,

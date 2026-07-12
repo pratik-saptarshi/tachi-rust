@@ -104,6 +104,11 @@ prisma/dev.db*
 .ai/
 .anthropic/
 
+# Local Codex/agent installation state (never publish workspace-local skills,
+# hooks, or generated agent configuration).
+.agents/
+.codex/
+
 # ============================================================================
 # Playwright MCP cache
 # ============================================================================

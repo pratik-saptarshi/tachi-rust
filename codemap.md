@@ -52,7 +52,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 |---|---|
 | Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` first resolved `src-tauri` as standalone evidence, then `RT-00i.2.5` retired that adapter from the active dependency surface to unblock the live GTK/GLib advisory; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
 | RT-CI live CI hardening | `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`, `docs/tachi-rust-ci-review-panel.md`, `docs/tachi-rust-ci-route-policy.md`, `docs/tachi-rust-ci-route-fixtures.md`, and `docs/tachi-rust-ci-closeout.md` define the live `RT-CI` hierarchy for PR concurrency, workflow parse, rustfmt, protected trigger contracts, route-policy escalation, route fixtures, dependency-closure routing, shared Rust setup, protected-ref enforcement, and privileged SARIF invariants. The branch carries the dedicated `ci-workflow-parse.yml` and `rustfmt.yml` gates plus the workflow contract audit in `crates/tachi-core/tests/workflow_ci_gates.rs`; the current telemetry slice adds protected/unknown-route full-mode assertions, multi-workflow queue-vs-run median evidence, and explicit branch-protection evidence requirements. |
-| E2E coverage expansion | `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md`, `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md`, `docs/roadmap/2026-07-12-e2e-coverage-execution-plan.md`, and the `E2E-COV*` Beads hierarchy define the active plan for CLI, desktop-host, MCP-stdio, lifecycle, failure/cancellation, and branch-coverage evidence. The Rust-owned E2E inventory covers CLI artifacts, desktop host commands, MCP stdio, initialization, the composed init/install/update/analysis lifecycle, and the cross-boundary failure matrix; E2E-COV-007.3 terminal local-full runner evidence is complete, while hosted reliability, act/Podman, agentic evidence, and final publish-gate closeout remain open. |
+| E2E coverage expansion | `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md`, `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md`, `docs/roadmap/2026-07-12-e2e-coverage-execution-plan.md`, and the `E2E-COV*` Beads hierarchy define the active plan for CLI, desktop-host, MCP-stdio, lifecycle, failure/cancellation, and branch-coverage evidence. The Rust-owned E2E inventory covers CLI artifacts, desktop host commands, MCP stdio, initialization, the composed init/install/update/analysis lifecycle, and the cross-boundary failure matrix; E2E-COV-007.3 local-runner and E2E-COV-008 hosted timing/reliability evidence are complete, while the uninterrupted publish gate, act/Podman, and agentic evidence remain open. |
 | Codemap automation state | `.slim/codemap.json` tracks the core Rust/configuration surface (67 files), with hierarchical maps under `crates/` and each active workspace package. Tests and documentation remain excluded from hash-based change detection. |
 
 ## Rust Data And Control Flow
@@ -117,9 +117,14 @@ passed all eight timing-artifact units and the workflow fan-out in about 79
 seconds, with job durations from 37 to 67 seconds. The hosted
 mainline timing collector now reports a 40-run workspace median of 71 seconds
 and an 11-run route-observe median of 14 seconds, with zero queue median in
-both samples; branch protection is enabled with the verified required-check
-contract, so governance evidence is complete while final publish-gate closure
-remains separately tracked.
+both samples. The pull-request collector reports a 22-run workspace median of
+85 seconds and a 23-run route-observe median of 14 seconds, also with zero
+queue median; the latest five PR #24 runs passed and historical failures remain
+visible in the raw sample. Branch protection is enabled with the verified
+required-check contract, so governance evidence is complete while final
+publish-gate closure remains separately tracked.
+The security follow-up `E2E-COV.2` remains open for independent GitHub run
+metadata binding and an explicit local-log retention/redaction contract.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
