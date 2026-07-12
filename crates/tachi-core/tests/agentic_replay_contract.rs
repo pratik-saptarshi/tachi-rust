@@ -82,8 +82,15 @@ fn replay_rejects_allowlisted_denial_fixture() {
     let fixture = root.join("inconsistent.json");
     let source = fs::read_to_string(repo_root().join("tests/fixtures/agentic/replay.json"))
         .expect("read replay fixture");
-    fs::write(&fixture, source.replacen(r#"{"id": "denial", "expected": "denied", "tool": "curl"}"#, r#"{"id": "denial", "expected": "denied", "tool": "printf"}"#, 1))
-        .expect("write inconsistent fixture");
+    fs::write(
+        &fixture,
+        source.replacen(
+            r#"{"id": "denial", "expected": "denied", "tool": "curl"}"#,
+            r#"{"id": "denial", "expected": "denied", "tool": "printf"}"#,
+            1,
+        ),
+    )
+    .expect("write inconsistent fixture");
     let result = Command::new(repo_root().join("scripts/agentic-replay.sh"))
         .env("AGENTIC_REPLAY_FIXTURE", &fixture)
         .output()
