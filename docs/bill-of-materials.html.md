@@ -50,7 +50,7 @@ with the shipped release workflow before publication.
 | `docs/tachi-rust-ci-route-fixtures.md` | RT-CI route fixture manifest | Publishable with review | Common change-set matrix and stable JSON examples for route decisions. |
 | `docs/tachi-rust-ci-route-artifact.md` | RT-CI route artifact manifest | Publishable with review | Observable `route.json` schema and stable orchestrator check notes for the route-observe lane. |
 | `docs/tachi-rust-ci-baseline.md` | RT-CI baseline snapshot | Publishable with review | Phase-0 inventory and local validation snapshot for the pre-routing CI contract. |
-| `docs/tachi-rust-ci-closeout.md` | RT-CI closeout notes | Publishable with review | Separates locally proven RT-CI changes from GitHub-side verification items that remain pending. |
+| `docs/tachi-rust-ci-closeout.md` | RT-CI closeout notes | Complete with hosted caveats | Separates locally proven RT-CI changes from GitHub-side verification evidence; all seven RT-CI children and the umbrella are Beads-closed. |
 | `docs/ci-improvement-plan.html` | RT-CI source plan draft | Publishable with review | Original plan-review integrator output that feeds the live RT-CI execution docs and tracker cards. |
 | `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation notes for the live RT-CI CI hardening track. |
 | `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Source text for the live RT-CI hierarchy and acceptance criteria. |

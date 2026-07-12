@@ -70,7 +70,7 @@ silent deferral.
 | 5 | `E2E-COV-010.2` | P2 | Complete; Beads closure ready. | Final review confirms fixed fake-tool invocation for approval, bounded timeout, cancellation, and circuit-breaker cases; denial remains non-invoked. The harness records transitions, writes an independent 0600 JSONL audit sink, proves descendant cleanup, and uses no live model/network. |
 | 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
 | 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
-| 8 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
+| 8 | `RT-CI` | P0 | Complete; Beads closure recorded. | Route, protection, timing, tracker, and rollback documentation agree; all seven children are closed. |
 
 `E2E-COV-007` and `E2E-COV-007.3` are complete and intentionally omitted from the active queue;
 their terminal local-runner and publish-gate evidence remains documented in the
