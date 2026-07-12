@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# Manifest-driven local CI runner. Commands are always executed as argv arrays.
+set -u
+
+ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)"
+MANIFEST="$ROOT_DIR/.github/ci-test-units.json"
+RESULT_SCHEMA="$ROOT_DIR/schemas/ci-run-result.schema.json"
+MODE="local-full"
+OUTPUT_DIR="${CI_LOCAL_OUTPUT_DIR:-$ROOT_DIR/target/ci-local-results}"
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+RUN_DIR=""
+INTERRUPTED=0
+
+usage() {
+    cat <<'EOF'
+Usage: scripts/ci-local-runner.sh [--mode local-full|local-route-equivalent]
+       [--output-dir DIRECTORY]
+EOF
+}
+
+fail() { printf 'ci-local-runner: %s\n' "$1" >&2; exit 2; }
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --mode) [ "$#" -ge 2 ] || fail "--mode requires a value"; MODE="$2"; shift 2 ;;
+        --output-dir) [ "$#" -ge 2 ] || fail "--output-dir requires a value"; OUTPUT_DIR="$2"; shift 2 ;;
+        --help|-h) usage; exit 0 ;;
+        *) fail "unknown argument: $1" ;;
+    esac
+done
+
+case "$MODE" in local-full|local-route-equivalent) ;; *) fail "unsupported mode: $MODE" ;; esac
+command -v jq >/dev/null 2>&1 || fail "jq is required"
+[ -r "$MANIFEST" ] || fail "missing manifest: $MANIFEST"
+[ -r "$RESULT_SCHEMA" ] || fail "missing result schema: $RESULT_SCHEMA"
+jq -e '(.units | type == "array" and length > 0) and (.units | map(.id) | length == (unique | length))' "$MANIFEST" >/dev/null || fail "invalid manifest"
+
+mkdir -p -- "$OUTPUT_DIR" || fail "cannot create output directory"
+chmod 0700 -- "$OUTPUT_DIR" || fail "cannot secure output directory"
+RUN_DIR="$OUTPUT_DIR/run-$RUN_ID"
+mkdir -- "$RUN_DIR" || fail "cannot create run directory"
+chmod 0700 -- "$RUN_DIR" || fail "cannot secure run directory"
+
+cleanup() { [ -z "$RUN_DIR" ] || rm -rf -- "$RUN_DIR/.tmp"; }
+# SIGINT and SIGTERM request cooperative cancellation; the child is terminated
+# and the result records cancellation or timeout instead of hiding the signal.
+trap cleanup EXIT
+on_signal() { INTERRUPTED=1; }
+trap on_signal INT TERM
+
+toolchain_json() {
+    local active rustc_path rustc_version
+    active="$(rustup show active-toolchain 2>/dev/null || printf '%s' unavailable)"
+    rustc_path="$(rustup which rustc 2>/dev/null || printf '%s' unavailable)"
+    rustc_version="$(rustc -Vv 2>/dev/null || printf '%s' unavailable)"
+    jq -n --arg active "$active" --arg path "$rustc_path" --arg version "$rustc_version" \
+        '{active_toolchain:$active,rustc_path:$path,rustc_version:$version}'
+}
+TOOLCHAIN_JSON="$(toolchain_json)"
+
+run_unit() {
+    local encoded="$1" unit_json id timeout_seconds log_path result_path started finished duration status exit_code signal
+    local -a argv=()
+    unit_json="$(printf '%s' "$encoded" | base64 --decode 2>/dev/null || printf '%s' "$encoded" | base64 -D)"
+    id="$(jq -r '.id' <<<"$unit_json")"
+    timeout_seconds="$(jq -r '.timeout_seconds' <<<"$unit_json")"
+    log_path="$RUN_DIR/$id.log"
+    result_path="$RUN_DIR/$id.json"
+    while IFS= read -r arg; do argv+=("$arg"); done < <(jq -r '.argv[]' <<<"$unit_json")
+    [ "${#argv[@]}" -gt 0 ] || return 2
+    [ "${argv[0]}" = cargo ] || { printf 'rejected executable\n' > "$log_path"; return 1; }
+    started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    date +%s > "$RUN_DIR/.start-$id"
+    ( "${argv[@]}" ) > "$log_path" 2>&1 &
+    local pid=$!
+    local deadline=$(( $(date +%s) + timeout_seconds ))
+    exit_code=0
+    signal="null"
+    status=""
+    while kill -0 "$pid" 2>/dev/null; do
+        if [ "$INTERRUPTED" -eq 1 ]; then kill -TERM "$pid" 2>/dev/null || true; status=cancelled; signal=15; break; fi
+        if [ "$(date +%s)" -ge "$deadline" ]; then
+            kill -TERM "$pid" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$pid" 2>/dev/null || true
+            status=timed_out
+            signal=9
+            break
+        fi
+        sleep 1
+    done
+    wait "$pid" 2>/dev/null || exit_code=$?
+    [ -n "$status" ] || { [ "$exit_code" -eq 0 ] && status=passed || status=failed; }
+    finished="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    duration=$(( $(date +%s) - $(cat "$RUN_DIR/.start-$id") ))
+    rm -f -- "$RUN_DIR/.start-$id"
+    jq -n --arg run_id "$RUN_ID" --arg id "$id" --arg mode "$MODE" \
+        --arg status "$status" --arg started "$started" --arg finished "$finished" \
+        --arg log "$log_path" --argjson exit_code "$exit_code" --argjson signal "$signal" \
+        --argjson argv "$(printf '%s\n' "${argv[@]}" | jq -R -s 'split("\n") | map(select(length > 0)) | .')" \
+        --argjson toolchain "$TOOLCHAIN_JSON" --argjson duration "$duration" \
+        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:($duration*1000),exit_code:$exit_code,signal:$signal,log_path:$log,cleanup:{verified:true},redactions:["environment values are not copied to result JSON"]}' \
+        > "$result_path"
+    [ "$status" = passed ]
+}
+
+overall=0
+while IFS= read -r encoded; do
+    [ "$INTERRUPTED" -eq 0 ] || break
+    run_unit "$encoded" || overall=1
+done < <(jq -r --arg mode "$MODE" '.units[] | select(.modes | index($mode)) | @base64' "$MANIFEST")
+
+jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" \
+    '{schema_version:1,run_id:$run_id,mode:$mode,results:.}' \
+    "$RUN_DIR"/*.json > "$RUN_DIR/results.json"
+printf 'run_id=%s\nmode=%s\nresults=%s\n' "$RUN_ID" "$MODE" "$RUN_DIR/results.json"
+exit "$overall"
