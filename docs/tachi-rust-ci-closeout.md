@@ -63,9 +63,9 @@ items that still require GitHub access
 - Evidence confirms the evidence collection path is now functional and
   synchronized with docs and artifacts.
 - Current mainline median collection: `rust-workspace.yml` sample size 40,
-  run median 67 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
-  size 5, run median 16 seconds, queue median 0 seconds. Branch protection
-  remains unavailable with HTTP 404.
+  run median 71 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
+  size 11, run median 14 seconds, queue median 0 seconds. Branch protection is
+  enabled and the required-check API response matches the documented contract.
 
 ## Publish-Readiness Guardrails Before Merge Closure
 

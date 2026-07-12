@@ -63,16 +63,15 @@ reference
 The current `make rt-ci-latency-evidence` run collected the following live
 mainline sample:
 
-- `rust-workspace.yml`: sample size 40, median run `67,000 ms`, queue median
+- `rust-workspace.yml`: sample size 40, median run `71,000 ms`, queue median
   `0 ms`, run range `2,000..361,000 ms`, queue range `0..0 ms`.
-- `ci-route-observe.yml`: sample size 5, median run `16,000 ms`, queue median
+- `ci-route-observe.yml`: sample size 11, median run `14,000 ms`, queue median
   `0 ms`, run range `12,000..16,000 ms`, queue range `0..0 ms`.
 
 These are hosted workflow medians, not local wall-time equivalents. The
-collector also failed its branch-protection check because
-`pratik-saptarshi/tachi-rust/main` is currently unprotected (GitHub HTTP 404).
-That governance failure remains a separate publish-gate blocker; it does not
-invalidate the timing measurements.
+branch protection is now enabled on `pratik-saptarshi/tachi-rust/main` with the
+verified route, security, formatting, package, and shell checks required. The
+collector passes its governance check as well as its timing collection.
 
 - PR-side timing evidence was collected via GitHub Actions APIs in this session.
   Representative command lines:
