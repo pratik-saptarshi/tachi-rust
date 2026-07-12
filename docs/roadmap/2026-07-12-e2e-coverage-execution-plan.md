@@ -1,13 +1,13 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Slice 1 (`E2E-COV-007.3`) complete; Slice 2 (`E2E-COV-008`) next
-**Baseline**: `main` / `origin/main` at `298618c`
+**Status**: Active execution plan; Slices 1–2 complete; Slice 3 (`E2E-COV-007`) next
+**Baseline**: `main` / `origin/main` at `b70e0f4`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `298618c`; no main push is
+Local `main` and `origin/main` are synchronized at `b70e0f4`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
@@ -17,10 +17,11 @@ The remaining evidence is narrower than the product journey inventory:
 
 - the aggregate local publish gate now has terminal full-mode runner evidence,
   but the complete uninterrupted `make publish-gate` still needs recording;
-- E2E-COV-008 needs repeated hosted PR timing/reliability evidence and final
-  documentation reconciliation;
-- RT-CI-006.2 remains open until representative PR timing samples are
-  collected, even though mainline timing and branch protection are verified;
+- E2E-COV-008 and RT-CI-006.2 now have repeated hosted PR timing,
+  artifact-integrity, queue/run, and branch-protection evidence; historical
+  failed runs remain visible rather than being removed from the sample;
+- security follow-up `E2E-COV.2` remains open for independent GitHub run
+  metadata binding and an explicit local-log retention/redaction contract;
 - the act/Podman lane is advisory and must remain unavailable-safe and
   security-isolated;
 - TDD and agentic replay evidence must be promoted through explicit test-level
@@ -30,21 +31,26 @@ The remaining evidence is narrower than the product journey inventory:
 
 | Order | Beads issue | Priority | Execution decision | Exit evidence |
 |---:|---|:---:|---|---|
-| 1 | `E2E-COV-008` | P1 | Reconcile runner, hosted artifact, timing, queue, cache, reliability, and cleanup evidence. | 8/8 local units across labeled cache states, hosted artifact verification, repeated PR timing sample, and synchronized docs/tracker. |
-| 2 | `RT-CI-006.2` | P2 | Keep open while representative PR timing samples remain below the acceptance target. | Representative PR samples, separated queue/run medians, variance, and no unexplained reliability regression. |
-| 3 | `E2E-COV-007` | P2 | Close only after an uninterrupted local publish-gate run and standalone coverage evidence are proven together. | Stable line/region gate, governed nightly branch gate, security/supply-chain/privacy gates, and synchronized baseline. |
-| 4 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation, after E2E-COV-008. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
-| 5 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
-| 6 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
-| 7 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
-| 8 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
-| 9 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
-| 10 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
+| 1 | `E2E-COV-007` | P2 | Close only after an uninterrupted local publish-gate run and standalone coverage evidence are proven together. | Stable line/region gate, governed nightly branch gate, security/supply-chain/privacy gates, and synchronized baseline. |
+| 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation, after E2E-COV-008. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
+| 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
+| 4 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
+| 5 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
+| 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
+| 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
+| 8 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
 
 `E2E-COV-007.3` is complete and intentionally omitted from the active queue;
 its terminal local-runner evidence remains documented in Slice 1 and in the
 roadmap/BOM/checklist. The remaining `E2E-COV-007` work is the uninterrupted
 aggregate publish-gate recording.
+
+`E2E-COV-008` and `RT-CI-006.2` are closed in Beads. The
+merged PR #24 evidence run `29203699709` validated all eight timing artifacts;
+the current pull-request timing collector reports workspace 22-run median 85s
+and route-observe 23-run median 14s, both with zero queue median. The latest
+five PR #24 runs passed; historical failures remain included in the raw sample
+and are documented as limitations rather than discarded.
 
 ## Slice 1: aggregate local publish-gate boundary — complete
 
@@ -83,7 +89,20 @@ sandboxed publish-gate attempt failed before product validation because the
 Cargo advisory database path was read-only; the escalated rerun passed that
 stage, proving the first failure was environmental.
 
-## Slice 2: hosted performance and reliability
+## Slice 2: hosted performance and reliability — complete
+
+The merged PR #24 workspace run `29203699709` passed all eight units and its
+eight timing artifacts were validated with `make verify-ci-timing-artifacts
+RUN_ID=29203699709 COMMIT=auto`. The pull-request timing collector recorded a
+22-run workspace median of 85 seconds (79–101 seconds) and a 23-run
+route-observe median of 14 seconds (11–17 seconds), with zero queue median in
+both samples. The latest five PR #24 workspace/route runs passed; historical
+failed workspace runs remain included in the raw GitHub sample and are
+documented rather than discarded. Local full/warm/cold/route evidence remains
+40/40 successful unit executions, and branch protection is verified with 16
+required contexts. `E2E-COV-008` and `RT-CI-006.2` are closed in Beads.
+
+### Slice 2 evidence contract (satisfied)
 
 Collect repeated PR and main samples with queue time separated from execution
 time. Validate all eight timing artifacts by run ID, commit provenance, stage,
