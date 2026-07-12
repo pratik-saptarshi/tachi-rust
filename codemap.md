@@ -52,7 +52,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 |---|---|
 | Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` first resolved `src-tauri` as standalone evidence, then `RT-00i.2.5` retired that adapter from the active dependency surface to unblock the live GTK/GLib advisory; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
 | RT-CI live CI hardening | `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`, `docs/tachi-rust-ci-review-panel.md`, `docs/tachi-rust-ci-route-policy.md`, `docs/tachi-rust-ci-route-fixtures.md`, and `docs/tachi-rust-ci-closeout.md` define the live `RT-CI` hierarchy for PR concurrency, workflow parse, rustfmt, protected trigger contracts, route-policy escalation, route fixtures, dependency-closure routing, shared Rust setup, protected-ref enforcement, and privileged SARIF invariants. The branch carries the dedicated `ci-workflow-parse.yml` and `rustfmt.yml` gates plus the workflow contract audit in `crates/tachi-core/tests/workflow_ci_gates.rs`; the current telemetry slice adds protected/unknown-route full-mode assertions, multi-workflow queue-vs-run median evidence, and explicit branch-protection evidence requirements. |
-| E2E coverage expansion | `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md`, `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md`, and the `E2E-COV*` Beads hierarchy define the active plan for CLI, desktop-host, MCP-stdio, lifecycle, failure/cancellation, and branch-coverage evidence. The Rust-owned E2E inventory covers CLI artifacts, desktop host commands, MCP stdio, initialization, the composed init/install/update/analysis lifecycle, and the cross-boundary failure matrix; the 85% nightly branch target is met and publish-gate closeout remains open. |
+| E2E coverage expansion | `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md`, `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md`, `docs/roadmap/2026-07-12-e2e-coverage-execution-plan.md`, and the `E2E-COV*` Beads hierarchy define the active plan for CLI, desktop-host, MCP-stdio, lifecycle, failure/cancellation, and branch-coverage evidence. The Rust-owned E2E inventory covers CLI artifacts, desktop host commands, MCP stdio, initialization, the composed init/install/update/analysis lifecycle, and the cross-boundary failure matrix; E2E-COV-007.3 terminal local-full runner evidence is complete, while hosted reliability, act/Podman, agentic evidence, and final publish-gate closeout remain open. |
 | Codemap automation state | `.slim/codemap.json` tracks the core Rust/configuration surface (67 files), with hierarchical maps under `crates/` and each active workspace package. Tests and documentation remain excluded from hash-based change detection. |
 
 ## Rust Data And Control Flow
@@ -79,7 +79,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 | Integration | Rust integration tests under `crates/*/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, retired-adapter guard tests, the typed control-plane boundary audit, the RT-CI trigger/permission contract audit, the route-policy manifest contract audit, and the route-fixture manifest contract audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init, CLI analysis-to-artifact, desktop host command, MCP stdio, composed init/install/update/analysis lifecycle, and cross-boundary failure/cancellation flows are explicitly classified or exercised by `crates/tachi-core/tests/coverage_audit.rs` and the Rust E2E suites; E2E-COV-007 branch evidence is governed by the pinned nightly lane and publish gate. |
-| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane now records 85.09% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007.1 meets its branch target and remote CI is green, while local aggregate publish-gate test runtime remains unresolved. The canonical dated audit baseline is 113 active modules, 95 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
+| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane now records 85.09% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007.1 meets its branch target and remote CI is green. The manifest-driven runner has terminal local-full evidence; the canonical dated audit baseline is 113 active modules, 95 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
 
 The publish gate now includes `make scaffold-dependency-gate`, which runs the
 Rust-native `scaffold_dependency_floors` integration test against the real
@@ -110,14 +110,17 @@ entrypoint. The runner emits stage-aware per-unit and aggregate timing,
 toolchain provenance, exit/timeout/cancellation state, and cleanup evidence;
 the first route-equivalent functional run passed all 8 units in 320,184 ms,
 the subsequent full run passed all 8 in 294,483 ms, and a labeled warm route
-run passed all 8 in 304,650 ms. A controlled cold sample and the hosted
-comparison remain publish-closeout gates. Hosted workspace run `29175545285`
+run passed all 8 in 304,650 ms, and terminal local-full run
+`20260712T173705Z-72397` passed all 8 in 536,162 ms (compile-and-test
+466,327 ms; test slices 68,906 ms). Hosted workspace run `29175545285`
 passed all eight timing-artifact units and the workflow fan-out in about 79
 seconds, with job durations from 37 to 67 seconds. The hosted
 mainline timing collector now reports a 40-run workspace median of 71 seconds
 and an 11-run route-observe median of 14 seconds, with zero queue median in
-both samples. Branch protection is enabled with the verified required-check
-contract, so the RT-CI governance collector now passes.
+<<<<<<< HEAD
+both samples; branch protection is enabled with the verified required-check
+contract, so governance evidence is complete while final publish-gate closure
+remains separately tracked.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an

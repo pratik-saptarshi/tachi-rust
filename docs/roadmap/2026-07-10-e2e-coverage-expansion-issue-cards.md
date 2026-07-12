@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: live Beads hierarchy; overseer remediation integrated; E2E-COV-007.1 branch target met, aggregate local publish-gate closeout pending
+**Status**: live Beads hierarchy; overseer remediation integrated; E2E-COV-007.1 branch target met, E2E-COV-007.3 terminal local runner evidence complete, aggregate publish-gate closeout pending
 
 ## Epic
 
@@ -208,7 +208,7 @@ Every new or reopened card must include:
   - the aggregate local test phase reaches a terminal green result, or a deterministic documented runner workaround is contract-tested;
   - no coverage, security, or privacy gate is weakened;
   - Beads, codemap, BOM, and publish checklist record the final evidence.
-- **Current evidence**: crate-level suites pass independently (core 372, shell 78, CLI 31, desktop 46, MCP 20); remote workspace CI is green, but local aggregate `cargo test -q` repeatedly produced no terminal output.
+- **Current evidence**: crate-level suites pass independently (core 372, shell 78, CLI 31, desktop 46, MCP 20); terminal local-full run `20260712T173705Z-72397` passed all 8 manifest units in 536,162 ms (compile-and-test 466,327 ms; test slices 68,906 ms), with zero failures, timeouts, cancellations, and verified cleanup. The manifest-driven runner is the documented bounded replacement for the previously opaque aggregate `cargo test -q` path.
 - **Validation**: `make publish-gate`, package-level regression suites, workflow contract tests, and synchronized release documentation.
 - **Priority**: P1
 

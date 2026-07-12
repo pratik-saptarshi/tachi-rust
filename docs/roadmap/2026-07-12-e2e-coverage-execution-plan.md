@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan
+**Status**: Active execution plan; Slice 1 (`E2E-COV-007.3`) complete
 **Baseline**: `main` / `origin/main` at `fdecc9f`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -15,8 +15,8 @@ install / update / analysis journeys. The governed nightly branch result is
 
 The remaining evidence is narrower than the product journey inventory:
 
-- the aggregate local publish gate must reach a terminal result or use a
-  deterministic, contract-tested runner explanation;
+- the aggregate local publish gate now has terminal full-mode runner evidence,
+  but the complete uninterrupted `make publish-gate` still needs recording;
 - E2E-COV-008 needs repeated hosted PR timing/reliability evidence and final
   documentation reconciliation;
 - RT-CI-006.2 remains open until representative PR timing samples are
@@ -42,7 +42,7 @@ The remaining evidence is narrower than the product journey inventory:
 | 10 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
 | 11 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
 
-## Slice 1: aggregate local publish-gate boundary
+## Slice 1: aggregate local publish-gate boundary — complete
 
 ### RED
 
@@ -66,9 +66,18 @@ The remaining evidence is narrower than the product journey inventory:
 
 ### REFACTOR and verification
 
-Run focused workflow/runner tests, all package suites, `make test-route`,
-`make workflow-gate`, security gates, coverage gates, and then the complete
-publish gate with a writable cargo advisory cache.
+Evidence: `make test` run `20260712T173705Z-72397` passed all 8 units in
+536,162 ms, with compile/test at 466,327 ms, test slices at 68,906 ms, zero
+failures/timeouts/cancellations, and verified cleanup. The first full publish
+gate attempt reached this runner after all preceding security and coverage
+stages passed; it was interrupted only to isolate the runner evidence. A full
+uninterrupted publish-gate recording remains part of `E2E-COV-007` closeout.
+
+Focused workflow/runner tests, all package suites, `make workflow-gate`,
+security gates, and coverage gates passed during this slice. The initial
+sandboxed publish-gate attempt failed before product validation because the
+Cargo advisory database path was read-only; the escalated rerun passed that
+stage, proving the first failure was environmental.
 
 ## Slice 2: hosted performance and reliability
 
