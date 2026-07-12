@@ -86,7 +86,7 @@ retired from the active dependency surface.
 
 ## 4. Rust validation
 
-- [ ] `make test` passes through the manifest-driven local runner, with JSON result/provenance output, per-unit timeout and cleanup evidence; `make test-route` also passes or its deterministic environment limitation is documented.
+- [x] `make test` passes through the manifest-driven local runner, with JSON result/provenance output, per-unit timeout and cleanup evidence; terminal local-full run `20260712T173705Z-72397` passed 8/8. `make test-route` evidence is also recorded below.
 - [x] The local runner preserves all five package/all-target units and all three `tachi-shell` suite slices from `.github/ci-test-units.json`; `cargo test -q` is not used as the opaque publish-gate runner.
 - [x] Local runner evidence records per-stage and aggregate build/test duration, cold/warm cache context, toolchain/host provenance, pass/fail/timeout/cancellation counts, artifact validation, and cleanup status. Terminal local-full run `20260712T173705Z-72397` passed 8/8 in 536,162 ms (compile/test 466,327 ms; test slices 68,906 ms), with zero failures/timeouts/cancellations and verified cleanup.
 - [x] Local route-equivalent evidence records 8/8 passed units with zero failure/timeout/cancellation outcomes: initial 320,184 ms, full 294,483 ms, labeled warm 304,650 ms, and controlled cold 321,636 ms (compile/test 266,987 ms; test slices 53,842 ms). Hosted comparison and artifact-download verification remain required.

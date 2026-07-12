@@ -117,7 +117,6 @@ passed all eight timing-artifact units and the workflow fan-out in about 79
 seconds, with job durations from 37 to 67 seconds. The hosted
 mainline timing collector now reports a 40-run workspace median of 71 seconds
 and an 11-run route-observe median of 14 seconds, with zero queue median in
-<<<<<<< HEAD
 both samples; branch protection is enabled with the verified required-check
 contract, so governance evidence is complete while final publish-gate closure
 remains separately tracked.
