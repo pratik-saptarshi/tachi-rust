@@ -48,9 +48,9 @@
       "red": "cargo test -p tachi-core --test agentic_replay_contract deterministic_replay_covers_safety_outcomes_without_live_model_or_network -- --nocapture # expected audit_sink assertion failure before E2E-COV-010.2 transition/sink implementation",
       "green": "cargo test -p tachi-core --test agentic_replay_contract -- --nocapture",
       "refactor": "cargo fmt --all -- --check && make gitleaks-gate",
-      "promotion_status": "skipped",
-      "promotion_note": "Harness is offline-executable and now proves explicit safety transitions, deterministic repeated bytes, exact independent audit correlation, 0600 sink permissions, and output/audit collision rejection. Promotion remains skipped because fake-tool execution is not yet implemented or reviewed.",
-      "tests": ["crates/tachi-core/tests/agentic_replay_contract.rs::deterministic_replay_covers_safety_outcomes_without_live_model_or_network", "crates/tachi-core/tests/agentic_replay_contract.rs::replay_rejects_live_network_fixture", "crates/tachi-core/tests/agentic_replay_contract.rs::replay_rejects_allowlisted_denial_fixture"]
+      "promotion_status": "passed",
+      "promotion_note": "Final code review confirms the fixed repository-owned fake tool is invoked for approval, bounded timeout, cancellation, and circuit-breaker cases; denial remains non-invoked. The harness proves explicit safety transitions, deterministic repeated bytes, exact independent audit correlation, 0600 sink permissions, output/audit collision rejection, and descendant cleanup. No live model or network is used.",
+      "tests": ["crates/tachi-core/tests/agentic_replay_contract.rs::deterministic_replay_covers_safety_outcomes_without_live_model_or_network", "crates/tachi-core/tests/agentic_replay_contract.rs::replay_rejects_live_network_fixture", "crates/tachi-core/tests/agentic_replay_contract.rs::replay_rejects_allowlisted_denial_fixture", "tests/fixtures/agentic/fake-tool.sh"]
     }
   ]
 }

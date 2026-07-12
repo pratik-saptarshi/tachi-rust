@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; E2E-COV-007, E2E-COV.2, and E2E-COV-010.1 complete; E2E-COV-009.1/.2 and E2E-COV-010.2 are partial/open
+**Status**: Active execution plan; E2E-COV-007, E2E-COV.2, E2E-COV-010.1, and E2E-COV-010.2 complete; E2E-COV-009.1/.2 and the E2E-COV-010 umbrella remain open
 **Baseline**: `main` / `origin/main` at `36f5eaa`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -66,8 +66,8 @@ silent deferral.
 | 1 | `E2E-COV.2` | P2 | Complete. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, and no secret persistence are evidenced and Beads-closed. |
 | 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
 | 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. **Partial-green:** fixture-driven unavailable-safe wrapper and baseline landed; available-runtime measurements remain. |
-| 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is explicitly skipped pending .2. |
-| 5 | `E2E-COV-010.2` | P2 | Partial-green harness; promotion remains open. | Deterministic synthetic-transition trace now records explicit approval/denial/timeout/cancel/circuit transitions and writes an independent 0600 JSONL audit sink; scripted fake-tool execution and promotion review remain required. |
+| 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is now passed by .2. |
+| 5 | `E2E-COV-010.2` | P2 | Complete; Beads closure ready. | Final review confirms fixed fake-tool invocation for approval, bounded timeout, cancellation, and circuit-breaker cases; denial remains non-invoked. The harness records transitions, writes an independent 0600 JSONL audit sink, proves descendant cleanup, and uses no live model/network. |
 | 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
 | 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
 | 8 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
@@ -191,15 +191,17 @@ cold/warm resource evidence remains open.
 AC-to-test matrix, durable RED/GREEN/REFACTOR records, and
 pass/fail/skipped/inconclusive semantics across unit, integration, functional,
 E2E, and agentic levels. `E2E-COV-010.2` now has an offline deterministic
-synthetic-transition trace harness in `scripts/agentic-replay.sh` and
-`tests/fixtures/agentic/replay.json`; it remains promotion-skipped pending
-review of the scripted fake-tool execution boundary; it does not claim to
-invoke a fake tool yet. The harness records
+fake-tool replay harness in `scripts/agentic-replay.sh`,
+`tests/fixtures/agentic/fake-tool.sh`, and
+`tests/fixtures/agentic/replay.json`; final code review passed the child. The
+harness actually invokes the fixed fake tool for approval,
+bounded timeout, cancellation, and circuit-breaker cases while denial remains
+non-invoked. It records
 explicit approval, denial, timeout, cancellation, and circuit-breaker
 transitions, writes an independent 0600 JSONL audit sink, and cross-checks
-deterministic audit correlation. Remaining promotion work is to prove bounded
-fake-tool execution without live model/network access and then promote the
-evidence contract.
+deterministic audit correlation. Bounded fake-tool execution without live
+model/network access is complete; remaining work is umbrella synchronization
+and closure after the act/Podman dependency lane is resolved.
 
 ### Umbrella closeout: E2E-COV-010, E2E-COV, RT-CI
 

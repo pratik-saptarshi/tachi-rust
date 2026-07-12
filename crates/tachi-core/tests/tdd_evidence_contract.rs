@@ -44,8 +44,8 @@ fn tdd_evidence_maps_acceptance_criteria_to_all_test_levels() {
         );
         if level == "agentic" {
             assert_eq!(
-                status, "skipped",
-                "agentic promotion requires E2E-COV-010.2"
+                status, "passed",
+                "agentic promotion requires reviewed E2E-COV-010.2"
             );
         } else {
             assert_eq!(status, "passed", "established level must be promoted");

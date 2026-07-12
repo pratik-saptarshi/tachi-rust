@@ -3,7 +3,7 @@ use std::fs;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -35,9 +35,11 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
     let root = temp_dir();
     let output = root.join("replay.json");
     let audit = root.join("audit.jsonl");
+    let child_pids = root.join("child-pids");
     let result = Command::new(repo_root().join("scripts/agentic-replay.sh"))
         .env("AGENTIC_REPLAY_OUTPUT", &output)
         .env("AGENTIC_REPLAY_AUDIT_OUTPUT", &audit)
+        .env("AGENTIC_FAKE_TOOL_CHILD_PID_FILE", &child_pids)
         .output()
         .expect("run deterministic replay");
     assert!(result.status.success(), "replay failed: {result:?}");
@@ -79,6 +81,11 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
             .collect();
         assert_eq!(actual_transitions, transitions);
         assert_eq!(entry["outcome"], entry["expected"]);
+        let expected_invoked = case != "denial";
+        assert_eq!(entry["command_executed"], expected_invoked);
+        assert_eq!(entry["execution"]["invoked"], expected_invoked);
+        assert_eq!(entry["execution"]["status"], entry["outcome"]);
+        assert_eq!(entry["execution"]["tool"], "scripted-fake-tool");
     }
     let audit_lines: Vec<serde_json::Value> = fs::read_to_string(&audit)
         .expect("read independent audit sink")
@@ -109,6 +116,28 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
             & 0o777,
         0o600
     );
+    let child_pid_lines: Vec<String> = fs::read_to_string(&child_pids)
+        .expect("fake tool child PID evidence")
+        .lines()
+        .map(str::to_owned)
+        .collect();
+    assert_eq!(child_pid_lines.len(), 2);
+    for pid in child_pid_lines {
+        let mut alive = true;
+        for _ in 0..20 {
+            let status = Command::new("kill")
+                .args(["-0", &pid])
+                .stderr(Stdio::null())
+                .status()
+                .expect("probe fake tool child");
+            if !status.success() {
+                alive = false;
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+        assert!(!alive, "fake tool child {pid} survived cleanup");
+    }
 
     let repeat_root = temp_dir();
     let repeat_output = repeat_root.join("replay.json");

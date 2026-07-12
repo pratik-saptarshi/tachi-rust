@@ -219,11 +219,9 @@ retired from the active dependency surface.
 - [x] `E2E-COV-010.1` has direct promotion traceability in
       `docs/testing/tdd-evidence.json` and
       `crates/tachi-core/tests/tdd_evidence_contract.rs`: unit, integration,
-      functional, and E2E levels are passed; agentic is explicitly skipped
-      until `E2E-COV-010.2` scripted fake-tool replay evidence is reviewed. The
-      current synthetic-transition trace harness records explicit safety
-      transitions and an independent 0600 JSONL audit sink but does not invoke
-      a fake tool and remains promotion-skipped.
+      functional, E2E, and agentic levels are passed. `E2E-COV-010.2` final
+      review confirms fixed fake-tool invocation, bounded safety cases,
+      descendant cleanup, and an independent 0600 JSONL audit sink.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
       agree on the publish gate, security surfaces, RT-CI workflow surfaces,
       and remote publication flow.
