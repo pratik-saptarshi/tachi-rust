@@ -208,12 +208,13 @@ the required product or hosted evidence.
 
 ### REFACTOR and verification
 
-Evidence: `make test` run `20260712T173705Z-72397` passed all 8 units in
-536,162 ms, with compile/test at 466,327 ms, test slices at 68,906 ms, zero
-failures/timeouts/cancellations, and verified cleanup. The first full publish
-gate attempt reached this runner after all preceding security and coverage
-stages passed; it was interrupted only to isolate the runner evidence. A full
-uninterrupted publish-gate recording remains part of `E2E-COV-007` closeout.
+Historical evidence: `make test` run `20260712T173705Z-72397` passed all 8
+units in 536,162 ms, with compile/test at 466,327 ms, test slices at 68,906 ms,
+zero failures/timeouts/cancellations, and verified cleanup. The first full
+publish-gate attempt reached this runner after all preceding security and
+coverage stages passed; it was interrupted only to isolate the runner evidence.
+The later uninterrupted `make publish-gate` closeout is recorded above and in
+the E2E-COV-007 Beads note.
 
 Focused workflow/runner tests, all package suites, `make workflow-gate`,
 security gates, and coverage gates passed during this slice. The initial

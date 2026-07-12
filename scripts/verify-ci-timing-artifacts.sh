@@ -52,6 +52,7 @@ jq -e \
 run_event="$(jq -r '.event' <<<"$run_metadata")"
 run_attempt="$(jq -r '.attempt' <<<"$run_metadata")"
 run_head_sha="$(jq -r '.headSha' <<<"$run_metadata")"
+run_head_branch="$(jq -r '.headBranch' <<<"$run_metadata")"
 
 root="${OUTPUT_DIR:-$(mktemp -d)}"
 cleanup() {
@@ -115,7 +116,7 @@ for artifact in "${artifacts[@]}"; do
         echo "FAIL: $artifact commit provenance does not match expected commit" >&2
         exit 1
     fi
-    jq -e --arg commit "$artifact_commit" --arg run_id "$RUN_ID" --arg event "$run_event" --arg workflow "$EXPECTED_WORKFLOW" --arg head_sha "$run_head_sha" --arg legacy "$ALLOW_LEGACY" --arg unit "$expected_unit" --arg stage "$expected_stage" --argjson attempt "$run_attempt" '
+jq -e --arg commit "$artifact_commit" --arg run_id "$RUN_ID" --arg event "$run_event" --arg workflow "$EXPECTED_WORKFLOW" --arg head_sha "$run_head_sha" --arg head_branch "$run_head_branch" --arg legacy "$ALLOW_LEGACY" --arg unit "$expected_unit" --arg stage "$expected_stage" --argjson attempt "$run_attempt" '
         type == "object"
         and .schema_version == 1
         and .commit == $commit
@@ -132,7 +133,8 @@ for artifact in "${artifacts[@]}"; do
                 and .runner.head_sha == $commit
                 and .runner.source_head_sha == $head_sha
                 and (if $event == "push"
-                     then (.runner.ref | startswith("refs/heads/") or startswith("refs/tags/"))
+                     then (.runner.ref == ("refs/heads/" + $head_branch)
+                           or .runner.ref == ("refs/tags/" + $head_branch))
                      else (.runner.ref | test("^refs/pull/[0-9]+/merge$"))
                      end)
             )
