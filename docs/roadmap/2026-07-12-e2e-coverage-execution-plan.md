@@ -63,7 +63,7 @@ silent deferral.
 
 | Order | Beads issue | Priority | Execution decision | Exit evidence |
 |---:|---|:---:|---|---|
-| 1 | `E2E-COV.2` | P2 | Complete. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, and no secret persistence are evidenced and Beads-closed. |
+| 1 | `E2E-COV.2` | P2 | Complete. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, no secret persistence, and fail-closed rejection of unsupported rerun-attempt artifact binding are evidenced and Beads-closed. |
 | 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
 | 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. **Partial-green:** fixture-driven unavailable-safe wrapper and baseline landed; available-runtime measurements remain. |
 | 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is now passed by .2. |

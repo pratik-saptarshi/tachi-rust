@@ -55,6 +55,14 @@ run_attempt="$(jq -r '.attempt' <<<"$run_metadata")"
 run_head_sha="$(jq -r '.headSha' <<<"$run_metadata")"
 run_head_branch="$(jq -r '.headBranch' <<<"$run_metadata")"
 
+# GitHub's artifact download interface is keyed by run ID/name and does not
+# expose a selector for a specific rerun attempt. Reject reruns rather than
+# accepting an artifact that cannot be independently bound to this attempt.
+if [ "$run_attempt" -gt 1 ]; then
+    echo "FAIL: rerun attempt $run_attempt cannot be independently artifact-bound; verify a fresh run instead" >&2
+    exit 1
+fi
+
 if [ "$run_event" = "pull_request" ] && [ "$COMMIT" = "auto" ] && [ "$ALLOW_LEGACY" != 1 ]; then
     echo "FAIL: pull_request timing verification requires an explicit merge commit" >&2
     exit 1

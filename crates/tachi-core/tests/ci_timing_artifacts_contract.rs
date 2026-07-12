@@ -131,8 +131,10 @@ exit 2
 "##,
     );
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
-    let metadata = r#"{"workflowName":"rust workspace tests","event":"pull_request","status":"completed","conclusion":"success","headBranch":"feature/test","headSha":"source-sha","attempt":1,"databaseId":123}"#;
-    let run = |ref_name: &str, source_head: &str| {
+    let run = |ref_name: &str, source_head: &str, attempt: u32| {
+        let metadata = format!(
+            r#"{{"workflowName":"rust workspace tests","event":"pull_request","status":"completed","conclusion":"success","headBranch":"feature/test","headSha":"source-sha","attempt":{attempt},"databaseId":123}}"#
+        );
         Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
             .args(["123", "merge-sha"])
             .env("PATH", &path)
@@ -146,16 +148,19 @@ exit 2
             .output()
             .expect("run timing verifier")
     };
-    let result = run("refs/pull/7/merge", "source-sha");
+    let result = run("refs/pull/7/merge", "source-sha", 1);
     assert!(
         result.status.success(),
         "valid PR provenance must pass: {result:?}"
     );
     let stdout = String::from_utf8_lossy(&result.stdout);
     assert!(stdout.contains("verified_artifacts") && stdout.contains("status"));
-    assert!(!run("refs/pull/7/merge", "wrong-source").status.success());
-    assert!(!run("refs/heads/feature/test", "source-sha")
+    assert!(!run("refs/pull/7/merge", "wrong-source", 1).status.success());
+    assert!(!run("refs/heads/feature/test", "source-sha", 1)
         .status
         .success());
+    let rerun = run("refs/pull/7/merge", "source-sha", 2);
+    assert!(!rerun.status.success());
+    assert!(String::from_utf8_lossy(&rerun.stderr).contains("rerun attempt"));
     fs::remove_dir_all(root).expect("cleanup");
 }
