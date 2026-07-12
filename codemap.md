@@ -110,7 +110,9 @@ toolchain provenance, exit/timeout/cancellation state, and cleanup evidence;
 the first route-equivalent functional run passed all 8 units in 320,184 ms,
 the subsequent full run passed all 8 in 294,483 ms, and a labeled warm route
 run passed all 8 in 304,650 ms. A controlled cold sample and the hosted
-comparison remain publish-closeout gates. The hosted
+comparison remain publish-closeout gates. Hosted workspace run `29175545285`
+passed all eight timing-artifact units and the workflow fan-out in about 79
+seconds, with job durations from 37 to 67 seconds. The hosted
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
