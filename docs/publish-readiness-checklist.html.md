@@ -98,7 +98,7 @@ retired from the active dependency surface.
 - [x] Repository branch protection is enabled and required checks are verified; `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection` returns 16 required contexts with strict up-to-date enforcement, linear history, conversation resolution, and force-push/deletion protection.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Repeated samples and queue/run medians are recorded above.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
-- [ ] `make act-smoke` is opt-in and advisory only. If used, rootless Podman Docker-API preflight, image digest, empty secrets, disabled network, no host/socket mounts, resource profile, and `SKIPPED_UNAVAILABLE`/failure distinction are recorded.
+- [ ] `make act-smoke` and `make act-smoke-run` are opt-in and advisory only. The preflight and fixture-driven `route-observe` wrapper record runtime/policy/resource fields and `SKIPPED_UNAVAILABLE` without invoking workflow/SARIF/release/security side effects; available-runtime Podman Docker-API, image digest, resource, and cold/warm evidence remain required before treating this lane as measured, and skipped/unmeasured results cannot satisfy publish acceptance.
 - [ ] `Cargo.toml` declares workspace `rust-version = "1.96"` and active
       crates inherit it with `rust-version.workspace = true`.
 - [ ] `rust-toolchain.toml` pins the approved release toolchain and includes

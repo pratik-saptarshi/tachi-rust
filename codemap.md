@@ -139,7 +139,8 @@ remain open for the next slice.
 
 `E2E-COV-009.2` adds `scripts/act-smoke-run.sh`, the synthetic
 `tests/fixtures/act/pull-request.json`, and `make act-smoke-run`. It consumes
-preflight before targeting the named `route` job and records an unavailable-safe
+preflight before targeting the defined `route-observe` job in
+`.github/workflows/ci-route-observe.yml` and records an unavailable-safe
 baseline in `docs/reports/act-smoke-baseline.md`; it cannot upload SARIF or run
 release/security steps. Available-runtime cold/warm resource evidence remains
 unmeasured.

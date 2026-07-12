@@ -28,10 +28,12 @@ fn benchmark_skips_without_runtime_and_cannot_trigger_side_effects() {
     let bin = root.join("bin");
     fs::create_dir(&bin).expect("create fake bin");
     let output = root.join("benchmark.json");
+    let caller_preflight = root.join("caller-owned-preflight.json");
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
     let result = Command::new(repo_root().join("scripts/act-smoke-run.sh"))
         .env("PATH", path)
         .env("ACT_SMOKE_RUN_OUTPUT", &output)
+        .env("ACT_SMOKE_PREFLIGHT", &caller_preflight)
         .output()
         .expect("run benchmark wrapper");
     assert!(
@@ -42,9 +44,13 @@ fn benchmark_skips_without_runtime_and_cannot_trigger_side_effects() {
         serde_json::from_slice(&fs::read(&output).expect("read benchmark output"))
             .expect("benchmark JSON");
     assert_eq!(json["status"], "SKIPPED_UNAVAILABLE");
-    assert_eq!(json["job"], "route");
+    assert_eq!(json["job"], "route-observe");
     assert_eq!(json["side_effects"]["workflow_invoked"], false);
     assert_eq!(json["side_effects"]["sarif_upload"], false);
     assert_eq!(json["cleanup"]["verified"], true);
+    assert!(
+        caller_preflight.is_file(),
+        "caller-owned preflight must not be deleted"
+    );
     fs::remove_dir_all(root).expect("cleanup");
 }

@@ -180,7 +180,8 @@ queue time, publish an advisory baseline, and retain the no-side-effect
 contract in workflow tests and the readiness checklist.
 
 Current TDD checkpoint: `make act-smoke-run` validates the synthetic fixture
-and named `route` job, consumes preflight, and records `SKIPPED_UNAVAILABLE`
+and named `route-observe` job definition in `ci-route-observe.yml`, consumes
+preflight, and records `SKIPPED_UNAVAILABLE`
 with no workflow/SARIF/release/security side effects on this host. The baseline
 is documented in `docs/reports/act-smoke-baseline.md`; available-runtime
 cold/warm resource evidence remains open.
