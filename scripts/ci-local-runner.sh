@@ -7,9 +7,11 @@ MANIFEST="$ROOT_DIR/.github/ci-test-units.json"
 RESULT_SCHEMA="$ROOT_DIR/schemas/ci-run-result.schema.json"
 MODE="local-full"
 OUTPUT_DIR="${CI_LOCAL_OUTPUT_DIR:-$ROOT_DIR/target/ci-local-results}"
+CACHE_CONTEXT="${CI_LOCAL_CACHE_STATE:-unknown}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$$"
 RUN_DIR=""
 INTERRUPTED=0
+RUN_START_MS=""
 
 usage() {
     cat <<'EOF'
@@ -36,10 +38,10 @@ command -v jq >/dev/null 2>&1 || fail "jq is required"
 jq -e '(.units | type == "array" and length > 0) and (.units | map(.id) | length == (unique | length))' "$MANIFEST" >/dev/null || fail "invalid manifest"
 
 mkdir -p -- "$OUTPUT_DIR" || fail "cannot create output directory"
-chmod 0700 -- "$OUTPUT_DIR" || fail "cannot secure output directory"
+chmod 0700 "$OUTPUT_DIR" || fail "cannot secure output directory"
 RUN_DIR="$OUTPUT_DIR/run-$RUN_ID"
 mkdir -- "$RUN_DIR" || fail "cannot create run directory"
-chmod 0700 -- "$RUN_DIR" || fail "cannot secure run directory"
+chmod 0700 "$RUN_DIR" || fail "cannot secure run directory"
 
 cleanup() { [ -z "$RUN_DIR" ] || rm -rf -- "$RUN_DIR/.tmp"; }
 # SIGINT and SIGTERM request cooperative cancellation; the child is terminated
@@ -57,27 +59,43 @@ toolchain_json() {
         '{active_toolchain:$active,rustc_path:$path,rustc_version:$version}'
 }
 TOOLCHAIN_JSON="$(toolchain_json)"
+now_ms() {
+    if command -v perl >/dev/null 2>&1; then
+        perl -MTime::HiRes -e 'printf "%.0f", Time::HiRes::time() * 1000'
+    else
+        printf '%s000' "$(date +%s)"
+    fi
+}
+RUN_START_MS="$(now_ms)"
 
 run_unit() {
-    local encoded="$1" unit_json id timeout_seconds log_path result_path started finished duration status exit_code signal
+    local encoded="$1" unit_json id stage timeout_seconds log_path result_path exit_path started finished duration status exit_code signal start_ms
     local -a argv=()
     unit_json="$(printf '%s' "$encoded" | base64 --decode 2>/dev/null || printf '%s' "$encoded" | base64 -D)"
     id="$(jq -r '.id' <<<"$unit_json")"
+    stage="$(jq -r '.stage' <<<"$unit_json")"
     timeout_seconds="$(jq -r '.timeout_seconds' <<<"$unit_json")"
     log_path="$RUN_DIR/$id.log"
     result_path="$RUN_DIR/$id.json"
+    exit_path="$RUN_DIR/.exit-$id"
     while IFS= read -r arg; do argv+=("$arg"); done < <(jq -r '.argv[]' <<<"$unit_json")
     [ "${#argv[@]}" -gt 0 ] || return 2
     [ "${argv[0]}" = cargo ] || { printf 'rejected executable\n' > "$log_path"; return 1; }
     started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    date +%s > "$RUN_DIR/.start-$id"
-    ( "${argv[@]}" ) > "$log_path" 2>&1 &
+    start_ms="$(now_ms)"
+    (
+        "${argv[@]}" > "$log_path" 2>&1
+        rc=$?
+        printf '%s\n' "$rc" > "$exit_path.tmp"
+        mv "$exit_path.tmp" "$exit_path"
+        exit "$rc"
+    ) &
     local pid=$!
     local deadline=$(( $(date +%s) + timeout_seconds ))
     exit_code=0
     signal="null"
     status=""
-    while kill -0 "$pid" 2>/dev/null; do
+    while [ ! -f "$exit_path" ]; do
         if [ "$INTERRUPTED" -eq 1 ]; then kill -TERM "$pid" 2>/dev/null || true; status=cancelled; signal=15; break; fi
         if [ "$(date +%s)" -ge "$deadline" ]; then
             kill -TERM "$pid" 2>/dev/null || true
@@ -90,16 +108,19 @@ run_unit() {
         sleep 1
     done
     wait "$pid" 2>/dev/null || exit_code=$?
+    if [ -f "$exit_path" ]; then
+        exit_code="$(cat "$exit_path")"
+    fi
     [ -n "$status" ] || { [ "$exit_code" -eq 0 ] && status=passed || status=failed; }
     finished="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    duration=$(( $(date +%s) - $(cat "$RUN_DIR/.start-$id") ))
-    rm -f -- "$RUN_DIR/.start-$id"
-    jq -n --arg run_id "$RUN_ID" --arg id "$id" --arg mode "$MODE" \
+    duration=$(( $(now_ms) - start_ms ))
+    rm -f -- "$exit_path" "$exit_path.tmp"
+    jq -n --arg run_id "$RUN_ID" --arg id "$id" --arg stage "$stage" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" \
         --arg status "$status" --arg started "$started" --arg finished "$finished" \
         --arg log "$log_path" --argjson exit_code "$exit_code" --argjson signal "$signal" \
         --argjson argv "$(printf '%s\n' "${argv[@]}" | jq -R -s 'split("\n") | map(select(length > 0)) | .')" \
         --argjson toolchain "$TOOLCHAIN_JSON" --argjson duration "$duration" \
-        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:($duration*1000),exit_code:$exit_code,signal:$signal,log_path:$log,cleanup:{verified:true},redactions:["environment values are not copied to result JSON"]}' \
+        '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,stage:$stage,cache_context:$cache_context,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:$duration,exit_code:$exit_code,signal:$signal,log_path:$log,cleanup:{verified:true},redactions:["environment values are not copied to result JSON"]}' \
         > "$result_path"
     [ "$status" = passed ]
 }
@@ -110,8 +131,8 @@ while IFS= read -r encoded; do
     run_unit "$encoded" || overall=1
 done < <(jq -r --arg mode "$MODE" '.units[] | select(.modes | index($mode)) | @base64' "$MANIFEST")
 
-jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" \
-    '{schema_version:1,run_id:$run_id,mode:$mode,results:.}' \
+jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" --argjson started_ms "$RUN_START_MS" --argjson finished_ms "$(now_ms)" \
+    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),results:.}' \
     "$RUN_DIR"/*.json > "$RUN_DIR/results.json"
 printf 'run_id=%s\nmode=%s\nresults=%s\n' "$RUN_ID" "$MODE" "$RUN_DIR/results.json"
 exit "$overall"

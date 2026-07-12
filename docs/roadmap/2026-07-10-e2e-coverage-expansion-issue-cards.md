@@ -145,12 +145,13 @@ Every new or reopened card must include:
   - `scripts/ci-local-runner.sh` and a checked-in typed manifest/result schema exist;
   - workflow YAML parsing derives and compares package/all-target and all three shell-suite slices;
   - runner emits per-unit JSON with unit, argv, toolchain, target, start/end/duration, exit/signal/timeout, log path, cleanup, and pass/fail fields;
+  - each unit declares a build/test stage and the aggregate result records total duration, stage totals, cold/warm cache context, and pass/fail/timeout/cancellation counts;
   - command construction uses allowlisted argv arrays and rejects shell metacharacters, `eval`, `sh -c`, unexpected executables, duplicate units, and stale packages;
   - unique `0700` temp roots, containment/symlink checks, redaction, bounded logs, process-tree cleanup, and deterministic aggregate exit behavior are contract-tested;
   - `make test` uses the runner, while `make publish-gate` remains fail-closed and does not call act.
 - **Functions/tasks**: manifest projection, rustup provenance collector, argv executor, timeout/signal supervisor, result writer, cleanup verifier, workflow drift contract.
 - **Child issues**: `E2E-COV-008.1` manifest/schema parity; `E2E-COV-008.2` runner safety/observability; `E2E-COV-008.3` Make/docs integration.
-- **Validation**: RED/GREEN unit and integration tests, real five-package functional run, `make workflow-gate`, focused workspace contracts, and remote package-matrix CI.
+- **Validation**: RED/GREEN unit and integration tests, real five-package functional run, repeated cold/warm measurements, `make workflow-gate`, focused workspace contracts, comparable hosted job/queue timing, and remote package-matrix CI.
 - **Priority**: P1
 
 ### E2E-COV-009 — Advisory act workflow emulation with Podman

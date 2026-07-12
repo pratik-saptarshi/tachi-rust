@@ -204,7 +204,7 @@ jobs:
 
 - **Minimum Coverage**: 80%
 - **No Failing Tests**: All tests must pass
-- **Performance**: Local runner records per-unit timing and resource provenance; do not impose a generic <5-minute promise on subprocess-heavy Rust E2E suites. Podman/act cold and warm baselines are measured separately and remain advisory.
+- **Performance and reliability**: The local runner records per-stage and per-unit timing, aggregate wall time, cold/warm cache context, toolchain/host provenance, exit/timeout/cancellation counts, artifact integrity, and cleanup. Hosted workflows record comparable job summaries and queue/run medians where available. Do not impose a generic <5-minute promise on subprocess-heavy Rust E2E suites; compare repeated observations and open a tracked regression when a stage degrades. Podman/act cold and warm baselines are measured separately and remain advisory.
 
 ### TDD and test-level promotion
 

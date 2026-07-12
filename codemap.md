@@ -103,10 +103,19 @@ make llvm-cov
 cargo run -q -p tachi-cli --bin coverage-audit
 ```
 
-E2E-COV-008 plans to make `.github/ci-test-units.json` the shared local/CI
-manifest and `scripts/ci-local-runner.sh` the observable local test entrypoint.
-E2E-COV-009 plans an opt-in `act` smoke lane using preflighted rootless Podman
-Docker-API compatibility; it remains advisory and does not replace hosted CI.
+E2E-COV-008 now provides `.github/ci-test-units.json` as the shared local/CI
+manifest and `scripts/ci-local-runner.sh` as the observable local test
+entrypoint. The runner emits stage-aware per-unit and aggregate timing,
+toolchain provenance, exit/timeout/cancellation state, and cleanup evidence;
+the first route-equivalent functional run passed all 8 units in 320,184 ms,
+the subsequent full run passed all 8 in 294,483 ms, and a labeled warm route
+run passed all 8 in 304,650 ms. A controlled cold sample and the hosted
+comparison remain publish-closeout gates. The hosted
+workspace workflow emits matching package/shell timing artifacts so local
+build/test performance can be compared with GitHub job execution without
+claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
+opt-in `act` smoke lane using preflighted rootless Podman Docker-API
+compatibility; it remains advisory and does not replace hosted CI.
 
 ## Migration Map
 

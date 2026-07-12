@@ -46,6 +46,13 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
         })
         .collect();
     assert_eq!(ids.len(), units.len(), "CI unit ids must be unique");
+    assert!(
+        units.iter().all(|unit| matches!(
+            unit.get("stage").and_then(serde_json::Value::as_str),
+            Some("compile-and-test") | Some("test-slice")
+        )),
+        "every CI unit must declare a measurable execution stage"
+    );
 
     let packages: BTreeSet<&str> = units
         .iter()
@@ -133,6 +140,33 @@ fn local_runner_contract_is_argv_only_and_has_bounded_execution_controls() {
     assert!(
         runner_path.metadata().expect("runner metadata").permissions().mode() & 0o111 != 0,
         "local runner must be executable"
+    );
+}
+
+#[test]
+fn make_targets_use_the_canonical_runner_and_keep_publish_gate_hosted_only() {
+    let makefile = fs::read_to_string(repo_root().join("Makefile")).expect("read Makefile");
+    assert!(
+        makefile.contains("test: ## Run the canonical local-full CI unit runner")
+            && makefile.contains("./scripts/ci-local-runner.sh --mode local-full"),
+        "make test must invoke the canonical local-full runner"
+    );
+    assert!(
+        makefile.contains("test-route: ## Run the route-equivalent CI unit runner")
+            && makefile.contains("./scripts/ci-local-runner.sh --mode local-route-equivalent"),
+        "make test-route must invoke the route-equivalent runner"
+    );
+    let publish_gate = makefile
+        .split_once("publish-gate:")
+        .expect("publish gate target")
+        .1;
+    assert!(
+        publish_gate.contains("@$(MAKE) test"),
+        "publish gate must retain the canonical local runner"
+    );
+    assert!(
+        !publish_gate.contains("act") && !publish_gate.contains("podman"),
+        "publish gate must not depend on advisory workflow emulation"
     );
 }
 
@@ -250,6 +284,20 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "cargo-test",
         "sudo apt-get install -y ripgrep pkg-config",
     );
+    for required in [
+        "Capture package timing artifact",
+        "Upload package timing artifact",
+        "ci-timing-package-${{ matrix.package }}",
+        "Capture shell timing artifact",
+        "Upload shell timing artifact",
+        "ci-timing-shell-${{ matrix.suite }}",
+        "duration_ms",
+    ] {
+        assert!(
+            text.contains(required),
+            "rust-workspace workflow must emit stage timing evidence: {required}"
+        );
+    }
 }
 
 #[test]

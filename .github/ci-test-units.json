@@ -11,6 +11,7 @@
     {
       "id": "cargo-test-tachi-core",
       "kind": "package",
+      "stage": "compile-and-test",
       "package": "tachi-core",
       "argv": ["cargo", "test", "-p", "tachi-core", "--all-targets"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -19,6 +20,7 @@
     {
       "id": "cargo-test-tachi-cli",
       "kind": "package",
+      "stage": "compile-and-test",
       "package": "tachi-cli",
       "argv": ["cargo", "test", "-p", "tachi-cli", "--all-targets"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -27,6 +29,7 @@
     {
       "id": "cargo-test-tachi-desktop",
       "kind": "package",
+      "stage": "compile-and-test",
       "package": "tachi-desktop",
       "argv": ["cargo", "test", "-p", "tachi-desktop", "--all-targets"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -35,6 +38,7 @@
     {
       "id": "cargo-test-tachi-mcp",
       "kind": "package",
+      "stage": "compile-and-test",
       "package": "tachi-mcp",
       "argv": ["cargo", "test", "-p", "tachi-mcp", "--all-targets"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -43,6 +47,7 @@
     {
       "id": "cargo-test-tachi-shell",
       "kind": "package",
+      "stage": "compile-and-test",
       "package": "tachi-shell",
       "argv": ["cargo", "test", "-p", "tachi-shell", "--all-targets"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -51,6 +56,7 @@
     {
       "id": "shell-tests-smoke",
       "kind": "shell",
+      "stage": "test-slice",
       "suite": "shell-smoke",
       "argv": ["cargo", "test", "-p", "tachi-shell", "--test", "command_registry", "--test", "coverage_audit", "--test", "infographic_data", "--test", "report_data_result", "--test", "tauri_shell_scaffold", "--test", "control_plane"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -59,6 +65,7 @@
     {
       "id": "shell-tests-init",
       "kind": "shell",
+      "stage": "test-slice",
       "suite": "shell-init",
       "argv": ["cargo", "test", "-p", "tachi-shell", "--test", "init_adversarial", "--test", "init_constitution", "--test", "init_defaults_env", "--test", "init_manifest_paths", "--test", "init_precommit_matrix", "--test", "init_substitution", "--test", "init_timing_trace", "--test", "init_trace_summary"],
       "modes": ["local-full", "local-route-equivalent"],
@@ -67,6 +74,7 @@
     {
       "id": "shell-tests-integration",
       "kind": "shell",
+      "stage": "test-slice",
       "suite": "shell-integration",
       "argv": ["cargo", "test", "-p", "tachi-shell", "--test", "tauri_bridge", "--test", "template_config_load", "--test", "template_git_clone_timeout"],
       "modes": ["local-full", "local-route-equivalent"],

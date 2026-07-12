@@ -192,7 +192,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p .ci-timing
           start_ns="$(date +%s%N)"
+          printf '%s\n' "$start_ns" > .ci-timing/start_ns
           cargo test -p ${{ matrix.package }} --all-targets
           end_ns="$(date +%s%N)"
           elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
@@ -200,6 +202,32 @@ jobs:
             echo "### cargo-test ${{ matrix.package }}"
             echo "- elapsed_ms: ${elapsed_ms}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Capture package timing artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci-timing
+          start_ns="$(cat .ci-timing/start_ns 2>/dev/null || date +%s%N)"
+          end_ns="$(date +%s%N)"
+          duration_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          jq -n \
+            --arg stage "compile-and-test" \
+            --arg unit "cargo-test-${{ matrix.package }}" \
+            --arg package "${{ matrix.package }}" \
+            --arg commit "${{ github.sha }}" \
+            --argjson duration_ms "$duration_ms" \
+            '{schema_version:1,stage:$stage,unit:$unit,package:$package,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT}}' \
+            > .ci-timing/${{ matrix.package }}.json
+
+      - name: Upload package timing artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-timing-package-${{ matrix.package }}
+          path: .ci-timing/${{ matrix.package }}.json
+          if-no-files-found: error
 
   shell-tests:
     name: cargo test -p tachi-shell (${{ matrix.suite }})
@@ -235,7 +263,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p .ci-timing
           start_ns="$(date +%s%N)"
+          printf '%s\n' "$start_ns" > .ci-timing/start_ns
           ${{ matrix.command }}
           end_ns="$(date +%s%N)"
           elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
@@ -243,3 +273,29 @@ jobs:
             echo "### shell-tests ${{ matrix.suite }}"
             echo "- elapsed_ms: ${elapsed_ms}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Capture shell timing artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci-timing
+          start_ns="$(cat .ci-timing/start_ns 2>/dev/null || date +%s%N)"
+          end_ns="$(date +%s%N)"
+          duration_ms="$(( (end_ns - start_ns) / 1000000 ))"
+          jq -n \
+            --arg stage "test-slice" \
+            --arg unit "shell-tests-${{ matrix.suite }}" \
+            --arg suite "${{ matrix.suite }}" \
+            --arg commit "${{ github.sha }}" \
+            --argjson duration_ms "$duration_ms" \
+            '{schema_version:1,stage:$stage,unit:$unit,suite:$suite,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT}}' \
+            > .ci-timing/${{ matrix.suite }}.json
+
+      - name: Upload shell timing artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-timing-shell-${{ matrix.suite }}
+          path: .ci-timing/${{ matrix.suite }}.json
+          if-no-files-found: error

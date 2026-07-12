@@ -85,6 +85,10 @@ retired from the active dependency surface.
 
 - [ ] `make test` passes through the manifest-driven local runner, with JSON result/provenance output, per-unit timeout and cleanup evidence; `make test-route` also passes or its deterministic environment limitation is documented.
 - [ ] The local runner preserves all five package/all-target units and all three `tachi-shell` suite slices from `.github/ci-test-units.json`; `cargo test -q` is not used as the opaque publish-gate runner.
+- [ ] Local runner evidence records per-stage and aggregate build/test duration, cold/warm cache context, toolchain/host provenance, pass/fail/timeout/cancellation counts, artifact validation, and cleanup status.
+- [x] Initial route-equivalent evidence records 8/8 passed units, zero failure/timeout/cancellation outcomes, per-stage totals, and 320,184 ms aggregate wall time; the full local run records 8/8 passed in 294,483 ms and the labeled warm route run records 8/8 in 304,650 ms. A controlled cold sample and hosted comparison remain required.
+- [ ] Hosted CI evidence records comparable per-job elapsed timing and queue-versus-run timing where available; local and hosted measurements are clearly labeled and not treated as interchangeable.
+- [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
 - [ ] `make act-smoke` is opt-in and advisory only. If used, rootless Podman Docker-API preflight, image digest, empty secrets, disabled network, no host/socket mounts, resource profile, and `SKIPPED_UNAVAILABLE`/failure distinction are recorded.
 - [ ] `Cargo.toml` declares workspace `rust-version = "1.96"` and active
       crates inherit it with `rust-version.workspace = true`.
