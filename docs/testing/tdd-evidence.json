@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scope": "E2E-COV-010.1",
+  "levels": [
+    {
+      "level": "unit",
+      "acceptance_criteria": "Core policy and serialization helpers preserve deterministic result/error contracts.",
+      "red": "cargo test -p tachi-core --lib --no-fail-fast",
+      "green": "cargo test -p tachi-core --lib",
+      "refactor": "cargo fmt --all -- --check",
+      "promotion_status": "passed",
+      "tests": ["crates/tachi-core/src/* unit tests"]
+    },
+    {
+      "level": "integration",
+      "acceptance_criteria": "Workflow, manifest, schema, provenance, and policy boundaries reject unsafe or stale contracts.",
+      "red": "cargo test -p tachi-core --test workflow_ci_gates -- --nocapture",
+      "green": "cargo test -p tachi-core --test workflow_ci_gates -- --nocapture",
+      "refactor": "make workflow-gate && make gitleaks-gate",
+      "promotion_status": "passed",
+      "tests": ["crates/tachi-core/tests/workflow_ci_gates.rs", "crates/tachi-core/tests/ci_timing_artifacts_contract.rs"]
+    },
+    {
+      "level": "functional",
+      "acceptance_criteria": "The real manifest-driven runner produces bounded, redacted, schema-valid aggregate outcomes across success and failure controls.",
+      "red": "cargo test -p tachi-core --test ci_local_runner_contract -- --nocapture",
+      "green": "cargo test -p tachi-core --test ci_local_runner_contract -- --nocapture --test-threads=1",
+      "refactor": "make test-route",
+      "promotion_status": "passed",
+      "tests": ["crates/tachi-core/tests/ci_local_runner_contract.rs"]
+    },
+    {
+      "level": "e2e",
+      "acceptance_criteria": "CLI, desktop, MCP stdio, lifecycle, and failure/cancellation journeys have executable Rust-owned boundaries and publish evidence.",
+      "red": "make coverage-audit",
+      "green": "make publish-gate",
+      "refactor": "make llvm-cov && make llvm-cov-nightly-branch",
+      "promotion_status": "passed",
+      "tests": ["coverage-audit", "E2E-COV-007 publish-gate evidence", "crates/tachi-shell/tests/*", "crates/tachi-mcp/tests/*"]
+    },
+    {
+      "level": "agentic",
+      "acceptance_criteria": "Deterministic scripted model/tool replay is bounded, allowlisted, auditable, and has no live model or network dependency.",
+      "red": "cargo test -p tachi-core --test agentic_replay_contract -- --nocapture",
+      "green": "cargo test -p tachi-core --test agentic_replay_contract -- --nocapture",
+      "refactor": "make gitleaks-gate",
+      "promotion_status": "skipped",
+      "tests": ["pending E2E-COV-010.2 deterministic replay harness"]
+    }
+  ]
+}

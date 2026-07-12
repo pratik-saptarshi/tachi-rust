@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; E2E-COV-007 and E2E-COV.2 complete; E2E-COV-009.1/.2 are partial-green
+**Status**: Active execution plan; E2E-COV-007, E2E-COV.2, and E2E-COV-010.1 complete; E2E-COV-009.1/.2 and E2E-COV-010.2 are partial/open
 **Baseline**: `main` / `origin/main` at `36f5eaa`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -66,7 +66,7 @@ silent deferral.
 | 1 | `E2E-COV.2` | P2 | Complete. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, and no secret persistence are evidenced and Beads-closed. |
 | 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
 | 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. **Partial-green:** fixture-driven unavailable-safe wrapper and baseline landed; available-runtime measurements remain. |
-| 4 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
+| 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is explicitly skipped pending .2. |
 | 5 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
 | 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
 | 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
@@ -187,9 +187,10 @@ cold/warm resource evidence remains open.
 
 ### E2E-COV-010.1/.2 — TDD promotion and deterministic agentic replay
 
-`E2E-COV-010.1` defines the AC-to-test matrix, durable RED/GREEN/REFACTOR
-records, and pass/fail/skipped/inconclusive semantics across unit, integration,
-functional, E2E, and agentic levels. `E2E-COV-010.2` then implements a fixed,
+`E2E-COV-010.1` is complete: `docs/testing/tdd-evidence.json` defines the
+AC-to-test matrix, durable RED/GREEN/REFACTOR records, and
+pass/fail/skipped/inconclusive semantics across unit, integration, functional,
+E2E, and agentic levels. `E2E-COV-010.2` then implements a fixed,
 scripted fake model/tool replay with bounded iterations, deterministic seed,
 allowlisted commands, audit correlation, and approval/denial/timeout/cancel/
 circuit-breaker cases. No live model or network is permitted. The evidence
