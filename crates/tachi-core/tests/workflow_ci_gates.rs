@@ -452,6 +452,30 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         maintenance_script.is_file(),
         "CodeQL maintenance inventory script must be checked in"
     );
+
+    let upstream_script = repo_root().join("scripts/codeql-upstream-release-check.sh");
+    let upstream_workflow = workflow_text("codeql-maintenance.yml");
+    assert!(
+        upstream_script.is_file(),
+        "CodeQL upstream release check script must be checked in"
+    );
+    for required in [
+        "api.github.com/repos/github/codeql-action/releases",
+        "jq",
+        "latest non-prerelease v4 tag",
+    ] {
+        let script = fs::read_to_string(&upstream_script).expect("read upstream CodeQL check");
+        assert!(
+            script.contains(required),
+            "upstream CodeQL check must contain {required}"
+        );
+    }
+    assert!(
+        upstream_workflow.contains("schedule:")
+            && upstream_workflow.contains("workflow_dispatch:")
+            && upstream_workflow.contains("codeql-upstream-release-check.sh"),
+        "CodeQL upstream release check must be manual and scheduled"
+    );
 }
 
 #[test]

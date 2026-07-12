@@ -49,3 +49,11 @@ gate rejects active v3 references, missing category/provenance policy, and a
 missing release mapping. If a release breaks, restore the last verified
 action/bundle mapping in one conventional commit and rerun the full security
 and workflow gates.
+
+The scheduled/manual `CodeQL upstream maintenance` workflow runs
+`make codeql-upstream-release-check`'s underlying script against the GitHub
+release API every Monday. It is an advisory maintenance signal, not a PR or
+publish gate: a newer non-prerelease v4 tag fails that scheduled run and
+requires a reviewed mapping update plus a Beads note. The check uses only
+`contents: read`, does not receive secrets, and never uploads SARIF or mutates
+issues automatically.
