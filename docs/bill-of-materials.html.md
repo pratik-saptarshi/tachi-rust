@@ -225,6 +225,7 @@ The repository policy for these surfaces is:
 | Remote monitor | `git push origin main --follow-tags` + `gh run watch` | Post-push CI is observed to completion before the release is considered published. |
 | Release-please gate | `release-please.yml` push filter | Docs-only publishes do not churn release refs and push runs avoid PR-branch churn. |
 | Workflow hardening | `rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|::set-output" .github/workflows` | No legacy checkout, toolchain, SARIF, or set-output usage remains. |
+| CodeQL maintenance | `docs/security/codeql-maintenance.md`, `scripts/codeql-maintenance-check.sh`, `make codeql-maintenance-gate` | Active SARIF uploads use CodeQL Action v4; v4.37.0 / CodeQL 2.26.0 mapping, Node 24 compatibility, floating-tag risk acceptance, rollback, redaction, trusted-event, and historical-reference policy are contract-tested. |
 | MCP readiness evidence | Archived MCP roadmap, archived MCP issue cards, BOM, publish checklist, and MCP CI lane | Closed MCP publish surfaces remain synchronized with the canonical command contract, release checklist, request-context hardening, portability matrix, and CI evidence. Future MCP work should open a new tracker hierarchy before promotion. |
 | MCP CI lane | `.github/workflows/rust-workspace.yml` with `tachi-mcp` package matrix | Dedicated MCP package lane covers contract snapshot, schema snapshot, stdio transport, and tool registration regressions. |
 

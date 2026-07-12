@@ -100,6 +100,7 @@ cargo test --workspace --all-targets
 cargo test -p tachi-desktop --all-targets
 cargo clippy --all-targets -- -D warnings
 make llvm-cov
+make codeql-maintenance-gate
 cargo run -q -p tachi-cli --bin coverage-audit
 ```
 
