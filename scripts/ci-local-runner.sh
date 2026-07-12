@@ -122,7 +122,7 @@ redact_log() {
         CI_LOCAL_SECRET="$CI_LOCAL_SECRET" perl -0pi -e 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g' "$1" || return 1
     fi
     if command -v perl >/dev/null 2>&1; then
-        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/$1[REDACTED]/g; s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/$1[REDACTED]/gi; s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs' "$1" || return 1
+        perl -0pi -e 's/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/$1[REDACTED]/g; s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/$1[REDACTED]/gi; s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs; s/-----BEGIN [^-]+-----.*\z/[REDACTED]/gs' "$1" || return 1
     fi
     if [ "$(wc -c < "$1")" -gt "$MAX_LOG_BYTES" ]; then
         local marker='[log truncated]'
@@ -210,7 +210,7 @@ validate_unit_result() {
     jq -e --argjson required "$required" --argjson allowed "$allowed" '
         . as $object
         | (all($required[]; . as $key | ($object | has($key))))
-        and (all($object | to_entries[]; .key as $key | ($allowed | index($key))))
+        and (all($object | to_entries[]; .key as $key | ($allowed | index($key) != null)))
     ' "$1" >/dev/null || fail "result schema required/properties validation failed: $1"
     jq -e '
         .schema_version == 1

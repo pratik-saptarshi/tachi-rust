@@ -117,7 +117,7 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
     let args_file = root.join("args");
     executable(
         &fake_bin.join("cargo"),
-        &format!("#!/bin/sh\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' 'local-secret ghp_example-token'\n", args_file.display()),
+        &format!("#!/bin/sh\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' 'local-secret ghp_example-token'\nprintf '%s\\n' '-----BEGIN PRIVATE KEY----- secret-without-end-marker'\n", args_file.display()),
     );
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "--version"], 5);
@@ -147,6 +147,7 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
     let log = fs::read_to_string(run_dir.join("fake-cargo-unit.log")).expect("log");
     assert!(!log.contains("local-secret"));
     assert!(!log.contains("ghp_example-token"));
+    assert!(!log.contains("BEGIN PRIVATE KEY"));
     assert!(log.contains("[REDACTED]"));
     fs::remove_dir_all(root).expect("cleanup");
 }
