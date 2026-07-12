@@ -67,7 +67,7 @@ silent deferral.
 | 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
 | 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. **Partial-green:** fixture-driven unavailable-safe wrapper and baseline landed; available-runtime measurements remain. |
 | 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is explicitly skipped pending .2. |
-| 5 | `E2E-COV-010.2` | P2 | Partial-green harness; promotion remains open. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model; behavioral timeout/cancel/circuit execution and independent audit sink are still required. |
+| 5 | `E2E-COV-010.2` | P2 | Partial-green harness; promotion remains open. | Deterministic state-machine replay now records explicit approval/denial/timeout/cancel/circuit transitions and writes an independent 0600 JSONL audit sink; scripted fake-tool execution and promotion review remain required. |
 | 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
 | 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
 | 8 | `RT-CI` | P0 | Close umbrella after its active timing follow-up and synchronized governance evidence are complete. | Route, protection, timing, tracker, and rollback documentation agree. |
@@ -190,15 +190,15 @@ cold/warm resource evidence remains open.
 `E2E-COV-010.1` is complete: `docs/testing/tdd-evidence.json` defines the
 AC-to-test matrix, durable RED/GREEN/REFACTOR records, and
 pass/fail/skipped/inconclusive semantics across unit, integration, functional,
-E2E, and agentic levels. `E2E-COV-010.2` now has a partial offline harness in
-`scripts/agentic-replay.sh` and `tests/fixtures/agentic/replay.json`; it remains
-promotion-skipped because the harness does not yet execute behavioral timeout,
-cancellation, circuit-breaker, or independent audit-sink flows. The child then
-must implement a fixed,
-scripted fake model/tool replay with bounded iterations, deterministic seed,
-allowlisted commands, audit correlation, and approval/denial/timeout/cancel/
-circuit-breaker cases. No live model or network is permitted. The evidence
-contract must land before replay implementation.
+E2E, and agentic levels. `E2E-COV-010.2` now has an offline deterministic
+state-machine harness in `scripts/agentic-replay.sh` and
+`tests/fixtures/agentic/replay.json`; it remains promotion-skipped pending
+review of the scripted fake-tool execution boundary. The harness records
+explicit approval, denial, timeout, cancellation, and circuit-breaker
+transitions, writes an independent 0600 JSONL audit sink, and cross-checks
+deterministic audit correlation. Remaining promotion work is to prove bounded
+fake-tool execution without live model/network access and then promote the
+evidence contract.
 
 ### Umbrella closeout: E2E-COV-010, E2E-COV, RT-CI
 

@@ -220,7 +220,9 @@ retired from the active dependency surface.
       `docs/testing/tdd-evidence.json` and
       `crates/tachi-core/tests/tdd_evidence_contract.rs`: unit, integration,
       functional, and E2E levels are passed; agentic is explicitly skipped
-      until `E2E-COV-010.2` behavioral replay evidence is reviewed.
+      until `E2E-COV-010.2` scripted fake-tool replay evidence is reviewed. The
+      current harness records explicit safety transitions and an independent
+      0600 JSONL audit sink but remains promotion-skipped.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
       agree on the publish gate, security surfaces, RT-CI workflow surfaces,
       and remote publication flow.

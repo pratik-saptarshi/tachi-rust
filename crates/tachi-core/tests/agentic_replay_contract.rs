@@ -26,8 +26,10 @@ fn temp_dir() -> PathBuf {
 fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
     let root = temp_dir();
     let output = root.join("replay.json");
+    let audit = root.join("audit.jsonl");
     let result = Command::new(repo_root().join("scripts/agentic-replay.sh"))
         .env("AGENTIC_REPLAY_OUTPUT", &output)
+        .env("AGENTIC_REPLAY_AUDIT_OUTPUT", &audit)
         .output()
         .expect("run deterministic replay");
     assert!(result.status.success(), "replay failed: {result:?}");
@@ -39,8 +41,19 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
     assert_eq!(value["network_policy"], "deny");
     assert_eq!(value["model"], "scripted-fake");
     assert_eq!(value["promotion_status"], "skipped");
+    assert_eq!(value["audit_sink"], "audit.jsonl");
     assert!(value["seed"].is_number());
-    for case in ["approval", "denial", "timeout", "cancel", "circuit_breaker"] {
+    let expected_transitions = [
+        ("approval", vec!["approved", "executing", "completed"]),
+        ("denial", vec!["denied"]),
+        ("timeout", vec!["executing", "timed_out"]),
+        ("cancel", vec!["executing", "cancelled"]),
+        (
+            "circuit_breaker",
+            vec!["executing", "circuit_open", "blocked"],
+        ),
+    ];
+    for (case, transitions) in expected_transitions {
         let entry = value["cases"]
             .as_array()
             .unwrap()
@@ -49,10 +62,25 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
             .unwrap_or_else(|| panic!("missing replay case: {case}"));
         assert_eq!(entry["status"], "passed");
         assert!(!entry["audit_id"].as_str().unwrap().is_empty());
-        assert_eq!(entry["audit_events"].as_array().unwrap().len(), 3);
-        assert_eq!(entry["audit_events"][2]["correlated_to"], entry["audit_id"]);
+        let events = entry["audit_events"].as_array().unwrap();
+        assert!(events.len() >= 3);
+        assert_eq!(events.last().unwrap()["correlated_to"], entry["audit_id"]);
+        let actual_transitions: Vec<&str> = events
+            .iter()
+            .filter_map(|event| event["transition"].as_str())
+            .collect();
+        assert_eq!(actual_transitions, transitions);
         assert_eq!(entry["outcome"], entry["expected"]);
     }
+    let audit_lines: Vec<serde_json::Value> = fs::read_to_string(&audit)
+        .expect("read independent audit sink")
+        .lines()
+        .map(|line| serde_json::from_str(line).expect("audit JSONL entry"))
+        .collect();
+    assert!(audit_lines.len() >= 5 * 3);
+    assert!(audit_lines
+        .iter()
+        .all(|entry| entry["audit_id"].is_string()));
     fs::remove_dir_all(root).expect("cleanup");
 }
 
