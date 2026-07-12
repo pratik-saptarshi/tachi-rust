@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-09  
 **Source input**: `/Volumes/dev/Git-SCM/tachi-rust/docs/ci-improvement-plan.html`  
-**Status**: active execution package with remote evidence blockers
+**Status**: timing closeout package; ongoing monitoring is operational follow-up
 **Primary objective**: reduce wasted pull-request CI time without weakening `tachi-rust`'s existing SARIF, supply-chain, cross-platform, and contract-specific guarantees
 
 ## Repo-State Reconciliation
@@ -297,14 +297,11 @@ Current local evidence:
 - Warm local comparison: `origin/main` ran the same test in `real 0.58s`,
   `user 0.08s`, `sys 0.08s` after cache warm-up, while the current branch ran
   it in `real 1.39s`, `user 0.10s`, `sys 0.08s`.
-- Live PR timing evidence has been collected for current runs, but not yet at
-  the intended 10-run sample depth.
-  - `rust-workspace.yml` (PR event): `sample_size=2`, `run_med_ms=350000`,
-    `queue_med_ms=0`, `run_range_ms=93000..607000`.
-  - `ci-route-observe.yml` (PR event): `sample_size=1`, `run_med_ms=16000`,
-    `queue_med_ms=0`, `run_range_ms=16000..16000`.
-- Remaining blocker is required-check migration validation, which still depends on
-  branch protection being enabled on `main` for protected-check verification.
+- Live PR timing evidence is closed out with workspace `sample_size=22`,
+  `run_med_ms=85000`, `run_range_ms=79000..101000`, and route-observe
+  `sample_size=23`, `run_med_ms=14000`, `run_range_ms=11000..17000`; both queue
+  medians are `0 ms`. Branch protection is enabled and the required-check
+  migration was verified against the protected `main` branch.
 
 ### Phase 6 - Release Policy, Required-Check Migration, And Closeout
 

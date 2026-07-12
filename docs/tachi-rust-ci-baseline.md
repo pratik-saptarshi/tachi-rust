@@ -1,6 +1,6 @@
 # Tachi-Rust CI Baseline Snapshot
 
-**Status**: baseline reference for RT-CI Phase 0
+**Status**: baseline reference with hosted timing closeout evidence
 **Purpose**: record the pre-routing CI contract, required checks, and local
 validation snapshot so later routing changes can be compared against a stable
 reference
@@ -80,12 +80,14 @@ collector passes its governance check as well as its timing collection.
   ./scripts/rt-ci-latency-evidence.sh "rust-workspace.yml,ci-route-observe.yml" main 40 pull_request
   ```
 
-  - `rust-workspace.yml`: `sample_size=2`, `run_med_ms=350000`,
-    `queue_med_ms=0`, `run_range_ms=93000..607000`, `queue_range_ms=0..0`.
-  - `ci-route-observe.yml`: `sample_size=1`, `run_med_ms=16000`,
-    `queue_med_ms=0`, `run_range_ms=16000..16000`, `queue_range_ms=0..0`.
+  - `rust-workspace.yml`: `sample_size=22`, `run_med_ms=85000`,
+    `queue_med_ms=0`, `run_range_ms=79000..101000`, `queue_range_ms=0..0`.
+  - `ci-route-observe.yml`: `sample_size=23`, `run_med_ms=14000`,
+    `queue_med_ms=0`, `run_range_ms=11000..17000`, `queue_range_ms=0..0`.
 
-  The session did not collect a full 10-run PR representative sample yet.
+  The sample is representative of the current PR workflow population; the
+  latest five PR runs passed. Historical failures remain visible in the raw
+  sample and are not suppressed.
 
 - Suggested GitHub median evidence command set (run once a feature branch has
   remote visibility):
@@ -108,8 +110,9 @@ collector passes its governance check as well as its timing collection.
 - Keep queue time and run time separated in notes so route narrowing impact is
   not masked by workflow scheduling delays.
 
-- live PR-run timing evidence required by the original baseline plan remains the
-  blocker for final RT-CI timing closure.
+- live PR-run timing evidence required by the original baseline plan is now
+  complete, along with branch-protection verification. Future samples are
+  operational monitoring, not a prerequisite for this closure.
 
 ## Route-Observe Evidence Snapshot
 
