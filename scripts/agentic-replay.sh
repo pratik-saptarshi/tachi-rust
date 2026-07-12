@@ -35,13 +35,37 @@ if [ -z "$AUDIT_OUTPUT" ]; then
         AUDIT_OUTPUT="$ROOT_DIR/target/agentic-replay-audit-$$.jsonl"
     fi
 fi
-AUDIT_SINK="$(basename -- "$AUDIT_OUTPUT")"
-payload="$(jq -c --arg audit_sink "$AUDIT_SINK" '.audit_sink = $audit_sink' <<<"$payload")"
 umask 077
+reject_symlink_path() {
+    local path="$1"
+    [ ! -L "$path" ] || { echo "agentic-replay: symlink output paths are not allowed: $path" >&2; exit 2; }
+}
+reject_symlink_path "$OUTPUT"
+reject_symlink_path "$AUDIT_OUTPUT"
+if [ "$OUTPUT" != /dev/stdout ]; then
+    mkdir -p -- "$(dirname -- "$OUTPUT")"
+fi
 mkdir -p -- "$(dirname -- "$AUDIT_OUTPUT")"
-jq -c --arg audit_sink "$AUDIT_SINK" '.cases[] as $case | $case.audit_events[] | {audit_id:$case.audit_id,case_id:$case.id,audit_sink:$audit_sink} + .' <<<"$payload" > "$AUDIT_OUTPUT.tmp"
-chmod 0600 "$AUDIT_OUTPUT.tmp"
-mv -- "$AUDIT_OUTPUT.tmp" "$AUDIT_OUTPUT"
+canonical_path() {
+    local path="$1" dir base
+    dir="$(dirname -- "$path")"
+    base="$(basename -- "$path")"
+    dir="$(CDPATH= cd -- "$dir" 2>/dev/null && pwd -P)" || return 1
+    printf '%s/%s\n' "$dir" "$base"
+}
+output_path="$(canonical_path "$OUTPUT")" || { echo 'agentic-replay: cannot resolve output path' >&2; exit 2; }
+audit_path="$(canonical_path "$AUDIT_OUTPUT")" || { echo 'agentic-replay: cannot resolve audit path' >&2; exit 2; }
+[ "$output_path" != "$audit_path" ] || { echo 'agentic-replay: output and audit paths must differ' >&2; exit 2; }
+AUDIT_TMP=""
+cleanup_audit_tmp() {
+    [ -z "$AUDIT_TMP" ] || rm -f -- "$AUDIT_TMP"
+}
+trap cleanup_audit_tmp EXIT
+AUDIT_TMP="$(mktemp "$AUDIT_OUTPUT.tmp.XXXXXXXX")" || { echo 'agentic-replay: cannot create secure audit temporary file' >&2; exit 2; }
+chmod 0600 "$AUDIT_TMP"
+jq -c '.cases[] as $case | $case.audit_events[] | {audit_id:$case.audit_id,case_id:$case.id,audit_sink:"audit.jsonl"} + .' <<<"$payload" > "$AUDIT_TMP"
+mv -- "$AUDIT_TMP" "$AUDIT_OUTPUT"
+AUDIT_TMP=""
 
 if [ "$OUTPUT" = /dev/stdout ]; then
     printf '%s\n' "$payload"

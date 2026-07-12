@@ -1,7 +1,10 @@
 use std::env;
 use std::fs;
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 fn repo_root() -> PathBuf {
@@ -13,11 +16,16 @@ fn repo_root() -> PathBuf {
 }
 
 fn temp_dir() -> PathBuf {
+    static COUNTER: AtomicUsize = AtomicUsize::new(0);
     let suffix = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("clock")
         .as_nanos();
-    let path = env::temp_dir().join(format!("tachi-agentic-replay-{suffix}"));
+    let path = env::temp_dir().join(format!(
+        "tachi-agentic-replay-{suffix}-{}-{}",
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
     fs::create_dir_all(&path).expect("create temp directory");
     path
 }
@@ -77,10 +85,80 @@ fn deterministic_replay_covers_safety_outcomes_without_live_model_or_network() {
         .lines()
         .map(|line| serde_json::from_str(line).expect("audit JSONL entry"))
         .collect();
-    assert!(audit_lines.len() >= 5 * 3);
-    assert!(audit_lines
-        .iter()
-        .all(|entry| entry["audit_id"].is_string()));
+    let mut expected_audit_lines = Vec::new();
+    for entry in value["cases"].as_array().unwrap() {
+        for event in entry["audit_events"].as_array().unwrap() {
+            expected_audit_lines.push((entry, event));
+        }
+    }
+    assert_eq!(audit_lines.len(), expected_audit_lines.len());
+    for (sink, (case, event)) in audit_lines.iter().zip(expected_audit_lines) {
+        assert_eq!(sink["audit_id"], case["audit_id"]);
+        assert_eq!(sink["case_id"], case["id"]);
+        assert_eq!(sink["audit_sink"], "audit.jsonl");
+        for key in ["event", "id", "outcome", "transition", "correlated_to"] {
+            assert_eq!(sink.get(key), event.get(key), "audit field mismatch: {key}");
+        }
+    }
+    #[cfg(unix)]
+    assert_eq!(
+        fs::metadata(&audit)
+            .expect("audit metadata")
+            .permissions()
+            .mode()
+            & 0o777,
+        0o600
+    );
+
+    let repeat_root = temp_dir();
+    let repeat_output = repeat_root.join("replay.json");
+    let repeat_audit = repeat_root.join("audit.jsonl");
+    let repeat = Command::new(repo_root().join("scripts/agentic-replay.sh"))
+        .env("AGENTIC_REPLAY_OUTPUT", &repeat_output)
+        .env("AGENTIC_REPLAY_AUDIT_OUTPUT", &repeat_audit)
+        .output()
+        .expect("run deterministic replay twice");
+    assert!(repeat.status.success(), "repeat replay failed: {repeat:?}");
+    assert_eq!(
+        fs::read(&output).expect("first replay bytes"),
+        fs::read(&repeat_output).expect("repeat replay bytes")
+    );
+    assert_eq!(
+        fs::read(&audit).expect("first audit bytes"),
+        fs::read(&repeat_audit).expect("repeat audit bytes")
+    );
+
+    let collision_root = temp_dir();
+    let collision = collision_root.join("same.json");
+    let collision_result = Command::new(repo_root().join("scripts/agentic-replay.sh"))
+        .env("AGENTIC_REPLAY_OUTPUT", &collision)
+        .env("AGENTIC_REPLAY_AUDIT_OUTPUT", &collision)
+        .output()
+        .expect("run colliding replay");
+    assert!(
+        !collision_result.status.success(),
+        "output/audit collision must fail closed"
+    );
+    #[cfg(unix)]
+    {
+        let symlink_root = temp_dir();
+        let aliased_output = symlink_root.join("output.json");
+        let audit_target = symlink_root.join("audit-target.jsonl");
+        fs::write(&audit_target, b"existing").expect("write audit target");
+        std::os::unix::fs::symlink(&audit_target, &aliased_output).expect("create audit alias");
+        let symlink_result = Command::new(repo_root().join("scripts/agentic-replay.sh"))
+            .env("AGENTIC_REPLAY_OUTPUT", &audit_target)
+            .env("AGENTIC_REPLAY_AUDIT_OUTPUT", &aliased_output)
+            .output()
+            .expect("run symlink-alias replay");
+        assert!(
+            !symlink_result.status.success(),
+            "symlink aliases must fail closed"
+        );
+        fs::remove_dir_all(symlink_root).expect("symlink cleanup");
+    }
+    fs::remove_dir_all(repeat_root).expect("repeat cleanup");
+    fs::remove_dir_all(collision_root).expect("collision cleanup");
     fs::remove_dir_all(root).expect("cleanup");
 }
 

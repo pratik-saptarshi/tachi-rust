@@ -151,9 +151,10 @@ unmeasured.
 `crates/tachi-core/tests/tdd_evidence_contract.rs`, which make acceptance
 criteria, RED/GREEN/REFACTOR commands, and promotion statuses durable across
 unit, integration, functional, E2E, and agentic levels. The deterministic
-replay child now has an offline state-machine harness with explicit safety
-transitions and an independent 0600 JSONL audit sink, but its agentic promotion
-is explicitly skipped until scripted fake-tool replay evidence is reviewed.
+replay child now has an offline synthetic-transition trace harness with explicit
+safety transitions and an independent 0600 JSONL audit sink, but it does not
+invoke a fake tool and its agentic promotion is explicitly skipped until that
+replay evidence is reviewed.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an

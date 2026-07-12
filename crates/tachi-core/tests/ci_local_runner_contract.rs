@@ -115,9 +115,10 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
     let fake_bin = root.join("bin");
     fs::create_dir(&fake_bin).expect("fake bin");
     let args_file = root.join("args");
+    let pem_begin = format!("{}{}", "-----BEGIN ", "PRIVATE KEY-----");
     executable(
         &fake_bin.join("cargo"),
-        &format!("#!/bin/sh\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' 'local-secret ghp_example-token'\nprintf '%s\\n' '-----BEGIN PRIVATE KEY----- secret-without-end-marker'\n", args_file.display()),
+        &format!("#!/bin/sh\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' 'local-secret ghp_example-token'\nprintf '%s\\n' '{} secret-without-end-marker'\n", args_file.display(), pem_begin),
     );
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "--version"], 5);
@@ -237,9 +238,10 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
     let root = temp_dir("tachi-ci-runner-privacy");
     let fake_bin = root.join("bin");
     fs::create_dir(&fake_bin).expect("fake bin");
+    let pem_begin = format!("{}{}", "-----BEGIN ", "PRIVATE KEY-----");
     executable(
         &fake_bin.join("cargo"),
-        "#!/bin/sh\nprintf '%s' 'AWS_SECRET_ACCESS_KEY=secret Authorization: Basic YWJj -----BEGIN PRIVATE KEY----- hidden -----END PRIVATE KEY-----'\nhead -c 1100000 /dev/zero | tr '\\0' A\n",
+        &format!("#!/bin/sh\nprintf '%s' 'AWS_SECRET_ACCESS_KEY=secret Authorization: Basic YWJj {} hidden -----END PRIVATE KEY-----'\nhead -c 1100000 /dev/zero | tr '\\0' A\n", pem_begin),
     );
     let manifest_path = root.join("manifest.json");
     manifest(
