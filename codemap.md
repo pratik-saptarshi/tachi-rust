@@ -136,6 +136,13 @@ and reports runtime/architecture/policy/resource fields without invoking a
 workflow or allowing secrets, privileged mode, host/socket mounts, or release /
 security side effects. Available-runtime Podman API and image/resource probes
 remain open for the next slice.
+
+`E2E-COV-009.2` adds `scripts/act-smoke-run.sh`, the synthetic
+`tests/fixtures/act/pull-request.json`, and `make act-smoke-run`. It consumes
+preflight before targeting the named `route` job and records an unavailable-safe
+baseline in `docs/reports/act-smoke-baseline.md`; it cannot upload SARIF or run
+release/security steps. Available-runtime cold/warm resource evidence remains
+unmeasured.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an

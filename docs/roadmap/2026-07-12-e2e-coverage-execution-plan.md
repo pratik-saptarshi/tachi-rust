@@ -65,7 +65,7 @@ silent deferral.
 |---:|---|:---:|---|---|
 | 1 | `E2E-COV.2` | P2 | Harden provenance and local artifact privacy before broad publish/privacy claims. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, and no secret persistence. |
 | 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
-| 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
+| 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. **Partial-green:** fixture-driven unavailable-safe wrapper and baseline landed; available-runtime measurements remain. |
 | 4 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
 | 5 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
 | 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
@@ -178,6 +178,12 @@ provenance, cleanup, and `SKIPPED_UNAVAILABLE` when the runtime is absent.
 **REFACTOR:** compare cold/warm samples without conflating local and hosted
 queue time, publish an advisory baseline, and retain the no-side-effect
 contract in workflow tests and the readiness checklist.
+
+Current TDD checkpoint: `make act-smoke-run` validates the synthetic fixture
+and named `route` job, consumes preflight, and records `SKIPPED_UNAVAILABLE`
+with no workflow/SARIF/release/security side effects on this host. The baseline
+is documented in `docs/reports/act-smoke-baseline.md`; available-runtime
+cold/warm resource evidence remains open.
 
 ### E2E-COV-010.1/.2 — TDD promotion and deterministic agentic replay
 
