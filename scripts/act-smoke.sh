@@ -39,8 +39,8 @@ payload="$(jq -n \
 if [ "$OUTPUT" = /dev/stdout ]; then
     printf '%s\n' "$payload"
 else
-    mkdir -p -- "$(dirname -- "$OUTPUT")"
     umask 077
+    mkdir -p -- "$(dirname -- "$OUTPUT")"
     printf '%s\n' "$payload" > "$OUTPUT"
 fi
 

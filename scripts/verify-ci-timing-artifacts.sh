@@ -15,6 +15,7 @@ command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 2; }
 
 EXPECTED_WORKFLOW="${CI_TIMING_EXPECTED_WORKFLOW:-rust workspace tests}"
 ALLOW_LEGACY="${CI_TIMING_ALLOW_LEGACY_ARTIFACTS:-0}"
+shopt -s nullglob
 
 if [ -z "$REPO" ]; then
     REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
@@ -42,7 +43,7 @@ jq -e \
     '(.workflowName == $workflow)
      and (.status == "completed")
      and (.conclusion == "success")
-     and (.event == "push" or .event == "pull_request")
+     and (.event == "push" or .event == "pull_request" or .event == "workflow_dispatch")
      and (.attempt | type == "number" and . >= 1)' \
     <<<"$run_metadata" >/dev/null || {
     echo "FAIL: GitHub run metadata is not an accepted successful timing run" >&2
@@ -53,6 +54,11 @@ run_event="$(jq -r '.event' <<<"$run_metadata")"
 run_attempt="$(jq -r '.attempt' <<<"$run_metadata")"
 run_head_sha="$(jq -r '.headSha' <<<"$run_metadata")"
 run_head_branch="$(jq -r '.headBranch' <<<"$run_metadata")"
+
+if [ "$run_event" = "pull_request" ] && [ "$COMMIT" = "auto" ] && [ "$ALLOW_LEGACY" != 1 ]; then
+    echo "FAIL: pull_request timing verification requires an explicit merge commit" >&2
+    exit 1
+fi
 
 root="${OUTPUT_DIR:-$(mktemp -d)}"
 cleanup() {
@@ -132,10 +138,11 @@ jq -e --arg commit "$artifact_commit" --arg run_id "$RUN_ID" --arg event "$run_e
                 .runner.workflow_name == $workflow
                 and .runner.head_sha == $commit
                 and .runner.source_head_sha == $head_sha
-                and (if $event == "push"
-                     then (.runner.ref == ("refs/heads/" + $head_branch)
+                and (if $event == "pull_request"
+                     then (.runner.ref | test("^refs/pull/[0-9]+/merge$"))
+                     else
+                     (.runner.ref == ("refs/heads/" + $head_branch)
                            or .runner.ref == ("refs/tags/" + $head_branch))
-                     else (.runner.ref | test("^refs/pull/[0-9]+/merge$"))
                      end)
             )
         )

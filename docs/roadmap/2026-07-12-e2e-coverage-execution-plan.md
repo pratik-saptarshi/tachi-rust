@@ -27,8 +27,8 @@ The remaining evidence is narrower than the product journey inventory:
 - security follow-up `E2E-COV.2` is complete: its hosted
   metadata binding, exact push-ref binding, bounded log, path normalization,
   expanded redaction, retention, 0600 cleanup-receipt, unit/aggregate schema,
-  and valid/rejected new-format PR fixture contracts are implemented and
-  tested;
+  valid/rejected new-format PR fixture, workflow_dispatch, explicit-PR-commit,
+  fail-closed cleanup, and tiny-log-cap contracts are implemented and tested;
 - the act/Podman lane is advisory and must remain unavailable-safe and
   security-isolated;
 - TDD and agentic replay evidence must be promoted through explicit test-level

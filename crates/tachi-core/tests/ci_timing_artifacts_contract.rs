@@ -134,7 +134,7 @@ exit 2
     let metadata = r#"{"workflowName":"rust workspace tests","event":"pull_request","status":"completed","conclusion":"success","headBranch":"feature/test","headSha":"source-sha","attempt":1,"databaseId":123}"#;
     let run = |ref_name: &str, source_head: &str| {
         Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
-            .args(["123", "auto"])
+            .args(["123", "merge-sha"])
             .env("PATH", &path)
             .env("GH_REPO", "pratik-saptarshi/tachi-rust")
             .env("FAKE_RUN_METADATA", metadata)

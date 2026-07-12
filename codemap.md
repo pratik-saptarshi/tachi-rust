@@ -128,7 +128,9 @@ current partial-green slice binds hosted metadata and exact push refs, defaults
 local retention to ephemeral, normalizes retained paths, bounds logs, expands
 credential redaction, records truthful retained-cleanup state, and emits a
 0600 schema-backed ephemeral cleanup receipt, offline unit/aggregate schema
-keyword validation, and valid/rejected synthetic PR source/ref fixtures.
+keyword validation, valid/rejected synthetic PR source/ref fixtures, explicit
+PR merge-commit verification, workflow_dispatch support, nullglob artifact
+matching, fail-closed cleanup, and exact tiny-log caps.
 
 The advisory `E2E-COV-009.1` preflight now lives in `scripts/act-smoke.sh` and
 is exposed by `make act-smoke`; it is unavailable-safe (`SKIPPED_UNAVAILABLE`)

@@ -19,7 +19,7 @@
     "timed_out": {"type": "integer", "minimum": 0},
     "cancelled": {"type": "integer", "minimum": 0},
     "stages": {"type": "array", "items": {"type": "object"}},
-    "cleanup": {"type": "object", "required": ["verified", "mode"], "properties": {"verified": {"type": "boolean"}, "mode": {"enum": ["ephemeral", "retain"]}}, "additionalProperties": false},
+    "cleanup": {"type": "object", "required": ["verified", "retention"], "properties": {"verified": {"type": "boolean"}, "retention": {"enum": ["ephemeral", "retain"]}}, "additionalProperties": false},
     "results": {"type": "array", "items": {"type": "object"}}
   },
   "additionalProperties": false

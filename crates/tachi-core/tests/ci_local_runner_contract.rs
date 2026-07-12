@@ -66,6 +66,7 @@ fn run_runner(
     output: &Path,
     secret: Option<&str>,
     retention: Option<&str>,
+    max_log_bytes: Option<&str>,
 ) -> std::process::Output {
     let path = format!(
         "{}{}{}",
@@ -91,6 +92,9 @@ fn run_runner(
     }
     if let Some(retention) = retention {
         command.env("CI_LOCAL_RETENTION", retention);
+    }
+    if let Some(max_log_bytes) = max_log_bytes {
+        command.env("CI_LOCAL_MAX_LOG_BYTES", max_log_bytes);
     }
     command.output().expect("run local CI runner")
 }
@@ -124,6 +128,7 @@ fn runner_executes_fake_cargo_as_direct_argv_and_redacts_logs() {
         &output,
         Some("local-secret"),
         Some("retain"),
+        None,
     );
     assert!(run.status.success(), "runner failed: {:?}", run);
     assert_eq!(
@@ -164,7 +169,14 @@ fn runner_records_timeout_and_kills_descendant_processes() {
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "hang"], 1);
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, None, Some("retain"));
+    let run = run_runner(
+        &manifest_path,
+        &fake_bin,
+        &output,
+        None,
+        Some("retain"),
+        None,
+    );
     assert!(!run.status.success(), "timeout must fail aggregate run");
     let result = result_json(&output);
     assert_eq!(result["timed_out"], 1);
@@ -189,7 +201,7 @@ fn runner_default_retention_removes_run_directory_after_success() {
     let manifest_path = root.join("manifest.json");
     manifest(&manifest_path, &["cargo", "--version"], 5);
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, None, None);
+    let run = run_runner(&manifest_path, &fake_bin, &output, None, None, None);
     assert!(run.status.success(), "runner failed: {:?}", run);
     let run_directories = fs::read_dir(&output)
         .expect("read output")
@@ -208,7 +220,8 @@ fn runner_default_retention_removes_run_directory_after_success() {
     assert_eq!(
         receipts.len(),
         1,
-        "ephemeral cleanup must leave one receipt"
+        "ephemeral cleanup must leave one receipt; stderr={:?}",
+        run.stderr
     );
     let receipt: serde_json::Value =
         serde_json::from_slice(&fs::read(&receipts[0]).expect("read receipt"))
@@ -238,10 +251,18 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
         5,
     );
     let output = root.join("output");
-    let run = run_runner(&manifest_path, &fake_bin, &output, None, Some("retain"));
+    let run = run_runner(
+        &manifest_path,
+        &fake_bin,
+        &output,
+        None,
+        Some("retain"),
+        Some("64"),
+    );
     assert!(run.status.success(), "runner failed: {:?}", run);
     let result = result_json(&output);
     assert_eq!(result["results"][0]["cleanup"]["verified"], false);
+    assert_eq!(result["cleanup"]["retention"], "retain");
     assert_eq!(result["results"][0]["log_path"], "fake-cargo-unit.log");
     assert!(result["results"][0]["argv"][1]
         .as_str()
@@ -258,6 +279,6 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
     assert!(!log.contains("secret"));
     assert!(!log.contains("YWJj"));
     assert!(!log.contains("hidden"));
-    assert!(log.len() <= 1_048_576 + 64, "log must be bounded");
+    assert!(log.len() <= 64, "log must be bounded");
     fs::remove_dir_all(root).expect("cleanup");
 }

@@ -62,19 +62,30 @@ cleanup() {
     [ -z "$RUN_DIR" ] && return
     if [ "$RETENTION" = ephemeral ]; then
         local verified=false
-        rm -rf -- "$RUN_DIR"
-        if [ ! -e "$RUN_DIR" ]; then
+        if rm -rf -- "$RUN_DIR" && [ ! -e "$RUN_DIR" ]; then
             verified=true
         else
             printf 'ci-local-runner: failed to remove ephemeral run directory\n' >&2
         fi
         if [ -n "$CLEANUP_RECEIPT" ]; then
-            jq -n --arg run_id "$RUN_ID" --arg retention "$RETENTION" --argjson verified "$verified" \
+            local receipt_ok=true
+            if ! jq -n --arg run_id "$RUN_ID" --arg retention "$RETENTION" --argjson verified "$verified" \
                 '{schema_version:1,run_id:$run_id,retention:$retention,verified:$verified}' \
-                > "$CLEANUP_RECEIPT.tmp" && \
-                validate_against_schema "$CLEANUP_SCHEMA" "$CLEANUP_RECEIPT.tmp" && \
-                chmod 0600 "$CLEANUP_RECEIPT.tmp" && mv -- "$CLEANUP_RECEIPT.tmp" "$CLEANUP_RECEIPT"
+                > "$CLEANUP_RECEIPT.tmp"; then
+                receipt_ok=false
+            elif ! validate_against_schema "$CLEANUP_SCHEMA" "$CLEANUP_RECEIPT.tmp" >/dev/null; then
+                receipt_ok=false
+            elif ! chmod 0600 "$CLEANUP_RECEIPT.tmp"; then
+                receipt_ok=false
+            elif ! mv "$CLEANUP_RECEIPT.tmp" "$CLEANUP_RECEIPT"; then
+                receipt_ok=false
+            fi
+            if [ "$receipt_ok" != true ]; then
+                printf 'ci-local-runner: failed to write cleanup receipt\n' >&2
+                exit 1
+            fi
         fi
+        [ "$verified" = true ] || exit 1
     fi
 }
 # SIGINT and SIGTERM request cooperative cancellation; the child is terminated
@@ -116,10 +127,13 @@ redact_log() {
     if [ "$(wc -c < "$1")" -gt "$MAX_LOG_BYTES" ]; then
         local marker='[log truncated]'
         local marker_bytes=$(( ${#marker} + 1 ))
-        local keep_bytes=$(( MAX_LOG_BYTES - marker_bytes ))
-        [ "$keep_bytes" -gt 0 ] || keep_bytes=0
-        head -c "$keep_bytes" "$1" > "$1.tmp"
-        printf '\n%s' "$marker" >> "$1.tmp"
+        if [ "$MAX_LOG_BYTES" -le "$marker_bytes" ]; then
+            head -c "$MAX_LOG_BYTES" "$1" > "$1.tmp"
+        else
+            local keep_bytes=$(( MAX_LOG_BYTES - marker_bytes ))
+            head -c "$keep_bytes" "$1" > "$1.tmp"
+            printf '\n%s' "$marker" >> "$1.tmp"
+        fi
         mv -- "$1.tmp" "$1"
     fi
 }
@@ -272,7 +286,7 @@ done < <(jq -r --arg mode "$MODE" '.units[] | select(.modes | index($mode)) | @b
 
 jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" --arg cache_context "$CACHE_CONTEXT" --argjson started_ms "$RUN_START_MS" --argjson finished_ms "$(now_ms)" \
     --arg retention "$RETENTION" \
-    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:($retention == "ephemeral"),mode:$retention},results:.}' \
+    '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:($retention == "ephemeral"),retention:$retention},results:.}' \
     "$RUN_DIR"/*.json > "$RUN_DIR/results.json"
 jq -e '.schema_version == 1 and (.retention | IN("ephemeral", "retain")) and ((.results | length) == .unit_count)' "$RUN_DIR/results.json" >/dev/null || fail "aggregate result schema validation failed"
 validate_against_schema "$AGGREGATE_SCHEMA" "$RUN_DIR/results.json"
