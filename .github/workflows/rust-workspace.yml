@@ -195,7 +195,13 @@ jobs:
           mkdir -p .ci-timing
           start_ns="$(date +%s%N)"
           printf '%s\n' "$start_ns" > .ci-timing/start_ns
-          cargo test -p ${{ matrix.package }} --all-targets
+          if [ "${{ matrix.package }}" = "tachi-core" ]; then
+            # ci_local_runner_contract contains process-tree timing checks that
+            # must not contend with sibling test binaries on the same runner.
+            cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1
+          else
+            cargo test -p ${{ matrix.package }} --all-targets
+          fi
           end_ns="$(date +%s%N)"
           elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
           {
