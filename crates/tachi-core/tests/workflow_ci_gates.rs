@@ -710,7 +710,7 @@ fn closeout_notes_separate_local_proof_from_external_verification() {
         "Protected refs (`main`, `release/*`, and tags) are forced to full mode.",
         "Shared Rust setup is centralized",
         "Heavy Rust-facing workflows emit elapsed runtime summaries.",
-        "Still Pending External Verification",
+        "Remaining Follow-up Verification",
         "Live GitHub Actions timing evidence",
         "Branch-protection verification",
         "Post-push monitoring of `main` after a publish step",
