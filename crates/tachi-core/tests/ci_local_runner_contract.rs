@@ -83,6 +83,7 @@ fn run_runner(
             "CI_LOCAL_RESULT_SCHEMA",
             repo_root().join("schemas/ci-run-result.schema.json"),
         )
+        .env_remove("CI_LOCAL_CACHE_STATE")
         .env("PATH", path);
     if let Some(secret) = secret {
         command.env("CI_LOCAL_SECRET", secret);
