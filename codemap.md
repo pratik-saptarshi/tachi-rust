@@ -150,8 +150,10 @@ unmeasured.
 `E2E-COV-010.1` is represented by `docs/testing/tdd-evidence.json` and
 `crates/tachi-core/tests/tdd_evidence_contract.rs`, which make acceptance
 criteria, RED/GREEN/REFACTOR commands, and promotion statuses durable across
-unit, integration, functional, E2E, and agentic levels. The agentic level is
-explicitly skipped until the deterministic replay child lands.
+unit, integration, functional, E2E, and agentic levels. The deterministic
+replay child now has an offline partial harness, but its agentic promotion is
+explicitly skipped until behavioral timeout/cancel/circuit and independent
+audit-sink evidence lands.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
