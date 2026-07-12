@@ -512,6 +512,7 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         "retain",
         "CI_LOCAL_MAX_LOG_BYTES",
         "ci-cleanup-receipt.schema.json",
+        "ci-run-aggregate.schema.json",
         "rm -rf -- \"$RUN_DIR\"",
     ] {
         assert!(

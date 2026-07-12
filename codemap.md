@@ -123,12 +123,12 @@ queue median; the latest five PR #24 runs passed and historical failures remain
 visible in the raw sample. Branch protection is enabled with the verified
 required-check contract, so governance evidence is complete while final
 publish-gate closure remains separately tracked.
-The security follow-up `E2E-COV.2` remains open for complete schema consumption
-and valid new-format PR fixture coverage. Its
+The security follow-up `E2E-COV.2` is complete. Its
 current partial-green slice binds hosted metadata and exact push refs, defaults
 local retention to ephemeral, normalizes retained paths, bounds logs, expands
 credential redaction, records truthful retained-cleanup state, and emits a
-0600 schema-backed ephemeral cleanup receipt.
+0600 schema-backed ephemeral cleanup receipt, offline unit/aggregate schema
+keyword validation, and valid/rejected synthetic PR source/ref fixtures.
 
 The advisory `E2E-COV-009.1` preflight now lives in `scripts/act-smoke.sh` and
 is exposed by `make act-smoke`; it is unavailable-safe (`SKIPPED_UNAVAILABLE`)

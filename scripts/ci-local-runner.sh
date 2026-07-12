@@ -7,6 +7,7 @@ ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)"
 MANIFEST="${CI_LOCAL_MANIFEST:-$ROOT_DIR/.github/ci-test-units.json}"
 RESULT_SCHEMA="${CI_LOCAL_RESULT_SCHEMA:-$ROOT_DIR/schemas/ci-run-result.schema.json}"
 CLEANUP_SCHEMA="${CI_LOCAL_CLEANUP_SCHEMA:-$ROOT_DIR/schemas/ci-cleanup-receipt.schema.json}"
+AGGREGATE_SCHEMA="${CI_LOCAL_AGGREGATE_SCHEMA:-$ROOT_DIR/schemas/ci-run-aggregate.schema.json}"
 MODE="local-full"
 OUTPUT_DIR="${CI_LOCAL_OUTPUT_DIR:-$ROOT_DIR/target/ci-local-results}"
 CACHE_CONTEXT="${CI_LOCAL_CACHE_STATE:-unknown}"
@@ -47,6 +48,7 @@ command -v jq >/dev/null 2>&1 || fail "jq is required"
 [ -r "$MANIFEST" ] || fail "missing manifest: $MANIFEST"
 [ -r "$RESULT_SCHEMA" ] || fail "missing result schema: $RESULT_SCHEMA"
 [ -r "$CLEANUP_SCHEMA" ] || fail "missing cleanup receipt schema: $CLEANUP_SCHEMA"
+[ -r "$AGGREGATE_SCHEMA" ] || fail "missing aggregate result schema: $AGGREGATE_SCHEMA"
 jq -e '(.units | type == "array" and length > 0) and (.units | map(.id) | length == (unique | length))' "$MANIFEST" >/dev/null || fail "invalid manifest"
 
 mkdir -p -- "$OUTPUT_DIR" || fail "cannot create output directory"
@@ -70,7 +72,7 @@ cleanup() {
             jq -n --arg run_id "$RUN_ID" --arg retention "$RETENTION" --argjson verified "$verified" \
                 '{schema_version:1,run_id:$run_id,retention:$retention,verified:$verified}' \
                 > "$CLEANUP_RECEIPT.tmp" && \
-                jq -e '.schema_version == 1 and (.run_id | type == "string" and length > 0) and .retention == "ephemeral" and (.verified | type == "boolean")' "$CLEANUP_RECEIPT.tmp" >/dev/null && \
+                validate_against_schema "$CLEANUP_SCHEMA" "$CLEANUP_RECEIPT.tmp" && \
                 chmod 0600 "$CLEANUP_RECEIPT.tmp" && mv -- "$CLEANUP_RECEIPT.tmp" "$CLEANUP_RECEIPT"
         fi
     fi
@@ -128,6 +130,35 @@ redact_metadata() {
     else
         printf '%s\n' "$1"
     fi
+}
+
+validate_against_schema() {
+    local schema="$1" value="$2"
+    jq -e --slurpfile schema "$schema" '
+        def type_ok($expected; $value):
+            if ($expected | type) == "array" then
+                any($expected[]; . == ($value | type) or (. == "integer" and ($value | type) == "number" and ($value | floor) == $value))
+            elif $expected == "integer" then
+                ($value | type) == "number" and ($value | floor) == $value
+            else
+                ($value | type) == $expected
+            end;
+        def validate($schema; $value):
+            (if ($schema.const? != null) then $value == $schema.const else true end)
+            and (if ($schema.enum? != null) then any($schema.enum[]; . == $value) else true end)
+            and (if ($schema.type? != null) then type_ok($schema.type; $value) else true end)
+            and (if ($schema.minLength? != null) then ($value | length) >= $schema.minLength else true end)
+            and (if ($schema.minItems? != null) then ($value | length) >= $schema.minItems else true end)
+            and (if ($schema.minimum? != null) then $value >= $schema.minimum else true end)
+            and (if ($schema.type? == "array") then all($value[]; validate($schema.items; .)) else true end)
+            and (if ($schema.type? == "object") then
+                ($schema.properties // {}) as $properties
+                | all(($schema.required // [])[]; . as $key | ($value | has($key)))
+                and (if $schema.additionalProperties == false then all(($value | to_entries)[]; .key as $key | ($properties | has($key))) else true end)
+                and all(($properties | to_entries)[]; . as $property | if ($value | has($property.key)) then validate($properties[$property.key]; $value[$property.key]) else true end)
+            else true end);
+        validate($schema[0]; .)
+    ' "$value" >/dev/null || fail "result does not conform to schema: $value"
 }
 
 sanitize_arg() {
@@ -229,6 +260,7 @@ run_unit() {
         '{schema_version:1,run_id:$run_id,mode:$mode,unit:$id,stage:$stage,cache_context:$cache_context,argv:$argv,toolchain:$toolchain,status:$status,started_at:$started,finished_at:$finished,duration_ms:$duration,exit_code:$exit_code,signal:$signal,log_path:($id + ".log"),retention:$retention,cleanup:{verified:($retention == "ephemeral"),retention:$retention},redactions:["environment values are not copied to result JSON","machine paths normalized","credential patterns redacted","log size bounded"]}' \
         > "$result_path"
     validate_unit_result "$result_path"
+    validate_against_schema "$RESULT_SCHEMA" "$result_path"
     [ "$status" = passed ]
 }
 
@@ -243,5 +275,6 @@ jq -s --arg run_id "$RUN_ID" --arg mode "$MODE" --arg cache_context "$CACHE_CONT
     '{schema_version:1,run_id:$run_id,mode:$mode,cache_context:$cache_context,retention:$retention,started_ms:$started_ms,finished_ms:$finished_ms,total_duration_ms:($finished_ms-$started_ms),unit_count:length,passed:(map(select(.status=="passed"))|length),failed:(map(select(.status=="failed"))|length),timed_out:(map(select(.status=="timed_out"))|length),cancelled:(map(select(.status=="cancelled"))|length),stages:(group_by(.stage)|map({stage:.[0].stage,unit_count:length,duration_ms:(map(.duration_ms)|add),failed:(map(select(.status!="passed"))|length)})),cleanup:{verified:($retention == "ephemeral"),mode:$retention},results:.}' \
     "$RUN_DIR"/*.json > "$RUN_DIR/results.json"
 jq -e '.schema_version == 1 and (.retention | IN("ephemeral", "retain")) and ((.results | length) == .unit_count)' "$RUN_DIR/results.json" >/dev/null || fail "aggregate result schema validation failed"
+validate_against_schema "$AGGREGATE_SCHEMA" "$RUN_DIR/results.json"
 printf 'run_id=%s\nmode=%s\nresults=results.json\n' "$RUN_ID" "$MODE"
 exit "$overall"

@@ -95,3 +95,67 @@ exit 2
     );
     fs::remove_dir_all(root).expect("cleanup");
 }
+
+#[test]
+fn verifier_accepts_valid_pr_synthetic_merge_provenance() {
+    let root = temp_dir("tachi-ci-timing-pr");
+    let bin = root.join("bin");
+    fs::create_dir(&bin).expect("create fake bin");
+    executable(
+        &bin.join("gh"),
+        r##"#!/bin/sh
+if [ "$1" = "run" ] && [ "$2" = "view" ]; then
+  printf '%s\n' "$FAKE_RUN_METADATA"
+  exit 0
+fi
+if [ "$1" = "run" ] && [ "$2" = "download" ]; then
+  name=""; dir=""
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --name) name="$2"; shift 2 ;;
+      --dir) dir="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  mkdir -p "$dir"
+  case "$name" in
+    ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
+    ci-timing-shell-*) unit="shell-tests-${name#ci-timing-shell-}"; stage="test-slice" ;;
+    *) exit 2 ;;
+  esac
+  jq -n --arg unit "$unit" --arg stage "$stage" --arg event "$FAKE_EVENT" --arg workflow "$FAKE_WORKFLOW" --arg ref "$FAKE_REF" --arg head "$FAKE_ARTIFACT_HEAD" --arg source "$FAKE_SOURCE_HEAD" \
+    '{schema_version:1,stage:$stage,unit:$unit,commit:"merge-sha",duration_ms:1,runner:{run_id:123,attempt:1,event:$event,workflow_name:$workflow,ref:$ref,head_sha:$head,source_head_sha:$source}}' > "$dir/result.json"
+  exit 0
+fi
+exit 2
+"##,
+    );
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let metadata = r#"{"workflowName":"rust workspace tests","event":"pull_request","status":"completed","conclusion":"success","headBranch":"feature/test","headSha":"source-sha","attempt":1,"databaseId":123}"#;
+    let run = |ref_name: &str, source_head: &str| {
+        Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
+            .args(["123", "auto"])
+            .env("PATH", &path)
+            .env("GH_REPO", "pratik-saptarshi/tachi-rust")
+            .env("FAKE_RUN_METADATA", metadata)
+            .env("FAKE_EVENT", "pull_request")
+            .env("FAKE_WORKFLOW", "rust workspace tests")
+            .env("FAKE_REF", ref_name)
+            .env("FAKE_ARTIFACT_HEAD", "merge-sha")
+            .env("FAKE_SOURCE_HEAD", source_head)
+            .output()
+            .expect("run timing verifier")
+    };
+    let result = run("refs/pull/7/merge", "source-sha");
+    assert!(
+        result.status.success(),
+        "valid PR provenance must pass: {result:?}"
+    );
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert!(stdout.contains("verified_artifacts") && stdout.contains("status"));
+    assert!(!run("refs/pull/7/merge", "wrong-source").status.success());
+    assert!(!run("refs/heads/feature/test", "source-sha")
+        .status
+        .success());
+    fs::remove_dir_all(root).expect("cleanup");
+}
