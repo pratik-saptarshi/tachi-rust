@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; E2E-COV-007 complete; E2E-COV.2 privacy slice is partial-green; next ready runtime issue is `E2E-COV-009.1`
+**Status**: Active execution plan; E2E-COV-007 complete; E2E-COV.2 privacy slice is partial-green; E2E-COV-009.1 preflight is partial-green
 **Baseline**: `main` / `origin/main` at `36f5eaa`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -64,7 +64,7 @@ silent deferral.
 | Order | Beads issue | Priority | Execution decision | Exit evidence |
 |---:|---|:---:|---|---|
 | 1 | `E2E-COV.2` | P2 | Harden provenance and local artifact privacy before broad publish/privacy claims. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, and no secret persistence. |
-| 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. |
+| 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
 | 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. |
 | 4 | `E2E-COV-010.1` | P2 | Define promotion and TDD evidence contracts before agentic implementation. | AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels. |
 | 5 | `E2E-COV-010.2` | P2 | Implement deterministic replay after the evidence contract. | Scripted fake model/tool replay for approval, denial, timeout, cancel, circuit breaker, audit correlation, and no live network/model. |
@@ -154,6 +154,13 @@ explicit synthetic test requires otherwise.
 **REFACTOR:** validate shell quoting, JSON output, redaction, deterministic
 exit semantics, and macOS/Linux behavior. Record the result without making the
 advisory lane a required CI or publish gate.
+
+Current TDD checkpoint: `scripts/act-smoke.sh` and `make act-smoke` pass the
+missing-runtime RED/GREEN contract. On this Darwin x86_64 host the result is
+`SKIPPED_UNAVAILABLE`, with no workflow invocation, no SARIF/release/security
+side effects, empty secrets, and no privileged/host/socket/credential mounts.
+The available-runtime branch remains open for Podman Docker-API compatibility,
+image digest, and resource-limit evidence.
 
 ### E2E-COV-009.2 — advisory smoke/resource benchmark
 

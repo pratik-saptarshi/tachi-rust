@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate codeql-maintenance-gate codeql-upstream-release-check verify-ci-timing-artifacts docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate codeql-maintenance-gate codeql-upstream-release-check verify-ci-timing-artifacts act-smoke docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -67,6 +67,9 @@ codeql-upstream-release-check: ## Compare the documented CodeQL v4 mapping with 
 verify-ci-timing-artifacts: ## Download and validate all eight hosted timing artifacts
 	@test -n "$(RUN_ID)" -a -n "$(COMMIT)" || (echo "usage: make verify-ci-timing-artifacts RUN_ID=<run> COMMIT=<sha|auto>" >&2; exit 2)
 	@./scripts/verify-ci-timing-artifacts.sh "$(RUN_ID)" "$(COMMIT)" "$(OUTPUT_DIR)"
+
+act-smoke: ## Run unavailable-safe act/Podman capability preflight
+	@./scripts/act-smoke.sh
 
 docs-version-gate: ## Validate docs and examples workflow-version hygiene
 	@if rg "actions/checkout@v[0-6]|actions-rs/toolchain@|github/codeql-action/upload-sarif@v3|codeql/upload-sarif@v3|::set-output|Node 20" \

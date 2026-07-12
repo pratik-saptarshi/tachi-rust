@@ -129,6 +129,13 @@ current partial-green slice binds hosted metadata and exact push refs, defaults
 local retention to ephemeral, normalizes retained paths, bounds logs, expands
 credential redaction, records truthful retained-cleanup state, and emits a
 0600 schema-backed ephemeral cleanup receipt.
+
+The advisory `E2E-COV-009.1` preflight now lives in `scripts/act-smoke.sh` and
+is exposed by `make act-smoke`; it is unavailable-safe (`SKIPPED_UNAVAILABLE`)
+and reports runtime/architecture/policy/resource fields without invoking a
+workflow or allowing secrets, privileged mode, host/socket mounts, or release /
+security side effects. Available-runtime Podman API and image/resource probes
+remain open for the next slice.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
