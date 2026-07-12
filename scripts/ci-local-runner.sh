@@ -74,7 +74,9 @@ cleanup() {
                 '{schema_version:1,run_id:$run_id,retention:$retention,verified:$verified}' \
                 > "$CLEANUP_RECEIPT.tmp"; then
                 receipt_ok=false
-            elif ! validate_against_schema "$CLEANUP_SCHEMA" "$CLEANUP_RECEIPT.tmp" >/dev/null; then
+            elif ! type validate_against_schema >/dev/null 2>&1; then
+                receipt_ok=false
+            elif ! ( validate_against_schema "$CLEANUP_SCHEMA" "$CLEANUP_RECEIPT.tmp" >/dev/null ); then
                 receipt_ok=false
             elif ! chmod 0600 "$CLEANUP_RECEIPT.tmp"; then
                 receipt_ok=false
@@ -141,16 +143,41 @@ redact_log() {
 bounded_capture() {
     local max_bytes="$1"
     shift
-    "$@" 2>&1 | perl -e '
+    "$@" 2>&1 | CI_LOCAL_SECRET="${CI_LOCAL_SECRET:-}" perl -e '
         my $max = shift @ARGV;
+        my $secret = $ENV{CI_LOCAL_SECRET} // "";
+        my $window = length($secret) + 8192;
+        $window = 8192 if $window < 8192;
         my $written = 0;
-        while (read(STDIN, my $buffer, 8192)) {
-            next if $written >= $max;
-            my $remaining = $max - $written;
-            my $chunk = length($buffer) > $remaining ? substr($buffer, 0, $remaining) : $buffer;
-            syswrite(STDOUT, $chunk);
-            $written += length($chunk);
+        sub redact {
+            my ($text) = @_;
+            $text =~ s/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g if length($ENV{CI_LOCAL_SECRET} // "");
+            $text =~ s/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/$1[REDACTED]/gi;
+            $text =~ s/(AKIA|ASIA)[A-Z0-9]{16}/$1[REDACTED]/g;
+            $text =~ s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi;
+            $text =~ s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/$1[REDACTED]/gi;
+            $text =~ s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs;
+            $text =~ s/-----BEGIN [^-]+-----.*\z/[REDACTED]/gs;
+            return $text;
         }
+        sub emit {
+            my ($text) = @_;
+            return if $written >= $max;
+            $text = redact($text);
+            my $remaining = $max - $written;
+            $text = substr($text, 0, $remaining) if length($text) > $remaining;
+            my $count = syswrite(STDOUT, $text);
+            $written += $count if defined $count;
+        }
+        my $carry = "";
+        while (read(STDIN, my $buffer, 8192)) {
+            $carry .= $buffer;
+            while (length($carry) > $window) {
+                my $length = length($carry) - $window;
+                emit(substr($carry, 0, $length, ""));
+            }
+        }
+        emit($carry);
     ' "$max_bytes"
     local command_status="${PIPESTATUS[0]}"
     return "$command_status"
@@ -158,7 +185,7 @@ bounded_capture() {
 
 redact_metadata() {
     if command -v perl >/dev/null 2>&1; then
-        CI_LOCAL_SECRET="${CI_LOCAL_SECRET:-}" perl -pe 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g if length $ENV{CI_LOCAL_SECRET}; s/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/[REDACTED]/g; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/[REDACTED]/gi' <<<"$1"
+        CI_LOCAL_SECRET="${CI_LOCAL_SECRET:-}" perl -pe 's/\Q$ENV{CI_LOCAL_SECRET}\E/[REDACTED]/g if length $ENV{CI_LOCAL_SECRET}; s/(Bearer\s+|gh[pousr]_|github_pat_)[A-Za-z0-9_\-\.]+/[REDACTED]/gi; s/(AKIA|ASIA)[A-Z0-9]{16}/[REDACTED]/g; s/(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET)\s*[=:]\s*[^\s]+/$1=[REDACTED]/gi; s/(Authorization:\s*Basic\s+)[A-Za-z0-9+\/=]+/[REDACTED]/gi; s/-----BEGIN [^-]+-----.*?-----END [^-]+-----/[REDACTED]/gs; s/-----BEGIN [^-]+-----.*\z/[REDACTED]/gs' <<<"$1"
     else
         printf '%s\n' "$1"
     fi

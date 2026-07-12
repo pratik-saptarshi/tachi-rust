@@ -241,7 +241,7 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
     let pem_begin = format!("{}{}", "-----BEGIN ", "PRIVATE KEY-----");
     executable(
         &fake_bin.join("cargo"),
-        &format!("#!/bin/sh\nprintf '%s' 'AWS_SECRET_ACCESS_KEY=secret Authorization: Basic YWJj {} hidden -----END PRIVATE KEY-----'\nhead -c 1100000 /dev/zero | tr '\\0' A\n", pem_begin),
+        &format!("#!/bin/sh\nprintf '%s' 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA supersecretvalue AWS_SECRET_ACCESS_KEY=secret Authorization: Basic YWJj {} hidden -----END PRIVATE KEY-----'\nhead -c 1100000 /dev/zero | tr '\\0' A\n", pem_begin),
     );
     let manifest_path = root.join("manifest.json");
     manifest(
@@ -250,6 +250,8 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
             "cargo",
             root.to_str().expect("root path"),
             "Bearer secret-token",
+            "AWS_SECRET_ACCESS_KEY=argv-secret",
+            "AZURE_CLIENT_SECRET=azure-secret",
         ],
         5,
     );
@@ -258,7 +260,7 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
         &manifest_path,
         &fake_bin,
         &output,
-        None,
+        Some("supersecretvalue"),
         Some("retain"),
         Some("64"),
     );
@@ -272,6 +274,14 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
         .expect("sanitized argv")
         .starts_with("<path>/tachi-ci-runner-privacy-"));
     assert_eq!(result["results"][0]["argv"][2], "[REDACTED]");
+    assert_eq!(
+        result["results"][0]["argv"][3],
+        "AWS_SECRET_ACCESS_KEY=[REDACTED]"
+    );
+    assert_eq!(
+        result["results"][0]["argv"][4],
+        "AZURE_CLIENT_SECRET=[REDACTED]"
+    );
     let run_dir = fs::read_dir(&output)
         .expect("read output")
         .map(|entry| entry.expect("entry").path())
@@ -280,6 +290,7 @@ fn runner_bounds_redacts_and_sanitizes_retained_diagnostics() {
     let log = fs::read_to_string(run_dir.join("fake-cargo-unit.log")).expect("log");
     assert!(log.contains("[REDACTED]"));
     assert!(!log.contains("secret"));
+    assert!(!log.contains("super"));
     assert!(!log.contains("YWJj"));
     assert!(!log.contains("hidden"));
     assert!(log.len() <= 64, "log must be bounded");
