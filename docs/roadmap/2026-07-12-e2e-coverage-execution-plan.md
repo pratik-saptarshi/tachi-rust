@@ -1,13 +1,13 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
 **Status**: Active execution plan; Slice 1 (`E2E-COV-007.3`) complete
-**Baseline**: `main` / `origin/main` at `fdecc9f`
+**Baseline**: `main` / `origin/main` at `298618c`
 **Last reviewed**: 2026-07-12
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `fdecc9f`; no main push is
+Local `main` and `origin/main` are synchronized at `298618c`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is

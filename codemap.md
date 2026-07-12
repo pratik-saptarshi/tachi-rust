@@ -127,8 +127,8 @@ opt-in `act` smoke lane using preflighted rootless Podman Docker-API
 compatibility; it remains advisory and does not replace hosted CI.
 The controlled cold route-equivalent runner sample now passes all 8 units in
 321,636 ms (compile-and-test 266,987 ms; shell slices 53,842 ms), extending
-the local evidence to 32/32 successful unit executions across full, warm, and
-cold-labeled runs. Hosted timing artifact verification now covers all eight
+the local evidence to 40/40 successful unit executions across full, warm, cold,
+and terminal local-full runs. Hosted timing artifact verification now covers all eight
 artifacts on merged main run `29178308727` and PR run `29178255153`; the
 verifier distinguishes pull-request synthetic merge provenance from API
 `headSha`. The CodeQL maintenance contract now also includes a read-only manual/weekly
