@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Colima act lane, E2E-COV-010 governance umbrella, and fresh publish-gate run are complete; the broader E2E-COV product-coverage epic remains open pending artifact commit and protected merge state
+**Status**: Active execution plan; Colima act lane, E2E-COV-010 governance umbrella, and fresh publish-gate run are complete; the broader E2E-COV product-coverage epic remains open pending terminal hosted checks, protected merge, and post-merge main verification
 **Baseline**: `main` / `origin/main` at `61ba9ee`
 **Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -56,9 +56,8 @@ The 2026-07-12 state audit treated `codemap.md`, this plan, the live Beads
 database, `.beads/issues.jsonl`, the publish checklist/BOM, and current branch
 artifacts as controlling context. The codebase-memory graph transport was
 unavailable during this run, so code discovery used the repository atlas and
-direct contract files; GitHub DNS was also unavailable for a live `ls-remote`
-refresh and is recorded as an environment limitation, not as proof of remote
-divergence.
+direct contract files. The 2026-07-13 continuation re-established live GitHub
+access and verified both remote refs and PR state below.
 
 | Finding | Evidence | Category | Disposition |
 |---|---|---|---|
@@ -67,17 +66,16 @@ divergence.
 | F-03 | `E2E-COV-007` Beads notes still described the interrupted aggregate gate. | Correction | Resolved by the terminal uninterrupted publish-gate closeout and synchronized Beads/docs evidence. |
 | F-04 | `E2E-COV.2` review found incomplete provenance, schema, cleanup, redaction, path, and size contracts. | Security/privacy gap | Closed after metadata/ref/path/log/retention/receipt/unit+aggregate schema and valid/rejected PR-fixture evidence. |
 | F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Colima lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
-| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Local `main` and the cached `origin/main` ref both point at `61ba9ee`, but live remote equality remains unverified until GitHub DNS/network access is restored. |
+| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Resolved for this checkpoint: live `git ls-remote` confirms `origin/main=61ba9ee` and `origin/chore/e2e-post-merge-plan-sync=4c0cb98`; retain the historical limitation only as prior evidence. |
 | F-07 | The earlier container-runtime path required administrator access and was not stable in this Intel host harness. Colima 0.10.3 is already installed. | Environment / architecture correction | Use the Colima CLI and Docker-compatible API as the active local act runtime; record Colima version/provider/socket identity as the closeout dependency. |
 | F-08 | Available-runtime execution was previously a deliberate `exit 2` path, so preflight fields and unavailable-safe tests could not prove a real named-job run. | Gap / implementation | Implemented a bounded act runner with explicit Colima runtime selection, image digest, timing, policy flags, side-effect fields, and container cleanup comparison; serial Colima samples now pass. |
 | F-09 | `actions/upload-artifact@v4` attempted the hosted artifact API during local act runs despite a local artifact-server flag. | Security/privacy gap | Added an `ACT_SMOKE=true` workflow guard and in-container `route.json` validation; local act no longer calls hosted artifact upload. |
 | F-10 | Plan/BOM/checklist text still described the act lane as an unmeasured Docker fallback and carried stale runtime wording. | Documentation correction | Synchronize all publish artifacts from measured Colima CLI/API evidence and preserve the advisory/no-hosted-CI boundary. |
 
-Actionability: F-01–F-05 pass (0.90–0.99) with full repository context;
-F-06 passes with a context caveat because remote state could not be refreshed.
-No finding was dropped. No scope-expansion veto was triggered. Security/privacy
-follow-up F-04 remains a P2 implementation item with a security veto against
-silent deferral.
+Actionability: F-01–F-06 pass (0.90–0.99) with full repository context;
+F-06 is now live-command confirmed. No finding was dropped. No scope-expansion
+veto was triggered. Security/privacy follow-up F-04 remains closed with its
+fail-closed evidence preserved.
 
 ## Priority and dependency order
 
@@ -104,6 +102,28 @@ the current pull-request timing collector reports workspace 22-run median 85s
 and route-observe 23-run median 14s, both with zero queue median. The latest
 five PR #24 runs passed; historical failures remain included in the raw sample
 and are documented as limitations rather than discarded.
+
+### Per-Beads execution blueprint and acceptance matrix
+
+The live tracker contains eleven closed child cards and one open parent. This
+matrix is the durable execution plan for revalidation, regression response, or
+reopening a child; a closed card is not treated as evidence that its acceptance
+criteria can be skipped during a merge or publish audit.
+
+| Beads issue | Capability and required behavior | TDD execution slice | Acceptance / exit evidence | Current state |
+|---|---|---|---|---|
+| `E2E-COV-001` | Freeze the journey matrix, boundary ownership, 119-module baseline, semantic audit rules, and fixture privacy rules. | RED: reject stale/count-only audit claims. GREEN: encode the semantic inventory and privacy contract. REFACTOR: compare plan, issue cards, codemap, and audit output. | `make coverage-audit` reports 119 active modules exactly: 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression; historical counts remain historical. | Closed; revalidate on every coverage-affecting change. |
+| `E2E-COV-002` | Drive deterministic architecture input through CLI report-data, threats-SARIF, and risk-scores-SARIF artifacts. | RED: invalid arguments/input must fail and leave no partial output. GREEN: invoke the real CLI and assert semantic artifact projections. REFACTOR: assert stdout/file parity and cleanup. | CLI integration/E2E contracts pass; valid artifacts are schema/semantic-valid, invalid input fails closed, and no partial artifacts remain. | Closed; protected by CLI/package gates. |
+| `E2E-COV-003` | Exercise the active desktop host through shared shell dispatch, including preview/save and typed failure paths. | RED: malformed command, path escape, timeout, cancellation, and child leak cases fail. GREEN: headless host dispatch returns status/stdout/stderr and bytes. REFACTOR: preserve command-registry parity and cleanup. | Desktop host contracts prove round-trip bytes, typed errors, path containment, timeout/cancel behavior, and descendant cleanup without requiring a GUI display. | Closed; revalidate with desktop all-targets and host contract gates. |
+| `E2E-COV-004` | Exercise MCP stdio startup, request validation, allowlisted dispatch, result metadata, and cancellation. | RED: malformed, unknown, disallowed, and cancelled requests fail closed. GREEN: valid stdio requests return validated tool results. REFACTOR: assert schema/transport/registry parity and no artifact leakage. | MCP package/all-targets and stdio contracts pass; valid responses are typed/validated and unsafe requests do not leak artifacts or secrets. | Closed; protected by the dedicated MCP CI lane. |
+| `E2E-COV-005` | Compose a clean temporary clone from init through offline install/update and one real analysis artifact. | RED: interrupted or invalid lifecycle stages leave no unsafe residue. GREEN: run the actual control-plane sequence in a unique temporary clone. REFACTOR: bound cleanup and assert offline determinism. | Temporary clone produces a validated report or SARIF artifact without network access; cleanup is bounded, safe, and verified. | Closed; revalidate when init/install/update contracts change. |
+| `E2E-COV-006` | Cover cross-boundary malformed input, disallowed commands, output escape, timeout, cancellation, and child-process cleanup. | RED: each failure/cancel transition must expose the expected typed status and fail the artifact contract. GREEN: implement/verify terminal-state and cleanup behavior. REFACTOR: run sibling CLI, desktop, MCP, and shell regressions. | Shared status/error taxonomy is consistent; no partial artifact, secret-bearing diagnostic, or child process survives failure/cancel. | Closed; required regression matrix before merge. |
+| `E2E-COV-007` | Prove uninterrupted branch/line/region coverage and fail-closed publish-gate enforcement. | RED: capture the former interrupted/missing-evidence boundary. GREEN: run the unchanged full gate through advisory, security, coverage, runner, release, and cleanup. REFACTOR: synchronize one receipt across all governance artifacts. | Host-assisted gate receipt `20260713T045400Z-79992`, cargo audit/deny success, current 119-module audit, 93.24% lines / 92.60% regions, and 85.15625% governed nightly branch coverage. | Closed; fresh receipt remains the local publish evidence. |
+| `E2E-COV-008` | Make local CI parity observable through a typed manifest-driven package/all-target and shell runner. | RED: opaque aggregate output and signal/timeout/cleanup ambiguity. GREEN: emit per-unit JSON and deterministic aggregate status. REFACTOR: compare manifest units with hosted workflow units and redact paths. | `make test`/`make test-route` preserve CI breadth, timeout/signal/cleanup/redaction semantics, and machine-readable provenance; hosted timing is kept separate from local wall time. | Closed; revalidate against hosted timing artifacts. |
+| `E2E-COV.2` | Bind hosted timing artifacts to GitHub metadata and govern local retention/privacy. | RED: reject mismatched workflow/event/ref/head/conclusion and unsafe retention. GREEN: implement explicit provenance, redaction, bounded logs, 0600 receipts, and fail-closed cleanup. REFACTOR: run synthetic accept/reject fixtures and schema checks. | Push and PR provenance, rerun limitation, path normalization, secret redaction, exact log caps, ephemeral retention, cleanup receipt, and no credential persistence are contract-tested and synchronized. | Closed; security veto remains against silent regression. |
+| `E2E-COV-009` / `.1` / `.2` | Provide opt-in advisory workflow emulation using the installed Colima CLI and Docker-compatible engine. | RED: unavailable/stopped runtime and unsafe policy inputs are machine-readable and side-effect free. GREEN: preflight Colima and run only the trusted synthetic route job. REFACTOR: measure cold/warm resources, digest, timing, cleanup, and explicit network exception. | `ACT_SMOKE_RUNTIME=colima make act-smoke` is `READY`; live route smoke passes with explicit host networking, pinned image, verified cleanup, and no hosted side effects. Default `network=none` remains safe/unavailable for the checkout-dependent synthetic route. Podman is not used. | Closed; advisory only and never a hosted/publish substitute. |
+| `E2E-COV-010` / `.1` / `.2` | Govern unit, integration, functional, E2E, and deterministic agentic evidence with durable RED/GREEN/REFACTOR records. | RED: missing level evidence, fake-tool non-invocation, nondeterministic audit, and cleanup failures. GREEN: use offline scripted fake-tool replay with bounded approval/timeout/cancel/circuit cases. REFACTOR: exact audit correlation, 0600 sink, descendant cleanup, and promotion validator. | `docs/testing/tdd-evidence.json` and focused Rust contracts prove named tests and promotion status; agentic replay uses no live model/network and is promoted `passed`. | Closed; promotion remains independent of hosted CI. |
+| `E2E-COV` | Parent closeout: all child journeys, coverage, governance artifacts, security/privacy evidence, and remote state agree. | RED: identify stale artifacts, non-terminal hosted checks, protected-merge blockers, or remote divergence. GREEN: reconcile tracker/docs and monitor terminal CI. REFACTOR: merge, verify post-merge `main`, rerun gates, then close parent. | Only parent is open/ready. Close only after PR #33 terminal checks, protected merge, post-merge main workflows, live refs, and all artifacts agree. | Open; next action is hosted CI monitoring and protected merge progression. |
 
 ## Ready-issue execution cards
 
@@ -133,16 +153,18 @@ Plan-review traceability for this continuation is:
 
 | Finding | Classification | Action and proof |
 |---|---|---|
-| Colima CLI/VM/API readiness | Runtime capability | `ACT_SMOKE_RUNTIME=colima` is first-class; `colima version`, `colima status --json`, Docker API compatibility, image digest, and resource profile are recorded. Missing/stopped Colima remains `SKIPPED_UNAVAILABLE`; Podman is not an execution fallback. |
+| Colima CLI/VM/API readiness | Runtime capability | `ACT_SMOKE_RUNTIME=colima` is first-class; `colima version`, `colima status --json`, Docker API compatibility, image digest, and resource profile are recorded. Missing/stopped Colima remains `SKIPPED_UNAVAILABLE`; only Colima evidence is accepted for this plan, and legacy runtime selectors are not closeout evidence. |
 | Available-runtime setup failures exited before emitting machine-readable evidence | Correction / reliability gap | Add RED/GREEN contracts for runtime baseline, image pull, and pinned-image integrity failures. `scripts/act-smoke-run.sh` now emits `status=FAILED`, a bounded `failure.stage`, no-workflow side-effect flags, and cleanup verified from actual removal before returning nonzero. |
 | Retained evidence could expose platform-specific absolute paths | Security/privacy correction | Normalize arbitrary POSIX absolute paths while preserving URL separators; adversarial contract coverage includes macOS and Linux-style workspace, home, cache, tool, and temporary paths. |
 | Existing benchmark and cleanup paths must not regress | Already addressed by regression suite | Run all `act_smoke_run_contract` tests, shell syntax, formatting, diff hygiene, workflow/security gates, and protected remote checks before merge. |
 | Documentation and tracker must reflect Colima truth | Governance synchronization | Update this plan, issue notes/export, BOM, publish checklist, codemap, act baseline, and `integration_log.jsonl` from the same checkpoint. |
 
-The next executable slice is reconciliation review, checkpoint push, and
-protected merge-state recheck. The Colima lane remains advisory and must not be
-promoted to hosted-CI or publish evidence; the fresh publish-gate is the
-separate local release-quality evidence.
+The next executable slice is terminal hosted-CI monitoring, eligible-review /
+protected-merge progression, and post-merge `main` verification. The Colima
+lane remains advisory and must not be promoted to hosted-CI or publish
+evidence; the fresh publish-gate is the separate local release-quality
+evidence. No child Beads implementation issue is currently ready; the parent
+remains open as the merge-and-closeout gate.
 
 ### E2E-COV-009.1 — capability preflight
 
@@ -273,11 +295,13 @@ exit semantics, and macOS/Linux behavior. Record the result without making the
 advisory lane a required CI or publish gate.
 
 Current TDD checkpoint: `scripts/act-smoke.sh` and `make act-smoke` pass the
-missing-runtime RED/GREEN contract. On this Darwin x86_64 host the result is
-`SKIPPED_UNAVAILABLE`, with no workflow invocation, no SARIF/release/security
-side effects, empty secrets, and no privileged/host/socket/credential mounts.
-The available-runtime branch is now proven through the Colima CLI/Docker API,
-image digest, and resource-limit evidence.
+missing-runtime RED/GREEN contract. The earlier stopped-VM probe on this
+Darwin x86_64 host returned `SKIPPED_UNAVAILABLE`, with no workflow invocation,
+no SARIF/release/security side effects, empty secrets, and no
+privileged/host/socket/credential mounts. The current available-runtime branch
+is proven through the Colima CLI/Docker API, image digest, and resource-limit
+evidence; legacy runtime selectors remain compatibility-only and are excluded
+from plan closeout evidence.
 
 ### E2E-COV-009.2 — advisory smoke/resource benchmark
 
