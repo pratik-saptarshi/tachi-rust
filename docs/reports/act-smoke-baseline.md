@@ -24,6 +24,8 @@ The fallback is opt-in only:
 ACT_SMOKE_RUNTIME=docker
 ACT_SMOKE_ALLOW_DOCKER_FALLBACK=true
 ACT_SMOKE_IMAGE=catthehacker/ubuntu@sha256:3d98df0137c62626482789b786d4bfe941d139baed30f237ebbabe363ea9bf08
+# explicit synthetic route-fetch exception; omit for network=none policy testing
+ACT_SMOKE_NETWORK=host
 ```
 
 Colima 0.10.3 provided a Docker-compatible Linux/x86_64 engine with 2 CPUs
@@ -50,7 +52,9 @@ socket path are intentionally omitted from committed evidence.
 
 The wrapper defaults to `network=none`; these route measurements explicitly
 set `ACT_SMOKE_NETWORK=host` because the synthetic route step performs a
-read-only `git fetch`. The local workflow sets `ACT_SMOKE=true`, skips `actions/upload-artifact`,
+read-only `git fetch`. An available-runtime run that omits this explicit
+exception is expected to fail closed at the route fetch rather than silently
+enable network access. The local workflow sets `ACT_SMOKE=true`, skips `actions/upload-artifact`,
 and validates `route.json` inside the container. The invocation uses empty
 secrets, `--container-daemon-socket=-`, no privileged mode, `--rm`, and an
 explicit synthetic `host` network because the route job performs a read-only

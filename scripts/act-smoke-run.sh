@@ -61,6 +61,7 @@ if [ "$WORKFLOW" != "$ROOT_DIR/.github/workflows/ci-route-observe.yml" ] || [ "$
     echo 'act-smoke-run: workflow/job is outside the route-observe allowlist' >&2
     exit 2
 fi
+[ ! -e "$ROOT_DIR/.actrc" ] || { echo 'act-smoke-run: repository .actrc is not allowed for governed execution' >&2; exit 2; }
 workflow_sha256="$(shasum -a 256 "$WORKFLOW" | awk '{print $1}')"
 [ "$workflow_sha256" = "$TRUSTED_WORKFLOW_SHA256" ] || { echo 'act-smoke-run: trusted route workflow content hash mismatch' >&2; exit 2; }
 grep -Fqx "  ${JOB}:" "$WORKFLOW" || { echo "act-smoke-run: job is not defined in workflow: $JOB" >&2; exit 2; }
@@ -101,6 +102,8 @@ else
     RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/tachi-act-run.XXXXXX")"
     ACT_LOG="$RUN_DIR/act.jsonl"
     mkdir -m 700 -- "$RUN_DIR/artifacts"
+    act_home="$RUN_DIR/home"
+    mkdir -m 700 -- "$act_home"
     runtime_endpoint="$(jq -r '.runtime.endpoint // "unreported"' "$PREFLIGHT")"
     case "$runtime_endpoint" in
         unix:///*) ;;
@@ -168,7 +171,6 @@ else
     fi
 
     set +e
-    act_home="$(printenv HOME || printf '%s' /tmp)"
     act_tmpdir="$(printenv TMPDIR || printf '%s' /tmp)"
     act_docker_host="$(printenv DOCKER_HOST || true)"
     perl -e '

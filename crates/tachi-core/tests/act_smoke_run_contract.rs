@@ -107,8 +107,6 @@ exit 0
 ",
     );
     let output = root.join("benchmark.json");
-    let args = root.join("act-args.txt");
-    let act_env = root.join("act-env.txt");
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
     let result = Command::new(repo_root().join("scripts/act-smoke-run.sh"))
         .env("PATH", path)
@@ -118,7 +116,6 @@ exit 0
         .env("ACT_SMOKE_IMAGE", "example/act-fixture:latest")
         .env("DOCKER_HOST", "unix:///tmp/fake-docker.sock")
         .env("ACT_SMOKE_NETWORK", "host")
-        .env("HOME", &root)
         .env("TMPDIR", &root)
         .env("ACT_SMOKE_RETAIN", "true")
         .env("GITHUB_TOKEN", "should-not-reach-act")
@@ -170,9 +167,10 @@ exit 0
     assert!(!retained_log.contains("supersecret"));
     assert!(!retained_log.contains("/Users/"));
     assert!(retained_log.len() <= 65536);
-    let act_args = fs::read_to_string(&args).expect("read act arguments");
+    let act_args =
+        fs::read_to_string(retained_dir.join("home/act-args.txt")).expect("read act arguments");
     assert_eq!(
-        fs::read_to_string(&act_env).expect("read act environment"),
+        fs::read_to_string(retained_dir.join("home/act-env.txt")).expect("read act environment"),
         "clean\n"
     );
     for required in [
