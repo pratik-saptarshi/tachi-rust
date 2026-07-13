@@ -34,7 +34,17 @@ The remaining evidence is narrower than the product journey inventory:
   fail-closed cleanup, and tiny-log-cap contracts are implemented and tested;
 - the act/Colima lane is advisory and must remain unavailable-safe and
   security-isolated; Colima is the supported local runtime through its CLI and
-  Docker-compatible engine, and it does not replace hosted-CI evidence;
+  Docker-compatible engine, and it does not replace hosted-CI evidence. Podman
+  is not part of the active execution path;
+- live CLI validation on 2026-07-13 confirmed Colima `0.10.3`, the
+  `macOS Virtualization.Framework` provider, Docker API `29.5.2`, 2 CPUs, and
+  4 GiB of VM memory. `ACT_SMOKE_RUNTIME=colima make act-smoke` returned
+  `READY`; the bounded `route-observe` smoke passed with
+  `ACT_SMOKE_NETWORK=host` in 27,260 ms, using the pinned image and verified
+  container/artifact/temp cleanup with no hosted side effects. The secure
+  `network=none` default correctly fails this synthetic route because its
+  checkout step fetches the base ref; that is a documented test limitation,
+  not a runtime fallback;
 - deterministic agentic replay evidence is promoted; the act/Colima children
   are complete. The E2E epic remains open only until this fresh gate evidence
   is synchronized into all release artifacts and the protected branch reaches
@@ -116,13 +126,14 @@ item is the parent E2E epic; the act/Colima issues and dependent `E2E-COV-010`
 umbrella are closed. This host has `act` 0.2.89 and Colima 0.10.3 available by
 installation, with recorded Docker 29.5.2 CLI/API evidence and serial
 cold/warm named-job runs. A stopped Colima VM remains an accurately reported
-`SKIPPED_UNAVAILABLE` condition.
+`SKIPPED_UNAVAILABLE` condition. The active execution path is Colima only;
+Podman is not used for the plan's validation or benchmark evidence.
 
 Plan-review traceability for this continuation is:
 
 | Finding | Classification | Action and proof |
 |---|---|---|
-| Colima CLI/VM/API readiness | Runtime capability | `ACT_SMOKE_RUNTIME=colima` is first-class; `colima version`, `colima status --json`, Docker API compatibility, image digest, and resource profile are recorded. Missing/stopped Colima remains `SKIPPED_UNAVAILABLE`. |
+| Colima CLI/VM/API readiness | Runtime capability | `ACT_SMOKE_RUNTIME=colima` is first-class; `colima version`, `colima status --json`, Docker API compatibility, image digest, and resource profile are recorded. Missing/stopped Colima remains `SKIPPED_UNAVAILABLE`; Podman is not an execution fallback. |
 | Available-runtime setup failures exited before emitting machine-readable evidence | Correction / reliability gap | Add RED/GREEN contracts for runtime baseline, image pull, and pinned-image integrity failures. `scripts/act-smoke-run.sh` now emits `status=FAILED`, a bounded `failure.stage`, no-workflow side-effect flags, and cleanup verified from actual removal before returning nonzero. |
 | Retained evidence could expose platform-specific absolute paths | Security/privacy correction | Normalize arbitrary POSIX absolute paths while preserving URL separators; adversarial contract coverage includes macOS and Linux-style workspace, home, cache, tool, and temporary paths. |
 | Existing benchmark and cleanup paths must not regress | Already addressed by regression suite | Run all `act_smoke_run_contract` tests, shell syntax, formatting, diff hygiene, workflow/security gates, and protected remote checks before merge. |
