@@ -97,7 +97,7 @@ if [ \"$1\" = \"--version\" ]; then
   exit 0
 fi
 printf '%s\\n' \"$*\" > \"$HOME/act-args.txt\"
-printf '%s\\n' 'token=supersecret path=/Users/neo/private'
+printf '%s\\n' 'token=supersecret path=/Users/neo/private path=/home/neo/private path=/var/tmp/secret path=/workspace/repo path=/root/.cache path=/opt/tool path=/usr/local/bin'
 if [ -n \"$GITHUB_TOKEN\" ]; then
   printf '%s\\n' leaked > \"$HOME/act-env.txt\"
 else
@@ -166,6 +166,12 @@ exit 0
         fs::read_to_string(retained_dir.join("act-redacted.log")).expect("read retained log");
     assert!(!retained_log.contains("supersecret"));
     assert!(!retained_log.contains("/Users/"));
+    assert!(!retained_log.contains("/home/"));
+    assert!(!retained_log.contains("/var/tmp/"));
+    assert!(!retained_log.contains("/workspace/"));
+    assert!(!retained_log.contains("/root/"));
+    assert!(!retained_log.contains("/opt/"));
+    assert!(!retained_log.contains("/usr/local/"));
     assert!(retained_log.len() <= 65536);
     let act_args =
         fs::read_to_string(retained_dir.join("home/act-args.txt")).expect("read act arguments");
@@ -406,6 +412,158 @@ kill -TERM $$
     assert_eq!(json["status"], "FAILED");
     assert_ne!(json["benchmark"]["act_exit_code"], 0);
     assert_eq!(json["benchmark"]["timed_out"], false);
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn benchmark_emits_structured_failure_when_runtime_baseline_probe_fails() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir_all(&bin).expect("create fake bin");
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '29.5.2' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4096}' ;;
+  'ps -aq'*) exit 1 ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh
+if [ \"$1\" = \"--version\" ]; then
+  printf '%s\\n' 'act version 0.2.89'
+fi
+",
+    );
+    let output = root.join("benchmark.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke-run.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "docker")
+        .env("ACT_SMOKE_ALLOW_DOCKER_FALLBACK", "true")
+        .env("ACT_SMOKE_ALLOW_MUTABLE_IMAGE", "true")
+        .env("ACT_SMOKE_IMAGE", "example/act-fixture:latest")
+        .env("DOCKER_HOST", "unix:///tmp/fake-docker.sock")
+        .env("ACT_SMOKE_RUN_OUTPUT", &output)
+        .output()
+        .expect("run baseline-probe failure benchmark");
+    assert!(
+        !result.status.success(),
+        "setup failure must fail the benchmark"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("structured failure output"))
+            .expect("benchmark JSON");
+    assert_eq!(json["status"], "FAILED");
+    assert_eq!(json["failure"]["stage"], "runtime-baseline");
+    assert_eq!(json["side_effects"]["workflow_invoked"], false);
+    assert_eq!(json["cleanup"]["verified"], true);
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn benchmark_emits_structured_failure_when_image_pull_fails() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir_all(&bin).expect("create fake bin");
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '29.5.2' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4096}' ;;
+  pull*) exit 1 ;;
+  'ps -aq'*) ;;
+  'image inspect'*) exit 1 ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh
+if [ \"$1\" = \"--version\" ]; then
+  printf '%s\\n' 'act version 0.2.89'
+fi
+",
+    );
+    let output = root.join("benchmark.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke-run.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "docker")
+        .env("ACT_SMOKE_ALLOW_DOCKER_FALLBACK", "true")
+        .env("ACT_SMOKE_ALLOW_MUTABLE_IMAGE", "true")
+        .env("ACT_SMOKE_IMAGE", "example/act-fixture:latest")
+        .env("DOCKER_HOST", "unix:///tmp/fake-docker.sock")
+        .env("ACT_SMOKE_RUN_OUTPUT", &output)
+        .output()
+        .expect("run image-pull failure benchmark");
+    assert!(
+        !result.status.success(),
+        "image pull failure must fail the benchmark"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("structured failure output"))
+            .expect("benchmark JSON");
+    assert_eq!(json["status"], "FAILED");
+    assert_eq!(json["failure"]["stage"], "image-pull");
+    assert_eq!(json["side_effects"]["workflow_invoked"], false);
+    assert_eq!(json["cleanup"]["verified"], true);
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn benchmark_emits_structured_failure_when_pinned_image_digest_mismatches() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir_all(&bin).expect("create fake bin");
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '29.5.2' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4096}' ;;
+  'ps -aq'*) ;;
+  'image inspect'*) printf '%s\\n' 'example/act-fixture@sha256:actual' ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh
+if [ \"$1\" = \"--version\" ]; then
+  printf '%s\\n' 'act version 0.2.89'
+fi
+",
+    );
+    let output = root.join("benchmark.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke-run.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "docker")
+        .env("ACT_SMOKE_ALLOW_DOCKER_FALLBACK", "true")
+        .env("ACT_SMOKE_IMAGE", "example/act-fixture@sha256:expected")
+        .env("DOCKER_HOST", "unix:///tmp/fake-docker.sock")
+        .env("ACT_SMOKE_RUN_OUTPUT", &output)
+        .output()
+        .expect("run image-integrity failure benchmark");
+    assert!(
+        !result.status.success(),
+        "digest mismatch must fail the benchmark"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("structured failure output"))
+            .expect("benchmark JSON");
+    assert_eq!(json["status"], "FAILED");
+    assert_eq!(json["failure"]["stage"], "image-integrity");
+    assert_eq!(json["side_effects"]["workflow_invoked"], false);
+    assert_eq!(json["cleanup"]["verified"], true);
     fs::remove_dir_all(root).expect("cleanup");
 }
 

@@ -17,6 +17,7 @@ MAX_LOG_BYTES_LIMIT=1048576
 TRUSTED_WORKFLOW_SHA256=beadd4fd229e19aca457e20515c56594f38285b461d52d42f185686dffa64665
 PREFLIGHT_CREATED=false
 RUN_DIR=""
+CLEANUP_VERIFIED=true
 if [ -n "${ACT_SMOKE_PREFLIGHT:-}" ]; then
     PREFLIGHT="$ACT_SMOKE_PREFLIGHT"
 else
@@ -24,12 +25,20 @@ else
     PREFLIGHT_CREATED=true
 fi
 cleanup() {
+    local cleanup_ok=true
     if [ -n "$RUN_DIR" ] && [ "$RETAIN" != true ]; then
-        rm -rf -- "$RUN_DIR"
+        if rm -rf -- "$RUN_DIR" && [ ! -e "$RUN_DIR" ]; then
+            RUN_DIR=""
+        else
+            cleanup_ok=false
+        fi
     fi
     if [ "$PREFLIGHT_CREATED" = true ]; then
-        rm -f -- "$PREFLIGHT"
+        if ! rm -f -- "$PREFLIGHT" || [ -e "$PREFLIGHT" ]; then
+            cleanup_ok=false
+        fi
     fi
+    CLEANUP_VERIFIED="$cleanup_ok"
     return 0
 }
 trap cleanup EXIT
@@ -82,6 +91,42 @@ relative_path() {
         *) printf '%s' "$1" ;;
     esac
 }
+write_result() {
+    local result_payload="$1"
+    if [ "$OUTPUT" = /dev/stdout ]; then
+        printf '%s\n' "$result_payload"
+        return 0
+    fi
+    [ -L "$OUTPUT" ] && { echo 'act-smoke-run: refusing symlink output path' >&2; return 2; }
+    umask 077
+    local output_dir
+    output_dir="$(dirname -- "$OUTPUT")"
+    mkdir -m 700 -p -- "$output_dir"
+    local output_dir_mode
+    output_dir_mode="$(stat -c '%a' "$output_dir" 2>/dev/null || stat -f '%Lp' "$output_dir" 2>/dev/null || true)"
+    case "$output_dir_mode" in
+        ''|*[!0-7]*) echo 'act-smoke-run: unable to verify output directory permissions' >&2; return 2 ;;
+    esac
+    (( (0$output_dir_mode & 077) == 0 )) || { echo 'act-smoke-run: output directory must not be group/world accessible' >&2; return 2; }
+    [ -e "$OUTPUT" ] && chmod 600 "$OUTPUT"
+    printf '%s\n' "$result_payload" > "$OUTPUT"
+}
+emit_setup_failure() {
+    local stage="$1"
+    local reason="$2"
+    cleanup
+    payload="$(jq -n \
+        --arg status FAILED \
+        --arg job "$JOB" \
+        --arg fixture "$(relative_path "$FIXTURE")" \
+        --arg workflow "$(relative_path "$WORKFLOW")" \
+        --arg stage "$stage" \
+        --arg reason "$reason" \
+        --argjson cleanup_verified "$CLEANUP_VERIFIED" \
+        --argjson preflight "$preflight_payload" \
+        '{schema_version:1,status:$status,job:$job,workflow:$workflow,event_fixture:$fixture,preflight:$preflight,benchmark:null,failure:{stage:$stage,reason:$reason},side_effects:{workflow_invoked:false,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},cleanup:{verified:$cleanup_verified}}')"
+    write_result "$payload"
+}
 if [ "$status" != READY ]; then
     result_status="$status"
     payload="$(jq -n --arg status "$status" --arg job "$JOB" --arg fixture "$(relative_path "$FIXTURE")" --arg workflow "$(relative_path "$WORKFLOW")" --argjson preflight "$preflight_payload" \
@@ -116,6 +161,7 @@ else
     runtime_probe_ok=true
     if ! before_containers="$($runtime_cmd ps -aq 2>/dev/null)"; then
         echo 'act-smoke-run: runtime container baseline probe failed; refusing execution' >&2
+        emit_setup_failure runtime-baseline 'runtime container baseline probe failed' || exit 2
         exit 1
     fi
     start_ns="$(now_ns)"
@@ -144,7 +190,11 @@ else
     image_digest="$(jq -r '.runtime.image_digest' "$PREFLIGHT")"
     if [ "$image_present_before_pull" = false ] || [ -z "$image_digest" ] || [ "$image_digest" = unresolved-before-run ]; then
         image_pull_start_ns="$(now_ns)"
-        "$runtime_cmd" pull --platform linux/amd64 "$IMAGE" >/dev/null
+        if ! "$runtime_cmd" pull --platform linux/amd64 "$IMAGE" >/dev/null; then
+            echo 'act-smoke-run: runtime image pull failed; refusing workflow execution' >&2
+            emit_setup_failure image-pull 'runtime image pull failed' || exit 2
+            exit 1
+        fi
         image_pull_end_ns="$(now_ns)"
         image_pull_ms="$(( (image_pull_end_ns - image_pull_start_ns) / 1000000 ))"
         image_digest="$("$runtime_cmd" image inspect "$IMAGE" --format '{{index .RepoDigests 0}}' 2>/dev/null || true)"
@@ -153,10 +203,11 @@ else
     actual_image_digest="$("$runtime_cmd" image inspect "$IMAGE" --format '{{index .RepoDigests 0}}' 2>/dev/null || true)"
     case "$IMAGE" in
         *@sha256:*)
-            [ "$actual_image_digest" = "$IMAGE" ] || {
+            if [ "$actual_image_digest" != "$IMAGE" ]; then
                 echo 'act-smoke-run: runtime image digest does not match the requested pinned image' >&2
+                emit_setup_failure image-integrity 'runtime image digest does not match requested pinned image' || exit 2
                 exit 1
-            }
+            fi
             image_digest="$actual_image_digest"
             ;;
         *)
@@ -235,7 +286,7 @@ else
     fi
     if [ "$RETAIN" = true ]; then
         temp_dir_retained=true
-        if perl -pe 's/(authorization:\s*bearer\s+|(?:api[_-]?key|access[_-]?token|client[_-]?secret|token|password|secret|aws_access_key_id|aws_secret_access_key)["\x27]?\s*[:=]\s*["\x27]?)[^\s",}\x27]+/$1[REDACTED]/ig; s/(gh[pousr]_|github_pat_|sk-[A-Za-z0-9_-]+|AKIA[0-9A-Z]{16})[A-Za-z0-9_-]*/[REDACTED]/g; s/([?&](?:api_key|access_token|client_secret|token)=)[^&\s]+/$1[REDACTED]/ig; s#/(?:Users|Volumes|private|tmp)/[^\s",}]+#[PATH]#g' "$ACT_LOG" 2>/dev/null | head -c "$MAX_LOG_BYTES" > "$RUN_DIR/act-redacted.log"; then
+        if perl -pe 's/(authorization:\s*bearer\s+|(?:api[_-]?key|access[_-]?token|client[_-]?secret|token|password|secret|aws_access_key_id|aws_secret_access_key)["\x27]?\s*[:=]\s*["\x27]?)[^\s",}\x27]+/$1[REDACTED]/ig; s/(gh[pousr]_|github_pat_|sk-[A-Za-z0-9_-]+|AKIA[0-9A-Z]{16})[A-Za-z0-9_-]*/[REDACTED]/g; s/([?&](?:api_key|access_token|client_secret|token)=)[^&\s]+/$1[REDACTED]/ig; s#(?<![:/A-Za-z0-9])/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+#[PATH]#g' "$ACT_LOG" 2>/dev/null | head -c "$MAX_LOG_BYTES" > "$RUN_DIR/act-redacted.log"; then
             retained_log_bytes="$(wc -c < "$RUN_DIR/act-redacted.log" | tr -d ' ')"
             if [ -f "$RUN_DIR/act-redacted.log" ] && [ "$retained_log_bytes" -le "$MAX_LOG_BYTES" ]; then
                 logs_verified=true
@@ -285,21 +336,7 @@ else
         --argjson cleanup_verified "$cleanup_verified" \
         '{schema_version:1,status:$status,job:$job,workflow:$workflow,event_fixture:$fixture,preflight:$preflight,runtime:{kind:$runtime,endpoint:$runtime_endpoint,image:$image,image_digest:$image_digest,network:$network,cache_mode:$cache_mode,workflow_sha256:$workflow_sha256},benchmark:{wall_time_ms:$wall_time_ms,image_pull_ms:$image_pull_ms,cpu_count:$cpu_count,memory_total_bytes:$memory_total_bytes,image_size_bytes:$image_size_bytes,image_present_before_pull:$image_present_before_pull,act_exit_code:$act_exit,timeout_seconds:$timeout_seconds,timed_out:$timed_out},side_effects:{workflow_invoked:true,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},cleanup:{verified:$cleanup_verified,logs_verified:$logs_verified,artifacts_removed:$artifacts_removed,runtime_containers_verified:$containers_verified,temp_dir_removed:$temp_dir_removed,temp_dir_retained:$temp_dir_retained,remediation_attempted:$cleanup_remediation_attempted}}')"
 fi
-if [ "$OUTPUT" = /dev/stdout ]; then
-    printf '%s\n' "$payload"
-else
-    [ -L "$OUTPUT" ] && { echo 'act-smoke-run: refusing symlink output path' >&2; exit 2; }
-    umask 077
-    output_dir="$(dirname -- "$OUTPUT")"
-    mkdir -m 700 -p -- "$output_dir"
-    output_dir_mode="$(stat -c '%a' "$output_dir" 2>/dev/null || stat -f '%Lp' "$output_dir" 2>/dev/null || true)"
-    case "$output_dir_mode" in
-        ''|*[!0-7]*) echo 'act-smoke-run: unable to verify output directory permissions' >&2; exit 2 ;;
-    esac
-    (( (0$output_dir_mode & 077) == 0 )) || { echo 'act-smoke-run: output directory must not be group/world accessible' >&2; exit 2; }
-    [ -e "$OUTPUT" ] && chmod 600 "$OUTPUT"
-    printf '%s\n' "$payload" > "$OUTPUT"
-fi
+write_result "$payload" || exit 2
 printf 'act-smoke-run status=%s job=%s\n' "$result_status" "$JOB" >&2
 if [ "$result_status" = FAILED ]; then
     exit 1
