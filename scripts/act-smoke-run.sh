@@ -139,7 +139,7 @@ else
         cache_mode=cold
     fi
     image_digest="$(jq -r '.runtime.image_digest' "$PREFLIGHT")"
-    if [ -z "$image_digest" ] || [ "$image_digest" = unresolved-before-run ]; then
+    if [ "$image_present_before_pull" = false ] || [ -z "$image_digest" ] || [ "$image_digest" = unresolved-before-run ]; then
         image_pull_start_ns="$(now_ns)"
         "$runtime_cmd" pull --platform linux/amd64 "$IMAGE" >/dev/null
         image_pull_end_ns="$(now_ns)"

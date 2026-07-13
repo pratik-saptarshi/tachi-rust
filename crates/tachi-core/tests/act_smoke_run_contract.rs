@@ -227,6 +227,7 @@ case \"$1 $2\" in
   version*) printf '%s\\n' '29.5.2' ;;
   info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4096}' ;;
   context*) printf '%s\\n' 'unix:///tmp/fake-docker.sock' ;;
+  pull*) sleep 0.02 ;;
   'ps -aq'*) ;;
   'image inspect'*)
     case \"$*\" in
@@ -298,6 +299,7 @@ printf '%s\\n' 'act version 0.2.89'
     assert_eq!(json["status"], "PASSED");
     assert_eq!(json["runtime"]["cache_mode"], "cold");
     assert_eq!(json["benchmark"]["image_present_before_pull"], false);
+    assert!(json["benchmark"]["image_pull_ms"].as_u64().unwrap() > 0);
     assert_eq!(json["benchmark"]["image_size_bytes"], 123456u64);
     fs::remove_dir_all(root).expect("cleanup");
 }
