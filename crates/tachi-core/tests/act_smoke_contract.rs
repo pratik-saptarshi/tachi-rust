@@ -175,7 +175,7 @@ esac
         "#!/bin/sh
 case \"$1 $2\" in
   version*) printf '%s\\n' '29.5.2' ;;
-  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4294967296}' ;;
+  info*) [ \"$DOCKER_HOST\" = 'unix:///tmp/colima.sock' ] || exit 1; printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4294967296}' ;;
   'image inspect'*) printf '%s\\n' 'catthehacker/ubuntu@sha256:act-fixture-image' ;;
   *) exit 0 ;;
 esac
@@ -186,6 +186,7 @@ esac
     let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
         .env("PATH", path)
         .env("ACT_SMOKE_RUNTIME", "colima")
+        .env("DOCKER_HOST", "unix:///tmp/wrong.sock")
         .env("ACT_SMOKE_OUTPUT", &output)
         .output()
         .expect("run Colima preflight");

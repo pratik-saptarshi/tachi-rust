@@ -107,7 +107,8 @@ retired from the active dependency surface.
       is terminal with 20 passes and 0 failures, including CodeQL,
       supply-chain, gitleaks, clippy, rustfmt, route, and workspace suites.
       The PR remains OPEN/BLOCKED under the active secure ruleset because the
-      Copilot review attempt hit quota exhaustion; auto-merge is enabled, no
+      Copilot review is optional under the permanently updated secure ruleset;
+      its quota exhaustion is non-blocking. Auto-merge is enabled, no
       administrator bypass is used, and this is not a claim that `main` has
       merged the checkpoint.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.

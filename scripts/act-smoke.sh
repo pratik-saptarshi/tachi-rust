@@ -73,11 +73,13 @@ elif [ "$runtime_kind" = colima ] || command -v "$runtime_kind" >/dev/null 2>&1;
         if command -v colima >/dev/null 2>&1 && command -v docker >/dev/null 2>&1; then
             colima_version="$(colima version 2>/dev/null | head -n 1 || true)"
             colima_status="$(colima status --json 2>/dev/null || true)"
-            info_json="$(docker info --format '{{json .}}' 2>/dev/null || true)"
             runtime_version="$colima_version"
-            runtime_endpoint="${DOCKER_HOST:-}"
-            [ -n "$runtime_endpoint" ] || runtime_endpoint="$(printf '%s' "$colima_status" | jq -r '.docker_socket // empty' 2>/dev/null || true)"
+            runtime_endpoint="$(printf '%s' "$colima_status" | jq -r '.docker_socket // empty' 2>/dev/null || true)"
             colima_provider="$(printf '%s' "$colima_status" | jq -r '.driver // "unreported"' 2>/dev/null || true)"
+            info_json=""
+            if [ -n "$runtime_endpoint" ]; then
+                info_json="$(DOCKER_HOST="$runtime_endpoint" docker info --format '{{json .}}' 2>/dev/null || true)"
+            fi
             if [ -n "$colima_version" ] && [ -n "$colima_status" ] && [ -n "$info_json" ]; then
                 colima_available=true
             fi
