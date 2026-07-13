@@ -103,14 +103,14 @@ retired from the active dependency surface.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Repeated samples and queue/run medians are recorded above.
 - [x] Post-merge commit `2bf68bb` completed all main push workflows successfully: workspace tests `29212792288`, supply-chain `29212792282`, clippy `29212792277`, init matrix `29212792275`, release-please `29212792287`, and dynamic Push on main/CodeQL `29212792021`.
 - [x] Follow-up documentation merge `f34f5a5` passed all 20 pull-request checks; automated Copilot/Codex review records were present, and their actionable findings were addressed in the follow-up reconciliation.
-- [x] The current feature branch head is pushed to PR #33; the live check set
+- [x] PR #33 merged normally at `e0ea1b35f9cff5842d5e655274ad50886752242c`
+      from feature head `586916758e09bc5622e9a3a4745de589032ca3d3`; the live
+      pre-merge check set
       is terminal with 20 passes and 0 failures, including CodeQL,
       supply-chain, gitleaks, clippy, rustfmt, route, and workspace suites.
-      The PR remains OPEN/BLOCKED under the active secure ruleset because the
-      Copilot review is optional under the permanently updated secure ruleset;
-      its quota exhaustion is non-blocking. Auto-merge is enabled, no
-      administrator bypass is used, and this is not a claim that `main` has
-      merged the checkpoint.
+      passed 20/20 with 0 failures. Copilot review is optional under the
+      permanently updated secure ruleset, and no administrator bypass was
+      used. Post-merge main workflows completed successfully.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
 - [x] Colima act evidence is advisory — not publish evidence: the wrapper is opt-in and uses the Colima CLI plus Docker API. `make act-smoke` and `make act-smoke-run` enforce the exact route-observe workflow/job allowlist and trusted workflow hash, local-unix endpoint binding, empty secrets, sanitized act environment, no daemon-socket mount, no privileged mode, `--rm`, default `network=none`, explicit recorded host-network exception only for the synthetic route fetch, pinned image digest verification, derived cache state, side-effect fields, cleanup/log/artifact verification, timeout, and `SKIPPED_UNAVAILABLE` behavior. Colima evidence passed two cold runs (32,384/32,864 ms; 556/562 ms pulls) and five warm runs (29,753–31,347 ms; median 31,225 ms) with no hosted artifact/SARIF/release/security side effects.
 - [x] Colima capability and serial cold/warm resource evidence are complete for the advisory lane; this result remains non-equivalent to hosted CI and cannot satisfy publish, CodeQL/SARIF, release, or security acceptance by itself.
@@ -327,11 +327,13 @@ retired from the active dependency surface.
 
 ## 7. Remote publication
 
-- [x] The branch to publish is up to date with the intended base branch:
-      local/cached/live `main` and `origin/main` are `61ba9ee`, and PR #33 is
-      based on that commit.
-- [ ] `gh run list --workflow rust-workspace.yml --branch main --status completed --limit 5`
-      is checked after merge and before release claim.
+- [x] The merged branch is verified against remote `main` at
+      `e0ea1b35f9cff5842d5e655274ad50886752242c`; PR #33 merged from feature
+      head `586916758e09bc5622e9a3a4745de589032ca3d3`.
+- [x] Post-merge `main` workflows were checked to completion: workspace tests
+      `29255467369`, supply-chain `29255467273`, clippy `29255467376`, init
+      matrix `29255467380`, release-please `29255467215`, and CodeQL
+      `29255466398` all passed.
 - [ ] `gh run watch <run-id>` completes with a green `rust-workspace.yml`,
       `ci-route-observe.yml` (if scoped), and `release-please.yml` sequence.
 - [ ] All required-check migration evidence required by RT-CI remains in the
