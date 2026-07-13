@@ -152,6 +152,60 @@ esac
 }
 
 #[test]
+fn act_preflight_reports_ready_colima_cli_and_docker_engine() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir(&bin).expect("create fake bin");
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh\nprintf '%s\\n' 'act version 0.2.89'\n",
+    );
+    executable(
+        &bin.join("colima"),
+        "#!/bin/sh
+case \"$1\" in
+  version*) printf '%s\\n' 'colima version 0.10.3' ;;
+  status*) printf '%s\\n' '{\"runtime\":\"docker\",\"arch\":\"x86_64\",\"docker_socket\":\"unix:///tmp/colima.sock\",\"cpu\":2,\"memory\":4294967296}' ;;
+  *) exit 1 ;;
+esac
+",
+    );
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '29.5.2' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4294967296}' ;;
+  'image inspect'*) printf '%s\\n' 'catthehacker/ubuntu@sha256:act-fixture-image' ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    let output = root.join("result.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "colima")
+        .env("ACT_SMOKE_OUTPUT", &output)
+        .output()
+        .expect("run Colima preflight");
+    assert!(
+        result.status.success(),
+        "Colima preflight is advisory-safe: {result:?}"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("read preflight output"))
+            .expect("preflight JSON");
+    assert_eq!(json["status"], "READY");
+    assert_eq!(json["runtime"]["kind"], "colima");
+    assert_eq!(json["runtime"]["colima_available"], true);
+    assert_eq!(json["runtime"]["colima_version"], "colima version 0.10.3");
+    assert_eq!(json["runtime"]["endpoint"], "unix:///tmp/colima.sock");
+    assert_eq!(json["runtime"]["api_compatible"], true);
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
 fn act_preflight_rejects_unverified_rootful_podman() {
     let root = temp_dir();
     let bin = root.join("bin");
@@ -174,6 +228,7 @@ esac
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
     let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
         .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "podman")
         .env("ACT_SMOKE_OUTPUT", &output)
         .output()
         .expect("run rootful Podman preflight");

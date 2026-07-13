@@ -9,7 +9,7 @@ runtime_available=false
 api_compatible=false
 act_version="unavailable"
 runtime_version="unavailable"
-runtime_kind="${ACT_SMOKE_RUNTIME:-podman}"
+runtime_kind="${ACT_SMOKE_RUNTIME:-colima}"
 allow_docker_fallback="${ACT_SMOKE_ALLOW_DOCKER_FALLBACK:-false}"
 allow_mutable_image="${ACT_SMOKE_ALLOW_MUTABLE_IMAGE:-false}"
 image="${ACT_SMOKE_IMAGE:-catthehacker/ubuntu@sha256:3d98df0137c62626482789b786d4bfe941d139baed30f237ebbabe363ea9bf08}"
@@ -18,10 +18,14 @@ cpu_limit="unreported"
 memory_limit="unreported"
 runtime_endpoint="unreported"
 rootless_json=null
+colima_available=false
+colima_version="unavailable"
+colima_provider="unreported"
+engine_kind="$runtime_kind"
 reason=""
 
 case "$runtime_kind" in
-    podman|docker) ;;
+    colima|podman|docker) ;;
     *)
         echo "act-smoke: unsupported runtime: $runtime_kind" >&2
         exit 2
@@ -47,7 +51,7 @@ fi
 
 if [ "$runtime_kind" = docker ] && [ "$allow_docker_fallback" != true ]; then
     reason="Docker fallback is opt-in; set ACT_SMOKE_ALLOW_DOCKER_FALLBACK=true explicitly"
-elif command -v "$runtime_kind" >/dev/null 2>&1; then
+elif [ "$runtime_kind" = colima ] || command -v "$runtime_kind" >/dev/null 2>&1; then
     if [ "$runtime_kind" = podman ]; then
         runtime_version="$(podman version --format '{{.Client.Version}}' 2>/dev/null || true)"
         info_json="$(podman info --format json 2>/dev/null || true)"
@@ -64,6 +68,23 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
             /*) runtime_endpoint="unix://$runtime_endpoint" ;;
         esac
         [ -n "$runtime_endpoint" ] || runtime_endpoint="${DOCKER_HOST:-unreported}"
+    elif [ "$runtime_kind" = colima ]; then
+        engine_kind=docker
+        if command -v colima >/dev/null 2>&1 && command -v docker >/dev/null 2>&1; then
+            colima_version="$(colima version 2>/dev/null | head -n 1 || true)"
+            colima_status="$(colima status --json 2>/dev/null || true)"
+            info_json="$(docker info --format '{{json .}}' 2>/dev/null || true)"
+            runtime_version="$colima_version"
+            runtime_endpoint="${DOCKER_HOST:-}"
+            [ -n "$runtime_endpoint" ] || runtime_endpoint="$(printf '%s' "$colima_status" | jq -r '.docker_socket // empty' 2>/dev/null || true)"
+            colima_provider="$(printf '%s' "$colima_status" | jq -r '.driver // "unreported"' 2>/dev/null || true)"
+            if [ -n "$colima_version" ] && [ -n "$colima_status" ] && [ -n "$info_json" ]; then
+                colima_available=true
+            fi
+        else
+            runtime_version=""
+            info_json=""
+        fi
     else
         runtime_version="$(docker version --format '{{.Server.Version}}' 2>/dev/null || true)"
         info_json="$(docker info --format '{{json .}}' 2>/dev/null || true)"
@@ -74,6 +95,9 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
     if [ -n "$runtime_version" ] && printf '%s' "$info_json" | jq -e . >/dev/null 2>&1; then
         if [ "$runtime_kind" = podman ] && [ "$rootless_json" != true ]; then
             reason="podman rootless mode is unavailable or unverified"
+        fi
+        if [ "$runtime_kind" = colima ] && [ "$colima_available" != true ]; then
+            reason="colima CLI status is unavailable or not running"
         fi
         case "$runtime_endpoint" in
             unix:///*) ;;
@@ -88,7 +112,7 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
             runtime_available=true
             cpu_limit="$(printf '%s' "$info_json" | jq -r '.NCPU // .Host.CPUs // "unreported"')"
             memory_limit="$(printf '%s' "$info_json" | jq -r '.MemTotal // .Host.MemTotal // "unreported"')"
-            image_digest="$("$runtime_kind" image inspect "$image" --format '{{index .RepoDigests 0}}' 2>/dev/null || true)"
+            image_digest="$("$engine_kind" image inspect "$image" --format '{{index .RepoDigests 0}}' 2>/dev/null || true)"
             [ -n "$image_digest" ] || image_digest="unresolved-before-run"
         fi
     else
@@ -115,6 +139,9 @@ payload="$(jq -n \
     --arg act_version "$act_version" \
     --arg runtime_kind "$runtime_kind" \
     --arg runtime_version "$runtime_version" \
+    --arg colima_version "$colima_version" \
+    --arg colima_provider "$colima_provider" \
+    --argjson colima_available "$colima_available" \
     --arg podman_version "$( [ "$runtime_kind" = podman ] && printf '%s' "$runtime_version" || printf '%s' unavailable )" \
     --argjson podman_available "$( [ "$runtime_kind" = podman ] && printf '%s' "$runtime_available" || printf '%s' false )" \
     --arg image "$image" \
@@ -128,7 +155,7 @@ payload="$(jq -n \
     --argjson api_compatible "$api_compatible" \
     --arg cpu_limit "$cpu_limit" \
     --arg memory_limit "$memory_limit" \
-    '{schema_version:1,status:$status,reason:$reason,runtime:{kind:$runtime_kind,act_available:$act_available,act_version:$act_version,runtime_available:$runtime_available,runtime_version:$runtime_version,api_compatible:$api_compatible,podman_available:$podman_available,podman_version:$podman_version,endpoint:$runtime_endpoint,rootless:$rootless,image:$image,image_digest:$image_digest,os:$os,architecture:$arch},policy:{secrets:"empty",privileged:false,host_mounts:false,socket_mounts:false,ssh_or_cloud_credentials:false,network:"disabled-by-default; explicit-synthetic-host-only"},side_effects:{workflow_invoked:false,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},resource_profile:{cpu_limit:$cpu_limit,memory_limit:$memory_limit}}')"
+    '{schema_version:1,status:$status,reason:$reason,runtime:{kind:$runtime_kind,act_available:$act_available,act_version:$act_version,runtime_available:$runtime_available,runtime_version:$runtime_version,api_compatible:$api_compatible,colima_available:$colima_available,colima_version:$colima_version,colima_provider:$colima_provider,podman_available:$podman_available,podman_version:$podman_version,endpoint:$runtime_endpoint,rootless:$rootless,image:$image,image_digest:$image_digest,os:$os,architecture:$arch},policy:{secrets:"empty",privileged:false,host_mounts:false,socket_mounts:false,ssh_or_cloud_credentials:false,network:"disabled-by-default; explicit-synthetic-host-only"},side_effects:{workflow_invoked:false,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},resource_profile:{cpu_limit:$cpu_limit,memory_limit:$memory_limit}}')"
 
 if [ "$OUTPUT" = /dev/stdout ]; then
     printf '%s\n' "$payload"

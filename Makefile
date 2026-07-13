@@ -68,7 +68,7 @@ verify-ci-timing-artifacts: ## Download and validate all eight hosted timing art
 	@test -n "$(RUN_ID)" -a -n "$(COMMIT)" || (echo "usage: make verify-ci-timing-artifacts RUN_ID=<run> COMMIT=<sha|auto>" >&2; exit 2)
 	@./scripts/verify-ci-timing-artifacts.sh "$(RUN_ID)" "$(COMMIT)" "$(OUTPUT_DIR)"
 
-act-smoke: ## Run unavailable-safe act/Podman capability preflight
+act-smoke: ## Run unavailable-safe act/Colima capability preflight
 	@./scripts/act-smoke.sh
 
 act-smoke-run: ## Run the fixture-driven advisory named-job smoke wrapper

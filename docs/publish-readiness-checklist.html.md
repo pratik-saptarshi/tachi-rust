@@ -100,8 +100,8 @@ retired from the active dependency surface.
 - [x] Post-merge commit `2bf68bb` completed all main push workflows successfully: workspace tests `29212792288`, supply-chain `29212792282`, clippy `29212792277`, init matrix `29212792275`, release-please `29212792287`, and dynamic Push on main/CodeQL `29212792021`.
 - [x] Follow-up documentation merge `f34f5a5` passed all 20 pull-request checks; automated Copilot/Codex review records were present, and their actionable findings were addressed in the follow-up reconciliation.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
-- [x] Docker fallback only — not publish evidence: the act wrapper is opt-in and advisory. `make act-smoke` and `make act-smoke-run` enforce the exact route-observe workflow/job allowlist and trusted workflow hash, local-unix endpoint binding, empty secrets, sanitized act environment, no daemon-socket mount, no privileged mode, `--rm`, default `network=none`, explicit recorded host-network exception only for the synthetic route fetch, pinned image digest verification, derived cache state, side-effect fields, cleanup/log/artifact verification, timeout, and `SKIPPED_UNAVAILABLE` behavior. Docker/Colima fallback evidence passed in two cold runs (13,710/13,727 ms; 646/542 ms image pulls), six warm runs (13,024–13,470 ms; median 13,258.5 ms), and cached resource samples (27,636 ms, 13,249 ms, 14,309 ms, 13,732 ms, and 13,940 ms; 2 CPUs; 4,104,118,272-byte memory profile; 571,284,183-byte image) with no hosted artifact/SARIF/release/security side effects.
-- [ ] Podman-specific acceptance remains open: stable rootless Podman Docker-API evidence plus at least two cold and five warm samples are required before this lane can be treated as fully measured. Docker/Colima results cannot satisfy that requirement or publish acceptance.
+- [x] Colima act evidence is advisory — not publish evidence: the wrapper is opt-in and uses the Colima CLI plus Docker API. `make act-smoke` and `make act-smoke-run` enforce the exact route-observe workflow/job allowlist and trusted workflow hash, local-unix endpoint binding, empty secrets, sanitized act environment, no daemon-socket mount, no privileged mode, `--rm`, default `network=none`, explicit recorded host-network exception only for the synthetic route fetch, pinned image digest verification, derived cache state, side-effect fields, cleanup/log/artifact verification, timeout, and `SKIPPED_UNAVAILABLE` behavior. Colima evidence passed two cold runs (32,384/32,864 ms; 556/562 ms pulls) and five warm runs (29,753–31,347 ms; median 31,225 ms) with no hosted artifact/SARIF/release/security side effects.
+- [x] Colima capability and serial cold/warm resource evidence are complete for the advisory lane; this result remains non-equivalent to hosted CI and cannot satisfy publish, CodeQL/SARIF, release, or security acceptance by itself.
 - [ ] `Cargo.toml` declares workspace `rust-version = "1.96"` and active
       crates inherit it with `rust-version.workspace = true`.
 - [ ] `rust-toolchain.toml` pins the approved release toolchain and includes
@@ -142,11 +142,16 @@ retired from the active dependency surface.
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
 - [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      threshold; latest local run on 2026-07-11 measured 90.56% lines / 90.22%
-      regions, with the configured 85% line threshold passing.
+      threshold; latest current local run on 2026-07-13 measured 93.24% lines /
+      92.60% regions, with the configured 85% line threshold passing. The
+      earlier 90.56% / 90.22% result is retained only as historical publish-gate
+      evidence.
 - [ ] The governed nightly branch command produces at least 85% branch
-      coverage. Current evidence is 85.15625% (1,408 total / 210 missed) on
-      nightly 1.99.0 using explicit rustup-resolved compiler and LLVM tools.
+      coverage. The latest isolated-target invocation exited 0; the current
+      numeric evidence remains 85.15625% (1,408 total / 210 missed) on nightly
+      1.99.0 using explicit rustup-resolved compiler and LLVM tools. A fresh
+      numeric report still needs to be captured before treating this as a new
+      closeout measurement.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the
@@ -227,8 +232,8 @@ retired from the active dependency surface.
       descendant cleanup, and an independent 0600 JSONL audit sink.
 - [x] The act runner records a bounded machine-readable `FAILED` result for
       runtime setup/probe failures, including failure stage, no-workflow side
-      effects, and cleanup status; this does not substitute for rootless
-      Podman evidence.
+      effects, and cleanup status; this does not substitute for hosted-CI,
+      publish, CodeQL/SARIF, release, or security evidence.
 - [x] The current dated coverage-audit refresh is reconciled as 119 active
       modules (13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression);
       the historical 114/96 publish-gate snapshot is labeled separately.

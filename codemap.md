@@ -52,7 +52,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 |---|---|
 | Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` first resolved `src-tauri` as standalone evidence, then `RT-00i.2.5` retired that adapter from the active dependency surface to unblock the live GTK/GLib advisory; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |
 | RT-CI CI hardening | `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`, `docs/tachi-rust-ci-review-panel.md`, `docs/tachi-rust-ci-route-policy.md`, `docs/tachi-rust-ci-route-fixtures.md`, and `docs/tachi-rust-ci-closeout.md` define the completed `RT-CI` hierarchy for PR concurrency, workflow parse, rustfmt, protected trigger contracts, route-policy escalation, route fixtures, dependency-closure routing, shared Rust setup, protected-ref enforcement, and privileged SARIF invariants. All seven RT-CI children and the umbrella are Beads-closed; hosted CI verification remains evidence rather than an open tracker item. |
-| E2E coverage expansion | `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md`, `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md`, `docs/roadmap/2026-07-12-e2e-coverage-execution-plan.md`, and the `E2E-COV*` Beads hierarchy define the active plan for CLI, desktop-host, MCP-stdio, lifecycle, failure/cancellation, and branch-coverage evidence. The Rust-owned E2E inventory covers CLI artifacts, desktop host commands, MCP stdio, initialization, the composed init/install/update/analysis lifecycle, and the cross-boundary failure matrix; E2E-COV-007.3 local-runner, E2E-COV-008 hosted timing/reliability, and E2E-COV-010.2 agentic evidence are complete, while the act/Podman lane and E2E-COV-010 umbrella remain open. |
+| E2E coverage expansion | `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md`, `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md`, `docs/roadmap/2026-07-12-e2e-coverage-execution-plan.md`, and the `E2E-COV*` Beads hierarchy define the active plan for CLI, desktop-host, MCP-stdio, lifecycle, failure/cancellation, and branch-coverage evidence. The Rust-owned E2E inventory covers CLI artifacts, desktop host commands, MCP stdio, initialization, the composed init/install/update/analysis lifecycle, and the cross-boundary failure matrix; E2E-COV-007.3 local-runner, E2E-COV-008 hosted timing/reliability, E2E-COV-009 Colima advisory evidence, and E2E-COV-010.2 agentic evidence are complete, with umbrella closeout synchronized through the active tracker. |
 | Codemap automation state | `.slim/codemap.json` tracks the core Rust/configuration surface (67 files), with hierarchical maps under `crates/` and each active workspace package. Tests and documentation remain excluded from hash-based change detection. |
 
 ## Rust Data And Control Flow
@@ -79,7 +79,7 @@ The repository is still migrating away from the original Python ecosystem. Remai
 | Integration | Rust integration tests under `crates/*/tests`; current audit includes the desktop host parity tests, scaffold dependency-floor audit, workflow CI gate audit, issue-template TDD contract audit, retired-adapter guard tests, the typed control-plane boundary audit, the RT-CI trigger/permission contract audit, the route-policy manifest contract audit, and the route-fixture manifest contract audit, while the init-substitution E2E boundary is Rust-owned. |
 | Smoke | Transitional smoke modules tracked by `tachi-core::coverage_audit`; current audit shows 1 Rust smoke canary and 0 remaining Python smoke modules. |
 | E2E | Critical init, CLI analysis-to-artifact, desktop host command, MCP stdio, composed init/install/update/analysis lifecycle, and cross-boundary failure/cancellation flows are explicitly classified or exercised by `crates/tachi-core/tests/coverage_audit.rs` and the Rust E2E suites; E2E-COV-007 branch evidence is governed by the pinned nightly lane and publish gate. |
-| Coverage | `make llvm-cov` is the stable release-quality gate: 90.22% regions / 90.56% lines, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane records 85.15625% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007 meets its branch target and the complete durable publish gate exited 0. The historical closeout runner `20260712T195832Z-73032` passed 8/8 units; the current dated audit refresh reports 119 active modules, 101 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
+| Coverage | The latest current `make llvm-cov` run reports 93.24% lines / 92.60% regions, with the configured 85% line threshold passing. The governed nightly 1.99.0 lane records 85.15625% branch coverage (1,408 branches / 210 missed) after deterministic CLI, desktop, MCP stdio, and shell-bridge failure-edge coverage; E2E-COV-007 meets its branch target. The historical closeout runner `20260712T195832Z-73032` passed 8/8 units with the older 90.56% / 90.22% stable snapshot; the current dated audit refresh reports 119 active modules, 101 Rust integration modules, 13 Rust unit modules, 1 Rust smoke module, 4 Rust E2E modules, and 0 support/regression modules. |
 
 The publish gate now includes `make scaffold-dependency-gate`, which runs the
 Rust-native `scaffold_dependency_floors` integration test against the real
@@ -135,11 +135,11 @@ matching, fail-closed cleanup, and exact tiny-log caps.
 The advisory `E2E-COV-009.1` preflight now lives in `scripts/act-smoke.sh` and
 is exposed by `make act-smoke`; it is unavailable-safe (`SKIPPED_UNAVAILABLE`)
 and reports selected runtime/API compatibility, bound local-unix endpoint,
-rootless indicator, image digest, architecture, CPU/memory profile, policy,
+Colima CLI/provider, image digest, architecture, CPU/memory profile, policy,
 and side-effect fields without invoking a workflow or allowing secrets,
-privileged mode, host/socket mounts, or release/security side effects. Podman
-must prove rootless mode; its stable Intel-machine API evidence is open.
-Docker/Colima is an explicit non-equivalent fallback.
+privileged mode, host/socket mounts, or release/security side effects. Colima
+CLI/API readiness, provider, local endpoint identity, and resource profile are
+recorded; missing/stopped Colima remains `SKIPPED_UNAVAILABLE`.
 
 `E2E-COV-009.2` adds `scripts/act-smoke-run.sh`, the synthetic
 `tests/fixtures/act/pull-request.json`, and `make act-smoke-run`. It consumes
@@ -150,13 +150,12 @@ scrubs the act environment, verifies the pinned image digest, and records
 image-pull/wall/resource timing and cleanup,
 and uses `ACT_SMOKE=true` to skip
 hosted artifact upload while validating `route.json` in-container. The
-Docker/Colima fallback passed two cold and six warm samples, plus cached
-resource samples that record CPU/memory/image-size/cache fields, trusted
-workflow hash, pinned image digest, sanitized retained-log/artifact cleanup,
-and cold-cache contract evidence. Available-runtime setup failures now emit a
+Colima passed two cold and five warm samples, recording CPU/memory/image-size/
+cache fields, trusted workflow hash, pinned image digest, sanitized
+retained-log/artifact cleanup, and cold-cache contract evidence. Available-runtime setup failures now emit a
 bounded structured failure record before returning nonzero, preserving
-machine-readable stage, side-effect, and cleanup truth; Podman-specific
-rootless evidence remains open in `docs/reports/act-smoke-baseline.md`.
+machine-readable stage, side-effect, and cleanup truth; Colima CLI/API
+evidence is recorded in `docs/reports/act-smoke-baseline.md`.
 
 `E2E-COV-010.1` is represented by `docs/testing/tdd-evidence.json` and
 `crates/tachi-core/tests/tdd_evidence_contract.rs`, which make acceptance
@@ -169,9 +168,8 @@ review promoted its agentic evidence.
 workspace workflow emits matching package/shell timing artifacts so local
 build/test performance can be compared with GitHub job execution without
 claiming queue time and wall time are interchangeable. E2E-COV-009 remains an
-opt-in `act` smoke lane using preflighted rootless Podman Docker-API
-compatibility where available; its measured Docker/Colima fallback is labeled
-separately and it remains advisory and does not replace hosted CI.
+opt-in `act` smoke lane using the Colima CLI and Docker-compatible API where
+available; it remains advisory and does not replace hosted CI.
 The controlled cold route-equivalent runner sample now passes all 8 units in
 321,636 ms (compile-and-test 266,987 ms; test-slice 53,842 ms), extending
 the local evidence to 40/40 successful unit executions across full, warm, cold,
@@ -252,7 +250,8 @@ Codemap dependency analysis now treats `scripts/tachi_parsers` as retired. The d
   headless/schema/offline, MCP stdio startup, and shell-bridge cancellation /
   artifact-failure cases. The governed nightly 1.99.0 lane now reports 85.15625%
   branch coverage (1,408 total / 210 missed), while stable `make llvm-cov`
-  remains at 90.56% lines / 90.22% regions. `make gitleaks-gate` is now a
+  latest current `make llvm-cov` run reports 93.24% lines / 92.60% regions;
+  the older 90.56% / 90.22% values remain historical. `make gitleaks-gate` is now a
   fail-closed member of `make publish-gate`.
 - RT-00i.5.1: `schemas/aisvs.yaml`, `schemas/taxonomy/aisvs.yaml`,
   `crates/tachi-shell/tests/tauri_bridge.rs`, and the public docs now ship
