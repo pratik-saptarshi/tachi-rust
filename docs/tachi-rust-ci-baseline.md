@@ -110,7 +110,7 @@ collector passes its governance check as well as its timing collection.
 - Keep queue time and run time separated in notes so route narrowing impact is
   not masked by workflow scheduling delays.
 
-- live PR-run timing evidence required by the original baseline plan is now
+- Live PR-run timing evidence required by the original baseline plan is now
   complete, along with branch-protection verification. Future samples are
   operational monitoring, not a prerequisite for this closure.
 

@@ -1,6 +1,7 @@
 # Tachi-Rust CI Closeout Notes
 
-**Status**: draft closeout evidence for RT-CI
+**Status**: timing closeout evidence for RT-CI; ongoing monitoring remains
+operational follow-up
 **Purpose**: separate locally proven RT-CI changes from external verification
 items that still require GitHub access
 
@@ -16,8 +17,7 @@ items that still require GitHub access
 - Phase 0 baseline inventory and local validation snapshot are recorded in
   `docs/tachi-rust-ci-baseline.md`.
 - Warm local timing comparison exists for the same workflow test on
-  `origin/main` (`real 0.58s`) and the current branch (`real 1.39s`), but it
-  is not a substitute for live PR median evidence.
+  `origin/main` (`real 0.58s`) and the current branch (`real 1.39s`).
 - Beads export and issue notes are updated after each slice and can be used by
   release operators when evidence gaps remain.
 - On 2026-07-10, the full workspace test gate passed 468 tests across 111
@@ -29,11 +29,9 @@ items that still require GitHub access
 
 ## Remaining Follow-up Verification
 
-- Live GitHub Actions timing evidence: repeated PR-specific timing evidence for
-  pre-router vs post-router median PR
-  durations. The current mainline sample is recorded in
-  `docs/tachi-rust-ci-baseline.md`; collect PR/event-filtered samples via
-  `make rt-ci-latency-evidence` when representative PR runs exist.
+- Continue collecting representative PR-specific timing samples via
+  `make rt-ci-latency-evidence` as operational monitoring; the current
+  closeout sample is recorded in `docs/tachi-rust-ci-baseline.md`.
 - Branch-protection verification is complete for the current migration: the
   live API reports `main` protected with the required contexts, strict
   up-to-date enforcement, linear history, conversation resolution, and
@@ -48,11 +46,11 @@ items that still require GitHub access
   - `branch_protection=pratik-saptarshi/tachi-rust/main: enabled`; the
     replayable command is `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection`.
   - `rust-workspace.yml` PR-side median evidence command (`pull_request` event):
-    `sample_size=2`, `run_med_ms=350000`, `queue_med_ms=0`,
-    `run_range_ms=93000..607000`.
+    `sample_size=22`, `run_med_ms=85000`, `queue_med_ms=0`,
+    `run_range_ms=79000..101000`.
   - `ci-route-observe.yml` PR-side evidence command (`pull_request` event):
-    `sample_size=1`, `run_med_ms=16000`, `queue_med_ms=0`,
-    `run_range_ms=16000..16000`.
+    `sample_size=23`, `run_med_ms=14000`, `queue_med_ms=0`,
+    `run_range_ms=11000..17000`.
 - Route-observe artifact evidence was downloaded from PR run
   `29091065279` (`ci route observe`); it reports:
   - `mode=observe_only`

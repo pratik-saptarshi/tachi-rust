@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-09  
 **Source input**: `/Volumes/dev/Git-SCM/tachi-rust/docs/ci-improvement-plan.html`  
-**Status**: timing closeout package; ongoing monitoring is operational follow-up
+**Status**: timing closeout package; ongoing monitoring is operational follow-up<br>
 **Primary objective**: reduce wasted pull-request CI time without weakening `tachi-rust`'s existing SARIF, supply-chain, cross-platform, and contract-specific guarantees
 
 ## Repo-State Reconciliation
