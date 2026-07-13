@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Colima act lane and E2E-COV-010 governance umbrella are complete; the broader E2E-COV product-coverage epic remains open
+**Status**: Active execution plan; Colima act lane, E2E-COV-010 governance umbrella, and fresh publish-gate run are complete; the broader E2E-COV product-coverage epic remains open pending artifact commit and protected merge state
 **Baseline**: `main` / `origin/main` at `61ba9ee`
 **Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -19,10 +19,11 @@ historical and must not be used for new closeout claims.
 
 The remaining evidence is narrower than the product journey inventory:
 
-- the complete uninterrupted `make publish-gate` exited 0 with terminal
-  full-mode runner evidence and E2E-COV-007 is closed in Beads; a fresh current
-  publish gate is still required because advisory-database writes are blocked
-  by this harness;
+- the fresh host-assisted `make publish-gate` completed through the advisory,
+  security, coverage, runner, release, and cleanup stages. The terminal
+  local-full cleanup receipt is `20260713T045400Z-79992`; the advisory database
+  fetched 1,160 records and the live `cargo deny` result was
+  `advisories ok, bans ok, licenses ok, sources ok`;
 - E2E-COV-008 and RT-CI-006.2 now have repeated hosted PR timing,
   artifact-integrity, queue/run, and branch-protection evidence; historical
   failed runs remain visible rather than being removed from the sample;
@@ -35,8 +36,9 @@ The remaining evidence is narrower than the product journey inventory:
   security-isolated; Colima is the supported local runtime through its CLI and
   Docker-compatible engine, and it does not replace hosted-CI evidence;
 - deterministic agentic replay evidence is promoted; the act/Colima children
-  are complete, while the E2E epic remains open only for fresh publish-gate,
-  current artifact reconciliation, and live hosted remote verification.
+  are complete. The E2E epic remains open only until this fresh gate evidence
+  is synchronized into all release artifacts and the protected branch reaches
+  its terminal merge state.
 
 ### Plan-review-integrator audit and traceability
 
@@ -126,9 +128,10 @@ Plan-review traceability for this continuation is:
 | Existing benchmark and cleanup paths must not regress | Already addressed by regression suite | Run all `act_smoke_run_contract` tests, shell syntax, formatting, diff hygiene, workflow/security gates, and protected remote checks before merge. |
 | Documentation and tracker must reflect Colima truth | Governance synchronization | Update this plan, issue notes/export, BOM, publish checklist, codemap, act baseline, and `integration_log.jsonl` from the same checkpoint. |
 
-The next executable slice is Colima evidence promotion and tracker closure,
-followed by review and protected merge. The lane remains advisory and must not
-be promoted to hosted-CI or publish evidence.
+The next executable slice is reconciliation review, checkpoint push, and
+protected merge-state recheck. The Colima lane remains advisory and must not be
+promoted to hosted-CI or publish evidence; the fresh publish-gate is the
+separate local release-quality evidence.
 
 ### E2E-COV-009.1 — capability preflight
 
@@ -346,14 +349,16 @@ units in 536,162 ms, with compile/test at 466,327 ms, test slices at 68,906 ms,
 zero failures/timeouts/cancellations, and verified cleanup. The first full
 publish-gate attempt reached this runner after all preceding security and
 coverage stages passed; it was interrupted only to isolate the runner evidence.
-The later uninterrupted `make publish-gate` closeout is recorded above and in
-the E2E-COV-007 Beads note.
+The fresh host-assisted `make publish-gate` closeout completed with local-full
+cleanup receipt `20260713T045400Z-79992`; advisory data fetched successfully,
+`cargo deny` reported all four policy classes `ok`, and the nightly branch
+threshold command exited 0 at the governed 85.15625% value.
 
 Focused workflow/runner tests, all package suites, `make workflow-gate`,
 security gates, and coverage gates passed during this slice. The initial
 sandboxed publish-gate attempt failed before product validation because the
-Cargo advisory database path was read-only; the escalated rerun passed that
-stage, proving the first failure was environmental.
+Cargo advisory database path was read-only; the host-assisted rerun passed
+that stage and the complete gate, proving the first failure was environmental.
 
 ## Slice 2: hosted performance and reliability — complete
 

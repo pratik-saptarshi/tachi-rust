@@ -99,6 +99,11 @@ retired from the active dependency surface.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Repeated samples and queue/run medians are recorded above.
 - [x] Post-merge commit `2bf68bb` completed all main push workflows successfully: workspace tests `29212792288`, supply-chain `29212792282`, clippy `29212792277`, init matrix `29212792275`, release-please `29212792287`, and dynamic Push on main/CodeQL `29212792021`.
 - [x] Follow-up documentation merge `f34f5a5` passed all 20 pull-request checks; automated Copilot/Codex review records were present, and their actionable findings were addressed in the follow-up reconciliation.
+- [x] Current feature branch commit `7a739b1` is pushed to PR #33; all 20
+      reported checks passed, including CodeQL, supply-chain, gitleaks,
+      clippy, rustfmt, route, and workspace suites. The PR remains OPEN/BLOCKED
+      under protected policy with auto-merge enabled; this is not a claim that
+      `main` has merged the checkpoint.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
 - [x] Colima act evidence is advisory — not publish evidence: the wrapper is opt-in and uses the Colima CLI plus Docker API. `make act-smoke` and `make act-smoke-run` enforce the exact route-observe workflow/job allowlist and trusted workflow hash, local-unix endpoint binding, empty secrets, sanitized act environment, no daemon-socket mount, no privileged mode, `--rm`, default `network=none`, explicit recorded host-network exception only for the synthetic route fetch, pinned image digest verification, derived cache state, side-effect fields, cleanup/log/artifact verification, timeout, and `SKIPPED_UNAVAILABLE` behavior. Colima evidence passed two cold runs (32,384/32,864 ms; 556/562 ms pulls) and five warm runs (29,753–31,347 ms; median 31,225 ms) with no hosted artifact/SARIF/release/security side effects.
 - [x] Colima capability and serial cold/warm resource evidence are complete for the advisory lane; this result remains non-equivalent to hosted CI and cannot satisfy publish, CodeQL/SARIF, release, or security acceptance by itself.
@@ -109,9 +114,9 @@ retired from the active dependency surface.
 - [ ] Required Rust workflows install the checked-in toolchain policy and print
       `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and
       `rustup which rustc`.
-- [ ] `cargo audit` passes locally or in the equivalent
+- [x] `cargo audit` passes locally or in the equivalent
       `.github/workflows/rust-supply-chain.yml` gate.
-- [ ] `cargo deny check advisories bans licenses sources` passes against
+- [x] `cargo deny check advisories bans licenses sources` passes against
       `deny.toml`, and any future license/source exceptions include owner,
       expiry, issue, and remediation metadata.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
@@ -141,17 +146,16 @@ retired from the active dependency surface.
       cancellation/shutdown tests, compatibility evidence, dependency diff, and
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
-- [ ] `make llvm-cov` passes and the coverage floor remains above the project
+- [x] `make llvm-cov` passes and the coverage floor remains above the project
       threshold; latest current local run on 2026-07-13 measured 93.24% lines /
       92.60% regions, with the configured 85% line threshold passing. The
       earlier 90.56% / 90.22% result is retained only as historical publish-gate
       evidence.
-- [ ] The governed nightly branch command produces at least 85% branch
-      coverage. The latest isolated-target invocation exited 0; the current
-      numeric evidence remains 85.15625% (1,408 total / 210 missed) on nightly
-      1.99.0 using explicit rustup-resolved compiler and LLVM tools. A fresh
-      numeric report still needs to be captured before treating this as a new
-      closeout measurement.
+- [x] The governed nightly branch command produces at least 85% branch
+      coverage. The fresh host-assisted invocation exited 0 at 85.15625%
+      (1,408 total / 210 missed) on nightly 1.99.0 using explicit
+      rustup-resolved compiler and LLVM tools. The CACHEDIR cleanup warning is
+      non-fatal; the report, threshold check, and command exit all passed.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the
@@ -299,7 +303,9 @@ retired from the active dependency surface.
 - [ ] `.github/workflows/tachi-pytest.yml` is either retired or scoped strictly to
       transitional compatibility with a documented deprecation plan.
 - [ ] The docs/version gate is green on the current branch.
-- [ ] The release artifact gate and checksum matrix pass via `make publish-gate`.
+- [x] The release artifact gate and checksum matrix pass via the fresh
+      host-assisted `make publish-gate`; local-full cleanup receipt is
+      `20260713T045400Z-79992`.
 - [ ] MCP roadmap, issue cards, BOM, and publish checklist remain synchronized
       as closed MCP evidence before any future MCP release promotion opens a
       new tracker hierarchy.
@@ -314,7 +320,9 @@ retired from the active dependency surface.
 
 ## 7. Remote publication
 
-- [ ] The branch to publish is up to date with the intended base branch.
+- [x] The branch to publish is up to date with the intended base branch:
+      local/cached/live `main` and `origin/main` are `61ba9ee`, and PR #33 is
+      based on that commit.
 - [ ] `gh run list --workflow rust-workspace.yml --branch main --status completed --limit 5`
       is checked after merge and before release claim.
 - [ ] `gh run watch <run-id>` completes with a green `rust-workspace.yml`,
@@ -323,7 +331,7 @@ retired from the active dependency surface.
       local closeout notes and the associated Beads issue note trail.
 - [ ] The publish commit history is linear or intentionally merged.
 - [ ] The push target is `origin/main` or a clearly named release branch.
-- [ ] `make publish-gate` runs clean on the branch being published, including
+- [x] `make publish-gate` runs clean on the branch being published, including
       workflow drift, scaffold dependency-floor, and release artifact parity checks.
 - [ ] The post-push CI monitor command is ready, for example:
 
