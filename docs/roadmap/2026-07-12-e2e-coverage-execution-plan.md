@@ -1,14 +1,16 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Colima act lane, E2E-COV-010 governance umbrella, fresh publish-gate run, and terminal hosted checks are complete; the broader E2E-COV product-coverage epic remains open pending protected merge and post-merge main verification
-**Baseline**: `main` / `origin/main` at `61ba9ee`
+**Status**: Complete closeout; E2E-COV, Colima act evidence, fresh publish-gate, protected PR merge, and post-merge main verification are complete
+**Baseline**: `main` / `origin/main` at `e0ea1b35f9cff5842d5e655274ad50886752242c`
 **Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `61ba9ee`; no main push is
-required before this feature branch. The product E2E foundation is present,
+Local and remote `main` are synchronized at merge commit
+`e0ea1b35f9cff5842d5e655274ad50886752242c`; PR #33 merged normally through
+protected auto-merge after all required checks and review threads were green.
+The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
 85.15625% and current stable coverage is 93.24% lines / 92.60% regions; the
@@ -45,17 +47,17 @@ The remaining evidence is narrower than the product journey inventory:
   `network=none` default correctly fails this synthetic route because its
   checkout step fetches the base ref; that is a documented test limitation,
   not a runtime fallback;
-- PR #33's current feature head now has terminal hosted checks with 20 reported
+- PR #33 merged at `e0ea1b35f9cff5842d5e655274ad50886752242c` from feature head
+  `586916758e09bc5622e9a3a4745de589032ca3d3`; its terminal hosted checks had 20 reported
   passes and 0 failures, including CodeQL, gitleaks, supply-chain, workflow,
   route, and package/shell checks. GitHub still reports `MERGEABLE` with
-  `mergeStateStatus=BLOCKED` pending review-thread resolution. Copilot review
-  is optional under the permanently updated secure ruleset, so its quota
-  failure is non-blocking. This is a protected-policy state, not a test
-  failure; no administrator bypass is permitted for this plan.
+  passes and 0 failures. Copilot review is optional under the permanently
+  updated secure ruleset, and no administrator bypass was used. Post-merge
+  CodeQL, workspace, supply-chain, clippy, init-matrix, and release workflows
+  all completed successfully.
 - deterministic agentic replay evidence is promoted; the act/Colima children
-  are complete. The E2E epic remains open only until this fresh gate evidence
-  is synchronized into all release artifacts and the protected branch reaches
-  its terminal merge state.
+  are complete. The E2E-COV parent is closed in Beads after synchronized
+  artifact, protected-merge, and post-merge-main verification.
 
 ### Plan-review-integrator audit and traceability
 
@@ -132,7 +134,7 @@ criteria can be skipped during a merge or publish audit.
 | `E2E-COV.2` | Bind hosted timing artifacts to GitHub metadata and govern local retention/privacy. | RED: reject mismatched workflow/event/ref/head/conclusion and unsafe retention. GREEN: implement explicit provenance, redaction, bounded logs, 0600 receipts, and fail-closed cleanup. REFACTOR: run synthetic accept/reject fixtures and schema checks. | Push and PR provenance, rerun limitation, path normalization, secret redaction, exact log caps, ephemeral retention, cleanup receipt, and no credential persistence are contract-tested and synchronized. | Closed; security veto remains against silent regression. |
 | `E2E-COV-009` / `.1` / `.2` | Provide opt-in advisory workflow emulation using the installed Colima CLI and Docker-compatible engine. | RED: unavailable/stopped runtime and unsafe policy inputs are machine-readable and side-effect free. GREEN: preflight Colima and run only the trusted synthetic route job. REFACTOR: measure cold/warm resources, digest, timing, cleanup, and explicit network exception. | `ACT_SMOKE_RUNTIME=colima make act-smoke` is `READY`; live route smoke passes with explicit host networking, pinned image, verified cleanup, and no hosted side effects. Default `network=none` remains safe/unavailable for the checkout-dependent synthetic route. Podman is not used. | Closed; advisory only and never a hosted/publish substitute. |
 | `E2E-COV-010` / `.1` / `.2` | Govern unit, integration, functional, E2E, and deterministic agentic evidence with durable RED/GREEN/REFACTOR records. | RED: missing level evidence, fake-tool non-invocation, nondeterministic audit, and cleanup failures. GREEN: use offline scripted fake-tool replay with bounded approval/timeout/cancel/circuit cases. REFACTOR: exact audit correlation, 0600 sink, descendant cleanup, and promotion validator. | `docs/testing/tdd-evidence.json` and focused Rust contracts prove named tests and promotion status; agentic replay uses no live model/network and is promoted `passed`. | Closed; promotion remains independent of hosted CI. |
-| `E2E-COV` | Parent closeout: all child journeys, coverage, governance artifacts, security/privacy evidence, and remote state agree. | RED: identify stale artifacts, non-terminal hosted checks, protected-merge blockers, or remote divergence. GREEN: reconcile tracker/docs and monitor terminal CI. REFACTOR: merge, verify post-merge `main`, rerun gates, then close parent. | Only parent is open/ready. Close only after PR #33 terminal checks, protected merge, post-merge main workflows, live refs, and all artifacts agree. | Open; next action is hosted CI monitoring and protected merge progression. |
+| `E2E-COV` | Parent closeout: all child journeys, coverage, governance artifacts, security/privacy evidence, and remote state agree. | RED: identify stale artifacts, non-terminal hosted checks, protected-merge blockers, or remote divergence. GREEN: reconcile tracker/docs and monitor terminal CI. REFACTOR: merge, verify post-merge `main`, rerun gates, then close parent. | Parent acceptance is satisfied: PR #33 merged, post-merge main workflows passed, live refs and artifacts agree, and Beads is closed. | Complete at merge commit `e0ea1b35f9cff5842d5e655274ad50886752242c`. |
 
 ## Ready-issue execution cards
 
@@ -150,9 +152,10 @@ remains advisory and cannot satisfy hosted-CI or publish acceptance by itself.
 
 ### 2026-07-13 continuation audit and next-slice traceability
 
-The live Beads audit on `main` at `61ba9ee` confirms that the only active queue
-item is the parent E2E epic; the act/Colima issues and dependent `E2E-COV-010`
-umbrella are closed. This host has `act` 0.2.89 and Colima 0.10.3 available by
+The post-merge Beads audit confirms that `E2E-COV` and all child issues are
+closed; the act/Colima issues and dependent `E2E-COV-010` umbrella are also
+closed. Remote `main` is at merge commit `e0ea1b35f9cff5842d5e655274ad50886752242c`.
+This host has `act` 0.2.89 and Colima 0.10.3 available by
 installation, with recorded Docker 29.5.2 CLI/API evidence and serial
 cold/warm named-job runs. A stopped Colima VM remains an accurately reported
 `SKIPPED_UNAVAILABLE` condition. The active execution path is Colima only;
@@ -168,12 +171,11 @@ Plan-review traceability for this continuation is:
 | Existing benchmark and cleanup paths must not regress | Already addressed by regression suite | Run all `act_smoke_run_contract` tests, shell syntax, formatting, diff hygiene, workflow/security gates, and protected remote checks before merge. |
 | Documentation and tracker must reflect Colima truth | Governance synchronization | Update this plan, issue notes/export, BOM, publish checklist, codemap, act baseline, and `integration_log.jsonl` from the same checkpoint. |
 
-The next executable slice is terminal hosted-CI monitoring, eligible-review /
-protected-merge progression, and post-merge `main` verification. The Colima
-lane remains advisory and must not be promoted to hosted-CI or publish
+The execution slice is complete: terminal hosted-CI monitoring, protected
+merge, post-merge `main` verification, and Beads closure all passed. The
+Colima lane remains advisory and must not be promoted to hosted-CI or publish
 evidence; the fresh publish-gate is the separate local release-quality
-evidence. No child Beads implementation issue is currently ready; the parent
-remains open as the merge-and-closeout gate.
+evidence.
 
 ### E2E-COV-009.1 — capability preflight
 
@@ -236,8 +238,7 @@ publish gates. Synchronize `.beads/issues.jsonl`, this plan,
 The two children are implemented and agentic promotion is passed. The Colima
 dependency is closed, and the TDD evidence contract, coverage audit, failure /
 cleanup matrix, security gates, and documentation synchronization are recorded
-in Beads and the integration log. The broader `E2E-COV` epic remains open for
-additional product journeys.
+in Beads and the integration log. The broader `E2E-COV` epic is now closed.
 
 ### E2E-COV-007 — uninterrupted publish-gate enforcement
 
@@ -354,7 +355,7 @@ explicit approval, denial, timeout, cancellation, and circuit-breaker
 transitions, writes an independent 0600 JSONL audit sink, and cross-checks
 deterministic audit correlation. Bounded fake-tool execution without live
 model/network access is complete; Beads closure is recorded and the broader
-product-coverage epic remains open independently.
+product-coverage epic is closed.
 
 ### Umbrella closeout: E2E-COV-010, E2E-COV, RT-CI
 
