@@ -111,7 +111,7 @@ fn act_preflight_rejects_unverified_rootful_podman() {
         "#!/bin/sh
 case \"$1 $2\" in
   version*) printf '%s\\n' '5.8.5' ;;
-  info*) printf '%s\\n' '{\"host\":{\"security\":{\"rootless\":false}},\"version\":{\"Version\":\"5.8.5\"}}' ;;
+  info*) printf '%s\\n' '{\"host\":{\"security\":{\"rootless\":false},\"remoteSocket\":{\"path\":\"/tmp/podman.sock\"}},\"version\":{\"Version\":\"5.8.5\"}}' ;;
   *) exit 0 ;;
 esac
 ",
@@ -120,7 +120,6 @@ esac
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
     let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
         .env("PATH", path)
-        .env("DOCKER_HOST", "unix:///tmp/podman.sock")
         .env("ACT_SMOKE_OUTPUT", &output)
         .output()
         .expect("run rootful Podman preflight");
@@ -133,6 +132,7 @@ esac
             .expect("preflight JSON");
     assert_eq!(json["status"], "SKIPPED_UNAVAILABLE");
     assert_eq!(json["runtime"]["rootless"], false);
+    assert_eq!(json["runtime"]["endpoint"], "unix:///tmp/podman.sock");
     assert!(json["reason"]
         .as_str()
         .expect("reason")

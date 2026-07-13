@@ -59,7 +59,10 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
         fi
         runtime_endpoint="$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' 2>/dev/null || true)"
         [ -n "$runtime_endpoint" ] && runtime_endpoint="unix://$runtime_endpoint"
-        [ -n "$runtime_endpoint" ] || runtime_endpoint="$(printf '%s' "$info_json" | jq -r '.Host.RemoteSocket.Path // .Host.RemoteSocket.Address // empty' 2>/dev/null || true)"
+        [ -n "$runtime_endpoint" ] || runtime_endpoint="$(printf '%s' "$info_json" | jq -r '.host.remoteSocket.path // .host.remoteSocket.address // .Host.RemoteSocket.Path // .Host.RemoteSocket.Address // empty' 2>/dev/null || true)"
+        case "$runtime_endpoint" in
+            /*) runtime_endpoint="unix://$runtime_endpoint" ;;
+        esac
         [ -n "$runtime_endpoint" ] || runtime_endpoint="${DOCKER_HOST:-unreported}"
     else
         runtime_version="$(docker version --format '{{.Server.Version}}' 2>/dev/null || true)"
