@@ -358,6 +358,59 @@ sleep 5
     fs::remove_dir_all(root).expect("cleanup");
 }
 
+#[test]
+fn benchmark_fails_when_act_terminates_by_signal() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir_all(&bin).expect("create fake bin");
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '24.0.7' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"24.0.7\",\"NCPU\":2,\"MemTotal\":4294967296,\"Architecture\":\"x86_64\",\"OSType\":\"linux\"}' ;;
+  context*) printf '%s\\n' 'unix:///tmp/fake-docker.sock' ;;
+  'image inspect'*) printf '%s\\n' 'sha256:act-fixture-image' ;;
+  'ps -aq'*) ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh
+if [ \"$1\" = \"--version\" ]; then
+  printf '%s\\n' 'act version 0.2.89'
+  exit 0
+fi
+kill -TERM $$
+",
+    );
+    let output = root.join("benchmark.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke-run.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "docker")
+        .env("ACT_SMOKE_ALLOW_DOCKER_FALLBACK", "true")
+        .env("ACT_SMOKE_ALLOW_MUTABLE_IMAGE", "true")
+        .env("ACT_SMOKE_IMAGE", "example/act-fixture:latest")
+        .env("DOCKER_HOST", "unix:///tmp/fake-docker.sock")
+        .env("ACT_SMOKE_RUN_OUTPUT", &output)
+        .output()
+        .expect("run signal benchmark");
+    assert!(
+        !result.status.success(),
+        "signal termination must fail: {result:?}"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("read benchmark output"))
+            .expect("benchmark JSON");
+    assert_eq!(json["status"], "FAILED");
+    assert_ne!(json["benchmark"]["act_exit_code"], 0);
+    assert_eq!(json["benchmark"]["timed_out"], false);
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
 fn executable(path: &Path, body: &str) {
     fs::write(path, body).expect("write runtime shim");
     let mut permissions = fs::metadata(path).expect("shim metadata").permissions();

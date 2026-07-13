@@ -188,7 +188,8 @@ else
         alarm $limit;
         waitpid($pid, 0);
         alarm 0;
-        exit(($? >> 8) & 255);
+        my $status = $?;
+        exit(($status & 127) ? 128 + ($status & 127) : (($status >> 8) & 255));
     ' "$TIMEOUT_SECONDS" env -i PATH="$PATH" HOME="$act_home" TMPDIR="$act_tmpdir" DOCKER_HOST="$act_docker_host" act pull_request \
         --workflows "$WORKFLOW" \
         --job "$JOB" \
