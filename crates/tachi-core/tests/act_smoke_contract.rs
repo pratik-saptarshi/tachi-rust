@@ -52,6 +52,94 @@ fn act_preflight_is_unavailable_safe_without_runtime_or_side_effects() {
     fs::remove_dir_all(root).expect("cleanup");
 }
 
+#[test]
+fn act_preflight_rejects_remote_docker_endpoints() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir(&bin).expect("create fake bin");
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh\nprintf '%s\\n' 'act version 0.2.89'\n",
+    );
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '29.5.2' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4096}' ;;
+  context*) printf '%s\\n' 'tcp://remote.example:2376' ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    let output = root.join("result.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "docker")
+        .env("ACT_SMOKE_ALLOW_DOCKER_FALLBACK", "true")
+        .env("ACT_SMOKE_OUTPUT", &output)
+        .output()
+        .expect("run remote endpoint preflight");
+    assert!(
+        result.status.success(),
+        "remote endpoint is unavailable-safe: {result:?}"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("read preflight output"))
+            .expect("preflight JSON");
+    assert_eq!(json["status"], "SKIPPED_UNAVAILABLE");
+    assert_eq!(json["runtime"]["api_compatible"], false);
+    assert!(json["reason"]
+        .as_str()
+        .expect("reason")
+        .contains("local unix socket"));
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
+fn act_preflight_rejects_unverified_rootful_podman() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir(&bin).expect("create fake bin");
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh\nprintf '%s\\n' 'act version 0.2.89'\n",
+    );
+    executable(
+        &bin.join("podman"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '5.8.5' ;;
+  info*) printf '%s\\n' '{\"host\":{\"security\":{\"rootless\":false}},\"version\":{\"Version\":\"5.8.5\"}}' ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    let output = root.join("result.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
+        .env("PATH", path)
+        .env("DOCKER_HOST", "unix:///tmp/podman.sock")
+        .env("ACT_SMOKE_OUTPUT", &output)
+        .output()
+        .expect("run rootful Podman preflight");
+    assert!(
+        result.status.success(),
+        "rootful Podman is advisory-unavailable: {result:?}"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("read preflight output"))
+            .expect("preflight JSON");
+    assert_eq!(json["status"], "SKIPPED_UNAVAILABLE");
+    assert_eq!(json["runtime"]["rootless"], false);
+    assert!(json["reason"]
+        .as_str()
+        .expect("reason")
+        .contains("rootless"));
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
 fn executable(path: &Path, body: &str) {
     fs::write(path, body).expect("write runtime shim");
     let mut permissions = fs::metadata(path).expect("shim metadata").permissions();

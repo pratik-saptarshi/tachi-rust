@@ -134,21 +134,27 @@ matching, fail-closed cleanup, and exact tiny-log caps.
 
 The advisory `E2E-COV-009.1` preflight now lives in `scripts/act-smoke.sh` and
 is exposed by `make act-smoke`; it is unavailable-safe (`SKIPPED_UNAVAILABLE`)
-and reports selected runtime/API compatibility, bound endpoint, image digest,
-architecture, CPU/memory profile, policy, and side-effect fields without invoking a workflow
-or allowing secrets, privileged mode, host/socket mounts, or release/security
-side effects. Podman remains the default and its stable Intel-machine API
-evidence is open; Docker/Colima is an explicit non-equivalent fallback.
+and reports selected runtime/API compatibility, bound local-unix endpoint,
+rootless indicator, image digest, architecture, CPU/memory profile, policy,
+and side-effect fields without invoking a workflow or allowing secrets,
+privileged mode, host/socket mounts, or release/security side effects. Podman
+must prove rootless mode; its stable Intel-machine API evidence is open.
+Docker/Colima is an explicit non-equivalent fallback.
 
 `E2E-COV-009.2` adds `scripts/act-smoke-run.sh`, the synthetic
 `tests/fixtures/act/pull-request.json`, and `make act-smoke-run`. It consumes
 preflight before targeting the defined `route-observe` job in
 `.github/workflows/ci-route-observe.yml`, validates trusted paths and policy,
-binds the selected runtime endpoint, records image-pull/wall timing and cleanup,
+hard-allows that workflow/job pair, binds a local-unix runtime endpoint,
+scrubs the act environment, verifies the pinned image digest, and records
+image-pull/wall/resource timing and cleanup,
 and uses `ACT_SMOKE=true` to skip
 hosted artifact upload while validating `route.json` in-container. The
-Docker/Colima fallback passed cold 13,710 ms and warm 13,068 ms; repeated
-samples and Podman-specific evidence remain open in `docs/reports/act-smoke-baseline.md`.
+Docker/Colima fallback passed two cold and six warm samples, plus cached
+resource samples that record CPU/memory/image-size/cache fields, trusted
+workflow hash, pinned image digest, sanitized retained-log/artifact cleanup,
+and cold-cache contract evidence; Podman-specific rootless evidence remains
+open in `docs/reports/act-smoke-baseline.md`.
 
 `E2E-COV-010.1` is represented by `docs/testing/tdd-evidence.json` and
 `crates/tachi-core/tests/tdd_evidence_contract.rs`, which make acceptance

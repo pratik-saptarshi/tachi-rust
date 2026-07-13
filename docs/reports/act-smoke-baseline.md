@@ -38,6 +38,15 @@ redacted). `act` 0.2.89 ran only the synthetic
 | cold-1 | `PASSED` | 646 ms | 13,710 ms | verified | none |
 | cold-2 | `PASSED` | 542 ms | 13,727 ms | verified | none |
 | warm (n=6) | `PASSED` | 0 ms | 13,024–13,470 ms (median 13,258.5 ms) | verified for all 6 | none |
+| latest cached resource sample | `PASSED` | 0 ms | 27,636 ms | verified | none |
+| latest hardened warm samples | `PASSED` | 0 ms | 13,249–14,309 ms | verified | none |
+| latest hash-bound warm sample | `PASSED` | 0 ms | 13,732–13,940 ms | verified | none |
+
+The latest three cached samples recorded the runtime profile explicitly: 2 CPUs,
+4,104,118,272 bytes of available memory, a 571,284,183-byte runner image, and
+`image_present_before_pull=true`; the hardened run also reported
+`cache_mode=warm` and `logs_verified=true`. The endpoint and user-specific
+socket path are intentionally omitted from committed evidence.
 
 The wrapper defaults to `network=none`; these route measurements explicitly
 set `ACT_SMOKE_NETWORK=host` because the synthetic route step performs a
@@ -50,6 +59,7 @@ the Podman-specific Beads issues or satisfy hosted CI, coverage, security,
 SARIF, or publish acceptance.
 
 The Docker fallback repeatability checkpoint is complete at two cold and six
-warm samples. Required next evidence is the same sample shape on a stable
-rootless Podman Docker-compatible API, plus CPU/memory/image/cache provenance
-and cleanup observations.
+warm samples, and the resource-profile fields are now covered by both the
+contract test and a live cached run. Required next evidence is the same sample
+shape on a stable rootless Podman Docker-compatible API; Docker results remain
+non-equivalent fallback evidence.

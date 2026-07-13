@@ -17,6 +17,7 @@ image_digest="unresolved-before-run"
 cpu_limit="unreported"
 memory_limit="unreported"
 runtime_endpoint="unreported"
+rootless_json=null
 reason=""
 
 case "$runtime_kind" in
@@ -50,6 +51,12 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
     if [ "$runtime_kind" = podman ]; then
         runtime_version="$(podman version --format '{{.Client.Version}}' 2>/dev/null || true)"
         info_json="$(podman info --format json 2>/dev/null || true)"
+        rootless_value="$(printf '%s' "$info_json" | jq -r 'if .host.security.rootless != null then .host.security.rootless elif .Host.Security.Rootless != null then .Host.Security.Rootless else "unreported" end' 2>/dev/null || true)"
+        if [ "$rootless_value" = true ]; then
+            rootless_json=true
+        elif [ "$rootless_value" = false ]; then
+            rootless_json=false
+        fi
         runtime_endpoint="$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' 2>/dev/null || true)"
         [ -n "$runtime_endpoint" ] && runtime_endpoint="unix://$runtime_endpoint"
         [ -n "$runtime_endpoint" ] || runtime_endpoint="$(printf '%s' "$info_json" | jq -r '.Host.RemoteSocket.Path // .Host.RemoteSocket.Address // empty' 2>/dev/null || true)"
@@ -61,7 +68,16 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
         [ -n "$runtime_endpoint" ] || runtime_endpoint="${DOCKER_HOST:-unreported}"
     fi
     if [ -n "$runtime_version" ] && printf '%s' "$info_json" | jq -e . >/dev/null 2>&1; then
-        if [ "$runtime_endpoint" = unreported ] || [ -z "$runtime_endpoint" ]; then
+        if [ "$runtime_kind" = podman ] && [ "$rootless_json" != true ]; then
+            reason="podman rootless mode is unavailable or unverified"
+        fi
+        case "$runtime_endpoint" in
+            unix:///*) ;;
+            *) [ -n "$reason" ] || reason="$runtime_kind endpoint is not a local unix socket" ;;
+        esac
+        if [ -n "$reason" ]; then
+            :
+        elif [ "$runtime_endpoint" = unreported ] || [ -z "$runtime_endpoint" ]; then
             reason="$runtime_kind engine is available but its Docker-compatible endpoint is unresolved"
         else
             api_compatible=true
@@ -100,6 +116,7 @@ payload="$(jq -n \
     --arg image "$image" \
     --arg image_digest "$image_digest" \
     --arg runtime_endpoint "$runtime_endpoint" \
+    --argjson rootless "$rootless_json" \
     --arg arch "$(uname -m)" \
     --arg os "$(uname -s)" \
     --argjson act_available "$act_available" \
@@ -107,7 +124,7 @@ payload="$(jq -n \
     --argjson api_compatible "$api_compatible" \
     --arg cpu_limit "$cpu_limit" \
     --arg memory_limit "$memory_limit" \
-    '{schema_version:1,status:$status,reason:$reason,runtime:{kind:$runtime_kind,act_available:$act_available,act_version:$act_version,runtime_available:$runtime_available,runtime_version:$runtime_version,api_compatible:$api_compatible,podman_available:$podman_available,podman_version:$podman_version,endpoint:$runtime_endpoint,image:$image,image_digest:$image_digest,os:$os,architecture:$arch},policy:{secrets:"empty",privileged:false,host_mounts:false,socket_mounts:false,ssh_or_cloud_credentials:false,network:"disabled-by-default; explicit-synthetic-host-only"},side_effects:{workflow_invoked:false,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},resource_profile:{cpu_limit:$cpu_limit,memory_limit:$memory_limit}}')"
+    '{schema_version:1,status:$status,reason:$reason,runtime:{kind:$runtime_kind,act_available:$act_available,act_version:$act_version,runtime_available:$runtime_available,runtime_version:$runtime_version,api_compatible:$api_compatible,podman_available:$podman_available,podman_version:$podman_version,endpoint:$runtime_endpoint,rootless:$rootless,image:$image,image_digest:$image_digest,os:$os,architecture:$arch},policy:{secrets:"empty",privileged:false,host_mounts:false,socket_mounts:false,ssh_or_cloud_credentials:false,network:"disabled-by-default; explicit-synthetic-host-only"},side_effects:{workflow_invoked:false,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},resource_profile:{cpu_limit:$cpu_limit,memory_limit:$memory_limit}}')"
 
 if [ "$OUTPUT" = /dev/stdout ]; then
     printf '%s\n' "$payload"

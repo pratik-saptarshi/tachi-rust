@@ -117,9 +117,9 @@ profile, and policy fields. Podman remains the default. Docker/Colima is only
 accepted when `ACT_SMOKE_ALLOW_DOCKER_FALLBACK=true` is explicit.
 
 **REFACTOR/checkpoint:** run the focused contracts, shell syntax, gitleaks,
-and `make act-smoke`; record the runtime kind and exact limitation. Close only
-when a rootless Podman machine/API evidence record exists, or retain open with
-the Docker fallback clearly marked non-equivalent.
+and `make act-smoke`; record the runtime kind, rootless indicator, and exact
+limitation. Close only when a rootless Podman machine/API evidence record
+exists, or retain open with the Docker fallback clearly marked non-equivalent.
 
 ### E2E-COV-009.2 — named-job smoke and resource benchmark
 
@@ -127,19 +127,28 @@ the Docker fallback clearly marked non-equivalent.
 fixtures, unsafe runtime selection, and a hosted artifact-upload attempt.
 Prove unavailable mode cannot invoke a workflow or side-effect job.
 
-**GREEN:** `scripts/act-smoke-run.sh` invokes only `route-observe` with an
-explicit synthetic event, empty secrets, no daemon-socket mount, no privileged
-mode, bounded network declaration, `ACT_SMOKE=true`, pinned runner image, and
-`--rm`. It emits status, runtime/image digest, image-pull time, wall time,
-side-effect flags, and cleanup comparison. The workflow skips hosted artifact
-upload in local mode and validates `route.json` in-container.
+**GREEN:** `scripts/act-smoke-run.sh` hard-allows only
+`ci-route-observe.yml`/`route-observe` with an explicit synthetic event,
+empty secrets, a sanitized act environment, a local-unix runtime endpoint, no
+daemon-socket mount, no privileged mode, bounded network declaration,
+`ACT_SMOKE=true`, a verified pinned runner image, and `--rm`. It emits
+status, normalized runtime/image digest, image-pull time, wall time, derived
+cache/resource fields, side-effect flags, and cleanup/log comparison. The
+workflow skips hosted artifact upload in local mode and validates `route.json`
+in-container.
 
 **REFACTOR/checkpoint:** collect at least two cold and five warm samples for
 the available runtime, preserve raw machine-readable results outside the
 repository unless sanitized, update the baseline/BOM/checklist/codemap, and
 keep hosted queue time separate from local wall time. Current measured sample:
 Docker/Colima cold runs 13,710/13,727 ms (646/542 ms image pulls) and six warm
-runs 13,024–13,470 ms (median 13,258.5 ms); all passed with digest
+runs 13,024–13,470 ms (median 13,258.5 ms); later cached runs passed in
+27,636 ms, 13,249 ms, 14,309 ms, and 13,732 ms with 2 CPUs, 4,104,118,272
+bytes memory, a 571,284,183-byte image, and `image_present_before_pull=true`.
+The hardened runs derived `cache_mode=warm`, normalized the endpoint,
+verified the pinned digest and workflow hash, and verified retained-log and
+artifact cleanup. All passed
+with digest
 `sha256:3d98df0137c62626482789b786d4bfe941d139baed30f237ebbabe363ea9bf08`.
 
 ### E2E-COV-009 — advisory feature synchronization
@@ -249,9 +258,11 @@ contract in workflow tests and the readiness checklist.
 Current TDD checkpoint: `make act-smoke-run` validates the synthetic fixture
 and named `route-observe` job definition in `ci-route-observe.yml`, consumes
 preflight, and records `SKIPPED_UNAVAILABLE`
-with no workflow/SARIF/release/security side effects on this host. The baseline
-is documented in `docs/reports/act-smoke-baseline.md`; available-runtime
-cold/warm resource evidence remains open.
+with no workflow/SARIF/release/security side effects when Podman is absent.
+The Docker/Colima fallback now has live CPU/memory/image-size/cache fields and
+verified cleanup; the baseline is documented in
+`docs/reports/act-smoke-baseline.md`. Podman-specific cold/warm resource
+evidence remains open.
 
 ### E2E-COV-010.1/.2 — TDD promotion and deterministic agentic replay
 
