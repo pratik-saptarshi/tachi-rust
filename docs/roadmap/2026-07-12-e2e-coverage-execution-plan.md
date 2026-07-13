@@ -1,19 +1,19 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
 **Status**: Active execution plan; E2E-COV-007, E2E-COV.2, E2E-COV-010.1, and E2E-COV-010.2 complete; E2E-COV-009.1/.2 and the E2E-COV-010 umbrella remain open
-**Baseline**: `main` / `origin/main` at `92cfe77`
+**Baseline**: `main` / `origin/main` at `5cc0cf4`
 **Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `92cfe77`; no main push is
+Local `main` and `origin/main` are synchronized at `5cc0cf4`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
 85.15625% and stable coverage is 90.56% lines / 90.22% regions. The live
-coverage-audit run reports 114 active modules: 13 unit, 96 integration, 1
-smoke, 4 E2E, and 0 support/regression. The older 113/95 baseline remains
+coverage-audit run reports 119 active modules: 13 unit, 101 integration, 1
+smoke, 4 E2E, and 0 support/regression. The 114/96 closeout snapshot is
 historical and must not be used for new closeout claims.
 
 The remaining evidence is narrower than the product journey inventory:
@@ -47,12 +47,12 @@ divergence.
 
 | Finding | Evidence | Category | Disposition |
 |---|---|---|---|
-| F-01 | Live audit reports 114 modules / 96 integration modules while historical roadmap text said 113 / 95. | Correction | Synchronized in the E2E-COV-007 closeout pass; historical counts remain labeled. |
+| F-01 | The E2E-COV-007 closeout snapshot recorded 114 modules / 96 integration modules, while the current audit now reports 119 / 101. | Correction | Preserve the 114/96 closeout as historical and synchronize all current-state surfaces to the dated 119/101 audit refresh. |
 | F-02 | Current governed nightly output is 85.15625%; older docs and Beads notes said 85.09%. | Correction | Synchronized from the terminal gate; the 85% threshold remains unchanged. |
 | F-03 | `E2E-COV-007` Beads notes still described the interrupted aggregate gate. | Correction | Resolved by the terminal uninterrupted publish-gate closeout and synchronized Beads/docs evidence. |
 | F-04 | `E2E-COV.2` review found incomplete provenance, schema, cleanup, redaction, path, and size contracts. | Security/privacy gap | Closed after metadata/ref/path/log/retention/receipt/unit+aggregate schema and valid/rejected PR-fixture evidence. |
 | F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Podman lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
-| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Resolved: current `main` and `origin/main` are synchronized at `92cfe77`; no stale PR state is used for this slice. |
+| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Resolved: current `main` and `origin/main` are synchronized at `5cc0cf4`; no stale PR state is used for this slice. |
 | F-07 | Homebrew's current Podman formula rejects this Intel Mac, while the official v5.8.5 amd64 package requires administrator installation; the user-local VM boot/API path is not stable in this host harness. | Environment / architecture constraint | Keep Podman evidence open; use an explicitly labeled Colima/Docker fallback for act behavior and measurements, never relabel it as Podman proof. |
 | F-08 | Available-runtime execution was previously a deliberate `exit 2` path, so preflight fields and unavailable-safe tests could not prove a real named-job run. | Gap / implementation | Implemented a bounded act runner with explicit runtime selection, image digest, timing, policy flags, side-effect fields, and container cleanup comparison; remaining repeated-sample and Podman gates stay open. |
 | F-09 | `actions/upload-artifact@v4` attempted the hosted artifact API during local act runs despite a local artifact-server flag. | Security/privacy gap | Added an `ACT_SMOKE=true` workflow guard and in-container `route.json` validation; local act no longer calls hosted artifact upload. |
@@ -103,6 +103,31 @@ This is the current execution contract for every open Beads issue. It is
 deliberately explicit about partial-green evidence: a Docker-compatible
 fallback demonstrates act behavior, but it cannot satisfy a Podman-specific
 acceptance criterion or close the dependency chain by inference.
+
+### 2026-07-13 continuation audit and next-slice traceability
+
+The live Beads audit on `main` at `5cc0cf4` confirms that the active queue is
+the E2E epic plus `E2E-COV-009`, `E2E-COV-009.1`, `E2E-COV-009.2`, and the
+dependent `E2E-COV-010` umbrella. The two child issues are implementation-
+green on the Docker/Colima fallback but remain open because the selected
+acceptance is runtime-specific: this host has `act` 0.2.89, no `podman`
+executable or Podman machine, and a working Colima Docker 29.5.2 fallback.
+No Docker result is promoted to Podman evidence.
+
+Plan-review traceability for this continuation is:
+
+| Finding | Classification | Action and proof |
+|---|---|---|
+| Podman binary/API unavailable on the current Darwin x86_64 host | Environment constraint | Retain `SKIPPED_UNAVAILABLE`; do not close `E2E-COV-009.1/.2`, and preserve the Docker fallback as non-equivalent. Re-test the capability before every closeout attempt. |
+| Available-runtime setup failures exited before emitting machine-readable evidence | Correction / reliability gap | Add RED/GREEN contracts for runtime baseline, image pull, and pinned-image integrity failures. `scripts/act-smoke-run.sh` now emits `status=FAILED`, a bounded `failure.stage`, no-workflow side-effect flags, and cleanup verified from actual removal before returning nonzero. |
+| Retained evidence could expose platform-specific absolute paths | Security/privacy correction | Normalize arbitrary POSIX absolute paths while preserving URL separators; adversarial contract coverage includes macOS and Linux-style workspace, home, cache, tool, and temporary paths. |
+| Existing benchmark and cleanup paths must not regress | Already addressed by regression suite | Run all `act_smoke_run_contract` tests, shell syntax, formatting, diff hygiene, workflow/security gates, and protected remote checks before merge. |
+| Documentation and tracker must reflect partial-green truth | Governance synchronization | Update this plan, issue notes/export, BOM, publish checklist, codemap, act baseline, and `integration_log.jsonl` from the same checkpoint. |
+
+The next executable slice is therefore the structured setup-failure and
+retained-evidence correction, followed by review and protected merge. The Podman capability
+slice remains a host-dependent follow-up and cannot be closed by synthetic
+runtime shims or Docker compatibility alone.
 
 ### E2E-COV-009.1 — capability preflight
 
@@ -181,7 +206,8 @@ claim that the uninterrupted result was missing; do not manufacture a failure.
 **GREEN:** rerun the unchanged gate with bounded output capture and preserve
 all security, supply-chain, docs, coverage, release, and cleanup stages. A
 passing result must include stable line/region coverage, nightly branch
-coverage >=85%, 114-module audit reconciliation, gitleaks, dependency policy,
+coverage >=85%, the historical 114-module closeout plus current 119-module
+audit reconciliation, gitleaks, dependency policy,
 and terminal local runner results with zero failures/timeouts/cancellations.
 
 **REFACTOR:** update `integration_log.jsonl`, `.beads/issues.jsonl`, the

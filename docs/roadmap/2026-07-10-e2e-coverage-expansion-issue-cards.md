@@ -19,7 +19,7 @@
 
 The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces.
 
-The canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **114 active modules** — 13 unit, 96 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. Older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
+The current canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **119 active modules** — 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. The 114/96 closeout snapshot and older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
 
 | Capability | User-facing function | Current boundary | Required evidence | Feature |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Every new or reopened card must include:
 - **Dependencies**: none
 - **Acceptance**:
   - journey matrix and boundary ownership are recorded;
-  - current dated 114-module / four-E2E baseline is captured from the coverage-audit binary;
+  - current dated 119-module / four-E2E baseline is captured from the coverage-audit binary;
   - semantic coverage-audit tests distinguish module inventory from test-suite count;
   - deterministic fixture and privacy rules are documented.
 - **Validation**: `cargo test -p tachi-core --test coverage_audit --test coverage_catalog --test reporting_goldens`; `cargo run -q -p tachi-cli --bin coverage-audit`.

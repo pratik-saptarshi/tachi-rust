@@ -91,7 +91,7 @@ The workflows currently use the supported `github/codeql-action/*@v4` major for 
 
 ### R4 — Preserve product E2E claims and close the evidence loop
 
-The current four E2E modules cover initialization, CLI artifacts, desktop commands, MCP stdio, and the composed lifecycle. They provide partial failure/cancellation evidence, not a complete matrix. The plan must distinguish “journey covered” from “failure permutation verified” and must not claim comprehensive application E2E coverage until every boundary × failure mode has a named oracle, test file, and status. Every closeout update must reconcile one canonical dated audit snapshot (currently 114 active modules), roadmap, issue cards, BOM, readiness checklist, codemap, and Beads export.
+The current four E2E modules cover initialization, CLI artifacts, desktop commands, MCP stdio, and the composed lifecycle. They provide partial failure/cancellation evidence, not a complete matrix. The plan must distinguish “journey covered” from “failure permutation verified” and must not claim comprehensive application E2E coverage until every boundary × failure mode has a named oracle, test file, and status. Every closeout update must reconcile one canonical dated audit snapshot (currently 119 active modules), roadmap, issue cards, BOM, readiness checklist, codemap, and Beads export.
 
 ### Remediation exit criteria
 
@@ -107,9 +107,9 @@ The current four E2E modules cover initialization, CLI artifacts, desktop comman
 
 | Evidence | Current state | Consequence |
 |---|---|---|
-| Coverage audit | 114 active modules: 13 unit, 96 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys. |
+| Coverage audit | 119 active modules: 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys; 114/96 is retained only as the historical closeout snapshot. |
 | Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; the 85% nightly branch target is met and publish-gate closeout remains open. |
-| Workspace tests | Workspace suites pass; the live audit reports 114 active modules (96 integration, 13 unit, 1 smoke, 4 E2E) | Suite count and coverage-audit module count are different metrics and must remain separate. |
+| Workspace tests | Workspace suites pass; the current audit reports 119 active modules (101 integration, 13 unit, 1 smoke, 4 E2E) | Suite count and coverage-audit module count are different metrics and must remain separate. |
 | LLVM coverage | 90.56% lines, 90.22% regions | Current stable gate passes its 85% line threshold; governed nightly branch evidence is 85.15625% (1,408 covered / 210 missed). |
 | Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 now produces 85.15625% (1,408 branches, 210 missed) when `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` resolve through rustup | E2E-COV-007 meets the requested 85% branch target; retain the separately governed nightly lane and do not silently lower the threshold. |
 | Security/privacy | Local gitleaks 8.30.1 scan passes; fixtures are local/synthetic | New E2E fixtures must remain deterministic, redaction-safe, and offline by default. |

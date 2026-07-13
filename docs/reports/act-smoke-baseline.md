@@ -2,6 +2,15 @@
 
 Status: partial-green on the 2026-07-12 Darwin x86_64 host.
 
+The available-runtime wrapper also has a fail-closed structured-failure
+contract: a runtime baseline probe failure produces a `FAILED` JSON result
+with a bounded failure stage, `workflow_invoked=false`, verified setup
+cleanup, and a nonzero process exit. This keeps diagnostics machine-readable
+without treating an unavailable or unhealthy runtime as a passed smoke.
+Retained logs normalize arbitrary POSIX absolute paths (including macOS and
+Linux workspace, home, cache, tool, and temporary roots) while preserving URL
+separators.
+
 ## Unavailable-safe Podman result
 
 The default `make act-smoke` / `make act-smoke-run` path remains

@@ -18,9 +18,18 @@ fn temp_dir() -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .expect("clock")
         .as_nanos();
-    let path = env::temp_dir().join(format!("tachi-act-contract-{suffix}"));
-    fs::create_dir_all(&path).expect("create temp directory");
-    path
+    for attempt in 0..100 {
+        let path = env::temp_dir().join(format!("tachi-act-contract-{suffix}-{attempt}"));
+        if fs::create_dir(&path).is_ok() {
+            let mut permissions = fs::metadata(&path)
+                .expect("temp directory metadata")
+                .permissions();
+            permissions.set_mode(0o700);
+            fs::set_permissions(&path, permissions).expect("temp directory permissions");
+            return path;
+        }
+    }
+    panic!("create unique temp directory")
 }
 
 #[test]

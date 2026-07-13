@@ -225,6 +225,13 @@ retired from the active dependency surface.
       functional, E2E, and agentic levels are passed. `E2E-COV-010.2` final
       review confirms fixed fake-tool invocation, bounded safety cases,
       descendant cleanup, and an independent 0600 JSONL audit sink.
+- [x] The act runner records a bounded machine-readable `FAILED` result for
+      runtime setup/probe failures, including failure stage, no-workflow side
+      effects, and cleanup status; this does not substitute for rootless
+      Podman evidence.
+- [x] The current dated coverage-audit refresh is reconciled as 119 active
+      modules (13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression);
+      the historical 114/96 publish-gate snapshot is labeled separately.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
       agree on the publish gate, security surfaces, RT-CI workflow surfaces,
       and remote publication flow.
