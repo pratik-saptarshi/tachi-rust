@@ -45,7 +45,7 @@ The remaining evidence is narrower than the product journey inventory:
   `network=none` default correctly fails this synthetic route because its
   checkout step fetches the base ref; that is a documented test limitation,
   not a runtime fallback;
-- PR #33 head `9c8a4f7` now has terminal hosted checks with 20 reported
+- PR #33's current feature head now has terminal hosted checks with 20 reported
   passes and 0 failures, including CodeQL, gitleaks, supply-chain, workflow,
   route, and package/shell checks. GitHub still reports `MERGEABLE` with
   `mergeStateStatus=BLOCKED`; the active repository secure ruleset includes

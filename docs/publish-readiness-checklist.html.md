@@ -103,8 +103,8 @@ retired from the active dependency surface.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Repeated samples and queue/run medians are recorded above.
 - [x] Post-merge commit `2bf68bb` completed all main push workflows successfully: workspace tests `29212792288`, supply-chain `29212792282`, clippy `29212792277`, init matrix `29212792275`, release-please `29212792287`, and dynamic Push on main/CodeQL `29212792021`.
 - [x] Follow-up documentation merge `f34f5a5` passed all 20 pull-request checks; automated Copilot/Codex review records were present, and their actionable findings were addressed in the follow-up reconciliation.
-- [x] Current feature branch commit `9c8a4f7` is pushed to PR #33; the live
-      check set is terminal with 20 passes and 0 failures, including CodeQL,
+- [x] The current feature branch head is pushed to PR #33; the live check set
+      is terminal with 20 passes and 0 failures, including CodeQL,
       supply-chain, gitleaks, clippy, rustfmt, route, and workspace suites.
       The PR remains OPEN/BLOCKED under the active secure ruleset because the
       Copilot review attempt hit quota exhaustion; auto-merge is enabled, no
