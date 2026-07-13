@@ -6,7 +6,7 @@ FIXTURE="${ACT_SMOKE_FIXTURE:-$ROOT_DIR/tests/fixtures/act/pull-request.json}"
 WORKFLOW="${ACT_SMOKE_WORKFLOW:-$ROOT_DIR/.github/workflows/ci-route-observe.yml}"
 OUTPUT="${ACT_SMOKE_RUN_OUTPUT:-/dev/stdout}"
 JOB="${ACT_SMOKE_JOB:-route-observe}"
-RUNTIME="${ACT_SMOKE_RUNTIME:-podman}"
+RUNTIME="${ACT_SMOKE_RUNTIME:-colima}"
 IMAGE="${ACT_SMOKE_IMAGE:-catthehacker/ubuntu@sha256:3d98df0137c62626482789b786d4bfe941d139baed30f237ebbabe363ea9bf08}"
 NETWORK="${ACT_SMOKE_NETWORK:-none}"
 RETAIN="${ACT_SMOKE_RETAIN:-false}"
@@ -133,7 +133,7 @@ if [ "$status" != READY ]; then
         '{schema_version:1,status:$status,job:$job,workflow:$workflow,event_fixture:$fixture,preflight:$preflight,benchmark:null,side_effects:{workflow_invoked:false,release_or_security_steps:false,sarif_upload:false,artifact_upload:false},cleanup:{verified:true}}')"
 else
     case "$RUNTIME" in
-        podman|docker) ;;
+        colima|podman|docker) ;;
         *) echo "act-smoke-run: unsupported runtime: $RUNTIME" >&2; exit 2 ;;
     esac
     command -v act >/dev/null 2>&1 || { echo 'act-smoke-run: act is required for available execution' >&2; exit 2; }
@@ -142,7 +142,10 @@ else
         *) echo 'act-smoke-run: network must be host or none' >&2; exit 2 ;;
     esac
 
-    runtime_cmd="$RUNTIME"
+    case "$RUNTIME" in
+        colima|docker) runtime_cmd=docker ;;
+        podman) runtime_cmd=podman ;;
+    esac
     command -v "$runtime_cmd" >/dev/null 2>&1 || { echo "act-smoke-run: runtime is unavailable: $runtime_cmd" >&2; exit 2; }
     RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/tachi-act-run.XXXXXX")"
     ACT_LOG="$RUN_DIR/act.jsonl"

@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: live Beads hierarchy; overseer remediation integrated; E2E-COV-007 publish-gate closeout complete, E2E-COV.2 and advisory/agentic follow-ups open
+**Status**: live Beads hierarchy; current 119-module audit synchronized; product E2E epic remains open only for final parent acceptance verification
 
 ## Epic
 
@@ -17,7 +17,7 @@
 
 ## Hierarchy and evidence contract
 
-The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces.
+The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces. Closed child cards retain their historical closeout counts in notes; current acceptance and parent closeout use the dated 119-module audit.
 
 The current canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **119 active modules** — 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. The 114/96 closeout snapshot and older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
 
@@ -29,7 +29,7 @@ The current canonical baseline is the dated output of `cargo run -q -p tachi-cli
 | Lifecycle composition | init → install/update → analysis | `scripts/init.sh` / shell / CLI | isolated clone, offline control-plane, final artifact | `E2E-COV-005` |
 | Failure cleanup | timeout/cancel/error → safe terminal state | all user-facing boundaries | process liveness, artifact tree, redacted diagnostics | `E2E-COV-006` |
 | Local CI parity | CI matrix/slices → local observable units | `Makefile` / `scripts/ci-local-runner.*` | parsed manifest parity, JSON result/provenance, bounded runner | `E2E-COV-008` |
-| Workflow emulation | workflow/event/job → advisory local result | `act` + Podman API | opt-in smoke, empty secrets, isolation/resource/provenance | `E2E-COV-009` |
+| Workflow emulation | workflow/event/job → advisory local result | `act` + Colima CLI/Docker API | opt-in smoke, empty secrets, isolation/resource/provenance | `E2E-COV-009` |
 | Test governance | RED/GREEN evidence → promotion decision | Rust tests/docs/Beads | level-specific TDD evidence and agentic replay | `E2E-COV-010` |
 
 ### Required issue evidence template
@@ -154,22 +154,22 @@ Every new or reopened card must include:
   - **Validation**: RED/GREEN unit and integration tests, executable fake-cargo argv/redaction/timeout/descendant-cleanup tests in `ci_local_runner_contract.rs`, real five-package functional run, repeated cold/warm measurements, `make workflow-gate`, focused workspace contracts, `make verify-ci-timing-artifacts` for all eight hosted artifacts, comparable hosted job/queue timing, and remote package-matrix CI. For pull requests, artifact commit provenance is the synthetic merge commit exposed to the workflow, not necessarily the API run `headSha`.
 - **Priority**: P1
 
-### E2E-COV-009 — Advisory act workflow emulation with Podman
+### E2E-COV-009 — Advisory act workflow emulation with Colima
 
 - **Type**: feature
 - **Dependencies**: `E2E-COV-008`; does not block product E2E or publish-gate acceptance.
 - **Capability**: provide fast local workflow/action wiring feedback without treating emulation as GitHub-hosted proof.
 - **Acceptance**:
   - one opt-in `make act-smoke`/`scripts/act-smoke.sh` command targets a named workflow/job and synthetic event fixture;
-  - rootless Podman through its Docker-compatible API is preferred only after capability preflight; unsupported or unavailable environments return `SKIPPED_UNAVAILABLE` distinctly from failure;
-  - no privileged, host-filesystem, Docker/Podman socket, SSH-agent, cloud credential, repository secret, or real `GITHUB_TOKEN` access is permitted; network is disabled by default, with host networking allowed only for the explicitly recorded synthetic read-only route fetch;
-  - runner image digest, act/Podman versions, architecture, CPU/memory/disk profile, cache mode, isolation flags, repository commit, and action references/resolved SHAs are recorded;
+  - Colima CLI readiness and its Docker-compatible API are preflighted; unsupported or unavailable environments return `SKIPPED_UNAVAILABLE` distinctly from failure;
+  - no privileged, host-filesystem, Docker socket, SSH-agent, cloud credential, repository secret, or real `GITHUB_TOKEN` access is permitted; network is disabled by default, with host networking allowed only for the explicitly recorded synthetic read-only route fetch;
+  - runner image digest, act/Colima versions, provider, architecture, CPU/memory/disk profile, cache mode, isolation flags, repository commit, and action references/resolved SHAs are recorded;
   - cold/warm performance samples record startup, wall time, runtime CPU/memory profile, image/cache size, and cleanup; peak usage is recorded where the selected runtime supports safe sampling, and thresholds are baselined before enforcement;
   - act results cannot satisfy hosted-CI, CodeQL/SARIF-ingestion, release, security, coverage, or publish acceptance by themselves.
-- **Functions/tasks**: capability probe, Podman machine profile, event fixture, smoke selector, resource sampler, provenance/result reporter, secret/network policy contract.
-- **Child issues**: `E2E-COV-009.1` act/Podman capability preflight; `E2E-COV-009.2` advisory smoke and resource benchmark.
+- **Functions/tasks**: capability probe, Colima profile, event fixture, smoke selector, resource sampler, provenance/result reporter, secret/network policy contract.
+- **Child issues**: `E2E-COV-009.1` act/Colima capability preflight; `E2E-COV-009.2` advisory smoke and resource benchmark.
 - **MicroVM boundary**: Firecracker/Cloud Hypervisor is deferred to a Linux/KVM-only experiment; it is not a drop-in act backend and is not required on macOS.
-- **Validation**: RED/GREEN script-contract tests, Podman smoke when available, unavailable-runtime test, isolation-policy test, and remote CI comparison.
+- **Validation**: RED/GREEN script-contract tests, Colima CLI/API smoke when available, unavailable-runtime test, isolation-policy test, and remote CI comparison.
 - **Priority**: P2
 
 ### E2E-COV-010 — Governed multi-level and agentic test evidence
@@ -217,7 +217,7 @@ Every new or reopened card must include:
 - Use `.github/ci-test-units.json` as the canonical manifest and `scripts/ci-local-runner.sh --mode local-full|local-route-equivalent` as the observable runner; do not replay workflow command strings with `eval` or `sh -c`.
 - Require JSON result/provenance records, rustup path/version proof, secure `0700` temp roots, containment/symlink checks, redaction, bounded logs, timeout/signal/process-tree cleanup, and deterministic aggregate exit semantics.
 - Add workflow-contract tests for package membership, all-target flags, shell-suite membership, route modes, duplicate/stale units, and manifest drift.
-- Evaluate [`nektos/act`](https://github.com/nektos/act) only as an opt-in advisory workflow/action smoke tool. Prefer rootless Podman through its Docker-compatible API when preflight passes, but treat compatibility as best-effort; no secrets, privileged mode, host/network/socket/credential mounts, or hosted-CI claims. Defer Dagger and self-hosted runners as separate architecture decisions.
+- Evaluate [`nektos/act`](https://github.com/nektos/act) only as an opt-in advisory workflow/action smoke tool using the installed Colima CLI and Docker-compatible API; no secrets, privileged mode, host/network/socket/credential mounts, or hosted-CI claims. Defer Dagger and self-hosted runners as separate architecture decisions.
 - Close only after terminal local evidence or a deterministic, contract-tested environment workaround is documented in the roadmap, BOM, readiness checklist, codemap, and Beads export.
 
 ### E2E-COV-007.5 — CodeQL v4 maintenance and release verification
