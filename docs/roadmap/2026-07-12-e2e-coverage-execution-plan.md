@@ -1,13 +1,13 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
 **Status**: Active execution plan; E2E-COV-007, E2E-COV.2, E2E-COV-010.1, and E2E-COV-010.2 complete; E2E-COV-009.1/.2 and the E2E-COV-010 umbrella remain open
-**Baseline**: `main` / `origin/main` at `5cc0cf4`
+**Baseline**: `main` / `origin/main` at `61ba9ee`
 **Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `5cc0cf4`; no main push is
+Local `main` and `origin/main` are synchronized at `61ba9ee`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
@@ -52,7 +52,7 @@ divergence.
 | F-03 | `E2E-COV-007` Beads notes still described the interrupted aggregate gate. | Correction | Resolved by the terminal uninterrupted publish-gate closeout and synchronized Beads/docs evidence. |
 | F-04 | `E2E-COV.2` review found incomplete provenance, schema, cleanup, redaction, path, and size contracts. | Security/privacy gap | Closed after metadata/ref/path/log/retention/receipt/unit+aggregate schema and valid/rejected PR-fixture evidence. |
 | F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Podman lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
-| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Resolved: current `main` and `origin/main` are synchronized at `5cc0cf4`; no stale PR state is used for this slice. |
+| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Resolved: current `main` and `origin/main` are synchronized at `61ba9ee`; no stale PR state is used for this slice. |
 | F-07 | Homebrew's current Podman formula rejects this Intel Mac, while the official v5.8.5 amd64 package requires administrator installation; the user-local VM boot/API path is not stable in this host harness. | Environment / architecture constraint | Keep Podman evidence open; use an explicitly labeled Colima/Docker fallback for act behavior and measurements, never relabel it as Podman proof. |
 | F-08 | Available-runtime execution was previously a deliberate `exit 2` path, so preflight fields and unavailable-safe tests could not prove a real named-job run. | Gap / implementation | Implemented a bounded act runner with explicit runtime selection, image digest, timing, policy flags, side-effect fields, and container cleanup comparison; remaining repeated-sample and Podman gates stay open. |
 | F-09 | `actions/upload-artifact@v4` attempted the hosted artifact API during local act runs despite a local artifact-server flag. | Security/privacy gap | Added an `ACT_SMOKE=true` workflow guard and in-container `route.json` validation; local act no longer calls hosted artifact upload. |
@@ -106,7 +106,7 @@ acceptance criterion or close the dependency chain by inference.
 
 ### 2026-07-13 continuation audit and next-slice traceability
 
-The live Beads audit on `main` at `5cc0cf4` confirms that the active queue is
+The live Beads audit on `main` at `61ba9ee` confirms that the active queue is
 the E2E epic plus `E2E-COV-009`, `E2E-COV-009.1`, `E2E-COV-009.2`, and the
 dependent `E2E-COV-010` umbrella. The two child issues are implementation-
 green on the Docker/Colima fallback but remain open because the selected
