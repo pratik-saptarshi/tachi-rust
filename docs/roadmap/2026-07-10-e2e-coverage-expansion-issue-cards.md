@@ -162,9 +162,9 @@ Every new or reopened card must include:
 - **Acceptance**:
   - one opt-in `make act-smoke`/`scripts/act-smoke.sh` command targets a named workflow/job and synthetic event fixture;
   - rootless Podman through its Docker-compatible API is preferred only after capability preflight; unsupported or unavailable environments return `SKIPPED_UNAVAILABLE` distinctly from failure;
-  - no privileged, host-network, host-filesystem, Docker/Podman socket, SSH-agent, cloud credential, repository secret, or real `GITHUB_TOKEN` access is permitted; network is disabled by default;
+  - no privileged, host-filesystem, Docker/Podman socket, SSH-agent, cloud credential, repository secret, or real `GITHUB_TOKEN` access is permitted; network is disabled by default, with host networking allowed only for the explicitly recorded synthetic read-only route fetch;
   - runner image digest, act/Podman versions, architecture, CPU/memory/disk profile, cache mode, isolation flags, repository commit, and action references/resolved SHAs are recorded;
-  - cold/warm performance samples record startup, wall time, CPU, peak memory, image/cache size, and cleanup; thresholds are baselined before enforcement;
+  - cold/warm performance samples record startup, wall time, runtime CPU/memory profile, image/cache size, and cleanup; peak usage is recorded where the selected runtime supports safe sampling, and thresholds are baselined before enforcement;
   - act results cannot satisfy hosted-CI, CodeQL/SARIF-ingestion, release, security, coverage, or publish acceptance by themselves.
 - **Functions/tasks**: capability probe, Podman machine profile, event fixture, smoke selector, resource sampler, provenance/result reporter, secret/network policy contract.
 - **Child issues**: `E2E-COV-009.1` act/Podman capability preflight; `E2E-COV-009.2` advisory smoke and resource benchmark.

@@ -847,6 +847,21 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
             == Some("route decision artifact and stable orchestrator check"),
         "route observe job must stay the required orchestrator check"
     );
+    assert_eq!(
+        workflow_step_field(&workflow, "Upload route decision artifact", "if"),
+        Some("env.ACT_SMOKE != 'true'"),
+        "local act runs must not call the hosted artifact service"
+    );
+    assert_eq!(
+        workflow_step_field(&workflow, "Validate local act route artifact", "if"),
+        Some("env.ACT_SMOKE == 'true'"),
+        "local act runs must validate the generated route artifact in-container"
+    );
+    assert!(
+        workflow_run_bodies(&workflow)
+            .any(|run| run.contains("local act route artifact validated")),
+        "local act validation step must emit a deterministic success marker"
+    );
     assert!(
         workflow_step_field(&workflow, "Upload route decision artifact", "uses")
             == Some("actions/upload-artifact@v4"),
