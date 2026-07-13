@@ -98,6 +98,51 @@ esac
 }
 
 #[test]
+fn act_preflight_prefers_explicit_docker_host_over_context() {
+    let root = temp_dir();
+    let bin = root.join("bin");
+    fs::create_dir(&bin).expect("create fake bin");
+    executable(
+        &bin.join("act"),
+        "#!/bin/sh\nprintf '%s\\n' 'act version 0.2.89'\n",
+    );
+    executable(
+        &bin.join("docker"),
+        "#!/bin/sh
+case \"$1 $2\" in
+  version*) printf '%s\\n' '29.5.2' ;;
+  info*) printf '%s\\n' '{\"ServerVersion\":\"29.5.2\",\"NCPU\":2,\"MemTotal\":4096}' ;;
+  context*) printf '%s\\n' 'tcp://stale.example:2376' ;;
+  *) exit 0 ;;
+esac
+",
+    );
+    let output = root.join("result.json");
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/act-smoke.sh"))
+        .env("PATH", path)
+        .env("ACT_SMOKE_RUNTIME", "docker")
+        .env("ACT_SMOKE_ALLOW_DOCKER_FALLBACK", "true")
+        .env("DOCKER_HOST", "unix:///tmp/explicit-docker.sock")
+        .env("ACT_SMOKE_OUTPUT", &output)
+        .output()
+        .expect("run explicit Docker host preflight");
+    assert!(
+        result.status.success(),
+        "explicit Docker host is advisory-ready: {result:?}"
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&fs::read(&output).expect("read preflight output"))
+            .expect("preflight JSON");
+    assert_eq!(json["status"], "READY");
+    assert_eq!(
+        json["runtime"]["endpoint"],
+        "unix:///tmp/explicit-docker.sock"
+    );
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
 fn act_preflight_rejects_unverified_rootful_podman() {
     let root = temp_dir();
     let bin = root.join("bin");

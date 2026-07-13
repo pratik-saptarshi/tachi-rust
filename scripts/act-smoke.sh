@@ -67,8 +67,9 @@ elif command -v "$runtime_kind" >/dev/null 2>&1; then
     else
         runtime_version="$(docker version --format '{{.Server.Version}}' 2>/dev/null || true)"
         info_json="$(docker info --format '{{json .}}' 2>/dev/null || true)"
-        runtime_endpoint="$(docker context inspect --format '{{(index .Endpoints "docker").Host}}' 2>/dev/null || true)"
-        [ -n "$runtime_endpoint" ] || runtime_endpoint="${DOCKER_HOST:-unreported}"
+        runtime_endpoint="${DOCKER_HOST:-}"
+        [ -n "$runtime_endpoint" ] || runtime_endpoint="$(docker context inspect --format '{{(index .Endpoints "docker").Host}}' 2>/dev/null || true)"
+        [ -n "$runtime_endpoint" ] || runtime_endpoint=unreported
     fi
     if [ -n "$runtime_version" ] && printf '%s' "$info_json" | jq -e . >/dev/null 2>&1; then
         if [ "$runtime_kind" = podman ] && [ "$rootless_json" != true ]; then
