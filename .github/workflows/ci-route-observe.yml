@@ -87,7 +87,17 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload route decision artifact
+        if: env.ACT_SMOKE != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: route-decision
           path: route.json
+
+      - name: Validate local act route artifact
+        if: env.ACT_SMOKE == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s route.json
+          jq -e '(.mode == "observe_only") and (.selected_lanes | length > 0) and (.policy_version | length > 0)' route.json >/dev/null
+          echo "local act route artifact validated"

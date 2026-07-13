@@ -1,13 +1,13 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
 **Status**: Active execution plan; E2E-COV-007, E2E-COV.2, E2E-COV-010.1, and E2E-COV-010.2 complete; E2E-COV-009.1/.2 and the E2E-COV-010 umbrella remain open
-**Baseline**: `main` / `origin/main` at `36f5eaa`
-**Last reviewed**: 2026-07-12
+**Baseline**: `main` / `origin/main` at `92cfe77`
+**Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local `main` and `origin/main` are synchronized at `36f5eaa`; no main push is
+Local `main` and `origin/main` are synchronized at `92cfe77`; no main push is
 required before this feature branch. The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
 install / update / analysis journeys. The governed nightly branch result is
@@ -18,9 +18,8 @@ historical and must not be used for new closeout claims.
 
 The remaining evidence is narrower than the product journey inventory:
 
-- the complete uninterrupted `make publish-gate` now exited 0 with terminal
-  full-mode runner evidence; E2E-COV-007 is ready for Beads closure after this
-  synchronized documentation checkpoint;
+- the complete uninterrupted `make publish-gate` exited 0 with terminal
+  full-mode runner evidence and E2E-COV-007 is closed in Beads;
 - E2E-COV-008 and RT-CI-006.2 now have repeated hosted PR timing,
   artifact-integrity, queue/run, and branch-protection evidence; historical
   failed runs remain visible rather than being removed from the sample;
@@ -30,9 +29,11 @@ The remaining evidence is narrower than the product journey inventory:
   valid/rejected new-format PR fixture, workflow_dispatch, explicit-PR-commit,
   fail-closed cleanup, and tiny-log-cap contracts are implemented and tested;
 - the act/Podman lane is advisory and must remain unavailable-safe and
-  security-isolated;
-- TDD and agentic replay evidence must be promoted through explicit test-level
-  contracts before the E2E epic can close.
+  security-isolated; a Docker/Colima fallback is measured separately and does
+  not close Podman-specific acceptance;
+- deterministic agentic replay evidence is promoted; the E2E epic remains open
+  only while the act lane and its dependent umbrella synchronization remain
+  incomplete.
 
 ### Plan-review-integrator audit and traceability
 
@@ -48,10 +49,14 @@ divergence.
 |---|---|---|---|
 | F-01 | Live audit reports 114 modules / 96 integration modules while historical roadmap text said 113 / 95. | Correction | Synchronized in the E2E-COV-007 closeout pass; historical counts remain labeled. |
 | F-02 | Current governed nightly output is 85.15625%; older docs and Beads notes said 85.09%. | Correction | Synchronized from the terminal gate; the 85% threshold remains unchanged. |
-| F-03 | `E2E-COV-007` Beads notes still describe the interrupted aggregate gate. | Gap | Keep open until a terminal uninterrupted `make publish-gate` result is recorded. |
+| F-03 | `E2E-COV-007` Beads notes still described the interrupted aggregate gate. | Correction | Resolved by the terminal uninterrupted publish-gate closeout and synchronized Beads/docs evidence. |
 | F-04 | `E2E-COV.2` review found incomplete provenance, schema, cleanup, redaction, path, and size contracts. | Security/privacy gap | Closed after metadata/ref/path/log/retention/receipt/unit+aggregate schema and valid/rejected PR-fixture evidence. |
 | F-05 | `E2E-COV-009.1/.2` are ready children under an advisory act/Podman lane. | New concern | Add explicit unavailable-safe preflight and no-side-effect benchmark gates; never let them satisfy hosted CI or publish acceptance. |
-| F-06 | Remote DNS prevented a fresh `git ls-remote`; PR #26 is open and CI is still pending. | Environment / delivery caveat | Retry outside the sandbox before any remote-sync or merge claim; keep PR #26 separate from this implementation branch. |
+| F-06 | Earlier remote DNS prevented a fresh `git ls-remote` during planning. | Environment / delivery caveat | Resolved: current `main` and `origin/main` are synchronized at `92cfe77`; no stale PR state is used for this slice. |
+| F-07 | Homebrew's current Podman formula rejects this Intel Mac, while the official v5.8.5 amd64 package requires administrator installation; the user-local VM boot/API path is not stable in this host harness. | Environment / architecture constraint | Keep Podman evidence open; use an explicitly labeled Colima/Docker fallback for act behavior and measurements, never relabel it as Podman proof. |
+| F-08 | Available-runtime execution was previously a deliberate `exit 2` path, so preflight fields and unavailable-safe tests could not prove a real named-job run. | Gap / implementation | Implemented a bounded act runner with explicit runtime selection, image digest, timing, policy flags, side-effect fields, and container cleanup comparison; remaining repeated-sample and Podman gates stay open. |
+| F-09 | `actions/upload-artifact@v4` attempted the hosted artifact API during local act runs despite a local artifact-server flag. | Security/privacy gap | Added an `ACT_SMOKE=true` workflow guard and in-container `route.json` validation; local act no longer calls hosted artifact upload. |
+| F-10 | Plan/BOM/checklist text still claimed the act lane was entirely unmeasured and carried stale baseline/review wording. | Documentation correction | Synchronize all publish artifacts from the measured Docker fallback and preserve explicit Podman limitations. |
 
 Actionability: F-01–F-05 pass (0.90–0.99) with full repository context;
 F-06 passes with a context caveat because remote state could not be refreshed.
@@ -64,8 +69,8 @@ silent deferral.
 | Order | Beads issue | Priority | Execution decision | Exit evidence |
 |---:|---|:---:|---|---|
 | 1 | `E2E-COV.2` | P2 | Complete. | Synthetic metadata-binding tests, explicit retention/redaction/cleanup contract, security evidence, no secret persistence, and fail-closed rejection of unsupported rerun-attempt artifact binding are evidenced and Beads-closed. |
-| 2 | `E2E-COV-009.1` | P2 | Implement preflight before any emulation invocation; runtime is currently unavailable-safe. | Safe capability result with `SKIPPED_UNAVAILABLE`, versions, digest, architecture, resource profile, and policy checks. **Partial-green:** read-only unavailable-safe preflight landed; available-runtime API/digest/resource probes remain. |
-| 3 | `E2E-COV-009.2` | P2 | Run only after preflight; advisory and opt-in. | Synthetic named-job smoke, cold/warm resource evidence, cleanup, and no hosted-CI claims. **Partial-green:** fixture-driven unavailable-safe wrapper and baseline landed; available-runtime measurements remain. |
+| 2 | `E2E-COV-009.1` | P2 | Implemented and revalidated; Podman-specific capability remains open. | Safe capability result with `SKIPPED_UNAVAILABLE`/`READY`, runtime/API/image/resource fields, explicit Docker fallback opt-in, and policy checks. **Partial-green:** Docker/Colima is measured; official Intel Podman VM/API evidence remains unavailable. |
+| 3 | `E2E-COV-009.2` | P2 | Implemented as an advisory, explicitly labeled Docker fallback; Podman samples remain. | Synthetic named-job smoke, cold/warm timing, image digest, cleanup, and no hosted-CI claims. **Partial-green:** two cold runs (13,710/13,727 ms; 646/542 ms pulls) and six warm runs (13,024–13,470 ms; median 13,258.5 ms) passed on Colima; Podman measurements remain. |
 | 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is now passed by .2. |
 | 5 | `E2E-COV-010.2` | P2 | Complete; Beads closure ready. | Final review confirms fixed fake-tool invocation for approval, bounded timeout, cancellation, and circuit-breaker cases; denial remains non-invoked. The harness records transitions, writes an independent 0600 JSONL audit sink, proves descendant cleanup, and uses no live model/network. |
 | 6 | `E2E-COV-010` | P2 | Close umbrella only after children and failure matrix are complete. | All child evidence, coverage audit, documentation, security gates, and promotion decision. |
@@ -75,7 +80,8 @@ silent deferral.
 `E2E-COV-007` and `E2E-COV-007.3` are complete and intentionally omitted from the active queue;
 their terminal local-runner and publish-gate evidence remains documented in the
 roadmap/BOM/checklist. The current remaining work is the advisory act/Podman
-lane and agentic evidence.
+lane (with its measured Docker fallback clearly separated) and the dependent
+E2E-COV-010 umbrella.
 
 `E2E-COV-008`, `RT-CI-006.2`, and `E2E-COV-007` are closed in Beads. The
 merged PR #24 evidence run `29203699709` validated all eight timing artifacts;
@@ -90,6 +96,68 @@ Each card is a bounded implementation unit. The card must be completed with a
 conventional commit, a RED/GREEN/REFACTOR transcript, a focused test result,
 updated Beads notes/export, and a codemap/BOM/checklist checkpoint before the
 next dependent card is started.
+
+## Continuation execution plan — plan-review-integrator reconciliation
+
+This is the current execution contract for every open Beads issue. It is
+deliberately explicit about partial-green evidence: a Docker-compatible
+fallback demonstrates act behavior, but it cannot satisfy a Podman-specific
+acceptance criterion or close the dependency chain by inference.
+
+### E2E-COV-009.1 — capability preflight
+
+**RED:** run `cargo test -p tachi-core --test act_smoke_contract` with missing
+runtime shims, stopped/incompatible runtime shims, invalid image references,
+and disallowed fallback settings. Each unavailable case must exit 0 with
+`SKIPPED_UNAVAILABLE`; policy/schema violations must fail closed.
+
+**GREEN:** `scripts/act-smoke.sh` probes `act`, the selected runtime API,
+runtime version, image digest when available, architecture, CPU/memory
+profile, and policy fields. Podman remains the default. Docker/Colima is only
+accepted when `ACT_SMOKE_ALLOW_DOCKER_FALLBACK=true` is explicit.
+
+**REFACTOR/checkpoint:** run the focused contracts, shell syntax, gitleaks,
+and `make act-smoke`; record the runtime kind and exact limitation. Close only
+when a rootless Podman machine/API evidence record exists, or retain open with
+the Docker fallback clearly marked non-equivalent.
+
+### E2E-COV-009.2 — named-job smoke and resource benchmark
+
+**RED:** prove the wrapper rejects untrusted fixture/workflow paths, malformed
+fixtures, unsafe runtime selection, and a hosted artifact-upload attempt.
+Prove unavailable mode cannot invoke a workflow or side-effect job.
+
+**GREEN:** `scripts/act-smoke-run.sh` invokes only `route-observe` with an
+explicit synthetic event, empty secrets, no daemon-socket mount, no privileged
+mode, bounded network declaration, `ACT_SMOKE=true`, pinned runner image, and
+`--rm`. It emits status, runtime/image digest, image-pull time, wall time,
+side-effect flags, and cleanup comparison. The workflow skips hosted artifact
+upload in local mode and validates `route.json` in-container.
+
+**REFACTOR/checkpoint:** collect at least two cold and five warm samples for
+the available runtime, preserve raw machine-readable results outside the
+repository unless sanitized, update the baseline/BOM/checklist/codemap, and
+keep hosted queue time separate from local wall time. Current measured sample:
+Docker/Colima cold runs 13,710/13,727 ms (646/542 ms image pulls) and six warm
+runs 13,024–13,470 ms (median 13,258.5 ms); all passed with digest
+`sha256:3d98df0137c62626482789b786d4bfe941d139baed30f237ebbabe363ea9bf08`.
+
+### E2E-COV-009 — advisory feature synchronization
+
+Close only after both children have their acceptance evidence, the parent
+notes identify Podman versus Docker fallback truthfully, and the advisory
+contract remains excluded from hosted CI, coverage, security, SARIF, and
+publish gates. Synchronize `.beads/issues.jsonl`, this plan,
+`docs/reports/act-smoke-baseline.md`, BOM, checklist, codemap, and
+`integration_log.jsonl` in one checkpoint.
+
+### E2E-COV-010 — governed multi-level and agentic test evidence
+
+The two children are implemented and agentic promotion is passed. Keep the
+umbrella open while its declared dependency on E2E-COV-009 is open. On the
+next checkpoint, re-run the TDD evidence contract, coverage audit, failure /
+cleanup matrix, security gates, and remote CI; then close only if the canonical
+coverage baseline and all five test levels remain synchronized.
 
 ### E2E-COV-007 — uninterrupted publish-gate enforcement
 
@@ -274,11 +342,14 @@ integration log. Do not treat local wall time as hosted queue time.
 
 Use `nektos/act` only for a synthetic, named workflow/job. Prefer rootless
 Podman through its Docker-compatible API after preflight. Reject secrets,
-`GITHUB_TOKEN`, privileged mode, host/network/socket/SSH/cloud mounts, and
-release/security side effects. Record versions, image digest, architecture,
-resource profile, cache mode, resolved action references, and cleanup. A
-missing runtime is `SKIPPED_UNAVAILABLE`, not a failed product test. MicroVM
-experiments remain deferred to Linux/KVM.
+`GITHUB_TOKEN`, privileged mode, host/socket/SSH/cloud mounts, and
+release/security side effects. Network is `none` by default; `host` networking
+is permitted only as an explicit synthetic-test exception for the route job's
+read-only `git fetch`, and must be recorded in the result. Record versions,
+the bound endpoint, image digest, architecture, resource profile, cache mode,
+resolved action references, and cleanup. A missing runtime is
+`SKIPPED_UNAVAILABLE`, not a failed product test. MicroVM experiments remain
+deferred to Linux/KVM.
 
 ## Slice 4: governed test and agentic evidence
 
