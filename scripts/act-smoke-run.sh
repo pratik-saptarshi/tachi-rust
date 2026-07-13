@@ -289,7 +289,7 @@ else
     umask 077
     output_dir="$(dirname -- "$OUTPUT")"
     mkdir -m 700 -p -- "$output_dir"
-    output_dir_mode="$(stat -f '%Lp' "$output_dir" 2>/dev/null || stat -c '%a' "$output_dir" 2>/dev/null || true)"
+    output_dir_mode="$(stat -c '%a' "$output_dir" 2>/dev/null || stat -f '%Lp' "$output_dir" 2>/dev/null || true)"
     case "$output_dir_mode" in
         ''|*[!0-7]*) echo 'act-smoke-run: unable to verify output directory permissions' >&2; exit 2 ;;
     esac
