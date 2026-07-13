@@ -1,6 +1,6 @@
 # E2E Coverage and Publish-Gate Execution Plan
 
-**Status**: Active execution plan; Colima act lane, E2E-COV-010 governance umbrella, and fresh publish-gate run are complete; the broader E2E-COV product-coverage epic remains open pending terminal hosted checks, protected merge, and post-merge main verification
+**Status**: Active execution plan; Colima act lane, E2E-COV-010 governance umbrella, fresh publish-gate run, and terminal hosted checks are complete; the broader E2E-COV product-coverage epic remains open pending protected merge and post-merge main verification
 **Baseline**: `main` / `origin/main` at `61ba9ee`
 **Last reviewed**: 2026-07-13
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
@@ -45,6 +45,13 @@ The remaining evidence is narrower than the product journey inventory:
   `network=none` default correctly fails this synthetic route because its
   checkout step fetches the base ref; that is a documented test limitation,
   not a runtime fallback;
+- PR #33 head `9c8a4f7` now has terminal hosted checks with 20 reported
+  passes and 0 failures, including CodeQL, gitleaks, supply-chain, workflow,
+  route, and package/shell checks. GitHub still reports `MERGEABLE` with
+  `mergeStateStatus=BLOCKED`; the active repository secure ruleset includes
+  Copilot code review, whose latest attempt returned a quota failure. This is
+  a protected-policy blocker, not a test failure; no administrator bypass is
+  permitted for this plan.
 - deterministic agentic replay evidence is promoted; the act/Colima children
   are complete. The E2E epic remains open only until this fresh gate evidence
   is synchronized into all release artifacts and the protected branch reaches
@@ -71,11 +78,13 @@ access and verified both remote refs and PR state below.
 | F-08 | Available-runtime execution was previously a deliberate `exit 2` path, so preflight fields and unavailable-safe tests could not prove a real named-job run. | Gap / implementation | Implemented a bounded act runner with explicit Colima runtime selection, image digest, timing, policy flags, side-effect fields, and container cleanup comparison; serial Colima samples now pass. |
 | F-09 | `actions/upload-artifact@v4` attempted the hosted artifact API during local act runs despite a local artifact-server flag. | Security/privacy gap | Added an `ACT_SMOKE=true` workflow guard and in-container `route.json` validation; local act no longer calls hosted artifact upload. |
 | F-10 | Plan/BOM/checklist text still described the act lane as an unmeasured Docker fallback and carried stale runtime wording. | Documentation correction | Synchronize all publish artifacts from measured Colima CLI/API evidence and preserve the advisory/no-hosted-CI boundary. |
+| F-11 | PR #33 has terminal green checks but remains `BLOCKED` under the active secure ruleset because the Copilot review attempt reports quota exhaustion. | Protected delivery blocker | Preserve the green check evidence, record the ruleset/quota condition, keep auto-merge enabled, and do not use an administrator bypass; close the parent only after a protected merge path succeeds and `main` is reverified. |
 
-Actionability: F-01–F-06 pass (0.90–0.99) with full repository context;
-F-06 is now live-command confirmed. No finding was dropped. No scope-expansion
-veto was triggered. Security/privacy follow-up F-04 remains closed with its
-fail-closed evidence preserved.
+Actionability: F-01–F-11 pass (0.90–1.00) with full repository context;
+F-06 and F-11 are live-command confirmed. No finding was dropped. No
+scope-expansion veto was triggered. Security/privacy follow-up F-04 remains
+closed with its fail-closed evidence preserved; F-11 remains the sole active
+delivery blocker.
 
 ## Priority and dependency order
 

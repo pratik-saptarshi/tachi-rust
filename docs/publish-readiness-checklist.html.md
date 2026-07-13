@@ -18,7 +18,8 @@ retired from the active dependency surface.
       historical run on `feat/e2e-publish-gate-closeout-007` exited 0 and the
       fresh host-assisted run produced cleanup receipt
       `20260713T045400Z-79992` with cargo audit/deny success. Current PR #33
-      hosted checks remain pending and are tracked separately below.
+      hosted checks are terminal and green; protected merge state is tracked
+      separately below.
 - [ ] `cargo test -p tachi-shell` passes after the script executor boundary
       slice and coverage-invariant cleanup.
 - [ ] `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio`
@@ -102,11 +103,13 @@ retired from the active dependency surface.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Repeated samples and queue/run medians are recorded above.
 - [x] Post-merge commit `2bf68bb` completed all main push workflows successfully: workspace tests `29212792288`, supply-chain `29212792282`, clippy `29212792277`, init matrix `29212792275`, release-please `29212792287`, and dynamic Push on main/CodeQL `29212792021`.
 - [x] Follow-up documentation merge `f34f5a5` passed all 20 pull-request checks; automated Copilot/Codex review records were present, and their actionable findings were addressed in the follow-up reconciliation.
-- [x] Current feature branch commit `4c0cb98` is pushed to PR #33; the live
-      check set has no reported failures, while CodeQL rust/javascript-
-      typescript analysis and several workspace jobs remain pending. The PR
-      remains OPEN/BLOCKED under protected policy with auto-merge enabled; this
-      is not a claim that `main` has merged the checkpoint.
+- [x] Current feature branch commit `9c8a4f7` is pushed to PR #33; the live
+      check set is terminal with 20 passes and 0 failures, including CodeQL,
+      supply-chain, gitleaks, clippy, rustfmt, route, and workspace suites.
+      The PR remains OPEN/BLOCKED under the active secure ruleset because the
+      Copilot review attempt hit quota exhaustion; auto-merge is enabled, no
+      administrator bypass is used, and this is not a claim that `main` has
+      merged the checkpoint.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
 - [x] Colima act evidence is advisory — not publish evidence: the wrapper is opt-in and uses the Colima CLI plus Docker API. `make act-smoke` and `make act-smoke-run` enforce the exact route-observe workflow/job allowlist and trusted workflow hash, local-unix endpoint binding, empty secrets, sanitized act environment, no daemon-socket mount, no privileged mode, `--rm`, default `network=none`, explicit recorded host-network exception only for the synthetic route fetch, pinned image digest verification, derived cache state, side-effect fields, cleanup/log/artifact verification, timeout, and `SKIPPED_UNAVAILABLE` behavior. Colima evidence passed two cold runs (32,384/32,864 ms; 556/562 ms pulls) and five warm runs (29,753–31,347 ms; median 31,225 ms) with no hosted artifact/SARIF/release/security side effects.
 - [x] Colima capability and serial cold/warm resource evidence are complete for the advisory lane; this result remains non-equivalent to hosted CI and cannot satisfy publish, CodeQL/SARIF, release, or security acceptance by itself.
