@@ -1,10 +1,12 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use tachi_shell::commands::{render_report_data_result, report_data_result};
+use tachi_shell::commands::{
+    cleanup_mislabeled_report_images, render_report_data_result, report_data_result,
+};
 
 fn main() -> ExitCode {
-    let (target_dir, template_dir, output_path) = match parse_args() {
+    let (target_dir, template_dir, output_path, cleanup_images) = match parse_args() {
         Ok(values) => values,
         Err(message) => {
             eprintln!("{message}");
@@ -13,6 +15,9 @@ fn main() -> ExitCode {
     };
 
     let result = report_data_result(&target_dir, &template_dir);
+    if cleanup_images {
+        cleanup_mislabeled_report_images(&target_dir);
+    }
     let output = render_report_data_result(&result);
 
     if let Some(output_path) = output_path {
@@ -34,11 +39,12 @@ fn main() -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn parse_args() -> Result<(PathBuf, PathBuf, Option<PathBuf>), String> {
+fn parse_args() -> Result<(PathBuf, PathBuf, Option<PathBuf>, bool), String> {
     let mut args = std::env::args().skip(1);
     let mut target_dir = None;
     let mut template_dir = None;
     let mut output_path = None;
+    let mut cleanup_images = false;
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -54,6 +60,7 @@ fn parse_args() -> Result<(PathBuf, PathBuf, Option<PathBuf>), String> {
                     .ok_or_else(|| String::from("--template-dir requires a path argument"))?;
                 template_dir = Some(PathBuf::from(value));
             }
+            "--cleanup-mislabeled-images" => cleanup_images = true,
             "--output" => {
                 let value = args
                     .next()
@@ -62,7 +69,7 @@ fn parse_args() -> Result<(PathBuf, PathBuf, Option<PathBuf>), String> {
             }
             "--help" | "-h" => {
                 return Err(String::from(
-                    "usage: report-data --target-dir PATH --template-dir PATH [--output PATH]",
+                    "usage: report-data --target-dir PATH --template-dir PATH [--output PATH] [--cleanup-mislabeled-images]",
                 ));
             }
             other => {
@@ -73,5 +80,5 @@ fn parse_args() -> Result<(PathBuf, PathBuf, Option<PathBuf>), String> {
 
     let target_dir = target_dir.ok_or_else(|| String::from("--target-dir is required"))?;
     let template_dir = template_dir.ok_or_else(|| String::from("--template-dir is required"))?;
-    Ok((target_dir, template_dir, output_path))
+    Ok((target_dir, template_dir, output_path, cleanup_images))
 }

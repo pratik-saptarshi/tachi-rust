@@ -4,9 +4,10 @@ use serde_json::to_string_pretty;
 
 use tachi_core::facade::{
     build_infographic_payload, build_report_data_typst, build_risk_scores_sarif,
-    build_threats_sarif, collect_audit, parse_component_metadata, parse_risk_md_section2,
-    parse_risk_md_section3, parse_risk_md_section4, parse_threats_findings, prefix_for, render,
-    RiskScoreSarifInputs, ThreatSarifFinding,
+    build_threats_sarif, cleanup_mislabeled_images as cleanup_report_images, collect_audit,
+    parse_component_metadata, parse_risk_md_section2, parse_risk_md_section3,
+    parse_risk_md_section4, parse_threats_findings, prefix_for, render, RiskScoreSarifInputs,
+    ThreatSarifFinding,
 };
 use tachi_core::parsers::parse_component_asset_map;
 
@@ -24,6 +25,10 @@ pub fn report_data_result(target_dir: &Path, template_dir: &Path) -> ReportDataR
     ReportDataResult {
         typst: build_report_data_typst(target_dir, template_dir),
     }
+}
+
+pub fn cleanup_mislabeled_report_images(target_dir: &Path) {
+    cleanup_report_images(target_dir);
 }
 
 pub fn validate_report_data_result(result: &ReportDataResult) -> Result<(), String> {
