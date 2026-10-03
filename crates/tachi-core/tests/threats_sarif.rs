@@ -27,6 +27,7 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
         impact: String::from("High"),
         risk_level: String::from("High"),
         mitigation: String::from("Harden prompts"),
+        affected_assets: vec![String::from("pii"), String::from("secrets")],
     };
 
     let source_threats_uri = "reports/custom/threats.md";
@@ -76,6 +77,10 @@ fn build_threats_sarif_marks_agentic_finding_with_asi07_metadata() {
     assert_eq!(result["properties"]["pattern_category"], 9);
     assert_eq!(result["properties"]["tags"][0], "security");
     assert_eq!(result["properties"]["tags"][1], "ai");
+    assert_eq!(
+        result["properties"]["affected_assets"],
+        serde_json::json!(["pii", "secrets"])
+    );
 }
 
 #[test]
@@ -102,6 +107,7 @@ fn build_threats_sarif_uses_shared_baseline_run_id_for_existing_finding() {
         impact: String::from("High"),
         risk_level: String::from("High"),
         mitigation: String::from("Harden prompts"),
+        affected_assets: Vec::new(),
     };
 
     let sarif = tachi_core::threats_sarif::build_threats_sarif(
@@ -179,6 +185,7 @@ fn build_threats_sarif_covers_prefix_risk_and_reference_fallbacks() {
                     _ => String::from("Note"),
                 },
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
         )
         .collect::<Vec<_>>();

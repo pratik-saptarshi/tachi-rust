@@ -68,6 +68,7 @@ fn facade_exports_stable_core_surface() {
         impact: String::new(),
         risk_level: String::new(),
         mitigation: String::new(),
+        affected_assets: Vec::new(),
     };
     let _ = AttackChain::default();
     let _ = AttackChainFinding::default();

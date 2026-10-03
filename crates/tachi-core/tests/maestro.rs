@@ -16,22 +16,25 @@ fn parse_maestro_layer_distribution_reads_table_rows() {
 "#;
 
     let actual = parse_maestro_layer_distribution(markdown);
-    let expected = vec![
+    assert_eq!(actual.len(), 7);
+    assert_eq!(
+        actual[4],
         MaestroLayerDistribution {
             layer_id: String::from("L5"),
             layer_name: String::from("Evaluation and Observability"),
             finding_count: 4,
             highest_severity: String::from("High"),
-        },
+        }
+    );
+    assert_eq!(
+        actual[6],
         MaestroLayerDistribution {
             layer_id: String::from("L7"),
             layer_name: String::from("Agent Ecosystem"),
             finding_count: 1,
             highest_severity: String::from("Critical"),
-        },
-    ];
-
-    assert_eq!(actual, expected);
+        }
+    );
 }
 
 #[test]
@@ -64,7 +67,11 @@ fn compute_most_exposed_layer_prefers_count_severity_then_layer_id() {
 
 #[test]
 fn maestro_distribution_and_exposure_handle_empty_and_malformed_rows() {
-    assert!(parse_maestro_layer_distribution("").is_empty());
+    let absent = parse_maestro_layer_distribution("");
+    assert_eq!(absent.len(), 7);
+    assert!(absent
+        .iter()
+        .all(|layer| layer.highest_severity == "Not evaluated"));
     let rows = parse_maestro_layer_distribution(
         r#"#### Risk by MAESTRO Layer
 
@@ -74,10 +81,11 @@ fn maestro_distribution_and_exposure_handle_empty_and_malformed_rows() {
 | L3 | invalid | Medium |
 "#,
     );
-    assert_eq!(rows.len(), 1);
-    assert_eq!(rows[0].layer_id, "L3");
+    assert_eq!(rows.len(), 7);
+    assert_eq!(rows[2].layer_id, "L3");
     assert_eq!(rows[0].finding_count, 0);
-    assert_eq!(rows[0].highest_severity, "Medium");
+    assert_eq!(rows[0].highest_severity, "Not evaluated");
+    assert_eq!(rows[2].highest_severity, "Medium");
 
     assert_eq!(compute_most_exposed_layer(&[]), "");
     assert_eq!(

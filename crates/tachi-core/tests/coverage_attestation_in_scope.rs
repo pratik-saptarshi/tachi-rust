@@ -103,7 +103,14 @@ fn load_framework_yaml_records_from_dir_filters_oos_and_treats_missing_field_as_
 fn build_per_framework_aggregates_in_dir_uses_in_scope_denominator() {
     let root = temp_root("tachi-coverage-attestation-aggregate");
     let taxonomy_dir = root.join("schemas/taxonomy");
-    for framework in ["owasp", "mitre-attack", "mitre-atlas", "nist-ai-rmf", "cwe"] {
+    for framework in [
+        "owasp",
+        "mitre-attack",
+        "mitre-atlas",
+        "nist-ai-rmf",
+        "nist-ai-600-1",
+        "cwe",
+    ] {
         write_taxonomy_file(
             &taxonomy_dir,
             framework,
@@ -122,7 +129,7 @@ fn build_per_framework_aggregates_in_dir_uses_in_scope_denominator() {
 
     let aggregates = build_per_framework_aggregates_in_dir(&taxonomy_dir, &findings);
 
-    assert_eq!(aggregates.len(), 5);
+    assert_eq!(aggregates.len(), 6);
     let owasp = aggregates
         .iter()
         .find(|aggregate| aggregate.framework == "owasp")

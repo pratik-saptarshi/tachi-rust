@@ -13,7 +13,7 @@
 # single-finding, single-record, single-framework path.
 #
 # ID validation: ``LLM05`` is a top-level ``id:`` in
-# schemas/taxonomy/owasp.yaml (OWASP LLM Top 10:2025 — Improper Output Handling).
+# schemas/taxonomy/owasp.yaml (OWASP LLM Top 10:2026 — Improper Output Handling, LLM10).
 #
 # Used-by (planned):
 #   - tests/scripts/test_coverage_attestation.py::test_single_primary_triggers_section

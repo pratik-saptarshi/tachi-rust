@@ -9,6 +9,7 @@ const CATALOG_FILENAMES: &[&str] = &[
     "mitre-attack.yaml",
     "mitre-atlas.yaml",
     "nist-ai-rmf.yaml",
+    "nist-ai-600-1.yaml",
     "cwe.yaml",
     "tachi-control-category.yaml",
     "tachi-stride-ai-category.yaml",
@@ -20,6 +21,7 @@ const TAXONOMIES: &[&str] = &[
     "mitre-attack",
     "mitre-atlas",
     "nist-ai-rmf",
+    "nist-ai-600-1",
     "cwe",
     "tachi-control-category",
     "tachi-stride-ai-category",
@@ -72,7 +74,7 @@ fn parse_catalog_records(text: &str) -> Vec<CatalogRecord> {
         if let Some(rest) = line.trim().strip_prefix("- id: ") {
             if let Some(id) = current_id.replace(rest.trim().to_string()) {
                 records.push(CatalogRecord {
-                    id,
+                    id: id.trim_matches(['"', '\'']).to_string(),
                     body: std::mem::take(&mut current_body),
                 });
             }
@@ -83,7 +85,7 @@ fn parse_catalog_records(text: &str) -> Vec<CatalogRecord> {
 
     if let Some(id) = current_id {
         records.push(CatalogRecord {
-            id,
+            id: id.trim_matches(['"', '\'']).to_string(),
             body: current_body,
         });
     }
@@ -190,6 +192,11 @@ fn source_attribution_records(text: &str) -> Vec<SourceAttributionRecord> {
     }
 
     records
+}
+
+fn profile_sort_key(id: &str) -> (u32, u32) {
+    let (major, minor) = id.split_once('.').unwrap_or((id, "0"));
+    (major.parse().unwrap_or(0), minor.parse().unwrap_or(0))
 }
 
 fn nist_sort_key(id: &str) -> (String, u32, u32, String) {
@@ -341,6 +348,8 @@ fn taxonomy_integrity_contract_is_rust_native() {
         let mut expected = ids.clone();
         if *filename == "nist-ai-rmf.yaml" {
             expected.sort_by_key(|id| nist_sort_key(id));
+        } else if *filename == "nist-ai-600-1.yaml" {
+            expected.sort_by_key(|id| profile_sort_key(id));
         } else {
             expected.sort();
         }
@@ -469,7 +478,7 @@ fn output_integrity_schema_contract_is_rust_native() {
             schema_path.display()
         )
     });
-    assert_eq!(schema_version(&schema), "1.8");
+    assert_eq!(schema_version(&schema), "1.9");
     let prefixes = finding_id_prefixes(&schema);
 
     for prefix in PRE_OUTPUT_INTEGRITY_ID_PREFIXES {
@@ -523,7 +532,7 @@ fn output_integrity_schema_contract_is_rust_native() {
     );
     assert!(
         valid_records.iter().any(|record| record.taxonomy == "owasp"
-            && record.id == "LLM05"
+            && record.id == "LLM10"
             && record.relationship == "primary"),
         "valid OI fixture should cite OWASP LLM05 as primary"
     );
@@ -544,8 +553,8 @@ fn output_integrity_schema_contract_is_rust_native() {
     assert!(
         invalid_records
             .iter()
-            .any(|record| record.taxonomy == "cwe" && record.id == "CWE-73"),
-        "invalid OI fixture should retain the absent CWE-73 citation"
+            .any(|record| record.taxonomy == "cwe" && record.id == "CWE-9999"),
+        "invalid OI fixture should retain its absent CWE citation"
     );
     let errors = validate_source_attribution(
         &[ThreatFinding {
@@ -558,8 +567,8 @@ fn output_integrity_schema_contract_is_rust_native() {
     assert!(
         errors
             .iter()
-            .any(|error| error.record.taxonomy == "cwe" && error.record.id == "CWE-73"),
-        "invalid OI fixture should fail on absent cwe:CWE-73"
+            .any(|error| error.record.taxonomy == "cwe" && error.record.id == "CWE-9999"),
+        "invalid OI fixture should fail on its absent CWE identifier"
     );
 }
 

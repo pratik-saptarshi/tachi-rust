@@ -6,7 +6,5 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-tachi-shell = { path = "../tachi-shell" }
-
-[dev-dependencies]
 serde_json = "1"
+tachi-shell = { path = "../tachi-shell" }

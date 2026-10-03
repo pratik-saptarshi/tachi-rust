@@ -84,7 +84,7 @@ fn build_per_finding_rows_groups_taxonomies_and_preserves_order() {
 }
 
 #[test]
-fn build_per_framework_aggregates_emits_five_frameworks_and_na_for_zero_denominator() {
+fn build_per_framework_aggregates_emits_six_frameworks_and_na_for_zero_denominator() {
     let findings = vec![
         finding(
             "AG-1",
@@ -110,7 +110,7 @@ fn build_per_framework_aggregates_emits_five_frameworks_and_na_for_zero_denomina
 
     let aggregates: Vec<CoverageFrameworkAggregate> = build_per_framework_aggregates(&findings);
 
-    assert_eq!(aggregates.len(), 5);
+    assert_eq!(aggregates.len(), 6);
     let owasp = aggregates
         .iter()
         .find(|aggregate| aggregate.framework == "owasp")

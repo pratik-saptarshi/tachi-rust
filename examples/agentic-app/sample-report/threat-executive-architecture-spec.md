@@ -55,7 +55,7 @@ Layers are ordered untrusted-first (position 0 = most exposed) to trusted-last.
 | Application Zone | E-1 | High | 7.7 | Guardrails Service | Prompt injection that bypasses the Guardrails Service elevates attacker privilege to trusted caller |
 | Application Zone | D-10 | High | 7.2 | LLM Agent Orchestrator | LLM Inference-Request Flooding and Token Exhaustion without per-tenant QPS rate limiting |
 
-> **F-5 callout**: D-10 is a new finding introduced in Feature 229 Wave 2 (OWASP LLM10:2025 Unbounded Consumption). Gemini will rewrite raw descriptions to ≤25 words in plain English at render time.
+> **F-5 callout**: D-10 is a new finding introduced in Feature 229 Wave 2 (OWASP LLM06:2026 Unbounded Consumption). Gemini will rewrite raw descriptions to ≤25 words in plain English at render time.
 
 **Empty Layers**: External Services (External API) — 0 Critical/High findings. Renders as compact badge: "0 High/Critical findings in this layer".
 

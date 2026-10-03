@@ -4,15 +4,21 @@ use std::path::{Path, PathBuf};
 
 use crate::parsers::{SourceAttributionRecord, ThreatFinding};
 
-pub const ORDERED_FRAMEWORKS: [&str; 5] =
-    ["owasp", "mitre-attack", "mitre-atlas", "nist-ai-rmf", "cwe"];
+pub const ORDERED_FRAMEWORKS: [&str; 6] = [
+    "owasp",
+    "mitre-attack",
+    "mitre-atlas",
+    "nist-ai-rmf",
+    "nist-ai-600-1",
+    "cwe",
+];
 
 const MITRE_PREFIXES: [(&str, &str); 2] = [("mitre-attack", "ATT&CK:"), ("mitre-atlas", "ATLAS:")];
 
 const TAXONOMY_REF_GROUPS: [(&str, &[&str]); 4] = [
     ("owasp_refs", &["owasp"]),
     ("mitre_refs", &["mitre-attack", "mitre-atlas"]),
-    ("nist_refs", &["nist-ai-rmf"]),
+    ("nist_refs", &["nist-ai-rmf", "nist-ai-600-1"]),
     ("cwe_refs", &["cwe"]),
 ];
 

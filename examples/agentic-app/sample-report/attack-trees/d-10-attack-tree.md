@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: LLM Agent Orchestrator
-**Threat**: LLM inference-request flooding and token exhaustion (OWASP LLM10:2025)
+**Threat**: LLM inference-request flooding and token exhaustion (OWASP LLM06:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Exhaust LLM inference capacity denying service (OWASP LLM10:2025 Cat 12)"]
+    Goal["[GOAL] Exhaust LLM inference capacity denying service (OWASP LLM06:2026 Cat 12)"]
     Goal --> A["[OR] Flood inference endpoint with concurrent requests"]
     A --> A1["Attacker has valid authenticated access"]
     A --> A2["No per-tenant QPS rate limit at inference API gateway"]

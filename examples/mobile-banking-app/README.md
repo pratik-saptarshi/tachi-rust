@@ -53,7 +53,7 @@ Each new finding cites `OWASP M{N}:2024` primary in its `references:` array; sec
 |---|---|---|
 | F-3 (Feature 219) | `examples/agentic-app/` | OWASP ASI07:2026 tool-abuse enrichment (Cat 9 + Cat 10) |
 | F-4 (Feature 224) | `examples/consumer-agent-app/` | OWASP ASI09:2026 human-trust-exploitation surface |
-| F-5 (Feature 229) | `examples/agentic-app/` | OWASP LLM10:2025 unbounded-consumption enrichment (Cat 12-13 DoS + Cat 10-11 model-theft) |
+| F-5 (Feature 229) | `examples/agentic-app/` | OWASP LLM06:2026 unbounded-consumption enrichment (Cat 12-13 DoS + Cat 10-11 model-theft) |
 | F-6 (Feature 232) | `examples/predictive-ml-app/` | OWASP ML Top 10:2023 coverage bundle (7 categories across 3 host agents) |
 | **F-7 (Feature 237)** | **`examples/mobile-banking-app/`** | **OWASP Mobile Top 10:2024 coverage bundle (10 categories across four-or-five host agents) — BLP-01 Tier 2** |
 </content>

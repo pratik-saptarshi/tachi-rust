@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Achieve server-side injection via tool result carrying injection payload into next tool call (OWASP LLM05:2025)"]
+    Goal["[GOAL] Achieve server-side injection via tool result carrying injection payload into next tool call (OWASP LLM10:2026)"]
     Goal --> A["[OR] Tool Server returns LLM-influenced content with injection payload"]
     A --> A1["External API response contains injection payload (S-8 chain)"]
     A --> A2["Prior tool call from compromised Orchestrator pollutes Tool Server cache"]

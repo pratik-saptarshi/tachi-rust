@@ -13,7 +13,7 @@ fn owasp_coverage_family_catalog_lists_the_shared_framework_rows_in_order() {
     assert_eq!(
         labels,
         [
-            "LLM 2025",
+            "LLM 2026",
             "Agentic 2026",
             "ML 2023",
             "Mobile 2024",
@@ -22,7 +22,7 @@ fn owasp_coverage_family_catalog_lists_the_shared_framework_rows_in_order() {
         ]
     );
 
-    assert_eq!(catalog[0].bucket, "OWASP-LLM-2025");
+    assert_eq!(catalog[0].bucket, "OWASP-LLM-2026");
     assert_eq!(catalog[0].items, "LLM01-LLM10");
     assert_eq!(catalog[0].status, "10/10");
     assert!(catalog[0].anchor.starts_with("https://genai.owasp.org/"));
@@ -35,7 +35,7 @@ fn render_owasp_coverage_matrix_uses_the_shared_catalog() {
 
     assert!(rendered
         .contains("| Framework | Bucket | Items | Status | OWASP Anchor | Detection ADRs |"));
-    assert!(rendered.contains("LLM 2025 | OWASP-LLM-2025 | LLM01-LLM10 | 10/10"));
+    assert!(rendered.contains("LLM 2026 | OWASP-LLM-2026 | LLM01-LLM10 | 10/10"));
     assert!(rendered.contains("API 2023 | OWASP-API-2023 | API1-API10 | 10/10"));
 }
 
