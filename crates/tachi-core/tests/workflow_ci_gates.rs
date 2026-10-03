@@ -864,7 +864,7 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
     );
     assert!(
         workflow_step_field(&workflow, "Upload route decision artifact", "uses")
-            == Some("actions/upload-artifact@v4"),
+            == Some("actions/upload-artifact@v5"),
         "route observe workflow must upload the route artifact"
     );
     assert_workflow_has_run_line(&workflow, "cat > route.json <<EOF");
@@ -945,7 +945,7 @@ fn publish_gate_runs_supply_chain_policy_checks() {
     assert_workflow_uses_pinned_repo_toolchain("rust-supply-chain.yml", &workflow_text);
     for command in [
         "cargo install --locked --version 0.22.2 cargo-audit",
-        "cargo install --locked --version 0.19.9 cargo-deny",
+        "cargo install --locked --version 0.20.2 cargo-deny",
         "cargo audit",
         "cargo deny check advisories bans licenses sources",
     ] {
@@ -1043,11 +1043,11 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
     );
     for command in [
         "cargo install --locked --version 0.6.45 cargo-hack",
-        "cargo install --locked --version 0.8.7 cargo-llvm-cov",
+        "cargo install --locked --version 0.9.1 cargo-llvm-cov",
         "cargo hack --version",
         "cargo llvm-cov --version",
         "cargo hack --version | grep -qx 'cargo-hack 0.6.45'",
-        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'",
+        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.9.1'",
         "cargo hack check --workspace --locked --each-feature --no-dev-deps",
         "git diff --exit-code -- Cargo.toml 'crates/*/Cargo.toml'",
         "./scripts/llvm-cov.sh --workspace --summary-only --fail-under-lines 85 --ignore-filename-regex 'target/|tests/'",
@@ -1060,7 +1060,7 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
         "cargo hack check --workspace --each-feature --no-dev-deps",
         "git diff --quiet -- Cargo.toml crates/*/Cargo.toml",
         "coverage-tool-proof:",
-        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'",
+        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.9.1'",
         "$(MAKE) llvm-cov",
     ] {
         assert!(
@@ -1273,7 +1273,7 @@ fn repo_pins_required_rust_toolchain_components() {
         fs::read_to_string(repo_root().join("Cargo.toml")).expect("read workspace Cargo.toml");
 
     for required in [
-        "channel = \"1.96.1\"",
+        "channel = \"1.99.0\"",
         "profile = \"minimal\"",
         "\"clippy\"",
         "\"rustfmt\"",
@@ -1285,7 +1285,7 @@ fn repo_pins_required_rust_toolchain_components() {
         );
     }
     assert!(
-        workspace_manifest.contains("rust-version = \"1.96\""),
+        workspace_manifest.contains("rust-version = \"1.99\""),
         "workspace must declare the public Rust compiler floor"
     );
     for manifest in [

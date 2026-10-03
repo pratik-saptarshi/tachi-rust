@@ -1,8 +1,9 @@
-// Auth middleware — protects routes and refreshes the Supabase session.
-import { type NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+// Auth proxy — protects routes and refreshes the Supabase session.
 
-export async function middleware(request: NextRequest) {
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

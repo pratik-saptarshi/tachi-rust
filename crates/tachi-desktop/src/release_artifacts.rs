@@ -37,9 +37,15 @@ pub fn build_release_manifest(
             fs::read(&path).map_err(|err| format!("failed to read {}: {err}", path.display()))?;
         let mut hasher = Sha256::new();
         hasher.update(&bytes);
+        let digest = hasher.finalize();
+        let mut sha256 = String::with_capacity(digest.len() * 2);
+        for byte in digest {
+            use std::fmt::Write as _;
+            write!(&mut sha256, "{byte:02x}").expect("writing into a String cannot fail");
+        }
         artifacts.push(ReleaseArtifact {
             relative_path: PathBuf::from(relative),
-            sha256: format!("{:x}", hasher.finalize()),
+            sha256,
             size_bytes: bytes.len() as u64,
         });
     }
@@ -63,7 +69,12 @@ pub fn verify_checksum_matrix(root: &Path, manifest: &ReleaseManifest) -> Result
             fs::read(&path).map_err(|err| format!("failed to read {}: {err}", path.display()))?;
         let mut hasher = Sha256::new();
         hasher.update(&bytes);
-        let checksum = format!("{:x}", hasher.finalize());
+        let digest = hasher.finalize();
+        let mut checksum = String::with_capacity(digest.len() * 2);
+        for byte in digest {
+            use std::fmt::Write as _;
+            write!(&mut checksum, "{byte:02x}").expect("writing into a String cannot fail");
+        }
 
         if checksum != artifact.sha256 {
             return Err(format!(

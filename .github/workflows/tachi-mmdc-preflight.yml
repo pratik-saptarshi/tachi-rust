@@ -6,7 +6,7 @@
 # where `mmdc` (@mermaid-js/mermaid-cli) is NOT on PATH.
 # 
 # The workflow:
-#   1. Installs Typst + Python 3.11 (but NOT mmdc)
+#   1. Installs Typst + Python 3.14 (but NOT mmdc)
 #   2. Asserts mmdc is absent (guards against transitive installs — plan Risk #6)
 #   3. Runs the Rust contract test for the missing-renderer path.
 #   4. Asserts the canonical three tokens from the contract failure string:
@@ -51,17 +51,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          python-version: "3.14"
 
-      # Typst setup. typst-community/setup-typst@v5 is the current stable
+      # Typst setup. typst-community/setup-typst@v5.1.0 is the current stable
       # major tag at time of authoring (T018). This step MUST NOT transitively
       # install @mermaid-js/mermaid-cli; the next step will fail the job if
       # that invariant is ever broken by an upstream action change.
       - name: Set up Typst
-        uses: typst-community/setup-typst@v5
+        uses: typst-community/setup-typst@v5.1.0
 
       # Architect refinement R3 (Medium): make the intentional absence of
       # mmdc visible in CI logs for future debuggers.
