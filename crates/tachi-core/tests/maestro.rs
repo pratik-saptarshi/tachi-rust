@@ -88,6 +88,8 @@ fn maestro_distribution_and_exposure_handle_empty_and_malformed_rows() {
     assert_eq!(rows[2].highest_severity, "Medium");
 
     assert_eq!(compute_most_exposed_layer(&[]), "");
+    assert_eq!(compute_most_exposed_layer(&absent), "");
+    assert_eq!(compute_most_exposed_layer(&rows), "");
     assert_eq!(
         compute_most_exposed_layer(&[MaestroLayerDistribution {
             layer_id: String::from("L1"),

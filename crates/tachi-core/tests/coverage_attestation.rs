@@ -125,3 +125,35 @@ fn build_per_framework_aggregates_emits_six_frameworks_and_na_for_zero_denominat
         aggregate.coverage_percentage == "N/A" || aggregate.coverage_percentage.ends_with('%')
     }));
 }
+
+#[test]
+fn quoted_nist_profile_ids_match_unquoted_source_attribution() {
+    let finding = finding(
+        "AG-3",
+        "NIST profile citation",
+        "High",
+        vec![SourceAttributionRecord {
+            taxonomy: String::from("nist-ai-600-1"),
+            id: String::from("2.1"),
+            relationship: String::from("primary"),
+        }],
+    );
+
+    let profile = build_per_framework_aggregates(&[finding])
+        .into_iter()
+        .find(|aggregate| aggregate.framework == "nist-ai-600-1")
+        .expect("NIST AI 600-1 framework aggregate");
+
+    assert_eq!(profile.covered_count, 1);
+    assert_eq!(profile.partial_count, 0);
+    assert_eq!(profile.gap_count, 11);
+    assert_eq!(
+        profile
+            .items
+            .iter()
+            .find(|item| item.id == "2.1")
+            .unwrap()
+            .classification,
+        "covered"
+    );
+}

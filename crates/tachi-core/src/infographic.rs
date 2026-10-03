@@ -295,14 +295,19 @@ pub fn parse_component_layer_mapping(threats_content: &str) -> BTreeMap<String, 
 }
 
 pub fn compute_most_exposed_layer(layer_distribution: &[MaestroLayerDistribution]) -> String {
-    let Some(top) = layer_distribution.iter().max_by(|left, right| {
-        left.finding_count
-            .cmp(&right.finding_count)
-            .then_with(|| {
-                severity_rank(&left.highest_severity).cmp(&severity_rank(&right.highest_severity))
-            })
-            .then_with(|| right.layer_id.cmp(&left.layer_id))
-    }) else {
+    let Some(top) = layer_distribution
+        .iter()
+        .filter(|layer| layer.finding_count > 0)
+        .max_by(|left, right| {
+            left.finding_count
+                .cmp(&right.finding_count)
+                .then_with(|| {
+                    severity_rank(&left.highest_severity)
+                        .cmp(&severity_rank(&right.highest_severity))
+                })
+                .then_with(|| right.layer_id.cmp(&left.layer_id))
+        })
+    else {
         return String::new();
     };
 
