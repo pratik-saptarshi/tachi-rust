@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: Long-Running Learning Loop
-**Threat**: Systematic audit log poisoning for delayed temporal model behavioral shift (OWASP LLM03:2025)
+**Threat**: Systematic audit log poisoning for delayed temporal model behavioral shift (OWASP LLM04:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Shift model behavior across Orchestrator, Specialist, and ClinAdvisor via audit log poisoning (OWASP LLM03:2025)"]
+    Goal["[GOAL] Shift model behavior across Orchestrator, Specialist, and ClinAdvisor via audit log poisoning (OWASP LLM04:2026)"]
     Goal --> A["[OR] Systematically inject adversarial interaction records into Audit Logger"]
     A --> A1["Exploit log-write access from compromised Application Zone service"]
     A --> A2["Use timing attack: inject before batch training run"]

@@ -10,14 +10,14 @@
 
 ## 1. Purpose
 
-`schemas/taxonomy/` is a machine-readable catalog and crosswalk of the eight taxonomies tachi cites across its agentic-AI threat-modeling output — OWASP (6 published lists), MITRE ATT&CK, MITRE ATLAS, NIST AI RMF 1.0, CWE, plus three in-repo control catalogs (`tachi-control-category`, `tachi-stride-ai-category`, `aisvs`). Every taxonomy ID tachi cites resolves here to a record carrying `{id, full_id, name, url, cwe_refs}`, and every cross-framework mapping (e.g., "what CWEs does OWASP LLM05 relate to?") resolves to a single row in `crosswalk.yaml`.
+`schemas/taxonomy/` is a machine-readable catalog and crosswalk of nine taxonomies tachi cites across its agentic-AI threat-modeling output — OWASP (6 published lists), MITRE ATT&CK, MITRE ATLAS, NIST AI RMF 1.0, NIST AI 600-1, CWE, plus three in-repo control catalogs (`tachi-control-category`, `tachi-stride-ai-category`, `aisvs`). Every taxonomy ID tachi cites resolves here to a record carrying `{id, full_id, name, url, cwe_refs}`, and every cross-framework mapping resolves to a row in `crosswalk.yaml`.
 
 This is the **foundation data** for downstream features:
 - **F-A2** (finding-level source attribution) will extend the finding schema with a `source_attribution` field that cites specific crosswalk edges.
 - **F-B** (coverage attestation report section) will render a per-DFD-component-class attestation that a given framework is fully covered.
 - Future ecosystem integrations (vulnerability manager, SIEM, compliance dashboard) can consume the YAMLs directly via `yaml.safe_load` without parsing agent markdown prose.
 
-The directory ships **10 files** (per spec FR-001): 8 catalog YAMLs + 1 crosswalk YAML + this README. See [ADR-027](../../docs/architecture/02_ADRs/ADR-027-taxonomy-crosswalk-schema.md) for the full schema rationale, the 8-value `taxonomy` enum, the 3-value `edge_type` / `confidence` enums, and the "Interpretation C" single-feature cadence exception.
+The directory ships **11 files**: 9 catalog YAMLs + 1 crosswalk YAML + this README. The crosswalk taxonomy enum has 8 values; `aisvs` remains a separate control catalog. See [ADR-027](../../docs/architecture/02_ADRs/ADR-027-taxonomy-crosswalk-schema.md) for schema rationale.
 
 ### Runnable Python snippet (SC-007)
 
@@ -34,7 +34,7 @@ for edge in edges[:3]:
 For per-catalog resolution, substitute any of the 7 catalog files:
 
 ```python
-for taxonomy in ('owasp', 'mitre-attack', 'mitre-atlas', 'nist-ai-rmf', 'cwe',
+for taxonomy in ('owasp', 'mitre-attack', 'mitre-atlas', 'nist-ai-rmf', 'nist-ai-600-1', 'cwe',
                  'tachi-control-category', 'tachi-stride-ai-category', 'aisvs'):
     records = yaml.safe_load(open(f'schemas/taxonomy/{taxonomy}.yaml'))
     print(f"{taxonomy}: {len(records)} records (example: {records[0]['id']})")
@@ -45,7 +45,7 @@ for taxonomy in ('owasp', 'mitre-attack', 'mitre-atlas', 'nist-ai-rmf', 'cwe',
 F-A1 is the machine-readable **foundation** — it deliberately defers three downstream capabilities to separately-scoped follow-on features. Readers integrating tachi output today should be aware of these gaps:
 
 1. **Finding-level citation** — At F-A1, threat-agent findings in `threats.md` / `threats.sarif` do **not** yet cite specific crosswalk edges. A finding that says "relates to OWASP LLM05" still carries that as free-text metadata, not a structured reference into `crosswalk.yaml`. **F-A2** will extend the finding schema with a `source_attribution` field that resolves to one or more edge IDs in the crosswalk.
-2. **Coverage attestation** — At F-A1, no attestation exists that a given DFD component class (e.g., "all `llm_process` components have been evaluated against 100% of OWASP LLM Top 10:2025 items") has been fully mapped. The data to *compute* such an attestation is present in the crosswalk, but no downstream report section renders it. **F-B** will add a coverage-attestation report section consuming these YAMLs.
+2. **Coverage attestation** — At F-A1, no attestation exists that a given DFD component class (e.g., "all `llm_process` components have been evaluated against 100% of OWASP LLM Top 10:2026 items") has been fully mapped. The data to *compute* such an attestation is present in the crosswalk, but no downstream report section renders it. **F-B** will add a coverage-attestation report section consuming these YAMLs.
 3. **Agent-reference migration** — At F-A1, the 11 threat-detection agents still carry inline taxonomy citations in their `.claude/skills/tachi-<name>/references/detection-patterns.md` files (per ADR-023). The F-A1 catalog YAMLs harvest those citations *read-only* — no detection agent is modified. Migrating the detection patterns to cite crosswalk edges (removing inline duplication) is a **separate follow-on feature**, not F-A1 scope.
 
 ---
@@ -71,7 +71,7 @@ Curation rule: F-A1 is a **harvest + transcription** feature, not a re-authorshi
   - OWASP Top 10:2021 (A01–A10) — source: `https://owasp.org/Top10/2021/`
   - OWASP API Security Top 10:2023 (API1–API10) — source: `https://owasp.org/API-Security/editions/2023/en/0x11-t10/`
   - OWASP Top 10 for Agentic Applications:2026 (ASI01–ASI10) — source: OWASP GenAI Security Project, `https://genai.owasp.org/resource/agentic-ai-security-top-10/` (2026 edition published by the OWASP GenAI project)
-  - OWASP LLM Top 10:2025 (LLM01–LLM10) — source: `https://owasp.org/www-project-top-10-for-large-language-model-applications/` (LLM01:2025 through LLM10:2025)
+  - OWASP LLM Top 10:2026 (LLM01–LLM10) — source: OWASP GenAI Security Project, `https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/`
   - OWASP Mobile Top 10:2024 (M1–M10) — source: `https://owasp.org/www-project-mobile-top-10/`
   - OWASP Machine Learning Security Top 10:2023 (ML01–ML10) — source: `https://owasp.org/www-project-machine-learning-security-top-10/`
 - **CWE cross-references**: `cwe_refs` populated for Top 10:2021 records only (A01–A10), transcribed from the per-category OWASP pages' "List of Mapped CWEs" sections. LLM / Agentic / Mobile / ML / API records carry `cwe_refs: []` because the respective OWASP sources do not publish per-item CWE cross-references; cross-framework edges for those lists live in `crosswalk.yaml`.
@@ -101,12 +101,19 @@ Curation rule: F-A1 is a **harvest + transcription** feature, not a re-authorshi
 - **FR-021 amendment (68 → 72)**: FR-021 originally pinned the count at 68, a historical figure from the initial January 2023 publication of NIST AI 100-1. Day 2 primary-source harvest of the current `airc.nist.gov` Playbook catalog surfaced 72 Subcategories — MEASURE 2.12, MEASURE 2.13, and 2 others were added in subsequent NIST Playbook expansions. Under FR-024 primary-source-correction discipline, the spec was amended 68 → 72 at commit SHA **`9da377c`** rather than descoping the catalog. Both Architect (`.aod/results/architect.md`, Path (a)) and PM (`.aod/results/product-manager.md`, pm_signoff_amendment_1 at `specs/180-taxonomy-crosswalk-collection/spec.md` lines 9–17) concurred. Existing Surface B/C cited Subcategories (`MAP 4.2`, `MEASURE 2.6–2.10`, `MANAGE 1.3`, `MANAGE 2.4`, `GOVERN 1.4`) are within the 68-subset ⊂ 72-superset, so FR-022 transcription fidelity and the 38 already-committed `nist-ai-rmf` crosswalk edges (batch 5, commit `004cd00`) remain intact — zero edits required to ADR-025 or `nist-ai-rmf-mapping.md`. This is the same pinned-with-retrieval-date provenance pattern applied to CWE Top 25 2025 in §3.5.
 - **Final record count**: **72** (FR-021 amended — exact; GOVERN 19 + MAP 18 + MEASURE 22 + MANAGE 13).
 
-### 3.5 `cwe.yaml`
+### 3.5 `nist-ai-600-1.yaml`
+
+- **Source**: NIST AI 600-1, *Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile* (July 2024), Section 2.
+- **Records**: 12 generative AI risk categories (sections 2.1–2.12), cited through the stable NIST DOI `https://doi.org/10.6028/NIST.AI.600-1`.
+- **Crosswalk**: 15 high-confidence primary mappings transcribed from the NIST AI 600-1 Surface C source table in `.claude/skills/tachi-shared/references/nist-ai-rmf-mapping.md`. Gap rows and rows with no equivalent are intentionally omitted.
+
+### 3.6 `cwe.yaml`
 
 - **Seed source**: 41 unique CWE IDs currently cited across the 11 threat-detection agents' `detection-patterns.md` files (frozen at spec time 2026-04-17 per spec Assumption A1): `CWE-20, 22, 77, 78, 89, 90, 117, 200, 209, 215, 223, 250, 266, 269, 285, 287, 290, 306, 345, 352, 384, 400, 407, 494, 502, 522, 532, 538, 613, 639, 770, 776, 778, 779, 862, 863, 917, 918, 943, 1333, 1395`.
-- **External curation**: CWE Top 25 (**2025** edition, published **2025-12-11** by MITRE/CISA, source `https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html`) — of the 25 Top 25 IDs, 14 overlap the agent seed and are deduplicated to a single record; **11 net-new CWEs** are added: `CWE-79, 94, 120, 121, 122, 125, 284, 416, 434, 476, 787`. Plus **1 additional CWE** sourced from the OWASP Top 10 A03:2021 / LLM05:2025 cross-references already transcribed into `owasp.yaml`: `CWE-116` (output-encoding companion to CWE-79). Total added via external curation = **12** (11 Top 25 + 1 OWASP-derived).
+- **External curation**: CWE Top 25 (**2025** edition, published **2025-12-11** by MITRE/CISA, source `https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html`) — of the 25 Top 25 IDs, 14 overlap the agent seed and are deduplicated to a single record; **11 net-new CWEs** are added: `CWE-79, 94, 120, 121, 122, 125, 284, 416, 434, 476, 787`. Plus **1 additional CWE** sourced from the OWASP Top 10 A03:2021 cross-references already transcribed into `owasp.yaml`: `CWE-116` (output-encoding companion to CWE-79). Total added via external curation = **12** (11 Top 25 + 1 OWASP-derived).
 - **Retrieval date**: **2026-04-17** (CWE Top 25 2025 page + per-CWE definition pages at `https://cwe.mitre.org/data/definitions/<N>.html`).
-- **Final record count**: **53** (FR-017 floor ≥53 — 41 seed + 12 external-curation, exact match).
+- **F-A1.2 restoration**: 40 additional endpoint CWEs, allowing restoration of 67 formerly unresolved primary crosswalk edges.
+- **Final record count**: **93** (41 seed + 12 original external curation + 40 restored-endpoint records).
 - **Record-shape exception**: `cwe_refs` is **omitted entirely** on `cwe.yaml` records per FR-003 explicit exclusion — CWE→CWE relations (e.g., `ChildOf`, `CanPrecede`, superseded/related) live ONLY in `crosswalk.yaml`, never as per-record cross-references (per ADR-027 Decision 1).
 
 ### 3.6 `tachi-control-category.yaml`
@@ -157,7 +164,7 @@ This rule inverts the default bias toward confidence inflation — the single mo
 | MITRE ATLAS | `mitre-atlas.yaml` | `https://atlas.mitre.org/techniques/AML.T<NNNN>` (e.g., `https://atlas.mitre.org/techniques/AML.T0058`) |
 | CWE | `cwe.yaml` | `https://cwe.mitre.org/data/definitions/<N>.html` (e.g., `https://cwe.mitre.org/data/definitions/89.html`) |
 | NIST AI RMF 1.0 | `nist-ai-rmf.yaml` | `https://doi.org/10.6028/NIST.AI.100-1` (DOI-based; single canonical document URL per Subcategory record) |
-| OWASP LLM Top 10:2025 | `owasp.yaml` | `https://genai.owasp.org/llmrisk/llm<NN>-<slug>/` (e.g., `https://genai.owasp.org/llmrisk/llm05-improper-output-handling/`) |
+| OWASP LLM Top 10:2026 | `owasp.yaml` | `https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/` |
 | OWASP Top 10:2021 | `owasp.yaml` | `https://owasp.org/Top10/2021/A<NN>_2021-<slug>/` |
 | OWASP API Security Top 10:2023 | `owasp.yaml` | `https://owasp.org/API-Security/editions/2023/en/0xa<N>-<slug>/` |
 | OWASP Mobile Top 10:2024 | `owasp.yaml` | `https://owasp.org/www-project-mobile-top-10/2024-risks/m<N>-<slug>` |
@@ -165,7 +172,7 @@ This rule inverts the default bias toward confidence inflation — the single mo
 | OWASP Agentic Top 10:2026 | `owasp.yaml` | `https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/` (single document URL shared across ASI01–ASI10; per-item anchors not stable in the 2026 publication) |
 | tachi pseudo-taxonomies | `tachi-control-category.yaml`, `tachi-stride-ai-category.yaml` | Repo-relative path to canonical source reference (e.g., `.claude/skills/tachi-control-analysis/references/control-categories.md`) |
 
-Link-rot monitoring for external URLs is **out of F-A1 scope** (follow-on Issue filed on F-A1 PR merge). The integrity test (`test_citation_shape()` per FR-031) verifies URL syntax via regex only — no HTTP fetch (ADR-021 determinism).
+The weekly citation link monitor in `.github/workflows/taxonomy-link-monitor.yml` checks external URL reachability and uploads a report. It runs only on schedule or manual dispatch; it never gates pull requests. The integrity test continues to verify URL syntax offline (ADR-021 determinism).
 
 ---
 
@@ -195,7 +202,7 @@ When NIST AI RMF 2.0 publishes (or the `airc.nist.gov` Playbook pages add/remove
 
 ## 7. Crosswalk methodology
 
-`crosswalk.yaml` is composed from primary-only edges in F-A1 (per spec FR-025). `related` and `superseded` edge types are **authorized in the schema but out of F-A1 scope** — they ship as a follow-on Issue filed on F-A1 PR merge.
+`crosswalk.yaml` contains primary mappings and a curated tranche of cited `related` edges. Each relation retains its confidence and citation; unsupported or ambiguous mappings are omitted.
 
 Day 1 authoring spike (per spec Assumption A5) seeded the crosswalk with **5-slice composition**: 10 OWASP↔CWE + 10 ATT&CK↔CWE + 10 ATT&CK↔ATLAS + 10 LLM↔NIST + 10 Agentic↔MITRE. This 50-edge spike validated the per-edge authoring rate against the ≥500-edge target (spec Risk R3 tiered fallback: Tier 2 = 300-edge floor team-lead-authorizable, Tier 3 = 150-edge floor PRD-amendment-required).
 

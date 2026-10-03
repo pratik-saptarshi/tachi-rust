@@ -8,7 +8,14 @@ use tachi_core::coverage_attestation::{
 use tachi_core::facade::parse_compensating_controls_md;
 use tachi_core::parsers::{parse_threats_findings, SourceAttributionRecord, ThreatFinding};
 
-const FRAMEWORKS: [&str; 5] = ["owasp", "mitre-attack", "mitre-atlas", "nist-ai-rmf", "cwe"];
+const FRAMEWORKS: [&str; 6] = [
+    "owasp",
+    "mitre-attack",
+    "mitre-atlas",
+    "nist-ai-rmf",
+    "nist-ai-600-1",
+    "cwe",
+];
 
 #[derive(Clone, Copy)]
 struct Baseline {

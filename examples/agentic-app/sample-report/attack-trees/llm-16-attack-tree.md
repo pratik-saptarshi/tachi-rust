@@ -2,11 +2,11 @@
 
 **Risk Level**: High
 **Component**: LLM Agent Orchestrator
-**Threat**: Denial-of-Wallet via context-window cost amplification (OWASP LLM10:2025 Cat 11)
+**Threat**: Denial-of-Wallet via context-window cost amplification (OWASP LLM06:2026 Cat 11)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Drive operator inference bill to ruin via denial-of-wallet attack (OWASP LLM10:2025 Cat 11)"]
+    Goal["[GOAL] Drive operator inference bill to ruin via denial-of-wallet attack (OWASP LLM06:2026 Cat 11)"]
     Goal --> A["[OR] Drive context-window to model maximum per call (Vector B)"]
     A --> A1["No per-tenant token budget hard-cap at API gateway"]
     A --> A2["No at-query-time billing attribution before inference"]

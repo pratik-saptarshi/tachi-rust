@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Steal proprietary model by monitoring Learning Loop model update artifacts (OWASP LLM10:2025)"]
+    Goal["[GOAL] Steal proprietary model by monitoring Learning Loop model update artifacts (OWASP LLM06:2026)"]
     Goal --> A["[OR] Gain access to model update artifact storage or transport"]
     A --> A1["Exploit misconfigured artifact storage access controls"]
     A --> A2["Intercept model update packages on delivery channel"]

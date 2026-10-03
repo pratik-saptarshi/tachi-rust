@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Poison Orchestrator's future behavior via adversarial training data in Learning Loop (OWASP LLM03:2025)"]
+    Goal["[GOAL] Poison Orchestrator's future behavior via adversarial training data in Learning Loop (OWASP LLM04:2026)"]
     Goal --> A["[OR] Inject adversarial interaction records into Audit Logger"]
     A --> A1["Fabricate user sessions designed to shift model behavior"]
     A --> A2["Exploit misconfigured log-write access"]

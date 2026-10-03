@@ -1,6 +1,6 @@
 ---
 name: tachi-output-integrity
-description: "Analyzes LLM-integrated components for output-handling vulnerabilities (OWASP LLM05:2025). Activate when a DFD element involves an LLM Process whose output flows into a downstream execution sink — browser, SQL client, shell, template engine, outbound HTTP client, or filesystem writer."
+description: "Analyzes LLM-integrated components for output-handling vulnerabilities (OWASP LLM10:2026). Activate when a DFD element involves an LLM Process whose output flows into a downstream execution sink — browser, SQL client, shell, template engine, outbound HTTP client, or filesystem writer."
 tools:
   - Read
   - Glob
@@ -14,7 +14,7 @@ model: sonnet
 category: llm
 threat_class: LLM
 dfd_targets: [Process]
-owasp_references: [OWASP LLM05:2025, OWASP ML09:2023]
+owasp_references: [OWASP LLM10:2026, OWASP ML09:2023]
 output_schema: ../../../schemas/finding.yaml
 ```
 
@@ -22,7 +22,7 @@ output_schema: ../../../schemas/finding.yaml
 
 ## Purpose
 
-Detects OWASP LLM05:2025 Improper Output Handling vulnerabilities in LLM-integrated components. Input-side prompt-injection detection is comprehensive across the existing AI-tier agents; this agent closes the **output side** — where LLM-generated content flows unsanitized into downstream execution sinks. Five pattern categories cover client-side execution sinks (XSS/DOM), server-side execution sinks (SQLi/OS command/code injection), SSRF from LLM-synthesized URLs, template/expression injection, and path traversal with unsafe file writes. OWASP ML09:2023 is documented as a semantic peer framework for the same threat class per ADR-030 Decision 4; `source_attribution` citations carry OWASP LLM05 only (plus applicable CWEs) because ML09 is not present in the F-A1 catalog.
+Detects OWASP LLM10:2026 Improper Output Handling vulnerabilities in LLM-integrated components. Input-side prompt-injection detection is comprehensive across the existing AI-tier agents; this agent closes the **output side** — where LLM-generated content flows unsanitized into downstream execution sinks. Five pattern categories cover client-side execution sinks (XSS/DOM), server-side execution sinks (SQLi/OS command/code injection), SSRF from LLM-synthesized URLs, template/expression injection, and path traversal with unsafe file writes. OWASP ML09:2023 is documented as a semantic peer framework for the same threat class per ADR-030 Decision 4; `source_attribution` citations carry OWASP LLM05 only (plus applicable CWEs) because ML09 is not present in the F-A1 catalog.
 
 Scope is the **encoding/sanitization signal class** per ADR-030 Decision 2 (Heuristic A Outcome B): bytes, strings, and syntax primitives on machine-victim output handling. **Out of scope**: the psychology/linguistics signal class (manipulative tone, fabricated authority, absence of uncertainty disclaimers pushing human users to harmful actions — OWASP ASI09:2026) is forward-referenced to the future `trust-exploitation` agent (F-4 under BLP-01 §8).
 
@@ -61,11 +61,11 @@ impact: HIGH
 risk_level: Critical
 mitigation: "Apply HTML entity encoding on all LLM output before rendering — use framework-native helpers (React default interpolation {value}, Vue v-text, Django auto-escape). Avoid innerHTML / dangerouslySetInnerHTML — use textContent or safe DOM APIs. Layer a Content Security Policy with strict directives (default-src 'self'; script-src 'self' 'nonce-<nonce>'; no unsafe-inline / unsafe-eval) to contain residual risk. Do NOT rely on post-hoc string sanitization as the primary control."
 references:
-  - "OWASP LLM05:2025"
+  - "OWASP LLM10:2026"
   - "CWE-79"
 source_attribution:
   - taxonomy: owasp
-    id: LLM05
+    id: LLM10
     relationship: primary
   - taxonomy: cwe
     id: CWE-79
@@ -85,11 +85,11 @@ impact: HIGH
 risk_level: Critical
 mitigation: "Use parameterized SQL queries exclusively — SQLAlchemy text(sql).bindparams(), psycopg2 cursor.execute(sql, params), Django ORM .filter(**params). When model output must supply structural elements (table name, sort column), validate against a closed allowlist enum before composition. Never pass model output directly into string interpolation that reaches the SQL execution layer."
 references:
-  - "OWASP LLM05:2025"
+  - "OWASP LLM10:2026"
   - "CWE-89"
 source_attribution:
   - taxonomy: owasp
-    id: LLM05
+    id: LLM10
     relationship: primary
   - taxonomy: cwe
     id: CWE-89
@@ -109,11 +109,11 @@ impact: HIGH
 risk_level: High
 mitigation: "Implement a URL allowlist of permitted external hostnames; reject all other URLs pre-request. Enforce egress firewall rules blocking RFC 1918 / link-local / cloud metadata endpoints. Validate URL scheme against {http, https} only. Apply DNS pinning: resolve the hostname once, pin the IP, and verify it is outside private ranges before dispatching the request."
 references:
-  - "OWASP LLM05:2025"
+  - "OWASP LLM10:2026"
   - "CWE-918"
 source_attribution:
   - taxonomy: owasp
-    id: LLM05
+    id: LLM10
     relationship: primary
   - taxonomy: cwe
     id: CWE-918

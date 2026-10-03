@@ -693,7 +693,7 @@ Produce the coverage matrix for Section 5 of the output. This matrix cross-refer
 
 Produce Section 6 (Risk Summary) and Section 7 (Recommended Actions). Include the Risk Calibration Matrix subsection (always present) before the risk summary table. Compute deduplicated counts grouped by risk level (Critical, High, Medium, Low, Note) where each correlation group counts as 1. Percentages must sum to 100%.
 
-After the Risk Calibration Matrix, include a **Risk by MAESTRO Layer** subsection showing deduplicated finding counts and highest severity grouped by MAESTRO layer. Omit layers with zero findings. Order rows by highest severity descending, then finding count descending. See the output schemas reference for the table format.
+After the Risk Calibration Matrix, include a **Risk by MAESTRO Layer** subsection with all 7 canonical layers (L1–L7), in L1→L7 order, followed by an Unclassified row only when needed. For layers with findings, show the deduplicated count and highest severity. For a layer actually analyzed with no findings, show count 0 and `Analyzed — no findings this scan`. For a layer outside the architecture, show `Not applicable`; when analysis was not performed, show `Not evaluated`. Never use a clean-scan label for a layer that was not checked. See the output schemas reference for the table format.
 
 Recommended actions are sorted by risk level descending then table appearance order (S, T, R, I, D, E, AG, LLM). Every finding appears exactly once; total rows equal raw finding count.
 

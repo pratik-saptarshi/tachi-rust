@@ -1,0 +1,25 @@
+name: taxonomy citation link monitor
+
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  citation-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check citation URLs
+        run: cargo run --locked -p tachi-cli --bin taxonomy-link-monitor -- --root . --report taxonomy-link-report.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: taxonomy-link-report
+          path: taxonomy-link-report.json
+          if-no-files-found: ignore

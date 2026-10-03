@@ -45,7 +45,7 @@ This threat model assesses an agentic AI application comprising seven components
 - **ISO 27001 A.9 (Access Control)**: Findings E-1, E-2, E-4 map to access control policy requirements for information systems.
 - **OWASP A01:2021**: Findings E-1, E-2, I-3, I-4 correspond to Broken Access Control (CWE-269, CWE-200).
 - **OWASP A07:2021**: Findings S-1, S-2, S-3, S-4 correspond to Identification and Authentication Failures (CWE-287).
-- **OWASP LLM01:2025**: Findings LLM-1, LLM-2 correspond to Prompt Injection.
+- **OWASP LLM01:2026**: Findings LLM-1, LLM-2 correspond to Prompt Injection.
 
 ### Remediation Timeline
 

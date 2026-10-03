@@ -4,15 +4,21 @@ use std::path::{Path, PathBuf};
 
 use crate::parsers::{SourceAttributionRecord, ThreatFinding};
 
-pub const ORDERED_FRAMEWORKS: [&str; 5] =
-    ["owasp", "mitre-attack", "mitre-atlas", "nist-ai-rmf", "cwe"];
+pub const ORDERED_FRAMEWORKS: [&str; 6] = [
+    "owasp",
+    "mitre-attack",
+    "mitre-atlas",
+    "nist-ai-rmf",
+    "nist-ai-600-1",
+    "cwe",
+];
 
 const MITRE_PREFIXES: [(&str, &str); 2] = [("mitre-attack", "ATT&CK:"), ("mitre-atlas", "ATLAS:")];
 
 const TAXONOMY_REF_GROUPS: [(&str, &[&str]); 4] = [
     ("owasp_refs", &["owasp"]),
     ("mitre_refs", &["mitre-attack", "mitre-atlas"]),
-    ("nist_refs", &["nist-ai-rmf"]),
+    ("nist_refs", &["nist-ai-rmf", "nist-ai-600-1"]),
     ("cwe_refs", &["cwe"]),
 ];
 
@@ -367,7 +373,7 @@ fn load_framework_records_from_text(text: &str, in_scope_only: bool) -> Vec<Fram
                 }
             }
             current = Some(FrameworkRecord {
-                id: id.trim().to_string(),
+                id: strip_yaml_scalar_quotes(id),
                 out_of_scope: false,
             });
             continue;
@@ -390,4 +396,16 @@ fn load_framework_records_from_text(text: &str, in_scope_only: bool) -> Vec<Fram
     }
 
     records
+}
+
+fn strip_yaml_scalar_quotes(value: &str) -> String {
+    let value = value.trim();
+    if value.len() >= 2 {
+        let first = value.as_bytes()[0];
+        let last = value.as_bytes()[value.len() - 1];
+        if (first == b'"' && last == b'"') || (first == b'\'' && last == b'\'') {
+            return value[1..value.len() - 1].to_string();
+        }
+    }
+    value.to_string()
 }

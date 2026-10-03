@@ -25,7 +25,7 @@ delta_counts:
 
 ## 1. Executive Summary
 
-This threat model covers the Agentic AI Application — a multi-agent architecture that combines a supervisor Large Language Model (LLM) Orchestrator, a delegated Specialist Agent, a Clinical Advisory Sub-Agent, a long-running Learning Loop, an MCP Tool Server, guardrails, and an inter-agent communication substrate. The F-5 Wave 2 analysis extends the baseline threat model with four new findings targeting OWASP LLM10:2025 (Unbounded Consumption) — the inference-resource exhaustion surface introduced by Pattern Categories 12, 13 (denial-of-service agent) and 10, 11 (model-theft agent).
+This threat model covers the Agentic AI Application — a multi-agent architecture that combines a supervisor Large Language Model (LLM) Orchestrator, a delegated Specialist Agent, a Clinical Advisory Sub-Agent, a long-running Learning Loop, an MCP Tool Server, guardrails, and an inter-agent communication substrate. The F-5 Wave 2 analysis extends the baseline threat model with four new findings targeting OWASP LLM06:2026 (Unbounded Consumption) — the inference-resource exhaustion surface introduced by Pattern Categories 12, 13 (denial-of-service agent) and 10, 11 (model-theft agent).
 
 **Risk posture**: 88 findings total — 61 Critical (69.3%), 23 High (26.1%), 4 Medium (4.5%). The system presents an extremely elevated risk profile dominated by the LLM Agent Orchestrator's broad attack surface (26 findings at L1 — Foundation Model), clinical advisory misinformation risks (3 Critical MI-{N} findings), and inter-agent trust failures throughout the Application Zone.
 
@@ -37,9 +37,9 @@ This threat model covers the Agentic AI Application — a multi-agent architectu
 
 **Highest-priority remediation** (top 5 by systemic impact): (1) LLM Agent Orchestrator — inference gateway controls (D-10, D-11, LLM-15, LLM-16, D-2, LLM-1 through LLM-7); (2) Clinical Advisory Sub-Agent — HITL gate and RAG grounding (MI-1, MI-2, MI-3, T-9, E-7); (3) Inter-Agent Communication Channel — end-to-end message signing and mTLS (S-5, T-4, I-4, E-4, AG-4, AG-8); (4) Long-Running Learning Loop — training data provenance and model update signing (S-7, T-8, E-6, LLM-11); (5) MCP Tool Server — zero-trust authorization and tool parameter validation (S-6, T-5, E-5, AG-5).
 
-**Correlation groups**: 8 cross-agent correlation groups (CG-1 through CG-8) identify 20 raw findings that form 8 logical threat clusters. CG-8 (new in this run) groups the four LLM10:2025 vectors as a single cluster sharing the Orchestrator's inference endpoint.
+**Correlation groups**: 8 cross-agent correlation groups (CG-1 through CG-8) identify 20 raw findings that form 8 logical threat clusters. CG-8 (new in this run) groups the four LLM06:2026 vectors as a single cluster sharing the Orchestrator's inference endpoint.
 
-**Delta vs baseline**: +4 new findings (D-10, D-11, LLM-15, LLM-16) targeting OWASP LLM10:2025. No findings resolved. No findings updated. 84 unchanged.
+**Delta vs baseline**: +4 new findings (D-10, D-11, LLM-15, LLM-16) targeting OWASP LLM06:2026. No findings resolved. No findings updated. 84 unchanged.
 
 ---
 
@@ -79,13 +79,13 @@ Nine repudiation findings (R-1 through R-9) address non-repudiation gaps at ever
 
 Nine information disclosure findings (I-1 through I-9). Critical findings: I-2 (Orchestrator context window leakage in HTTPS response), I-4 (Inter-Agent Channel message observability — `communication_vulnerability`), I-7 (Audit Logger unauthorized read — full operational history exposed), I-9 (Clinical Advisory Sub-Agent — clinical context leakage through response path and training stream). I-4 and T-4 are the two most structurally critical channel findings — they share the `communication_vulnerability` pattern and are both addressed by end-to-end message security.
 
-### 3.5 Denial of Service (D) — including F-5 LLM10:2025 additions
+### 3.5 Denial of Service (D) — including F-5 LLM06:2026 additions
 
 Eleven denial-of-service findings (D-1 through D-11). D-1 through D-9 are unchanged from baseline. D-10 and D-11 are new in this F-5 wave.
 
-**D-10 — LLM Inference-Request Flooding (Pattern Category 12 — OWASP LLM10:2025, CWE-400)**: The LLM Agent Orchestrator lacks per-tenant QPS rate limiting at the inference API gateway distinct from generic network-layer rate limiting. An authenticated attacker floods the inference endpoint with concurrent requests at maximal prompt-token payloads, exhausting inference compute and starving legitimate users. The Orchestrator's fan-out to Specialist Agent and Clinical Advisory Sub-Agent means a single attacker request can trigger three concurrent LLM inference calls, amplifying the denial-of-service blast radius beyond per-endpoint controls. Token-counting middleware is absent — the system accepts requests without synchronous cost projection. Risk: **Critical**.
+**D-10 — LLM Inference-Request Flooding (Pattern Category 12 — OWASP LLM06:2026, CWE-400)**: The LLM Agent Orchestrator lacks per-tenant QPS rate limiting at the inference API gateway distinct from generic network-layer rate limiting. An authenticated attacker floods the inference endpoint with concurrent requests at maximal prompt-token payloads, exhausting inference compute and starving legitimate users. The Orchestrator's fan-out to Specialist Agent and Clinical Advisory Sub-Agent means a single attacker request can trigger three concurrent LLM inference calls, amplifying the denial-of-service blast radius beyond per-endpoint controls. Token-counting middleware is absent — the system accepts requests without synchronous cost projection. Risk: **Critical**.
 
-**D-11 — Context-Window Latency Amplification (Pattern Category 13 — OWASP LLM10:2025, CWE-400; Q1 SPLIT Vector A)**: Adversarially long conversation histories or recursive prompt-expansion templates drive per-request context-window usage to 99% of model maximum, spiking inference latency to the per-tenant timeout threshold. With no max-context-window enforcement at the API gateway and no per-conversation truncation policy, a single attacker request blocks the inference slot for the duration of the timeout. The three-leg fan-out (Orchestrator + Specialist + ClinAdvisor) compounds this: one max-context request occupies three inference slots simultaneously. Context-window monitoring is absent. Risk: **Critical**.
+**D-11 — Context-Window Latency Amplification (Pattern Category 13 — OWASP LLM06:2026, CWE-400; Q1 SPLIT Vector A)**: Adversarially long conversation histories or recursive prompt-expansion templates drive per-request context-window usage to 99% of model maximum, spiking inference latency to the per-tenant timeout threshold. With no max-context-window enforcement at the API gateway and no per-conversation truncation policy, a single attacker request blocks the inference slot for the duration of the timeout. The three-leg fan-out (Orchestrator + Specialist + ClinAdvisor) compounds this: one max-context request occupies three inference slots simultaneously. Context-window monitoring is absent. Risk: **Critical**.
 
 D-10 and D-11 are grouped with LLM-15 and LLM-16 in correlation group CG-8 (LLM10 Unbounded Consumption cluster), reflecting that all four findings share the Orchestrator's inference endpoint and fan-out topology as the common attack surface.
 
@@ -97,13 +97,13 @@ Seven elevation of privilege findings (E-1 through E-7). All are Critical. The m
 
 Eight agentic findings (AG-1 through AG-8). Seven Critical, one High (AG-6). AG-8 ([UNCHANGED] from F-3 wave 3) covers Insecure Inter-Agent Communication (OWASP ASI07:2026, Pattern Category 9 — A2A), which is grouped with D-4 in CG-7.
 
-### 3.8 LLM Threats (LLM) — including F-5 LLM10:2025 additions
+### 3.8 LLM Threats (LLM) — including F-5 LLM06:2026 additions
 
-Sixteen LLM-category findings (LLM-1 through LLM-16), plus 4 OI-{N} (Output Integrity — OWASP LLM05:2025) and 3 MI-{N} (Misinformation — OWASP LLM09:2025).
+Sixteen LLM-category findings (LLM-1 through LLM-16), plus 4 OI-{N} (Output Integrity — OWASP LLM10:2026) and 3 MI-{N} (Misinformation — OWASP LLM07:2026).
 
-**LLM-15 — Cost Amplification via Recursive or Cost-Asymmetric Prompting (Pattern Category 10 — OWASP LLM10:2025; T1496 prose-only)**: The Orchestrator accepts prompts without recursive-prompt depth limits or output-token caps tuned to realistic response-length p99. The multi-hop fan-out (Orchestrator → Specialist → ToolServer → ExtAPI; Orchestrator → ClinAdvisor → KB) creates a recursive cost-amplification surface: an adversarial 10-token user prompt can trigger 32,000+ tokens of combined output across all three inference endpoints. Output-amplification ratio (output-tokens / input-tokens) is not monitored — pathological ratios above 100x from recursive chain-of-thought expansion are invisible. Cost-per-query p99 alerting is not declared; sustained cost-amplification attacks accumulate as gradual billing increases that per-request rate limits do not catch. MITRE ATT&CK T1496 (Resource Hijacking) is the attacker's goal — consuming operator inference compute at operator expense; T1496 cited as prose cross-reference only (not in references array). Risk: **Critical**.
+**LLM-15 — Cost Amplification via Recursive or Cost-Asymmetric Prompting (Pattern Category 10 — OWASP LLM06:2026; T1496 prose-only)**: The Orchestrator accepts prompts without recursive-prompt depth limits or output-token caps tuned to realistic response-length p99. The multi-hop fan-out (Orchestrator → Specialist → ToolServer → ExtAPI; Orchestrator → ClinAdvisor → KB) creates a recursive cost-amplification surface: an adversarial 10-token user prompt can trigger 32,000+ tokens of combined output across all three inference endpoints. Output-amplification ratio (output-tokens / input-tokens) is not monitored — pathological ratios above 100x from recursive chain-of-thought expansion are invisible. Cost-per-query p99 alerting is not declared; sustained cost-amplification attacks accumulate as gradual billing increases that per-request rate limits do not catch. MITRE ATT&CK T1496 (Resource Hijacking) is the attacker's goal — consuming operator inference compute at operator expense; T1496 cited as prose cross-reference only (not in references array). Risk: **Critical**.
 
-**LLM-16 — Denial-of-Wallet via Context-Window Cost Amplification (Pattern Category 11 — OWASP LLM10:2025; Q1 SPLIT Vector B; T1496 prose-only)**: The Orchestrator lacks per-tenant token budget hard-cap at the API gateway and at-query-time billing attribution. An attacker drives context-window to model maximum on each call, inflating per-call inference cost; the fan-out to Specialist and ClinAdvisor multiplies per-request billing up to 3x. Cost-velocity monitoring across 5-minute, 1-hour, 24-hour windows is absent; automated tenant suspension on budget breach is not declared. Severity Q3 RESOLVED: **High** default (single-application architecture, no multi-tenant freemium structure evident; CRITICAL 2-condition floor not met). T1496 cited as prose cross-reference only.
+**LLM-16 — Denial-of-Wallet via Context-Window Cost Amplification (Pattern Category 11 — OWASP LLM06:2026; Q1 SPLIT Vector B; T1496 prose-only)**: The Orchestrator lacks per-tenant token budget hard-cap at the API gateway and at-query-time billing attribution. An attacker drives context-window to model maximum on each call, inflating per-call inference cost; the fan-out to Specialist and ClinAdvisor multiplies per-request billing up to 3x. Cost-velocity monitoring across 5-minute, 1-hour, 24-hour windows is absent; automated tenant suspension on budget breach is not declared. Severity Q3 RESOLVED: **High** default (single-application architecture, no multi-tenant freemium structure evident; CRITICAL 2-condition floor not met). T1496 cited as prose cross-reference only.
 
 All LLM-{N} findings (Cat 1–9 model-theft + new Cat 10/11 LLM10) appear under a single `category: llm` section with no artificial fragmentation. CG-8 groups D-10, D-11, LLM-15, LLM-16 as the LLM10 Unbounded Consumption cluster.
 
@@ -113,7 +113,7 @@ All LLM-{N} findings (Cat 1–9 model-theft + new Cat 10/11 LLM10) appear under 
 
 ### Theme 1: Multi-Layer Trust Failure on the LLM Agent Orchestrator
 
-The LLM Agent Orchestrator accumulates 26 findings across all threat categories — the highest per-component concentration in the architecture. This reflects the Orchestrator's role as the architectural keystone: it holds privileged access to the Knowledge Base, MCP Tool Server, Specialist Agent, Clinical Advisory Sub-Agent, and User response path. The combination of prompt injection (LLM-1, LLM-2), context window tampering (T-2), privilege escalation (E-2), repudiation (R-3), and autonomous action abuse (AG-1, AG-2) creates interlocking attack paths where a single injection point enables cascading compromise across all connected components. F-5 adds the LLM10:2025 inference-resource surface (D-10, D-11, LLM-15, LLM-16), confirming that the Orchestrator's inference endpoint is simultaneously the system's primary intelligence capability and its most exposed attack surface.
+The LLM Agent Orchestrator accumulates 26 findings across all threat categories — the highest per-component concentration in the architecture. This reflects the Orchestrator's role as the architectural keystone: it holds privileged access to the Knowledge Base, MCP Tool Server, Specialist Agent, Clinical Advisory Sub-Agent, and User response path. The combination of prompt injection (LLM-1, LLM-2), context window tampering (T-2), privilege escalation (E-2), repudiation (R-3), and autonomous action abuse (AG-1, AG-2) creates interlocking attack paths where a single injection point enables cascading compromise across all connected components. F-5 adds the LLM06:2026 inference-resource surface (D-10, D-11, LLM-15, LLM-16), confirming that the Orchestrator's inference endpoint is simultaneously the system's primary intelligence capability and its most exposed attack surface.
 
 **Contributing finding IDs**: S-3, T-2, R-3, I-2, D-2, D-10, D-11, E-2, AG-1, AG-2, LLM-1 through LLM-7, LLM-15, LLM-16, OI-1 through OI-3, CG-1, CG-3, CG-4, CG-8.
 
@@ -135,9 +135,9 @@ The Inter-Agent Communication Channel carries delegation messages between the Or
 
 **Contributing finding IDs**: S-5, T-4, I-4, R-5, D-4, E-4, AG-4, AG-8, CG-7.
 
-### Theme 5: LLM10:2025 — Unbounded Consumption (F-5 New Theme)
+### Theme 5: LLM06:2026 — Unbounded Consumption (F-5 New Theme)
 
-Feature 229 F-5 Wave 2 surfaces OWASP LLM10:2025 (Unbounded Consumption) as a new cross-cutting theme. Four findings (D-10, D-11, LLM-15, LLM-16) form correlation group CG-8, all targeting the Orchestrator's inference endpoint and multi-hop fan-out topology. The Q1 SPLIT design separates the LLM10 attack class into two vector pairs: Vector A (availability disruption) → D-10 (inference flooding) + D-11 (context-window latency); Vector B (economic damage) → LLM-15 (cost amplification via recursive prompting) + LLM-16 (denial-of-wallet). The two pairs differ in attacker intent (availability vs. economic) but share the same architectural control gap: absent per-tenant QPS and token budget enforcement at the inference API gateway.
+Feature 229 F-5 Wave 2 surfaces OWASP LLM06:2026 (Unbounded Consumption) as a new cross-cutting theme. Four findings (D-10, D-11, LLM-15, LLM-16) form correlation group CG-8, all targeting the Orchestrator's inference endpoint and multi-hop fan-out topology. The Q1 SPLIT design separates the LLM10 attack class into two vector pairs: Vector A (availability disruption) → D-10 (inference flooding) + D-11 (context-window latency); Vector B (economic damage) → LLM-15 (cost amplification via recursive prompting) + LLM-16 (denial-of-wallet). The two pairs differ in attacker intent (availability vs. economic) but share the same architectural control gap: absent per-tenant QPS and token budget enforcement at the inference API gateway.
 
 **Contributing finding IDs**: D-10, D-11, LLM-15, LLM-16, CG-8.
 
@@ -193,7 +193,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Exhaust LLM Agent Orchestrator inference capacity\ndenying service to legitimate users (OWASP LLM10:2025)"]
+    Goal["[GOAL] Exhaust LLM Agent Orchestrator inference capacity\ndenying service to legitimate users (OWASP LLM06:2026)"]
     Goal --> A["[OR] Flood inference endpoint\nwith concurrent requests"]
     A --> A1["[AND] Attacker has valid\nauthenticated access (or credential)"]
     A --> A2["[AND] No per-tenant QPS rate limit\nat inference API gateway"]
@@ -218,7 +218,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Spike per-request inference latency to per-tenant timeout\nblocking inference slots (OWASP LLM10:2025 Vector A)"]
+    Goal["[GOAL] Spike per-request inference latency to per-tenant timeout\nblocking inference slots (OWASP LLM06:2026 Vector A)"]
     Goal --> A["[OR] Construct adversarially long\nprompt payload"]
     A --> A1["[AND] No max-context-window\nenforcement at API gateway"]
     A --> A2["[AND] No per-conversation\ntruncation policy"]
@@ -244,7 +244,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Drive operator inference cost > revenue per query\n(OWASP LLM10:2025 Pattern Cat 10)"]
+    Goal["[GOAL] Drive operator inference cost > revenue per query\n(OWASP LLM06:2026 Pattern Cat 10)"]
     Goal --> A["[OR] Submit recursive or\ncost-asymmetric prompt"]
     A --> A1["[AND] No recursive-prompt depth limit\nat inference-runtime layer"]
     A --> A2["[AND] Output-token cap missing\nor set to model maximum (not p99)"]
@@ -268,7 +268,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Cause clinician or patient to act on\nhallucinated clinical assertion (OWASP LLM09:2025)"]
+    Goal["[GOAL] Cause clinician or patient to act on\nhallucinated clinical assertion (OWASP LLM07:2026)"]
     Goal --> A["[OR] Sub-agent generates\nungrounded clinical claim"]
     A --> A1["[AND] RAG grounding absent or insufficient\n(no per-claim source anchoring)"]
     A --> A2["[AND] No retrieval-strength metric\n(hit-rate or recall@k) enforced"]
@@ -311,7 +311,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Exhaust or drain LLM Agent Orchestrator inference resources\n(OWASP LLM10:2025 — Unbounded Consumption Cluster CG-8)"]
+    Goal["[GOAL] Exhaust or drain LLM Agent Orchestrator inference resources\n(OWASP LLM06:2026 — Unbounded Consumption Cluster CG-8)"]
     Goal --> VectorA["[Vector A — Availability Disruption]"]
     VectorA --> D10["D-10: Inference-Request Flooding\n— QPS exhaustion via no per-tenant\nrate limit at inference gateway"]
     VectorA --> D11["D-11: Context-Window Latency Amplification\n— max-context payload spikes latency\nto per-tenant timeout (Vector A)"]
@@ -357,7 +357,7 @@ This section summarizes the cross-layer attack chains detected in Phase 3.5. The
 
 Critical: 7 | High: 3 | Medium: 0 | Low: 0
 
-Resource competition findings reflect the shared inference infrastructure and multi-hop fan-out topology. The Orchestrator's inference pipeline is a bounded resource shared across all downstream components — D-2, D-10, D-11 (Orchestrator capacity), D-3 (Specialist task queue), D-4 (Channel message queue), D-5 + AG-6 (MCP Tool Server connection pool), D-9 (ClinAdvisor inference capacity). F-5 adds LLM-15 and LLM-16 to this pattern, confirming that the LLM10:2025 economic-damage vectors (cost amplification and denial-of-wallet) are structurally equivalent to resource competition at the inference layer. The multi-hop fan-out design — where a single user request triggers three inference calls — is the architectural root cause.
+Resource competition findings reflect the shared inference infrastructure and multi-hop fan-out topology. The Orchestrator's inference pipeline is a bounded resource shared across all downstream components — D-2, D-10, D-11 (Orchestrator capacity), D-3 (Specialist task queue), D-4 (Channel message queue), D-5 + AG-6 (MCP Tool Server connection pool), D-9 (ClinAdvisor inference capacity). F-5 adds LLM-15 and LLM-16 to this pattern, confirming that the LLM06:2026 economic-damage vectors (cost amplification and denial-of-wallet) are structurally equivalent to resource competition at the inference layer. The multi-hop fan-out design — where a single user request triggers three inference calls — is the architectural root cause.
 
 Impacted findings: D-2, D-3, D-4, D-5, D-9, D-10, D-11, AG-6, LLM-15, LLM-16
 
@@ -409,7 +409,7 @@ Findings are organized into remediation waves by risk level and systemic impact.
 
 ### Wave 1 — Critical (Immediate Action Required)
 
-**Priority 1: LLM10:2025 Inference Gateway Controls (CG-8 — New in F-5)**
+**Priority 1: LLM06:2026 Inference Gateway Controls (CG-8 — New in F-5)**
 
 Address D-10, D-11, LLM-15, LLM-16 as a unified cluster. All four share the inference API gateway and fan-out topology as the common architectural control point.
 
@@ -466,13 +466,13 @@ All 88 findings from threats.md plus 1 net-new (AGP-01) — complete traceabilit
 
 **Information Disclosure (I)**: I-1 (Guardrails Service / Medium), I-2 (LLM Agent Orchestrator / Critical), I-3 (Specialist Agent / High), I-4 (Inter-Agent Communication Channel / Critical), I-5 (MCP Tool Server / High), I-6 (Knowledge Base / High), I-7 (Audit Logger / Critical), I-8 (Long-Running Learning Loop / High), I-9 (Clinical Advisory Sub-Agent / Critical)
 
-**Denial of Service (D)**: D-1 (Guardrails Service / Critical), D-2 (LLM Agent Orchestrator / Critical), D-3 (Specialist Agent / High), D-4 (Inter-Agent Communication Channel / High), D-5 (MCP Tool Server / Critical), D-6 (Knowledge Base / Medium), D-7 (Audit Logger / High), D-8 (Long-Running Learning Loop / Medium), D-9 (Clinical Advisory Sub-Agent / High), **D-10 [NEW]** (LLM Agent Orchestrator / Critical — OWASP LLM10:2025 Cat 12), **D-11 [NEW]** (LLM Agent Orchestrator / Critical — OWASP LLM10:2025 Cat 13)
+**Denial of Service (D)**: D-1 (Guardrails Service / Critical), D-2 (LLM Agent Orchestrator / Critical), D-3 (Specialist Agent / High), D-4 (Inter-Agent Communication Channel / High), D-5 (MCP Tool Server / Critical), D-6 (Knowledge Base / Medium), D-7 (Audit Logger / High), D-8 (Long-Running Learning Loop / Medium), D-9 (Clinical Advisory Sub-Agent / High), **D-10 [NEW]** (LLM Agent Orchestrator / Critical — OWASP LLM06:2026 Cat 12), **D-11 [NEW]** (LLM Agent Orchestrator / Critical — OWASP LLM06:2026 Cat 13)
 
 **Elevation of Privilege (E)**: E-1 (Guardrails Service / Critical), E-2 (LLM Agent Orchestrator / Critical), E-3 (Specialist Agent / High), E-4 (Inter-Agent Communication Channel / Critical), E-5 (MCP Tool Server / Critical), E-6 (Long-Running Learning Loop / Critical), E-7 (Clinical Advisory Sub-Agent / Critical)
 
 **Agentic Threats (AG)**: AG-1 (LLM Agent Orchestrator / Critical), AG-2 (LLM Agent Orchestrator / Critical), AG-3 (Specialist Agent / Critical), AG-4 (Inter-Agent Communication Channel / Critical), AG-5 (MCP Tool Server / Critical), AG-6 (MCP Tool Server / High), AG-7 (Long-Running Learning Loop / Critical), AG-8 (Inter-Agent Communication Channel / Critical — OWASP ASI07:2026)
 
-**LLM Threats (LLM)**: LLM-1 (LLM Agent Orchestrator / Critical), LLM-2 (LLM Agent Orchestrator / Critical), LLM-3 (LLM Agent Orchestrator / High), LLM-4 (LLM Agent Orchestrator / Critical), LLM-5 (LLM Agent Orchestrator / Critical), LLM-6 (LLM Agent Orchestrator / Critical), LLM-7 (LLM Agent Orchestrator / High), LLM-8 (Specialist Agent / Critical), LLM-9 (Specialist Agent / Critical), LLM-10 (Specialist Agent / High), LLM-11 (Long-Running Learning Loop / Critical), LLM-12 (Long-Running Learning Loop / High), LLM-13 (Clinical Advisory Sub-Agent / Critical), LLM-14 (Clinical Advisory Sub-Agent / Critical), **LLM-15 [NEW]** (LLM Agent Orchestrator / Critical — OWASP LLM10:2025 Cat 10), **LLM-16 [NEW]** (LLM Agent Orchestrator / High — OWASP LLM10:2025 Cat 11)
+**LLM Threats (LLM)**: LLM-1 (LLM Agent Orchestrator / Critical), LLM-2 (LLM Agent Orchestrator / Critical), LLM-3 (LLM Agent Orchestrator / High), LLM-4 (LLM Agent Orchestrator / Critical), LLM-5 (LLM Agent Orchestrator / Critical), LLM-6 (LLM Agent Orchestrator / Critical), LLM-7 (LLM Agent Orchestrator / High), LLM-8 (Specialist Agent / Critical), LLM-9 (Specialist Agent / Critical), LLM-10 (Specialist Agent / High), LLM-11 (Long-Running Learning Loop / Critical), LLM-12 (Long-Running Learning Loop / High), LLM-13 (Clinical Advisory Sub-Agent / Critical), LLM-14 (Clinical Advisory Sub-Agent / Critical), **LLM-15 [NEW]** (LLM Agent Orchestrator / Critical — OWASP LLM06:2026 Cat 10), **LLM-16 [NEW]** (LLM Agent Orchestrator / High — OWASP LLM06:2026 Cat 11)
 
 **Output Integrity (OI)**: OI-1 (LLM Agent Orchestrator / Critical), OI-2 (LLM Agent Orchestrator / Critical), OI-3 (LLM Agent Orchestrator / High), OI-4 (Clinical Advisory Sub-Agent / High)
 
@@ -498,11 +498,11 @@ All 88 findings from threats.md plus 1 net-new (AGP-01) — complete traceabilit
 
 **RESOLVED** (0): No findings resolved.
 
-**NEW** (4 — Feature 229 F-5 Wave 2, OWASP LLM10:2025 Unbounded Consumption):
-- **[NEW]** D-10: Denial-of-Service — LLM Agent Orchestrator — LLM Inference-Request Flooding (OWASP LLM10:2025 + CWE-400). Critical.
-- **[NEW]** D-11: Denial-of-Service — LLM Agent Orchestrator — Context-Window Latency Amplification (OWASP LLM10:2025 + CWE-400; Q1 SPLIT Vector A). Critical.
-- **[NEW]** LLM-15: LLM — LLM Agent Orchestrator — Cost Amplification via Recursive Prompting (OWASP LLM10:2025; T1496 prose-only). Critical.
-- **[NEW]** LLM-16: LLM — LLM Agent Orchestrator — Denial-of-Wallet via Context-Window Cost Amplification (OWASP LLM10:2025; Q1 SPLIT Vector B; T1496 prose-only; HIGH default). High.
+**NEW** (4 — Feature 229 F-5 Wave 2, OWASP LLM06:2026 Unbounded Consumption):
+- **[NEW]** D-10: Denial-of-Service — LLM Agent Orchestrator — LLM Inference-Request Flooding (OWASP LLM06:2026 + CWE-400). Critical.
+- **[NEW]** D-11: Denial-of-Service — LLM Agent Orchestrator — Context-Window Latency Amplification (OWASP LLM06:2026 + CWE-400; Q1 SPLIT Vector A). Critical.
+- **[NEW]** LLM-15: LLM — LLM Agent Orchestrator — Cost Amplification via Recursive Prompting (OWASP LLM06:2026; T1496 prose-only). Critical.
+- **[NEW]** LLM-16: LLM — LLM Agent Orchestrator — Denial-of-Wallet via Context-Window Cost Amplification (OWASP LLM06:2026; Q1 SPLIT Vector B; T1496 prose-only; HIGH default). High.
 
 **UPDATED** (0): No findings updated.
 

@@ -127,7 +127,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
         String::from("AG-8"),
         vec![SourceAttributionRecord {
             taxonomy: String::from("OWASP"),
-            id: String::from("LLM05:2025"),
+            id: String::from("LLM10:2026"),
             relationship: String::from("relevant"),
         }],
     );
@@ -141,6 +141,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
             threats_status: &threats_status,
             threats_full: &threats_full,
             source_attribution: &source_attribution,
+            affected_assets: &BTreeMap::new(),
             component_meta: &component_meta,
             source_threats_uri,
             baseline_run_id: Some("reports/custom/run-id-2026-06-27"),
@@ -174,7 +175,7 @@ fn build_risk_scores_sarif_marks_inherited_agentic_finding() {
     );
     assert_eq!(
         result["properties"]["source-attribution"][0]["id"],
-        "LLM05:2025"
+        "LLM10:2026"
     );
     assert_eq!(result["properties"]["new-finding"], true);
     assert_eq!(result["properties"]["asi07_emission"], true);
@@ -235,6 +236,7 @@ fn build_risk_scores_sarif_uses_shared_baseline_run_id_for_existing_finding() {
             threats_status: &threats_status,
             threats_full: &threats_full,
             source_attribution: &source_attribution,
+            affected_assets: &BTreeMap::new(),
             component_meta: &component_meta,
             source_threats_uri,
             baseline_run_id: Some("reports/custom/run-id-2026-06-27"),

@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Override Orchestrator system prompt via direct prompt injection (OWASP LLM01:2025)"]
+    Goal["[GOAL] Override Orchestrator system prompt via direct prompt injection (OWASP LLM01:2026)"]
     Goal --> A["[OR] Embed adversarial instructions in user prompt"]
     A --> A1["Jailbreak prefix bypasses Guardrails content filter"]
     A --> A2["Encoding-based evasion (Base64, Unicode) defeats pattern matching"]

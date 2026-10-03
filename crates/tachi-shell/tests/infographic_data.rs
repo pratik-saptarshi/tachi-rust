@@ -57,7 +57,14 @@ fn infographic_data_command_returns_maestro_stack_payload_json() {
     );
     assert_eq!(
         value["template_data"]["per_layer_summaries"][0]["layer_id"],
-        "L2"
+        "L1"
+    );
+    assert_eq!(
+        value["template_data"]["maestro_layer_distribution"]
+            .as_array()
+            .unwrap()
+            .len(),
+        7
     );
 }
 

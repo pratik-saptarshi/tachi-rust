@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Reconstruct Orchestrator model or extract training data via systematic API probing (OWASP LLM10:2025)"]
+    Goal["[GOAL] Reconstruct Orchestrator model or extract training data via systematic API probing (OWASP LLM06:2026)"]
     Goal --> A["[OR] Issue systematic probing queries"]
     A --> A1["Grid sampling of input space to map model behavior"]
     A --> A2["Active learning probes to efficiently cover decision boundary"]

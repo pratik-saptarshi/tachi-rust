@@ -218,11 +218,18 @@ fn coverage_attestation_pagination_smoke_compiles_at_scale() {
 
     assert_eq!(
         frameworks,
-        BTreeSet::from(["owasp", "mitre-attack", "mitre-atlas", "nist-ai-rmf", "cwe",])
+        BTreeSet::from([
+            "owasp",
+            "mitre-attack",
+            "mitre-atlas",
+            "nist-ai-rmf",
+            "nist-ai-600-1",
+            "cwe",
+        ])
     );
 
     assert_eq!(build_per_finding_rows(&scale_findings).len(), 100);
-    assert_eq!(build_per_framework_aggregates(&scale_findings).len(), 5);
+    assert_eq!(build_per_framework_aggregates(&scale_findings).len(), 6);
 
     write_text(
         &baseline_target.join("examples/agentic-app/sample-report/threats.md"),
