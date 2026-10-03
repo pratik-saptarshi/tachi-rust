@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 30782)
-Total output lines: 5264
-
 # Taxonomy Crosswalk (Feature 180 F-A1)
 # Authoritative source: docs/architecture/02_ADRs/ADR-027-taxonomy-crosswalk-schema.md
 # Schema: spec.md FR-009 through FR-014
@@ -10,7 +7,7 @@ Total output lines: 5264
 #   edge_type (3): primary, related, superseded
 #   confidence (3): high, medium, low (anti-drift rule: downgrade if no one-sentence citation supports the label)
 #
-# Current fork composition: 571 resolvable edges (540 primary, 31 related).
+# Current fork composition: 582 resolvable edges (551 primary, 31 related).
 # Entries require catalog-resolvable endpoints; omitted upstream mappings are
 # retained as deferred until this fork imports the corresponding source catalog.
 # ─── Slice 1: OWASP ↔ CWE (10 edges) ──────────────────────────────────────────
@@ -1829,7 +1826,131 @@ Total output lines: 5264
   confidence: medium
   citation: https://attack.mitre.org/techniques/T1550/001/
 
-- so…782 tokens truncated…e URL verbatim; medium
+# source: OWASP Agentic Top 10 source-page mappings to MITRE ATT&CK.
+- source:
+    taxonomy: owasp
+    id: ASI04
+  target:
+    taxonomy: mitre-attack
+    id: T1195
+  edge_type: primary
+  confidence: high
+  citation: https://attack.mitre.org/techniques/T1195/
+
+- source:
+    taxonomy: owasp
+    id: ASI04
+  target:
+    taxonomy: mitre-attack
+    id: T1195.001
+  edge_type: primary
+  confidence: high
+  citation: https://attack.mitre.org/techniques/T1195/001/
+
+- source:
+    taxonomy: owasp
+    id: ASI05
+  target:
+    taxonomy: mitre-attack
+    id: T1068
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1068/
+
+- source:
+    taxonomy: owasp
+    id: ASI06
+  target:
+    taxonomy: mitre-attack
+    id: T1565
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1565/
+
+- source:
+    taxonomy: owasp
+    id: ASI06
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1213/
+
+- source:
+    taxonomy: owasp
+    id: ASI07
+  target:
+    taxonomy: mitre-attack
+    id: T1530
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1530/
+
+- source:
+    taxonomy: owasp
+    id: ASI07
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1213/
+
+- source:
+    taxonomy: owasp
+    id: ASI08
+  target:
+    taxonomy: mitre-attack
+    id: T1499
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1499/
+
+- source:
+    taxonomy: owasp
+    id: ASI08
+  target:
+    taxonomy: mitre-attack
+    id: T1562
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1562/
+
+- source:
+    taxonomy: owasp
+    id: ASI10
+  target:
+    taxonomy: mitre-attack
+    id: T1556
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1556/
+
+- source:
+    taxonomy: owasp
+    id: ASI10
+  target:
+    taxonomy: mitre-attack
+    id: T1078
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1078/
+
+# ─── Batch 7 (T024): tachi-stride-ai-category ↔ ATT&CK + ATLAS (50 edges) ──────
+# Source composition:
+#   (a) STRIDE category ↔ ATT&CK (30 edges). Authoritative: .claude/skills/
+#       tachi-<category>/references/detection-patterns.md "Primary source"
+#       sections cite the ATT&CK technique URLs. Spoofing, Tampering,
+#       Repudiation, Information Disclosure, Denial of Service, and Elevation
+#       of Privilege each map to 4-6 ATT&CK parents/sub-techniques.
+#   (b) AI category ↔ ATLAS (20 edges). Authoritative: .claude/skills/
+#       tachi-<ai-category>/references/detection-patterns.md. Prompt Injection,
+#       Data Poisoning, Model Theft, Tool Abuse, Agent Autonomy map to the
+#       relevant ATLAS techniques; AML.T0058-T0062 picked up by Tool Abuse
+#       + Agent Autonomy via curator semantic alignment (no explicit URL
+#       in detection-patterns.md for those two categories — MITRE-page cited).
+# Confidence: high where detection-patterns.md cites the URL verbatim; medium
 # where the mapping is pattern-text-inferred rather than URL-declared.
 - source:
     taxonomy: tachi-stride-ai-category
