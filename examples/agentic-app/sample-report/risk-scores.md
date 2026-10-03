@@ -425,7 +425,7 @@ The portfolio adds four F-5 LLM10 Unbounded Consumption findings (D-10, D-11, LL
 
 ---
 
-### D-10: LLM Inference-Request Flooding and Token Exhaustion (Pattern Category 12 — OWASP LLM10:2025): The LLM Agent Orchestrator exposes an LLM inference pipeline without declared per-tenant QPS rate limiting at the API-gateway layer. An attacker can flood the Orchestrator's inference endpoint with concurrent max-token requests, exhausting inference compute and starving legitimate users. The fan-out to Specialist Agent and Clinical Advisory Sub-Agent multiplies the DoS surface — a single attacker request triggers three concurrent LLM inference calls.
+### D-10: LLM Inference-Request Flooding and Token Exhaustion (Pattern Category 12 — OWASP LLM06:2026): The LLM Agent Orchestrator exposes an LLM inference pipeline without declared per-tenant QPS rate limiting at the API-gateway layer. An attacker can flood the Orchestrator's inference endpoint with concurrent max-token requests, exhausting inference compute and starving legitimate users. The fan-out to Specialist Agent and Clinical Advisory Sub-Agent multiplies the DoS surface — a single attacker request triggers three concurrent LLM inference calls.
 
 **Component**: LLM Agent Orchestrator
 **Category**: Denial of Service
@@ -444,7 +444,7 @@ The portfolio adds four F-5 LLM10 Unbounded Consumption findings (D-10, D-11, LL
 
 **Scoring Rationale**:
 - **CVSS**: Network-reachable unauthenticated attack with scope change (fan-out to Specialist + ClinAdvisor) producing high availability impact and low integrity impact from disrupted inference output ordering; bounded to DoS category max of 8.5.
-- **Exploitability**: LLM API flooding with maximum-token payloads is trivially scriptable using off-the-shelf HTTP load testing tools (ab, wrk, k6); no specialized knowledge required beyond valid credentials; exploitation path is well-documented under OWASP LLM10:2025.
+- **Exploitability**: LLM API flooding with maximum-token payloads is trivially scriptable using off-the-shelf HTTP load testing tools (ab, wrk, k6); no specialized knowledge required beyond valid credentials; exploitation path is well-documented under OWASP LLM06:2026.
 - **Scalability**: Fully automatable end-to-end; affects all inference consumers simultaneously; low detection difficulty because flood traffic resembles high-volume legitimate usage, especially across the fan-out legs.
 - **Reachability**: LLM Agent Orchestrator is in the Trusted Application Zone (baseline 2.5); internal placement moderates composite score even for a severe DoS vector.
 
@@ -452,7 +452,7 @@ The portfolio adds four F-5 LLM10 Unbounded Consumption findings (D-10, D-11, LL
 
 ---
 
-### D-11: Context-Window Exhaustion — Latency-Driven Variant (Pattern Category 13 — OWASP LLM10:2025; Q1 SPLIT Vector A): The LLM Agent Orchestrator accepts conversation history payloads without a declared max-context-window enforcement policy at the API gateway. Adversarially long prompts spike per-request inference latency to the per-tenant timeout threshold, causing legitimate requests to queue behind blocked inference slots. The fan-out to Specialist Agent and Clinical Advisory Sub-Agent compounds this — a single max-context request blocks three inference slots simultaneously.
+### D-11: Context-Window Exhaustion — Latency-Driven Variant (Pattern Category 13 — OWASP LLM06:2026; Q1 SPLIT Vector A): The LLM Agent Orchestrator accepts conversation history payloads without a declared max-context-window enforcement policy at the API gateway. Adversarially long prompts spike per-request inference latency to the per-tenant timeout threshold, causing legitimate requests to queue behind blocked inference slots. The fan-out to Specialist Agent and Clinical Advisory Sub-Agent compounds this — a single max-context request blocks three inference slots simultaneously.
 
 **Component**: LLM Agent Orchestrator
 **Category**: Denial of Service
@@ -535,7 +535,7 @@ The portfolio adds four F-5 LLM10 Unbounded Consumption findings (D-10, D-11, LL
 
 ---
 
-### LLM-15: Cost Amplification via Recursive or Cost-Asymmetric Prompting (Pattern Category 10 — OWASP LLM10:2025): The LLM Agent Orchestrator accepts prompts without declared recursive-prompt depth limits or output-token caps. The multi-hop agent loop (Orchestrator → Specialist → ToolServer → ExtAPI, and Orchestrator → ClinAdvisor → KB) creates a recursive cost-amplification surface where a 10-token user prompt can generate 32k+ tokens of combined output across all inference endpoints.
+### LLM-15: Cost Amplification via Recursive or Cost-Asymmetric Prompting (Pattern Category 10 — OWASP LLM06:2026): The LLM Agent Orchestrator accepts prompts without declared recursive-prompt depth limits or output-token caps. The multi-hop agent loop (Orchestrator → Specialist → ToolServer → ExtAPI, and Orchestrator → ClinAdvisor → KB) creates a recursive cost-amplification surface where a 10-token user prompt can generate 32k+ tokens of combined output across all inference endpoints.
 
 **Component**: LLM Agent Orchestrator
 **Category**: LLM Threats
@@ -563,7 +563,7 @@ The portfolio adds four F-5 LLM10 Unbounded Consumption findings (D-10, D-11, LL
 
 ---
 
-### LLM-16: Denial-of-Wallet via Context-Window Cost Amplification (Pattern Category 11 — OWASP LLM10:2025; Q1 SPLIT Vector B): The LLM Agent Orchestrator's context-window handling lacks per-tenant token budget hard-cap at the API gateway. The fan-out to Specialist Agent and Clinical Advisory Sub-Agent multiplies per-request inference cost up to 3x. Denial-of-wallet attacks accumulate as gradual billing increases invisible to per-request rate limits.
+### LLM-16: Denial-of-Wallet via Context-Window Cost Amplification (Pattern Category 11 — OWASP LLM06:2026; Q1 SPLIT Vector B): The LLM Agent Orchestrator's context-window handling lacks per-tenant token budget hard-cap at the API gateway. The fan-out to Specialist Agent and Clinical Advisory Sub-Agent multiplies per-request inference cost up to 3x. Denial-of-wallet attacks accumulate as gradual billing increases invisible to per-request rate limits.
 
 **Component**: LLM Agent Orchestrator
 **Category**: LLM Threats

@@ -35,7 +35,7 @@
 #
 # ID validation (all 8 records resolve as top-level ``- id:`` keys in
 # F-A1 catalogs under the current parser regex):
-#   - owasp LLM05            → schemas/taxonomy/owasp.yaml (OWASP LLM05:2025)
+#   - owasp LLM05            → schemas/taxonomy/owasp.yaml (OWASP LLM10:2026)
 #   - owasp A03              → schemas/taxonomy/owasp.yaml (OWASP 2021 A03)
 #   - cwe CWE-1333           → schemas/taxonomy/cwe.yaml  (ReDoS; seed list)
 #   - cwe CWE-200            → schemas/taxonomy/cwe.yaml  (Info Exposure; seed)

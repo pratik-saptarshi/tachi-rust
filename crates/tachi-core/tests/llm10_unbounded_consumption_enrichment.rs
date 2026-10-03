@@ -173,11 +173,11 @@ fn t1496_is_prose_only_in_model_theft() {
 #[test]
 fn fixture_references_arrays_are_catalog_resolvable() {
     let root = workspace_root();
-    assert!(joined_refs(&root.join(CAT_12_FIXTURE)).contains("OWASP LLM10:2025"));
-    assert!(joined_refs(&root.join(CAT_13_FIXTURE)).contains("OWASP LLM10:2025"));
-    assert!(joined_refs(&root.join(CAT_10_FIXTURE)).contains("OWASP LLM10:2025"));
-    assert!(joined_refs(&root.join(CAT_11_FIXTURE)).contains("OWASP LLM10:2025"));
-    assert!(joined_refs(&root.join(CAT_11_FREEMIUM_FIXTURE)).contains("OWASP LLM10:2025"));
+    assert!(joined_refs(&root.join(CAT_12_FIXTURE)).contains("OWASP LLM06:2026"));
+    assert!(joined_refs(&root.join(CAT_13_FIXTURE)).contains("OWASP LLM06:2026"));
+    assert!(joined_refs(&root.join(CAT_10_FIXTURE)).contains("OWASP LLM06:2026"));
+    assert!(joined_refs(&root.join(CAT_11_FIXTURE)).contains("OWASP LLM06:2026"));
+    assert!(joined_refs(&root.join(CAT_11_FREEMIUM_FIXTURE)).contains("OWASP LLM06:2026"));
 }
 
 #[test]
@@ -202,12 +202,12 @@ fn agent_metadata_includes_llm10() {
             .map(|item| item.as_str().expect("reference string"))
             .collect::<Vec<_>>()
             .join(" | ");
-        assert!(joined.contains("LLM10:2025"));
+        assert!(joined.contains("LLM06:2026"));
     }
 }
 
 #[test]
-fn detection_workflow_step_5_references_llm10() {
+fn detection_workflow_step_5_references_llm06() {
     let root = workspace_root();
     for relative in [DOS_AGENT, MODEL_THEFT_AGENT] {
         let content = read_text(&root.join(relative));
@@ -215,6 +215,6 @@ fn detection_workflow_step_5_references_llm10() {
             .lines()
             .find(|line| line.starts_with("5. ") && line.contains("references"))
             .expect("step 5 line");
-        assert!(step5.contains("LLM10"));
+        assert!(step5.contains("LLM06"));
     }
 }

@@ -8,6 +8,7 @@ use tachi_core::facade::{
     parse_risk_md_section3, parse_risk_md_section4, parse_threats_findings, prefix_for, render,
     RiskScoreSarifInputs, ThreatSarifFinding,
 };
+use tachi_core::parsers::parse_component_asset_map;
 
 pub fn coverage_audit_output(root: &Path) -> String {
     let audit = collect_audit(root);
@@ -61,6 +62,7 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
         .map_err(|err| format!("failed to read {}: {err}", input.display()))?;
     let findings = parse_threats_findings(&threats_md)?;
     let component_meta = parse_component_metadata(&threats_md);
+    let component_assets = component_asset_map_for_report(input, &threats_md);
     let ag8_status = findings
         .iter()
         .find(|finding| finding.id == "AG-8")
@@ -72,6 +74,10 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
             id: finding.id.clone(),
             prefix: prefix_for(&finding.id),
             status: finding.delta_status.unwrap_or_default(),
+            affected_assets: component_assets
+                .get(&finding.component)
+                .cloned()
+                .unwrap_or_default(),
             component: finding.component,
             maestro: String::new(),
             agentic_pattern: finding.agentic_pattern,
@@ -119,6 +125,7 @@ pub fn risk_scores_sarif_output(
     let section3 = parse_risk_md_section3(&risk_md);
     let section4 = parse_risk_md_section4(&risk_md);
     let threat_findings = parse_threats_findings(&threats_md)?;
+    let component_assets = component_asset_map_for_report(threats, &threats_md);
 
     let threats_status = threat_findings
         .iter()
@@ -153,6 +160,18 @@ pub fn risk_scores_sarif_output(
                 .map(|records| (finding.id.clone(), records))
         })
         .collect();
+    let affected_assets = threat_findings
+        .iter()
+        .map(|finding| {
+            (
+                finding.id.clone(),
+                component_assets
+                    .get(&finding.component)
+                    .cloned()
+                    .unwrap_or_default(),
+            )
+        })
+        .collect();
     let component_meta = parse_component_metadata(&threats_md);
     let source_threats_uri = threats.display().to_string();
 
@@ -164,6 +183,7 @@ pub fn risk_scores_sarif_output(
             threats_status: &threats_status,
             threats_full: &threats_full,
             source_attribution: &source_attribution,
+            affected_assets: &affected_assets,
             component_meta: &component_meta,
             source_threats_uri: &source_threats_uri,
             baseline_run_id: Some(&source_threats_uri),
@@ -176,6 +196,28 @@ pub fn risk_scores_sarif_output(
         sarif,
         results_count: findings.len(),
     })
+}
+
+fn component_asset_map_for_report(
+    threats_path: &Path,
+    threats_md: &str,
+) -> std::collections::BTreeMap<String, Vec<String>> {
+    let mut result = parse_component_asset_map(threats_md);
+    let parent = threats_path.parent().unwrap_or_else(|| Path::new("."));
+    for ancestor in parent.ancestors().take(4) {
+        for filename in ["architecture.md", "architecture.mmd", "dfd.md", "input.md"] {
+            let Ok(content) = std::fs::read_to_string(ancestor.join(filename)) else {
+                continue;
+            };
+            for (component, tags) in parse_component_asset_map(&content) {
+                let merged = result.entry(component).or_default();
+                merged.extend(tags);
+                merged.sort();
+                merged.dedup();
+            }
+        }
+    }
+    result
 }
 
 #[cfg(test)]

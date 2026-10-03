@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: LLM Agent Orchestrator
-**Threat**: Server-side code/command execution via LLM-synthesized Tool Call Request (OWASP LLM05:2025)
+**Threat**: Server-side code/command execution via LLM-synthesized Tool Call Request (OWASP LLM10:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Execute server-side code/command via LLM-synthesized Tool Call Request parameters (OWASP LLM05:2025)"]
+    Goal["[GOAL] Execute server-side code/command via LLM-synthesized Tool Call Request parameters (OWASP LLM10:2026)"]
     Goal --> A["[OR] Cause Orchestrator to emit injection payload in Tool Call Request parameters"]
     A --> A1["Direct prompt injection (LLM-1) shapes Orchestrator tool parameter generation"]
     A --> A2["RAG poisoning (LLM-2) causes adversarial content in tool invocation context"]

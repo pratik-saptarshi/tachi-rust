@@ -131,7 +131,7 @@ fn tool_abuse_metadata_includes_asi07() {
         .find(|line| line.starts_with("owasp_references: ["))
         .expect("owasp_references metadata key");
     assert!(metadata_line.contains("ASI-07"));
-    for required in ["ASI-02", "ASI-04", "MCP-03", "MCP-05", "LLM06:2025"] {
+    for required in ["ASI-02", "ASI-04", "MCP-03", "MCP-05", "LLM03:2026"] {
         assert!(
             metadata_line.contains(required),
             "tool-abuse.md should preserve {required}"

@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Achieve server-side code/command execution via LLM-synthesized JSON-RPC parameters (OWASP LLM05:2025)"]
+    Goal["[GOAL] Achieve server-side code/command execution via LLM-synthesized JSON-RPC parameters (OWASP LLM10:2026)"]
     Goal --> A["[OR] Influence Orchestrator LLM output to emit injection payload in tool parameters"]
     A --> A1["Prompt injection (LLM-1) embeds SQL fragment or shell command in LLM output"]
     A --> A2["RAG poisoning (LLM-2) causes adversarial content in tool parameter generation"]

@@ -24,7 +24,7 @@ owasp_references:
   - "CWE-502: Deserialization of Untrusted Data"
   - "MITRE ATT&CK T1498: Network Denial of Service"
   - "MITRE ATT&CK T1499: Endpoint Denial of Service"
-  - "OWASP LLM10:2025 — Unbounded Consumption"
+  - "OWASP LLM06:2026 — Unbounded Consumption"
 output_schema: ../../../schemas/finding.yaml
 ```
 
@@ -34,7 +34,7 @@ output_schema: ../../../schemas/finding.yaml
 
 Detects threats where an attacker degrades or eliminates system availability — through resource exhaustion, algorithmic complexity exploitation, network flooding, or cascading dependency failures. Targets Processes (where compute or memory exhaustion halts operations), Data Stores (where storage saturation or lock contention blocks access), and Data Flows (where bandwidth saturation or connection pool exhaustion prevents communication).
 
-This agent additionally covers the **LLM inference-exhaustion surface** — inference-request flooding on LLM endpoints, token-budget exhaustion via unbounded prompt-size, and context-window-exhaustion latency-driven variant on shared inference infrastructure — per OWASP LLM10:2025. Pattern Categories 12 (LLM Inference-Request Flooding and Token Exhaustion) and 13 (Context-Window Exhaustion — Latency-Driven Variant) detect LLM-serving threats distinct from generic infrastructure DoS.
+This agent additionally covers the **LLM inference-exhaustion surface** — inference-request flooding on LLM endpoints, token-budget exhaustion via unbounded prompt-size, and context-window-exhaustion latency-driven variant on shared inference infrastructure — per OWASP LLM06:2026. Pattern Categories 12 (LLM Inference-Request Flooding and Token Exhaustion) and 13 (Context-Window Exhaustion — Latency-Driven Variant) detect LLM-serving threats distinct from generic infrastructure DoS.
 
 ## Skill References
 
@@ -52,7 +52,7 @@ This agent additionally covers the **LLM inference-exhaustion surface** — infe
 2. For each component, match against the loaded pattern catalog (resource exhaustion, algorithmic complexity, database and storage saturation, connection pool exhaustion, dependency cascade failures, application-layer attacks, infrastructure-layer flood and amplification, flooding and abuse, plus the CWE Top 25 2024 algorithmic-complexity vectors and ATT&CK T1498/T1499 network and endpoint DoS techniques).
 3. For each match, construct a finding using the canonical schema defined in `finding-format-shared.md`, assigning `category: denial-of-service`, a sequential `D-N` id, and the target component name.
 4. Assign `likelihood` and `impact` using OWASP factors (ease of exploit, attacker tooling availability, exposure surface; availability loss duration, blast radius, data loss potential), then compute `risk_level` via the matrix in `severity-bands-shared.md`.
-5. Provide actionable, technology-specific `mitigation` guidance and cite supporting `references` (OWASP, CWE, MITRE ATT&CK, OWASP LLM10:2025) from the pattern catalog's Primary Sources list. Populate `source_attribution` with one `relationship: primary` taxonomy entry (typically OWASP A04:2021 or OWASP API4:2023 for generic resource-exhaustion surfaces, or OWASP LLM10:2025 for LLM inference-exhaustion surfaces per F-5 ADR-034 lineage) plus ≥1 `relationship: related` CWE entry, mirroring the F-1/F-2/F-4 net-new agent precedent per ADR-037 D-3.
+5. Provide actionable, technology-specific `mitigation` guidance and cite supporting `references` (OWASP, CWE, MITRE ATT&CK, OWASP LLM06:2026) from the pattern catalog's Primary Sources list. Populate `source_attribution` with one `relationship: primary` taxonomy entry (typically OWASP A04:2021 or OWASP API4:2023 for generic resource-exhaustion surfaces, or OWASP LLM06:2026 for LLM inference-exhaustion surfaces per F-5 ADR-034 lineage) plus ≥1 `relationship: related` CWE entry, mirroring the F-1/F-2/F-4 net-new agent precedent per ADR-037 D-3.
 6. Emit the finding list to the orchestrator for Phase 3 aggregation.
 
 ## Example Findings

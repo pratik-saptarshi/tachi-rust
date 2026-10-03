@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: Clinical Advisory Sub-Agent
-**Threat**: Prompt injection via clinical query context overrides sub-agent system prompt (OWASP LLM01:2025)
+**Threat**: Prompt injection via clinical query context overrides sub-agent system prompt (OWASP LLM01:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Override ClinAdvisor system prompt via injection in clinical query context (OWASP LLM01:2025)"]
+    Goal["[GOAL] Override ClinAdvisor system prompt via injection in clinical query context (OWASP LLM01:2026)"]
     Goal --> A["[OR] Inject adversarial text into Clinical Query Context"]
     A --> A1["Compromise Orchestrator via prompt injection (LLM-1)"]
     A --> A2["Attacker-controlled clinical framing embedded in query payload"]

@@ -10,7 +10,7 @@
 #
 # Version: 1.0
 
-schema_version: "1.8"
+schema_version: "1.9"
 
 finding:
   id:
@@ -51,6 +51,21 @@ finding:
       - "API Gateway"
       - "User Database"
       - "LLM Agent"
+
+  affected_assets:
+    type: array[string]
+    default: []
+    enum:
+      - pii
+      - phi
+      - auth
+      - secrets
+      - financial
+      - safety
+    description: >
+      Sorted, deduplicated sensitivity tags on the component affected by
+      this finding. This provenance field is always present and does not
+      modify the finding's risk score.
 
   threat:
     type: string
@@ -106,7 +121,7 @@ finding:
       OWASP IDs, CVE IDs, or framework citations supporting
       the finding. Required for AI categories (agentic, llm).
     examples:
-      - "OWASP LLM01:2025"
+      - "OWASP LLM01:2026"
       - "ASI-01"
       - "MCP-03"
       - "CWE-287"
@@ -244,9 +259,10 @@ finding:
           - mitre-attack
           - mitre-atlas
           - nist-ai-rmf
+          - nist-ai-600-1
           - cwe
         description: >
-          Closed 5-value enum naming which F-A1 external-framework catalog
+          Closed 6-value enum naming which F-A1 external-framework catalog
           the citation points into. Matches the filename stem of the
           catalog YAML under schemas/taxonomy/. Internal tachi taxonomies
           (tachi-control-category, tachi-stride-ai-category) are

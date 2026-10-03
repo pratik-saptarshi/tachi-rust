@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: Clinical Advisory Sub-Agent
-**Threat**: Ungrounded factual emission: hallucinated clinical claims reach clinicians (OWASP LLM09:2025)
+**Threat**: Ungrounded factual emission: hallucinated clinical claims reach clinicians (OWASP LLM07:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Cause clinician or patient to act on hallucinated clinical assertion (OWASP LLM09:2025)"]
+    Goal["[GOAL] Cause clinician or patient to act on hallucinated clinical assertion (OWASP LLM07:2026)"]
     Goal --> A["[OR] Sub-agent generates ungrounded clinical claim"]
     A --> A1["RAG grounding absent — no per-claim source anchoring required"]
     A --> A2["No retrieval-strength metric (hit-rate or recall@k) enforced"]

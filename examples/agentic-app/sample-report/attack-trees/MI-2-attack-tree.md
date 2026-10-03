@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: Clinical Advisory Sub-Agent
-**Threat**: Overreliance/Missing HITL: clinical recommendations surface without physician sign-off (OWASP LLM09:2025)
+**Threat**: Overreliance/Missing HITL: clinical recommendations surface without physician sign-off (OWASP LLM07:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Cause patient or clinician harm via unreviewed AI-generated clinical recommendation (OWASP LLM09:2025)"]
+    Goal["[GOAL] Cause patient or clinician harm via unreviewed AI-generated clinical recommendation (OWASP LLM07:2026)"]
     Goal --> A["[OR] ClinAdvisor generates drug dosing or diagnostic recommendation"]
     A --> A1["Clinical recommendation generated without physician domain constraint"]
     A --> A2["AI-provenance not disclosed on recommendation output"]

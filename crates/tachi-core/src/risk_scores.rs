@@ -206,6 +206,7 @@ pub struct RiskScoreSarifInputs<'a> {
     pub threats_status: &'a BTreeMap<String, String>,
     pub threats_full: &'a BTreeMap<String, (String, String)>,
     pub source_attribution: &'a BTreeMap<String, Vec<SourceAttributionRecord>>,
+    pub affected_assets: &'a BTreeMap<String, Vec<String>>,
     pub component_meta: &'a BTreeMap<String, ComponentMetadata>,
     pub source_threats_uri: &'a str,
     pub baseline_run_id: Option<&'a str>,
@@ -333,6 +334,7 @@ fn build_result(finding: &RiskScoreFinding, inputs: &RiskScoreSarifInputs<'_>) -
         "risk-owner": if s4.owner.is_empty() { "Unassigned" } else { &s4.owner },
         "remediation-sla": if s4.sla_days.is_empty() { &finding.sla_days } else { &s4.sla_days },
         "risk-disposition": if s4.disposition.is_empty() { &finding.disposition } else { &s4.disposition },
+        "affected_assets": inputs.affected_assets.get(&finding.id).cloned().unwrap_or_default(),
     });
 
     if !s3.score_source_raw.is_empty() {
@@ -420,8 +422,8 @@ fn default_component_meta() -> ComponentMetadata {
 
 fn derive_owasp_reference(prefix: &str) -> Option<&'static str> {
     match prefix {
-        "OI" => Some("OWASP LLM05:2025"),
-        "MI" => Some("OWASP LLM09:2025"),
+        "OI" => Some("OWASP LLM10:2026"),
+        "MI" => Some("OWASP LLM07:2026"),
         _ => None,
     }
 }

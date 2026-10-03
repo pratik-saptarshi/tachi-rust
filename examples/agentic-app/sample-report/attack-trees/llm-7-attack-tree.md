@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Access internal network resources via SSRF in LLM-synthesized URL (OWASP LLM05:2025)"]
+    Goal["[GOAL] Access internal network resources via SSRF in LLM-synthesized URL (OWASP LLM10:2026)"]
     Goal --> A["[OR] Cause Orchestrator to emit internal URL in tool call parameter"]
     A --> A1["Prompt injection instructs Orchestrator to include specific URL"]
     A --> A2["RAG poisoning embeds internal URL in retrieved context"]
