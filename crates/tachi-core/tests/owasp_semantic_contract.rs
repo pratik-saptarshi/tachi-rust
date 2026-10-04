@@ -263,3 +263,46 @@ fn current_baseline_findings_keep_contextual_citations_consistent() {
         }
     }
 }
+
+#[test]
+fn canonical_agentic_example_and_companion_narratives_use_current_categories() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    for source in ["agentic-app", "agentic-app/sample-report"] {
+        let path = format!("examples/{source}/threats.md");
+        let text = fs::read_to_string(root.join(&path)).unwrap();
+        for finding in ["LLM-4", "LLM-9", "LLM-11", "LLM-14"] {
+            let row = text
+                .lines()
+                .find(|line| line.starts_with(&format!("| {finding} |")))
+                .unwrap();
+            check(row, "OWASP LLM05:2026", "OWASP LLM04:2026")
+                .unwrap_or_else(|e| panic!("{path}/{finding}: {e}"));
+            assert!(check(
+                &row.replace("LLM05", "LLM04"),
+                "OWASP LLM05:2026",
+                "OWASP LLM04:2026"
+            )
+            .is_err());
+        }
+    }
+    for tree in ["llm-4", "llm-9", "llm-11", "LLM-14"] {
+        let path = format!("examples/agentic-app/sample-report/attack-trees/{tree}-attack-tree.md");
+        let text = fs::read_to_string(root.join(&path)).unwrap();
+        check(&text, "OWASP LLM05:2026", "OWASP LLM04:2026")
+            .unwrap_or_else(|e| panic!("{path}: {e}"));
+    }
+    let path = "examples/mermaid-agentic-app/threat-report.md";
+    let text = fs::read_to_string(root.join(path)).unwrap();
+    for (finding, current, stale) in [("LLM-3", "LLM09", "LLM04"), ("LLM-4", "LLM08", "LLM06")] {
+        let row = text
+            .lines()
+            .find(|line| line.starts_with(&format!("**{finding}**")))
+            .unwrap();
+        check(
+            row,
+            &format!("OWASP {current}:2026"),
+            &format!("OWASP {stale}:2026"),
+        )
+        .unwrap_or_else(|e| panic!("{path}/{finding}: {e}"));
+    }
+}
