@@ -45,24 +45,51 @@ fn classification_requires_unambiguous_evidence() {
 
 #[test]
 fn evaluated_zero_finding_reports_can_render_maestro() {
-    let evidence = "#### Risk by MAESTRO Layer\n\n| MAESTRO Layer | Finding Count | Highest Severity |\n|---|---|---|\n| L1 | 0 | Evaluated — no findings |\n";
-    let value = build_infographic_payload_from_content(
-        evidence,
-        3,
-        "Clean".into(),
-        None,
-        None,
-        "maestro-stack",
-    )
-    .unwrap();
-    assert_eq!(
-        value["template_data"]["maestro_layer_distribution"][0]["coverage_state"],
-        "clean"
-    );
-    assert_eq!(
-        value["template_data"]["maestro_layer_distribution"][1]["coverage_state"],
-        "not_evaluated"
-    );
+    for heading in [
+        "### Risk by MAESTRO Layer",
+        "#### Risk by MAESTRO Layer",
+        "  ##  Risk by MAESTRO Layer ##  ",
+    ] {
+        let evidence = format!("{heading}\n\n| MAESTRO Layer | Finding Count | Highest Severity |\n|---|---|---|\n| L1 | 0 | Evaluated — no findings |\n| L2 | 0 | Not applicable |\n");
+        for template in ["maestro-stack", "maestro-heatmap"] {
+            let value = build_infographic_payload_from_content(
+                &evidence,
+                3,
+                "Clean".into(),
+                None,
+                None,
+                template,
+            )
+            .unwrap();
+            assert_eq!(
+                value["template_data"]["maestro_layer_distribution"][0]["coverage_state"],
+                "clean"
+            );
+            assert_eq!(
+                value["template_data"]["maestro_layer_distribution"][1]["coverage_state"],
+                "not_applicable"
+            );
+            assert_eq!(
+                value["template_data"]["maestro_layer_distribution"][2]["coverage_state"],
+                "not_evaluated"
+            );
+            assert_eq!(value["template_data"]["has_maestro_data"], true);
+        }
+    }
+    for evidence in [
+        "Risk by MAESTRO Layer",
+        "```md\n### Risk by MAESTRO Layer\n```",
+    ] {
+        assert!(build_infographic_payload_from_content(
+            evidence,
+            3,
+            "Missing".into(),
+            None,
+            None,
+            "maestro-stack"
+        )
+        .is_err());
+    }
 }
 
 #[test]

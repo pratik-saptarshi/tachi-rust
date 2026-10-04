@@ -222,8 +222,35 @@ pub fn compute_severity_percentages(severity: &SeverityCounts) -> Vec<SeverityPe
     result
 }
 
+fn maestro_coverage_heading(content: &str) -> Option<&str> {
+    let mut fence = None;
+    content.lines().find_map(|raw| {
+        let line = raw.trim();
+        if line.starts_with("```") || line.starts_with("~~~") {
+            let marker = &line[..3];
+            if fence == Some(marker) {
+                fence = None;
+            } else if fence.is_none() {
+                fence = Some(marker);
+            }
+            return None;
+        }
+        if fence.is_some() {
+            return None;
+        }
+        let level = line.bytes().take_while(|b| *b == b'#').count();
+        let title = &line[level..];
+        ((1..=6).contains(&level)
+            && title.starts_with(char::is_whitespace)
+            && title.trim().trim_end_matches('#').trim() == "Risk by MAESTRO Layer")
+            .then_some(line)
+    })
+}
+
 pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLayerDistribution> {
-    let rows = parse_markdown_table(threats_content, "#### Risk by MAESTRO Layer");
+    let rows = maestro_coverage_heading(threats_content)
+        .map(|heading| parse_markdown_table(threats_content, heading))
+        .unwrap_or_default();
     let mut by_layer = BTreeMap::new();
 
     for row in rows {
@@ -447,7 +474,7 @@ pub fn extract_maestro_data(threats_content: &str) -> MaestroData {
     let most_exposed_layer = compute_most_exposed_layer(&maestro_layer_distribution);
 
     let has_maestro_data =
-        threats_content.contains("#### Risk by MAESTRO Layer") || !per_finding_maestro.is_empty();
+        maestro_coverage_heading(threats_content).is_some() || !per_finding_maestro.is_empty();
 
     MaestroData {
         maestro_layer_distribution,
