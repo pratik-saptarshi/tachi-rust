@@ -2,6 +2,8 @@
 
 Date: 2026-10-04. Tracking: epic `RT-3zm`. Original implementation: epic `RT-5vk` and [PR #42](https://github.com/pratik-saptarshi/tachi-rust/pull/42). Comparison anchors remain upstream `63438d78` and fork `cb567d32`.
 
+Current delivery: semantic PR #43 and reporting PR #44 are merged. All six feature contracts are on main. PR #42 now contains only the final documentation and tracker reconciliation; its protected final checks and merge remain the publication gate. `RT-3zm.1` and `.2` are closed; `.3` and the epic remain in progress until that gate completes. The committed tracker export is a dated pre-merge snapshot.
+
 The six-feature implementation was initially submitted together. This delivery plan separates it into independently validated milestones. Implementation issue closure is historical evidence of code and tests; it does not prove merge readiness. Three actionable review findings on PR #42 require remediation before reporting delivery complete.
 
 ## Invariants
@@ -35,7 +37,7 @@ Already adopted crosswalk parity, safe image cleanup, taxonomy expansion, asset-
 - 2026-10-04, phase 1: PR #42 head `0fe113b8` has all 17 required checks successful and terminal jobs, but three report review findings remain. PR #26 head `ce7535c3` also has terminal successful CI, is mergeable, remains blocked by repository gates and already has auto-merge enabled. It remains separate work.
 - The repository requires conversation resolution and an active Code Quality rule. A blocked merge must be investigated and remediated or explicitly reported; green CI alone is insufficient. No policy changes or bypasses are authorized by this plan.
 
-## Progress
+## Progress history
 
 - Phase 1 completed: PR #43 auto-merged on 2026-10-04 at 13:32:02 UTC after required checks and review resolution. Its final source head was `28ad38ca`; full workspace and Clippy passed locally, and an empty-PATH native export plus companion refresh preserved the canonical controls SARIF byte-for-byte. `RT-3zm.1` is closed.
 - Phase 2 delivery: [PR #44](https://github.com/pratik-saptarshi/tachi-rust/pull/44) is synchronized with phase 1 on main. Its previous head passed all 17 required hosted checks plus permissions/catalog checks. Fresh final-head checks and review remain required before protected auto-merge. The following preparation notes are historical validation evidence.
