@@ -7,7 +7,7 @@
 #   edge_type (3): primary, related, superseded
 #   confidence (3): high, medium, low (anti-drift rule: downgrade if no one-sentence citation supports the label)
 #
-# Current fork composition: 582 resolvable edges (551 primary, 31 related).
+# Current composition: 645 resolvable edges (608 primary, 37 related) after upstream parity update 2026-10-03.
 # Entries require catalog-resolvable endpoints; omitted upstream mappings are
 # retained as deferred until this fork imports the corresponding source catalog.
 # ─── Slice 1: OWASP ↔ CWE (10 edges) ──────────────────────────────────────────
@@ -5396,3 +5396,634 @@
   edge_type: primary
   confidence: high
   citation: .claude/skills/tachi-shared/references/nist-ai-rmf-mapping.md
+
+# --- Upstream parity delta (63 edges; upstream main 63438d78, 2026-08-13) ---
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: cwe
+    id: CWE-77
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: cwe
+    id: CWE-200
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: cwe
+    id: CWE-1395
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM05
+  target:
+    taxonomy: cwe
+    id: CWE-20
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: cwe
+    id: CWE-20
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: cwe
+    id: CWE-94
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: cwe
+    id: CWE-1427
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: cwe
+    id: CWE-201
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: cwe
+    id: CWE-538
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: cwe
+    id: CWE-359
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: cwe
+    id: CWE-1357
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: cwe
+    id: CWE-494
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: cwe
+    id: CWE-829
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM05
+  target:
+    taxonomy: cwe
+    id: CWE-502
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM05
+  target:
+    taxonomy: cwe
+    id: CWE-915
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM05
+  target:
+    taxonomy: cwe
+    id: CWE-1395
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: cwe
+    id: CWE-250
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: cwe
+    id: CWE-269
+  edge_type: primary
+  confidence: high
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: cwe
+    id: CWE-285
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: cwe
+    id: CWE-732
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: API8
+  target:
+    taxonomy: cwe
+    id: CWE-16
+  edge_type: primary
+  confidence: medium
+  citation: https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/
+
+- source:
+    taxonomy: mitre-attack
+    id: T1562
+  target:
+    taxonomy: cwe
+    id: CWE-693
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1562/
+
+- source:
+    taxonomy: owasp
+    id: ASI01
+  target:
+    taxonomy: cwe
+    id: CWE-1427
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+- source:
+    taxonomy: owasp
+    id: ASI04
+  target:
+    taxonomy: cwe
+    id: CWE-1357
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+- source:
+    taxonomy: owasp
+    id: ASI07
+  target:
+    taxonomy: cwe
+    id: CWE-319
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+- source:
+    taxonomy: owasp
+    id: ASI09
+  target:
+    taxonomy: cwe
+    id: CWE-1426
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+- source:
+    taxonomy: owasp
+    id: ASI10
+  target:
+    taxonomy: cwe
+    id: CWE-1427
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0051
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0051
+
+- source:
+    taxonomy: owasp
+    id: LLM05
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0020
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0020
+
+- source:
+    taxonomy: owasp
+    id: LLM05
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0018
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0018
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0010
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0010
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: mitre-attack
+    id: T1195
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0061
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0061
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: mitre-attack
+    id: T1548
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1548/
+
+- source:
+    taxonomy: owasp
+    id: LLM06
+  target:
+    taxonomy: mitre-attack
+    id: T1499
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1499/
+
+- source:
+    taxonomy: owasp
+    id: LLM06
+  target:
+    taxonomy: mitre-attack
+    id: T1498
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1498/
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: cwe
+    id: CWE-79
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: cwe
+    id: CWE-116
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: cwe
+    id: CWE-532
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: cwe
+    id: CWE-209
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM03
+  target:
+    taxonomy: cwe
+    id: CWE-284
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: mitre-attack
+    id: T1005
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: mitre-attack
+    id: T1195.001
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM04
+  target:
+    taxonomy: mitre-attack
+    id: T1195.002
+  edge_type: primary
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: mitre-attack
+    id: T1190
+  target:
+    taxonomy: cwe
+    id: CWE-20
+  edge_type: primary
+  confidence: medium
+  citation: https://attack.mitre.org/techniques/T1190/
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0060
+  target:
+    taxonomy: mitre-attack
+    id: T1557
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0060
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0000
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0000
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0003
+  target:
+    taxonomy: mitre-attack
+    id: T1195.002
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0003
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0016
+  target:
+    taxonomy: mitre-attack
+    id: T1195.002
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0016
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0029
+  target:
+    taxonomy: mitre-attack
+    id: T1499
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0029
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0001
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0001
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0005
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0005
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0025
+  target:
+    taxonomy: mitre-attack
+    id: T1005
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0025
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0037
+  target:
+    taxonomy: mitre-attack
+    id: T1213
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0037
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0043
+  target:
+    taxonomy: mitre-attack
+    id: T1190
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0043
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0048
+  target:
+    taxonomy: mitre-attack
+    id: T1499
+  edge_type: primary
+  confidence: medium
+  citation: https://atlas.mitre.org/techniques/AML.T0048
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0011
+  target:
+    taxonomy: mitre-attack
+    id: T1204
+  edge_type: related
+  confidence: high
+  citation: https://atlas.mitre.org/techniques/AML.T0011 (ATT&CK-reference T1204)
+
+- source:
+    taxonomy: mitre-atlas
+    id: AML.T0037
+  target:
+    taxonomy: mitre-attack
+    id: T1005
+  edge_type: related
+  confidence: high
+  citation: https://atlas.mitre.org/techniques/AML.T0037 (ATT&CK-reference T1005)
+
+- source:
+    taxonomy: owasp
+    id: LLM01
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0054
+  edge_type: related
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM02
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0024
+  edge_type: related
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM07
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0048
+  edge_type: related
+  confidence: medium
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+
+- source:
+    taxonomy: owasp
+    id: LLM06
+  target:
+    taxonomy: mitre-atlas
+    id: AML.T0025
+  edge_type: related
+  confidence: low
+  citation: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/

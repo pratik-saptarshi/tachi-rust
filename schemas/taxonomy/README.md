@@ -31,6 +31,8 @@ for edge in edges[:3]:
     print(f"  {edge['source']['taxonomy']}:{edge['source']['id']} -> {edge['target']['taxonomy']}:{edge['target']['id']} ({edge['confidence']})")
 ```
 
+The current crosswalk contains **645 resolvable edges**: 608 primary and 37 related (upstream parity snapshot 2026-08-13). The 63-edge parity delta was added on 2026-10-03.
+
 For per-catalog resolution, substitute any of the 7 catalog files:
 
 ```python
@@ -89,9 +91,9 @@ Curation rule: F-A1 is a **harvest + transcription** feature, not a re-authorshi
 
 - **Seed source**: 7 ATLAS technique IDs currently cited across the 11 threat-detection agents' `detection-patterns.md` files: `AML.T0010, AML.T0018, AML.T0020, AML.T0024, AML.T0051, AML.T0054, AML.T0057`. AML.T0058 is additionally cited in tachi's `.claude/skills/tachi-shared/references/finding-format-shared.md`.
 - **External curation**: 5 October 2025 agent techniques added per FR-016: `AML.T0058, AML.T0059, AML.T0060, AML.T0061, AML.T0062`.
-- **Canonical source**: MITRE ATLAS **v5.4** as of 2026-04-17, primary source `https://atlas.mitre.org/techniques/<id>` (URL pattern, no trailing slash). During T020 harvest on 2026-04-17, WebFetch returned HTTP 404 on individual ATLAS technique pages due to client-side anti-bot gating (confirmed with the known-good seed AML.T0051, which also 404'd via the same client). URL stability was verified by cross-referencing the authoritative MITRE-owned `atlas-data` repository at `https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/data/techniques.yaml` (primary) and MISP galaxy `mitre-atlas-attack-pattern` (secondary). Canonical names for AML.T0058–T0062 were **corrected at commit `be18076`** against `atlas-data/techniques.yaml` after T011's initial harvest produced contaminated names; the name correction did not alter URLs or IDs, so zero crosswalk edge rewrites were needed. See the R7 tripwire resolution in `mitre-atlas.yaml` inline comments lines 18–30.
+- **Canonical source**: MITRE ATLAS **v5.4** for the original 30 records as of 2026-04-17; six additional endpoint records were restored from the authoritative `atlas-data` v6.0.0 snapshot modified 2026-05-27 (F-A1.3 / upstream PR #186), primary source `https://atlas.mitre.org/techniques/<id>` (URL pattern, no trailing slash). During T020 harvest on 2026-04-17, WebFetch returned HTTP 404 on individual ATLAS technique pages due to client-side anti-bot gating (confirmed with the known-good seed AML.T0051, which also 404'd via the same client). URL stability was verified by cross-referencing the authoritative MITRE-owned `atlas-data` repository at `https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/data/techniques.yaml` (primary) and MISP galaxy `mitre-atlas-attack-pattern` (secondary). Canonical names for AML.T0058–T0062 were **corrected at commit `be18076`** against `atlas-data/techniques.yaml` after T011's initial harvest produced contaminated names; the name correction did not alter URLs or IDs, so zero crosswalk edge rewrites were needed. See the R7 tripwire resolution in `mitre-atlas.yaml` inline comments lines 18–30.
 - **Retrieval date**: **2026-04-17** (MITRE `atlas-data` repo `main` branch snapshot).
-- **Final record count**: **12** (FR-016 floor ≥12 — 7 seed + 5 curated, exact match).
+- **Final record count**: **36** (12 original records + 18 F-241 records + 6 F-A1.3 endpoint records restored for crosswalk resolution).
 
 ### 3.4 `nist-ai-rmf.yaml`
 
