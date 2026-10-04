@@ -600,7 +600,7 @@ In addition to STRIDE dispatch, components are evaluated for AI-specific threat 
 
 LLM dispatch triggers these agents:
 - `prompt-injection` (OWASP LLM01:2026)
-- `data-poisoning` (OWASP LLM04:2026)
+- `data-poisoning` (OWASP LLM05:2026 training poisoning; LLM09:2026 retrieval poisoning; LLM04:2026 supply chain)
 - `model-theft` (OWASP LLM06:2026)
 
 **AG keywords** — when any of the following keywords are found in a component's name or description, dispatch the AG (Agentic) threat agents:
