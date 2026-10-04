@@ -19,8 +19,9 @@
 
 - Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
   Baseline reconciliation, pin verification, and local validation are complete.
-  Separate reviewable commits, protected PR checks, and live PostgreSQL
-  migration evidence remain open gates.
+  Separate commits and the PR are complete; all 16 required checks on PR #39
+  passed and GitHub reports it mergeable. Live PostgreSQL migration evidence
+  and merge remain open gates.
 
 - Live Beads audit on 2026-10-04: 5 open, 0 in progress, 0 blocked, and 197
   closed issues; all 5 ready issues belong to the new dependency/runtime

@@ -107,5 +107,9 @@ Local evidence on the upgrade worktree:
   been established.
 - The upload action is updated to v7 across workflows, and the route workflow
   trusted-content SHA-256 is refreshed to match. A stale workflow test
-  expectation was also updated to v7. Hosted checks and delivery readiness
-  remain open. See [the active closeout plan](roadmap/2026-10-04-dependency-runtime-upgrade-closeout-v1.md).
+  expectation was also updated to v7. PR #39 is open and mergeable. Its 16
+  required protected contexts passed at implementation commit
+  `a3de8c7ed9445b05b32d202db50ab4ef858f9eb6`; a docs-only sync commit follows,
+  so the required-check rollup must be refreshed for the final PR head. Live
+  PostgreSQL migration remains the environment limitation. See [the active
+  closeout plan](roadmap/2026-10-04-dependency-runtime-upgrade-closeout-v1.md).

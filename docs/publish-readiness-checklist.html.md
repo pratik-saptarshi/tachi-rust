@@ -25,8 +25,9 @@ retired from the active dependency surface.
   committed lockfiles. Prisma generation, schema validation, and migration SQL
   generation pass; a live PostgreSQL migration is unavailable because no local
   PostgreSQL server or accessible Docker daemon is present.
-- PR creation and protected hosted checks are pending; publish readiness is
-  not established until required PR checks are terminal.
+- PR #39 has terminal successful results for all 16 required branch-protection
+  contexts and GitHub reports it mergeable. The final documentation sync
+  requires a fresh required-check rollup before merge readiness is reported.
 
 ## 0. Canonical publish sequence
 

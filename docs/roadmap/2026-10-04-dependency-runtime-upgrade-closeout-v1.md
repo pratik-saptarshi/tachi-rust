@@ -1,7 +1,7 @@
 # Dependency and Runtime Upgrade Closeout
 
 **Date:** 2026-10-04
-**Status:** Implementation and local validation complete; protected delivery pending
+**Status:** PR #39 is mergeable; all required checks passed at the implementation head
 **Scope:** Rust workspace, frontend scaffolds, CI/runtime pins, supply-chain and release evidence.
 
 ## Baseline and preservation
@@ -36,7 +36,8 @@
 - The runner-contract timeout case failed under nightly instrumentation with a one-second fake-shell timeout because its TERM trap had not started. The fixture timeout is now five seconds; all four runner-contract tests pass under nightly coverage and the stable workspace suite. The shell `init_constitution` tests pass (2/2); no shell init-test stall was reproduced.
 - Each of the three frontends completed clean lockfile installation, lint, configured tests, and production build. All three have no test files yet; Vitest is configured with `--passWithNoTests`. Next.js also passes Prisma client generation, `prisma validate`, migration SQL generation (schema, users table, primary key, and unique email index), and production build. Live PostgreSQL migration is unavailable: `pg_isready` is not installed, localhost port 5432 is closed, and the Colima Docker socket is inaccessible.
 - Workflow, scaffold, RustSec, and secret-scan gates pass in the aggregate publish gate. Git diff whitespace validation passes. Package/build outputs were removed after validation and are not part of the changeset.
-- Hosted protected checks and merge readiness remain pending until the reviewed commits are pushed and a PR is opened. The repository contribution guide requires a zero-padded GitHub issue number in branch names; no matching issue exists yet, while the active local Beads tracker is `RT-bbi`.
+- PR #39 is open at `https://github.com/pratik-saptarshi/tachi-rust/pull/39`. At implementation head `a3de8c7ed9445b05b32d202db50ab4ef858f9eb6`, GitHub reports all 16 required branch-protection contexts successful; the check summary has 23 successes, 0 failures, and one skipped/cancelled optional job. GitHub reports the PR as mergeable, with no required review configured. The PR is not merged.
+- The protected-check snapshot above predates this final documentation-only synchronization commit. Verify the required check rollup again against the final PR head before reporting merge readiness. Live PostgreSQL migration evidence remains unverified because the local server/runtime is unavailable.
 
 ## Delivery record
 
@@ -48,5 +49,5 @@ The changes are split into these reviewed commit slices:
 
 The branch uses the Beads scope `RT-bbi`; repository guidance prefers a
 zero-padded GitHub issue number, but no matching GitHub issue was found during
-the read-only issue search. PR URL, terminal hosted checks, and merged
-verification will be recorded after protected delivery.
+the read-only issue search. PR #39 is open and mergeable with all 16 required
+contexts passing at the implementation head. This closeout has not been merged.
