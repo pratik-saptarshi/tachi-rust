@@ -35,3 +35,7 @@ desktop, MCP, and filesystem orchestration to adapter crates.
 - Depends only on `serde`, `serde_json`, `sha2`, and `thiserror` at runtime,
   preserving the host-independent boundary.
 - Detailed source map: [src/codemap.md](src/codemap.md).
+- `examples/refresh_sarif_taxonomy.rs`: native maintenance command for companion
+  SARIF taxonomy metadata/citations, preserving finding IDs, scores and evidence.
+  Run `cargo run -p tachi-core --example refresh_sarif_taxonomy -- THREATS_SARIF COMPANION_SARIF`
+  after generating the native threat export; the current OWASP catalog supplies labels.

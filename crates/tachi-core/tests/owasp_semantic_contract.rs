@@ -351,7 +351,11 @@ fn canonical_machine_readable_exports_preserve_identities_and_current_citations(
             .unwrap();
     let expected: std::collections::BTreeSet<_> = findings.iter().map(|f| f.id.as_str()).collect();
     assert_eq!(expected.len(), 86);
-    for filename in ["threats.sarif", "risk-scores.sarif"] {
+    for filename in [
+        "threats.sarif",
+        "risk-scores.sarif",
+        "compensating-controls.sarif",
+    ] {
         let text = fs::read_to_string(root.join(filename)).unwrap();
         let sarif: serde_json::Value = serde_json::from_str(&text).unwrap();
         let results = sarif["runs"][0]["results"].as_array().unwrap();
@@ -384,6 +388,31 @@ fn canonical_machine_readable_exports_preserve_identities_and_current_citations(
         assert!(
             !text.contains("LLM03:2025") && !text.contains("LLM Top 10 v2025"),
             "{filename}: stale taxonomy guidance"
+        );
+        if let Some(taxonomies) = sarif["runs"][0]["taxonomies"].as_array() {
+            let catalog: Vec<serde_json::Value> = serde_yaml::from_str(
+                &fs::read_to_string(root.join("../../../schemas/taxonomy/owasp.yaml")).unwrap(),
+            )
+            .unwrap();
+            for taxonomy in taxonomies.iter().filter(|t| t["name"] == "OWASP-LLM") {
+                assert_eq!(taxonomy["version"], "2026");
+                for category in taxonomy["taxa"].as_array().unwrap() {
+                    let current = catalog.iter().find(|c| c["id"] == category["id"]).unwrap();
+                    assert_eq!(
+                        category["name"], current["name"],
+                        "{filename}/{}: wrong category meaning",
+                        category["id"]
+                    );
+                }
+            }
+        }
+    }
+    for example in ["mermaid-agentic-app", "maestro-reference"] {
+        let narrative =
+            fs::read_to_string(root.join(format!("../../{example}/threat-report.md"))).unwrap();
+        assert!(
+            !narrative.contains("LLM Top 10 2025"),
+            "{example}: current narrative uses stale taxonomy"
         );
     }
 }

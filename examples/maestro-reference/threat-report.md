@@ -182,7 +182,7 @@ Medium privilege escalation findings: E-9 (Risk Stratification Model risk score 
 
 ### 3.7 Agentic Threats
 
-Agentic threats target the autonomous decision-making and tool-use behaviors unique to the CDSS's multi-agent architecture. These findings go beyond standard STRIDE categories to address the agentic AI risk vectors defined by OWASP LLM Top 10 2025 and CSA MAESTRO.
+Agentic threats target the autonomous decision-making and tool-use behaviors unique to the CDSS's multi-agent architecture. These findings go beyond standard STRIDE categories to address the agentic AI risk vectors defined by the current OWASP Agentic Security Initiative taxonomy and CSA MAESTRO.
 
 **AG-1** (Critical, L3 — Agent Framework, agent_collusion) targets the Supervisor Orchestrator. The orchestrator may autonomously execute high-consequence clinical delegation commands — routing clinical tasks to specialist agents based on AI-generated orchestration logic without physician review or RBAC compliance verification. This is part of correlation group CG-4 with R-6. Likelihood HIGH / Impact HIGH. This finding also participates in CHAIN-002's privilege escalation cascade.
 
