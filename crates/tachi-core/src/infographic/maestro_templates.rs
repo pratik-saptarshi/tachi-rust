@@ -38,7 +38,12 @@ pub(crate) fn build_maestro_stack_template_data(maestro_data: &MaestroData) -> V
                 "layer_name": layer.layer_name,
                 "finding_count": layer.finding_count,
                 "highest_severity": layer.highest_severity,
-                "coverage_status": layer.coverage_state.as_str(),
+                "coverage_status": match layer.coverage_state {
+                    crate::maestro_coverage::EvaluationState::Findings => "analyzed_findings",
+                    crate::maestro_coverage::EvaluationState::Clean => "analyzed_clean",
+                    crate::maestro_coverage::EvaluationState::NotApplicable => "not_applicable",
+                    crate::maestro_coverage::EvaluationState::NotEvaluated => "not_evaluated",
+                },
                 "coverage_state": layer.coverage_state,
                 "top_findings": top.collect::<Vec<_>>(),
             })
@@ -112,7 +117,7 @@ mod tests {
 
     #[test]
     fn build_maestro_stack_template_data_exposes_layer_summaries() {
-        let data = MaestroData {
+        let mut data = MaestroData {
             maestro_layer_distribution: vec![MaestroLayerDistribution {
                 layer_id: String::from("L2"),
                 layer_name: String::from("Data Operations"),
@@ -139,5 +144,20 @@ mod tests {
         let actual = build_maestro_stack_template_data(&data);
         assert_eq!(actual["has_maestro_data"], true);
         assert_eq!(actual["per_layer_summaries"][0]["layer_id"], "L2");
+        use crate::maestro_coverage::EvaluationState::*;
+        for (state, legacy) in [
+            (Findings, "analyzed_findings"),
+            (Clean, "analyzed_clean"),
+            (NotApplicable, "not_applicable"),
+            (NotEvaluated, "not_evaluated"),
+        ] {
+            data.maestro_layer_distribution[0].coverage_state = state;
+            let output = build_maestro_stack_template_data(&data);
+            assert_eq!(output["per_layer_summaries"][0]["coverage_status"], legacy);
+            assert_eq!(
+                output["per_layer_summaries"][0]["coverage_state"],
+                state.as_str()
+            );
+        }
     }
 }

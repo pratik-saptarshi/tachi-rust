@@ -45,6 +45,76 @@ pub struct Manifest {
     pub source_date_epoch: String,
     pub font_policy: String,
     pub baselines: Vec<BaselineHash>,
+    pub rendering_inputs: Vec<BaselineHash>,
+}
+
+/// Conservative source inventory: core code/build inputs, templates, branding,
+/// and registered example assets. Generated outputs are excluded. Catalogs use
+/// their separate semantic fingerprints so citation-only edits remain green.
+pub fn rendering_inputs(root: &Path) -> Result<Vec<BaselineHash>, String> {
+    fn collect(root: &Path, path: &Path, hashes: &mut Vec<BaselineHash>) -> Result<(), String> {
+        let metadata =
+            fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+        if metadata.is_symlink() {
+            return Err(format!(
+                "rendering input symlink is unsupported: {}",
+                path.display()
+            ));
+        }
+        if metadata.is_dir() {
+            for entry in fs::read_dir(path).map_err(|e| format!("{}: {e}", path.display()))? {
+                collect(root, &entry.map_err(|e| e.to_string())?.path(), hashes)?;
+            }
+        } else {
+            let relative = path
+                .strip_prefix(root)
+                .map_err(|e| e.to_string())?
+                .to_string_lossy()
+                .replace('\\', "/");
+            let name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or_default();
+            if matches!(
+                name,
+                "report-data.typ"
+                    | "security-report.pdf"
+                    | "security-report.pdf.baseline"
+                    | ".DS_Store"
+            ) || path.extension().is_some_and(|ext| ext == "sarif")
+            {
+                return Ok(());
+            }
+            hashes.push(BaselineHash {
+                path: relative,
+                sha256: sha256(&fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?),
+            });
+        }
+        Ok(())
+    }
+    let mut hashes = Vec::new();
+    for path in [
+        "Cargo.toml",
+        "Cargo.lock",
+        "rust-toolchain.toml",
+        "crates/tachi-core/Cargo.toml",
+        "crates/tachi-cli/Cargo.toml",
+        "crates/tachi-cli/src/bin/catalog-drift.rs",
+        "crates/tachi-core/src",
+        "templates/tachi/security-report",
+    ] {
+        collect(root, &root.join(path), &mut hashes)?;
+    }
+    for path in ["brand/final", "crates/tachi-core/build.rs", ".cargo"] {
+        if root.join(path).exists() {
+            collect(root, &root.join(path), &mut hashes)?;
+        }
+    }
+    for name in BASELINES {
+        collect(root, &root.join(format!("examples/{name}")), &mut hashes)?;
+    }
+    hashes.sort_by(|a, b| a.path.cmp(&b.path));
+    Ok(hashes)
 }
 
 pub fn fingerprints(root: &Path) -> Result<Vec<CatalogFingerprint>, String> {
@@ -78,7 +148,7 @@ pub fn check(root: &Path) -> Result<(), String> {
     })?)
     .map_err(|e| format!("{}: malformed manifest: {e}", path.display()))?;
     let actual = fingerprints(root)?;
-    if manifest.version != 1 || manifest.catalogs != actual {
+    if manifest.version != 2 || manifest.catalogs != actual {
         let changed = actual
             .iter()
             .enumerate()
@@ -92,6 +162,23 @@ pub fn check(root: &Path) -> Result<(), String> {
         || manifest.font_policy != "embedded-only"
     {
         return Err("stale renderer provenance; run catalog-drift --regenerate-baselines".into());
+    }
+    let inputs = rendering_inputs(root)?;
+    if manifest.rendering_inputs != inputs {
+        let changed = inputs
+            .iter()
+            .find(|input| !manifest.rendering_inputs.contains(input))
+            .or_else(|| {
+                manifest
+                    .rendering_inputs
+                    .iter()
+                    .find(|input| !inputs.contains(input))
+            })
+            .map(|input| input.path.as_str())
+            .unwrap_or("input ordering");
+        return Err(format!(
+            "rendering input drift in {changed}; run catalog-drift --regenerate-baselines"
+        ));
     }
     let expected_paths: Vec<_> = BASELINES.iter().map(|name| baseline_path(name)).collect();
     if manifest
@@ -152,6 +239,7 @@ fn copy_tree(source: &Path, dest: &Path) -> Result<(), String> {
 /// failure. Publication rolls back completed writes on an ordinary I/O error.
 pub fn regenerate(root: &Path, typst: &Path) -> Result<(), String> {
     let catalogs = fingerprints(root)?;
+    let inputs = rendering_inputs(root)?;
     let version = Command::new(typst)
         .arg("--version")
         .output()
@@ -228,13 +316,17 @@ pub fn regenerate(root: &Path, typst: &Path) -> Result<(), String> {
         }
         writes.push((root.join(path), bytes));
     }
+    if inputs != rendering_inputs(root)? || catalogs != fingerprints(root)? {
+        return Err("rendering inputs changed during regeneration; no baselines published".into());
+    }
     let manifest = Manifest {
-        version: 1,
+        version: 2,
         catalogs,
         renderer: TYPST_VERSION.into(),
         source_date_epoch: SOURCE_DATE_EPOCH.into(),
         font_policy: "embedded-only".into(),
         baselines: hashes,
+        rendering_inputs: inputs,
     };
     writes.push((
         root.join(MANIFEST),

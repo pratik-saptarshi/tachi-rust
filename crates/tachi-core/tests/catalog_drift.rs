@@ -27,6 +27,20 @@ fn fixture() -> Fixture {
     for framework in ORDERED_FRAMEWORKS {
         fs::write(root.0.join(format!("schemas/taxonomy/{framework}.yaml")), "- id: FIRST\n  out_of_scope: false\n  url: https://example.test/one\n- id: SECOND\n  out_of_scope: true\n").unwrap();
     }
+    for path in [
+        "Cargo.toml",
+        "Cargo.lock",
+        "rust-toolchain.toml",
+        "crates/tachi-core/Cargo.toml",
+        "crates/tachi-cli/Cargo.toml",
+        "crates/tachi-cli/src/bin/catalog-drift.rs",
+        "crates/tachi-core/src/report_data.rs",
+        "templates/tachi/security-report/main.typ",
+    ] {
+        let path = root.0.join(path);
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, "fixture").unwrap();
+    }
     let mut hashes = Vec::new();
     for name in BASELINES {
         let dir = root.0.join(format!("examples/{name}"));
@@ -45,12 +59,13 @@ fn fixture() -> Fixture {
         });
     }
     let manifest = Manifest {
-        version: 1,
+        version: 2,
         catalogs: catalog_drift::fingerprints(&root.0).unwrap(),
         renderer: TYPST_VERSION.into(),
         source_date_epoch: SOURCE_DATE_EPOCH.into(),
         font_policy: "embedded-only".into(),
         baselines: hashes,
+        rendering_inputs: catalog_drift::rendering_inputs(&root.0).unwrap(),
     };
     fs::write(
         root.0.join(MANIFEST),
@@ -58,6 +73,49 @@ fn fixture() -> Fixture {
     )
     .unwrap();
     root
+}
+
+#[test]
+fn rendering_code_templates_examples_assets_and_build_inputs_require_regeneration() {
+    let root = fixture();
+    for path in [
+        "Cargo.lock",
+        "crates/tachi-core/src/report_data.rs",
+        "templates/tachi/security-report/main.typ",
+        "examples/web-app/threats.md",
+    ] {
+        let absolute = root.0.join(path);
+        let original = fs::read(&absolute).unwrap();
+        fs::write(&absolute, "changed").unwrap();
+        let error = catalog_drift::check(&root.0).unwrap_err();
+        assert!(
+            error.contains(path) && error.contains("regenerate-baselines"),
+            "{error}"
+        );
+        fs::write(absolute, original).unwrap();
+    }
+    for path in [
+        "brand/final/new-logo.png",
+        "examples/web-app/attack-trees/new.svg",
+    ] {
+        let absolute = root.0.join(path);
+        fs::create_dir_all(absolute.parent().unwrap()).unwrap();
+        fs::write(&absolute, "new asset").unwrap();
+        assert!(catalog_drift::check(&root.0).unwrap_err().contains(path));
+        fs::remove_file(absolute).unwrap();
+    }
+    // Generated data and SARIF are not PDF rendering inputs.
+    for path in [
+        "templates/tachi/security-report/report-data.typ",
+        "examples/web-app/threats.sarif",
+    ] {
+        fs::write(root.0.join(path), "generated").unwrap();
+    }
+    catalog_drift::check(&root.0).unwrap();
+    fs::remove_file(root.0.join("crates/tachi-core/src/report_data.rs")).unwrap();
+    assert!(catalog_drift::check(&root.0)
+        .unwrap_err()
+        .contains("report_data.rs"));
 }
 
 #[test]
