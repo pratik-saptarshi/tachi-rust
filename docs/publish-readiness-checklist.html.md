@@ -1,13 +1,42 @@
 # Publish Readiness Checklist
 
+The dependency/runtime upgrade closeout is active. Use the
+[dated execution plan](roadmap/2026-10-04-dependency-runtime-upgrade-closeout-v1.md)
+for its current pin-verification, scaffold, Rust, Prisma, and protected-CI
+evidence. Its dated verification record supersedes historical checklist rows
+and prior package observations below.
+
+PR #39 review remediation is tracked in
+[issue #40 and its dated plan](roadmap/2026-10-04-pr39-remediation-v1.md).
+The PostgreSQL 18 migration and RLS checks passed in hosted run
+[37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
+CodeQL remains required. Refresh the PR #41 final-head status before declaring
+the follow-up merge-ready.
+
 **Status**: Active release gate
-**Last Updated**: 2026-07-12
+**Last Updated**: 2026-10-04
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
 Use this checklist before publishing to GitHub or cutting a release. The
 active desktop host is `crates/tachi-desktop`; the former `src-tauri` adapter is
 retired from the active dependency surface.
+
+## Current closeout status (2026-10-04)
+
+- Rust formatting, locked workspace Clippy, locked workspace tests, supply-chain
+  policy, workflow, scaffold dependency, docs/version, secret scan, release,
+  and full publish gates pass on the fresh `origin/main` worktree. Nightly
+  branch coverage measured 85.08174386920983%, above the 85% threshold.
+- All three scaffold installs, lint, configured tests, and builds pass from
+  committed lockfiles. Prisma generation, schema validation, and migration SQL
+  generation pass; a live PostgreSQL migration is unavailable because no local
+  PostgreSQL server or accessible Docker daemon is present.
+- PR #41 is the active follow-up PR on the issue-numbered branch. Final-head
+  check status must be read from GitHub before merge readiness is reported.
+- PostgreSQL 18 Prisma migration and RLS policy checks passed in hosted CI.
+  The CodeQL status remains required on protected PRs; its redundant push-time
+  ruleset check was removed.
 
 ## 0. Canonical publish sequence
 
@@ -32,13 +61,14 @@ retired from the active dependency surface.
 - [ ] `make scaffold-dependency-gate` passes before publishing scaffold or template changes.
 - [ ] `make fuzz-mutation-gate` passes and `.github/workflows/fuzz-mutation-audit.yml` remains scheduled/manual and non-blocking.
 - [ ] The `E2E-COV*` roadmap and Beads hierarchy are synchronized with the
-      current E2E journey matrix and no critical user-facing boundary is
-      represented only by a unit or integration test.
+      current E2E journey matrix; the E2E-COV hierarchy is closed, and no
+      critical user-facing boundary is represented only by a unit or
+      integration test.
 - [ ] The explicit E2E inventory is current: CLI artifact, desktop command,
       MCP stdio, initialization, composed init/install/update/analysis
       lifecycle, and cross-boundary failure/cancellation journeys have
-      focused suites; E2E-COV-007 remains for coverage evidence and publish
-      enforcement.
+      focused suites; E2E-COV-007 coverage evidence and publish enforcement
+      are complete and recorded in the closeout plan.
 - [ ] `cargo run -q -p tachi-cli --bin coverage-audit` reports the intended
       E2E inventory, with no double-counting between integration, smoke, and
       true end-to-end categories.
@@ -190,7 +220,7 @@ retired from the active dependency surface.
 - [ ] `SECURITY.md` matches the current private-reporting and privacy policy.
 - [ ] `CHANGELOG.md` is redaction-safe and reflects only releasable notes.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the archived AQ
-      roadmap, active AISVS/security roadmap, live RT-CI execution track,
+      roadmap, active AISVS/security roadmap, completed RT-CI execution record,
       closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
 - [ ] `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`,
       and `docs/tachi-rust-ci-review-panel.md` stay synchronized with the live

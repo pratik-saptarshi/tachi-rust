@@ -1,10 +1,10 @@
 # Implementation Backlog
 
-**Last Updated**: 2026-07-12
-**Purpose**: navigation hub for the Beads-ready Rust/Tauri implementation backlog
+**Last Updated**: 2026-10-04
+**Purpose**: navigation hub for Rust implementation tracks and completed roadmap records
 **Scope**: roadmap sequencing, issue-pack pointers, and task-template guidance
 
-## Active Execution
+## Backlog Navigation
 
 - Active desktop host: `crates/tachi-desktop`
 - [Beads issue mirror snapshot](../../.beads/issues.jsonl)
@@ -13,20 +13,46 @@
 - [GTK-Free Desktop GUI Host issue cards](./2026-06-26-gtk-free-desktop-gui-host-issue-cards.md)
 - [Rust-native E2E coverage expansion roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
+- [Dependency and Runtime Upgrade Closeout plan](./2026-10-04-dependency-runtime-upgrade-closeout-v1.md)
+- [PR #39 review and closeout remediation](./2026-10-04-pr39-remediation-v1.md)
 
 ## Current Status Snapshot
 
-- Open: `RT-CI` umbrella closeout; `E2E-COV` umbrella; `E2E-COV-007`,
-  `E2E-COV-009*`, `E2E-COV-010*`, and security follow-up `E2E-COV.2`
-- Closed in the latest timing closeout: `RT-CI-006.2`, `E2E-COV-008`, and
-  `RT-CI-007` plus its completed child slices
-- Deferred: `AQ-054.4`, `AQ-054.5`, `AQ-054.6`
-- Done: all remaining Beads issues exported in `../../.beads/issues.jsonl`,
-  including `MCP-001*`, `DT-GUI-*`, `RT-sarif*`, `RT-bu7*`, `RT-0zv*`,
-  `DOC-*`, `RT-TC`, `RT-TC-001`, `RT-TC-002`, `RT-TC-003`, `RT-TC-004`,
-  `RT-TC-005`, `RT-TC-006`, `RT-00i`, `RT-00i.2`, `RT-00i.5`,
-  `RT-00i.2.5`, `AQ-020`, `AQ-021`, and completed `AQ-*` / `RT-*`
-  migration slices.
+- Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
+  Baseline reconciliation, pin verification, and local validation are complete.
+  Separate commits and the PR are complete; all 16 required checks on PR #39
+  passed and GitHub reports it mergeable. Live PostgreSQL migration evidence
+  and merge remain open gates.
+
+- PR #39 review remediation is active under GitHub issue #40 and Beads epic
+  `RT-bz6`. The follow-up fixes the PostgreSQL 18 volume path, Supabase env
+  template, user-table RLS, live Prisma migration evidence, and pending CodeQL
+  ruleset bypass notice. PR #41 review also identified and corrected stale
+  Rust toolchain values in the root codemap. The seven-child Beads hierarchy
+  tracks all review action items.
+
+- Live Beads audit on 2026-10-04: 13 open, 0 in progress, 0 blocked, and 197
+  closed issues; 5 open issues belong to the dependency/runtime closeout
+  hierarchy `RT-bbi` and children `.1` through `.4`, and 7 belong to the PR #39
+  remediation hierarchy `RT-bz6` and children `.1` through `.7`.
+- `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
+  issue cards below are retained as completed execution records; future work
+  should use new issues rather than reopening completed cards without review.
+- The checked-in Beads export remains available at `../../.beads/issues.jsonl`.
+- Dependency/runtime upgrade tracker state: `RT-bbi` is the active epic for
+  [the 2026-10-04 closeout plan](./2026-10-04-dependency-runtime-upgrade-closeout-v1.md).
+  Its children cover baseline/pin reconciliation, Rust and release gates,
+  scaffold/Prisma validation, and docs/protected delivery. The export contains
+  205 issues before the remediation hierarchy was created.
+- PR #39 remediation tracker state: GitHub issue #40 anchors Beads epic
+  `RT-bz6`; eight children cover PostgreSQL 18 volume migration, Supabase env
+  setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior,
+  documentation/export synchronization, root atlas Rust version accuracy, and
+  runnable scaffold Compose command paths.
+  Hosted PostgreSQL migration and RLS assertions passed in run
+  [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
+  PR #41 final-head checks after commit `d027adb` require a live status refresh
+  before merge readiness is reported. The refreshed export contains 214 issues.
 
 ## Archive Records
 
@@ -46,7 +72,7 @@
 - [Rust/Tauri Implementation Roadmap](./2026-06-08-rust-tauri-only-roadmap.md)
 - [Rust/Tauri Implementation Issue Cards](./2026-06-08-rust-tauri-only-issue-cards.md)
 
-## Active Security Track
+## Security Track Record
 
 - [AISVS Dependabot remediation issue cards](./2026-06-23-aisvs-dependabot-remediation-issue-cards.md)
 - [GTK-Free Desktop GUI Host roadmap](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
@@ -64,7 +90,7 @@
 - Historical follow-up: the future workspace recheck was removed after the
   workspace dependency proof showed no `glib` package.
 
-## Active CI Track
+## CI Track Record
 
 - [Tachi-Rust CI execution plan](../tachi-rust-ci-execution-plan.md)
 - [Tachi-Rust CI Beads issue cards](../tachi-rust-ci-beads-issue-cards.md)
@@ -72,19 +98,26 @@
 - Epic: `RT-CI` Rust CI orchestration and delta-routing hardening
 - Closed phase-1 guardrails: `RT-CI-002`, `RT-CI-002.1`, `RT-CI-002.1.1`,
   `RT-CI-002.2`, and `RT-CI-002.3`
-- Remaining open work: `RT-CI` umbrella closeout; timing evidence
-  `RT-CI-006.2` is closed and its evidence is retained in the CI baseline/BOM.
+- The `RT-CI` umbrella and all child issues are closed. Hosted timing and
+  route evidence remain documented in the CI baseline and BOM.
 - Tracker state: live Beads writes are exported to `../../.beads/issues.jsonl`
-  after each slice, and the publish inventory/checklist now names the RT-CI
-  workflows and docs as part of the current publish gate.
+  after each slice; these CI plans and issue cards are completed records.
 
-## Active E2E Coverage Track
+## E2E Coverage Track Record
 
 - [Rust-native E2E coverage expansion roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
-- Epic: `E2E-COV` Rust-native end-to-end coverage expansion
-- Planned wave: baseline contract → parallel CLI/Desktop/MCP boundary slices → lifecycle and resilience composition → branch/line/region publish evidence.
-- Current evidence after `E2E-COV-007` closeout: four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs`), with the historical closeout snapshot at 114 modules (13 unit, 96 integration, 1 smoke, 4 E2E) and the current audit refresh at 119 modules (13 unit, 101 integration, 1 smoke, 4 E2E). Success journeys remain present and the complete local publish gate is green; 90.56% lines / 90.22% regions. Nightly 1.99.0 records 85.15625% branch coverage (1,408 total / 210 missed), meeting the requested target.
+- Epic: `E2E-COV` Rust-native end-to-end coverage expansion — closed.
+- Completed sequence: baseline contract → CLI/Desktop/MCP boundary slices →
+  lifecycle and resilience composition → branch/line/region publish evidence.
+- Latest recorded evidence (2026-07-13): four E2E modules (`crates/tachi-cli/tests/e2e_artifacts.rs`,
+  `crates/tachi-desktop/tests/e2e_command_journey.rs`,
+  `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and
+  `crates/tachi-shell/tests/init_substitution.rs`). The historical closeout
+  snapshot is 114 modules (13 unit, 96 integration, 1 smoke, 4 E2E); the later
+  audit refresh is 119 modules (13 unit, 101 integration, 1 smoke, 4 E2E).
+  At that audit, coverage was 93.24% lines / 92.60% regions; governed nightly
+  coverage was 85.15625% branches (1,408 total / 210 missed).
 
 ## Rust Toolchain Modernization Track
 
@@ -94,12 +127,13 @@
 - Done: `RT-TC-001` pinned toolchain, Rust `1.96` MSRV metadata, and path
   proof; `RT-TC-002` fail-closed supply-chain gates.
 - Priority `0`: all currently materialized RT-TC P0 prerequisites are closed;
-  continue with active desktop security blockers before promoting canaries.
+  future canary work should proceed only under a new issue with current
+  validation evidence.
 - Priority `1`: `RT-TC-003` converted workflow/reporting assertions to
   semantic YAML, workspace-derived, keyed JSON, and parsed rendering
   projections; `RT-TC-004` added pinned `cargo-hack`/`cargo-llvm-cov`
   manual/scheduled canaries; `RT-TC-005` recorded the standalone-adapter
-  decision that is now superseded by active `RT-00i.2.5` retirement of the
+  decision that is now superseded by completed `RT-00i.2.5` retirement of the
   buildable `src-tauri` surface.
 - Priority `2`: `RT-TC-006` is implemented by
   [ADR-046](../architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md),
@@ -107,9 +141,9 @@
   async-runtime feature with benchmarks, cancellation/shutdown tests,
   compatibility evidence, dependency diff, and rollback plan.
 - Sequencing: P0 security and CI reproducibility work may run before
-  non-blocking MCP/runtime follow-ups when it improves release confidence, but
-  it must not supersede active desktop security blockers except where the
-  toolchain or supply-chain gate directly unblocks them.
+  non-blocking MCP/runtime follow-ups when it improves release confidence.
+  Future security blockers should be tracked with new issues and current
+  evidence.
 - Tracker state: the approved remote schema migration has been applied and
   pushed, the live `RT-TC` hierarchy now exists, and `.beads/issues.jsonl` has
   been exported. Future toolchain updates should open a new Beads hierarchy and
@@ -128,20 +162,19 @@
 
 ## Planning Reconciliation
 
-- Live Beads state is authoritative for status; roadmap files remain
+- Live Beads state is authoritative for issue status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- `bd ready --json` currently returns the open `RT-CI` umbrella, E2E-COV umbrella,
-  security follow-up `E2E-COV.2`, and `E2E-COV-009*`; `E2E-COV-007` is closed.
-- `bd list --json` includes the deferred follow-ups `AQ-054.4`, `AQ-054.5`,
-  and `AQ-054.6`, plus the open `RT-CI` hierarchy.
+- The 2026-10-04 live audit reports five open/ready issues, all in `RT-bbi`.
+  Earlier open-work snapshots in dated records are historical and must not be
+  treated as current.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 
-## Local Branch Reconciliation
+## Historical Local Branch Reconciliation (2026-07-12 snapshot)
 
-- `main` equals `origin/main` at `b70e0f4` in the current workspace. This
-  backlog section is a dated snapshot and must be refreshed before any publish
-  claim; PR #25 carries the latest timing-closeout corrections.
+- At the time of this snapshot, `main` equaled `origin/main` at `b70e0f4` and
+  PR #25 carried the timing-closeout corrections. These branch and PR details
+  are historical and do not describe the current checkout.
 - One worktree is present: `/Volumes/dev/Git-SCM/tachi-rust` on
   `feat/e2e-ci-timing-closeout` while PR #25 is under protected review.
 - `feat/tauri-minimal-features` is a stale pre-main desktop branch. Its
@@ -182,10 +215,11 @@
 - [Archived Docs Workflow-Version Sweep Issue Cards](./2026-06-21-archived-docs-workflow-version-sweep-issue-cards.md)
 - [Rust/Tauri migration issue pack](./2026-06-04-rust-tauri-issue-pack.md)
 
-The active roadmap is the canonical sequencing document. The issue cards are
-the copy-paste execution templates that become Beads issues. The archived issue
-pack remains the tracker-neutral historical baseline. Completed roadmap slices
-move into archive records once their tracker cards are done.
+For an active track, its roadmap is the canonical sequencing document. The
+issue cards are the copy-paste execution templates that become Beads issues.
+The archived issue pack remains the tracker-neutral historical baseline.
+Completed roadmap slices remain linked as historical records after their
+tracker cards close.
 
 ## Backlog Shape
 

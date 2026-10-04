@@ -28,7 +28,7 @@ jobs:
       - name: Install pinned supply-chain tools
         run: |
           cargo install --locked --version 0.22.2 cargo-audit
-          cargo install --locked --version 0.19.9 cargo-deny
+          cargo install --locked --version 0.20.2 cargo-deny
           cargo audit --version
           cargo deny --version
 

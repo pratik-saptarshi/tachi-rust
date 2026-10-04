@@ -88,7 +88,7 @@ jobs:
 
       - name: Upload route decision artifact
         if: env.ACT_SMOKE != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: route-decision
           path: route.json

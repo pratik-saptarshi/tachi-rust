@@ -169,7 +169,9 @@ fn runner_records_timeout_and_kills_descendant_processes() {
         ),
     );
     let manifest_path = root.join("manifest.json");
-    manifest(&manifest_path, &["cargo", "hang"], 1);
+    // Give the fake shell time to install its TERM trap before the timeout,
+    // including on slower nightly coverage builds.
+    manifest(&manifest_path, &["cargo", "hang"], 5);
     let output = root.join("output");
     let run = run_runner(
         &manifest_path,

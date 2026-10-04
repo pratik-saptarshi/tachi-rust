@@ -197,7 +197,12 @@ pub fn render_tool_schema_snapshot_json() -> String {
 pub fn contract_hash(commands: &[McpCommandContract]) -> String {
     let canonical = serde_json::to_vec(commands).expect("canonical MCP commands should serialize");
     let digest = Sha256::digest(&canonical);
-    format!("{digest:x}")
+    let mut hex = String::with_capacity(digest.len() * 2);
+    for byte in digest {
+        use std::fmt::Write as _;
+        write!(&mut hex, "{byte:02x}").expect("writing into a String cannot fail");
+    }
+    hex
 }
 
 fn dispatch_kind_label(kind: CommandDispatchKind) -> &'static str {

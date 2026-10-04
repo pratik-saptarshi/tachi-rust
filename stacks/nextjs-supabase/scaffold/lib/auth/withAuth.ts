@@ -6,9 +6,7 @@ type AuthSuccess<T> = { success: true; data: T };
 type AuthFailure = { success: false; error: string };
 type AuthResult<T> = AuthSuccess<T> | AuthFailure;
 
-export async function withAuth<T>(
-  callback: (user: User) => Promise<T>,
-): Promise<AuthResult<T>> {
+export async function withAuth<T>(callback: (user: User) => Promise<T>): Promise<AuthResult<T>> {
   const supabase = await createServerClient();
   const {
     data: { user },

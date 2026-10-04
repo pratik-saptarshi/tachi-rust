@@ -1,9 +1,8 @@
 // Browser Supabase client factory — use in Client Components only.
 import { createBrowserClient as _createBrowserClient } from "@supabase/ssr";
+import { getSupabasePublicConfig } from "./config";
 
 export function createBrowserClient() {
-  return _createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const { url, anonKey } = getSupabasePublicConfig();
+  return _createBrowserClient(url, anonKey);
 }

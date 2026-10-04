@@ -2,24 +2,25 @@
 
 **Status**: Complete closeout; E2E-COV, Colima act evidence, fresh publish-gate, protected PR merge, and post-merge main verification are complete
 **Baseline**: `main` / `origin/main` at `e0ea1b35f9cff5842d5e655274ad50886752242c`
-**Last reviewed**: 2026-07-13
+**Last reviewed**: 2026-09-30 (tracker status and stale closeout wording; delivery evidence below remains dated to its recorded checkpoint)
 **Controlling tracker**: `.beads/issues.jsonl` and the live Beads database
 
 ## Current state
 
-Local and remote `main` are synchronized at merge commit
+At the 2026-07-13 closeout, local and remote `main` were synchronized at merge commit
 `e0ea1b35f9cff5842d5e655274ad50886752242c`; PR #33 merged normally through
 protected auto-merge after all required checks and review threads were green.
 The product E2E foundation is present,
 including CLI artifacts, desktop commands, MCP stdio, and initialization /
-install / update / analysis journeys. The governed nightly branch result is
-85.15625% and current stable coverage is 93.24% lines / 92.60% regions; the
+install / update / analysis journeys. The closeout's governed nightly branch
+result was 85.15625% and its recorded stable coverage was 93.24% lines /
+92.60% regions; the
 90.56% / 90.22% values are historical publish-gate evidence. The live
-coverage-audit run reports 119 active modules: 13 unit, 101 integration, 1
+coverage-audit run recorded 119 active modules: 13 unit, 101 integration, 1
 smoke, 4 E2E, and 0 support/regression. The 114/96 closeout snapshot is
 historical and must not be used for new closeout claims.
 
-The remaining evidence is narrower than the product journey inventory:
+The closeout evidence retained here records the product journey and delivery state:
 
 - the fresh host-assisted `make publish-gate` completed through the advisory,
   security, coverage, runner, release, and cleanup stages. The terminal
@@ -50,8 +51,7 @@ The remaining evidence is narrower than the product journey inventory:
 - PR #33 merged at `e0ea1b35f9cff5842d5e655274ad50886752242c` from feature head
   `586916758e09bc5622e9a3a4745de589032ca3d3`; its terminal hosted checks had 20 reported
   passes and 0 failures, including CodeQL, gitleaks, supply-chain, workflow,
-  route, and package/shell checks. GitHub still reports `MERGEABLE` with
-  passes and 0 failures. Copilot review is optional under the permanently
+  route, and package/shell checks. Copilot review is optional under the permanently
   updated secure ruleset, and no administrator bypass was used. Post-merge
   CodeQL, workspace, supply-chain, clippy, init-matrix, and release workflows
   all completed successfully.
@@ -80,13 +80,14 @@ access and verified both remote refs and PR state below.
 | F-08 | Available-runtime execution was previously a deliberate `exit 2` path, so preflight fields and unavailable-safe tests could not prove a real named-job run. | Gap / implementation | Implemented a bounded act runner with explicit Colima runtime selection, image digest, timing, policy flags, side-effect fields, and container cleanup comparison; serial Colima samples now pass. |
 | F-09 | `actions/upload-artifact@v4` attempted the hosted artifact API during local act runs despite a local artifact-server flag. | Security/privacy gap | Added an `ACT_SMOKE=true` workflow guard and in-container `route.json` validation; local act no longer calls hosted artifact upload. |
 | F-10 | Plan/BOM/checklist text still described the act lane as an unmeasured Docker fallback and carried stale runtime wording. | Documentation correction | Synchronize all publish artifacts from measured Colima CLI/API evidence and preserve the advisory/no-hosted-CI boundary. |
-| F-11 | PR #33 has terminal green checks; Copilot review quota exhaustion was previously reported as a ruleset blocker. | Protected delivery finding | Copilot review is now optional in the active secure ruleset while all other protections remain active. Resolve remaining review threads, use the normal protected merge path, and reverify `main`; do not use an administrator bypass. |
+| F-11 | PR #33 had terminal green checks; Copilot review quota exhaustion was previously reported as a ruleset blocker. | Protected delivery finding | Resolved: Copilot review is optional in the active secure ruleset, review threads were resolved, and PR #33 merged through the normal protected path. Post-merge checks passed; no administrator bypass was used. |
 
 Actionability: F-01–F-11 pass (0.90–1.00) with full repository context;
 F-06 and F-11 are live-command confirmed. No finding was dropped. No
 scope-expansion veto was triggered. Security/privacy follow-up F-04 remains
-closed with its fail-closed evidence preserved; F-11 remains the sole active
-delivery blocker.
+closed with its fail-closed evidence preserved. F-11's protected-delivery
+blocker was resolved by the optional-review ruleset update, protected merge,
+and successful post-merge workflow verification recorded below.
 
 ## Priority and dependency order
 
@@ -97,15 +98,14 @@ delivery blocker.
 | 3 | `E2E-COV-009.2` | P2 | Complete as an advisory Colima smoke lane. | Synthetic named-job smoke, cold/warm timing, image digest, cleanup, and no hosted-CI claims. Two cold runs passed at 32,384/32,864 ms with 556/562 ms pulls; five warm runs passed at 29,753–31,347 ms (median 31,225 ms). |
 | 4 | `E2E-COV-010.1` | P2 | Complete. | `docs/testing/tdd-evidence.json` and its Rust contract provide AC-to-test mapping and durable RED/GREEN/REFACTOR records across all test levels; agentic promotion is now passed by .2. |
 | 5 | `E2E-COV-010.2` | P2 | Complete; Beads closed. | Final review confirms fixed fake-tool invocation for approval, bounded timeout, cancellation, and circuit-breaker cases; denial remains non-invoked. The harness records transitions, writes an independent 0600 JSONL audit sink, proves descendant cleanup, and uses no live model/network. |
-| 6 | `E2E-COV-010` | P2 | Complete; Beads closed. | Child evidence, coverage audit, documentation, security gates, and promotion decision are synchronized; broader product E2E remains tracked by `E2E-COV`. |
-| 7 | `E2E-COV` | P1 | Close epic last. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
+| 6 | `E2E-COV-010` | P2 | Complete; Beads closed. | Child evidence, coverage audit, documentation, security gates, and promotion decision are synchronized; the parent E2E-COV epic is also closed. |
+| 7 | `E2E-COV` | P1 | Completed last at the protected-merge closeout. | All journeys, failure/cancellation matrix, coverage, BOM, checklist, codemap, Beads, and publish gates agree. |
 | 8 | `RT-CI` | P0 | Complete; Beads closure recorded. | Route, protection, timing, tracker, and rollback documentation agree; all seven children are closed. |
 
 `E2E-COV-007` and `E2E-COV-007.3` are complete and intentionally omitted from the active queue;
 their terminal local-runner and publish-gate evidence remains documented in the
 roadmap/BOM/checklist. The Colima advisory lane and governed multi-level test
-evidence are now closed; the remaining work is the broader product journey
-coverage in `E2E-COV`.
+evidence are now closed, as is the broader product journey epic `E2E-COV`.
 
 `E2E-COV-008`, `RT-CI-006.2`, and `E2E-COV-007` are closed in Beads. The
 merged PR #24 evidence run `29203699709` validated all eight timing artifacts;
@@ -116,10 +116,10 @@ and are documented as limitations rather than discarded.
 
 ### Per-Beads execution blueprint and acceptance matrix
 
-The live tracker contains eleven closed child cards and one open parent. This
-matrix is the durable execution plan for revalidation, regression response, or
-reopening a child; a closed card is not treated as evidence that its acceptance
-criteria can be skipped during a merge or publish audit.
+The live tracker contains eleven closed child cards and a closed parent. This
+matrix is the durable historical execution plan for revalidation or regression
+response; a closed card is not treated as evidence that its acceptance criteria
+can be skipped during a merge or publish audit.
 
 | Beads issue | Capability and required behavior | TDD execution slice | Acceptance / exit evidence | Current state |
 |---|---|---|---|---|
@@ -136,21 +136,22 @@ criteria can be skipped during a merge or publish audit.
 | `E2E-COV-010` / `.1` / `.2` | Govern unit, integration, functional, E2E, and deterministic agentic evidence with durable RED/GREEN/REFACTOR records. | RED: missing level evidence, fake-tool non-invocation, nondeterministic audit, and cleanup failures. GREEN: use offline scripted fake-tool replay with bounded approval/timeout/cancel/circuit cases. REFACTOR: exact audit correlation, 0600 sink, descendant cleanup, and promotion validator. | `docs/testing/tdd-evidence.json` and focused Rust contracts prove named tests and promotion status; agentic replay uses no live model/network and is promoted `passed`. | Closed; promotion remains independent of hosted CI. |
 | `E2E-COV` | Parent closeout: all child journeys, coverage, governance artifacts, security/privacy evidence, and remote state agree. | RED: identify stale artifacts, non-terminal hosted checks, protected-merge blockers, or remote divergence. GREEN: reconcile tracker/docs and monitor terminal CI. REFACTOR: merge, verify post-merge `main`, rerun gates, then close parent. | Parent acceptance is satisfied: PR #33 merged, post-merge main workflows passed, live refs and artifacts agree, and Beads is closed. | Complete at merge commit `e0ea1b35f9cff5842d5e655274ad50886752242c`. |
 
-## Ready-issue execution cards
+## Historical issue execution cards
 
 Each card is a bounded implementation unit. The card must be completed with a
 conventional commit, a RED/GREEN/REFACTOR transcript, a focused test result,
 updated Beads notes/export, and a codemap/BOM/checklist checkpoint before the
 next dependent card is started.
 
-## Continuation execution plan — plan-review-integrator reconciliation
+## Continuation closeout record — plan-review-integrator reconciliation
 
-This is the current execution contract for every open Beads issue. Colima is
+This section records the completed execution contract for the closed Beads
+hierarchy. Colima is
 the supported local act runtime: the Colima CLI proves VM readiness and
 provenance, while Docker CLI/API is the engine boundary used by act. The lane
 remains advisory and cannot satisfy hosted-CI or publish acceptance by itself.
 
-### 2026-07-13 continuation audit and next-slice traceability
+### 2026-07-13 continuation audit and closeout traceability
 
 The post-merge Beads audit confirms that `E2E-COV` and all child issues are
 closed; the act/Colima issues and dependent `E2E-COV-010` umbrella are also

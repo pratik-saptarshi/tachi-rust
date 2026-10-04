@@ -127,7 +127,7 @@ feature-combination-canary: ## Run cargo-hack feature-combination canary
 
 coverage-tool-proof: ## Print cargo-llvm-cov proof and run coverage gate
 	@cargo llvm-cov --version
-	@cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'
+	@cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.9.1'
 	@$(MAKE) llvm-cov
 
 release-gate: ## Validate active desktop host release readiness

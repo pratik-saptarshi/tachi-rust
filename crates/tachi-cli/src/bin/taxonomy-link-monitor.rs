@@ -1,5 +1,6 @@
 use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
+use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
@@ -18,6 +19,14 @@ fn main() -> ExitCode {
 
 fn run() -> Result<(), String> {
     let (root, report_path) = parse_args()?;
+    run_with(&root, &report_path, check_url)
+}
+
+fn run_with(
+    root: &Path,
+    report_path: &Path,
+    mut check: impl FnMut(&str) -> serde_json::Value,
+) -> Result<(), String> {
     let urls = collect_urls(&root.join("schemas/taxonomy"))?;
     let mut results = Vec::new();
     let mut hosts = BTreeMap::<String, Instant>::new();
@@ -29,13 +38,13 @@ fn run() -> Result<(), String> {
                 thread::sleep(Duration::from_millis(250) - elapsed);
             }
         }
-        let result = check_url(&url);
+        let result = check(&url);
         hosts.insert(host, Instant::now());
         results.push(result);
     }
     let report = json!({ "checked_at": now_utc(), "results": results });
     let serialized = serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?;
-    fs::write(&report_path, serialized)
+    fs::write(report_path, serialized)
         .map_err(|e| format!("write {}: {e}", report_path.display()))?;
     let summary = report_summary(&report["results"]);
     println!("## Taxonomy citation link monitor\n\nChecked {} URLs: {} healthy, {} needs review, {} broken, {} transient.\n\nHTTP link results are informational and do not gate CI.", summary.0, summary.1, summary.2, summary.3, summary.4);
@@ -94,9 +103,16 @@ fn extract_urls(text: &str) -> Vec<String> {
 }
 
 fn check_url(url: &str) -> serde_json::Value {
-    let head = curl(url, true);
+    check_url_with(url, curl)
+}
+
+fn check_url_with(
+    url: &str,
+    mut request: impl FnMut(&str, bool) -> (u16, Option<String>),
+) -> serde_json::Value {
+    let head = request(url, true);
     let (code, error) = if head.0 == 405 || head.0 == 501 || head.1.is_some() {
-        curl(url, false)
+        request(url, false)
     } else {
         head
     };
@@ -104,7 +120,11 @@ fn check_url(url: &str) -> serde_json::Value {
 }
 
 fn curl(url: &str, head: bool) -> (u16, Option<String>) {
-    let mut command = Command::new("curl");
+    curl_with_program(url, head, OsStr::new("curl"))
+}
+
+fn curl_with_program(url: &str, head: bool, program: &OsStr) -> (u16, Option<String>) {
+    let mut command = Command::new(program);
     command.args([
         "--location",
         "--silent",
@@ -180,6 +200,24 @@ fn now_utc() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn fake_curl(contents: &str) -> PathBuf {
+        let path = std::env::temp_dir().join(format!(
+            "taxonomy-link-monitor-fake-curl-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        fs::write(&path, contents).expect("write fake curl");
+        let mut permissions = fs::metadata(&path).expect("stat fake curl").permissions();
+        permissions.set_mode(0o700);
+        fs::set_permissions(&path, permissions).expect("make fake curl executable");
+        path
+    }
+
     #[test]
     fn extracts_and_trims_url_candidates() {
         let got = extract_urls(
@@ -190,14 +228,33 @@ mod tests {
             ["https://example.org/ref", "https://example.org/taxonomy"]
         );
     }
+
+    #[test]
+    fn extracts_http_urls_and_trims_supported_trailing_punctuation() {
+        for punctuation in [")", "]", "}", ",", ";", ".", "\"", "'"] {
+            let text = format!("citation: http://example.org/ref{punctuation}");
+            assert_eq!(extract_urls(&text), ["http://example.org/ref"]);
+        }
+        assert!(extract_urls("citation: www.example.org").is_empty());
+    }
+
     #[test]
     fn classifies_http_results_without_gating_review_or_transient_states() {
         assert_eq!(classify(204, false), "healthy");
+        assert_eq!(classify(399, false), "healthy");
+        assert_eq!(classify(401, false), "needs_review");
         assert_eq!(classify(403, false), "needs_review");
+        assert_eq!(classify(429, false), "needs_review");
+        assert_eq!(classify(400, false), "broken");
         assert_eq!(classify(404, false), "broken");
+        assert_eq!(classify(499, false), "broken");
+        assert_eq!(classify(199, false), "transient");
         assert_eq!(classify(503, false), "transient");
         assert_eq!(classify(0, true), "transient");
+        assert_eq!(classify(0, false), "transient");
+        assert_eq!(classify(204, true), "healthy");
     }
+
     #[test]
     fn deduplicates_urls_across_taxonomy_sources() {
         let dir =
@@ -211,5 +268,148 @@ mod tests {
         let urls = collect_urls(&dir).unwrap();
         assert_eq!(urls.len(), 2);
         let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn collects_only_yaml_citation_fields_and_reports_read_errors() {
+        let dir = std::env::temp_dir().join(format!(
+            "taxonomy-link-monitor-filter-{}",
+            std::process::id()
+        ));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(
+            dir.join("catalog.yaml"),
+            "title: https://example.org/ignored\nurl: https://example.org/one\ncitation: See https://example.org/two.\n# citation: https://example.org/three\n",
+        )
+        .unwrap();
+        fs::write(dir.join("notes.txt"), "url: https://example.org/not-yaml\n").unwrap();
+        assert_eq!(
+            collect_urls(&dir).unwrap(),
+            [
+                "https://example.org/one",
+                "https://example.org/three",
+                "https://example.org/two"
+            ]
+            .into_iter()
+            .map(str::to_owned)
+            .collect()
+        );
+
+        let broken = dir.join("broken.yaml");
+        fs::create_dir(&broken).unwrap();
+        assert!(collect_urls(&dir).unwrap_err().contains("broken.yaml"));
+        assert!(collect_urls(&dir.join("missing"))
+            .unwrap_err()
+            .contains("read"));
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn summarizes_known_and_unexpected_status_values() {
+        let values = serde_json::json!([
+            {"status":"healthy"},
+            {"status":"needs_review"},
+            {"status":"broken"},
+            {"status":"future"},
+            {}
+        ]);
+        assert_eq!(report_summary(&values), (5, 1, 1, 1, 2));
+        assert_eq!(report_summary(&serde_json::json!({})), (0, 0, 0, 0, 0));
+    }
+
+    #[test]
+    fn extracts_lowercase_host_with_and_without_a_scheme() {
+        assert_eq!(host_of("https://Example.ORG/path"), "example.org");
+        assert_eq!(host_of("Example.ORG/path"), "example.org/path");
+        assert_eq!(host_of("Example.ORG"), "example.org");
+    }
+
+    #[test]
+    fn retries_get_when_head_is_unsupported_or_fails() {
+        for head in [
+            (405, None),
+            (501, None),
+            (0, Some("curl unavailable".to_owned())),
+        ] {
+            let mut calls = Vec::new();
+            let result = check_url_with("https://example.org", |url, is_head| {
+                calls.push((url.to_owned(), is_head));
+                if is_head {
+                    head.clone()
+                } else {
+                    (206, None)
+                }
+            });
+            assert_eq!(result["status"], "healthy");
+            assert_eq!(calls.len(), 2);
+            assert!(calls[0].1);
+            assert!(!calls[1].1);
+        }
+    }
+
+    #[test]
+    fn keeps_successful_head_responses_without_a_get_retry() {
+        let mut calls = Vec::new();
+        let result = check_url_with("https://example.org", |url, is_head| {
+            calls.push((url.to_owned(), is_head));
+            (403, None)
+        });
+        assert_eq!(result["status"], "needs_review");
+        assert_eq!(calls, [("https://example.org".to_owned(), true)]);
+    }
+
+    #[test]
+    fn curl_parses_http_status_and_reports_process_failures() {
+        let success = fake_curl("#!/bin/sh\nprintf '204'\n");
+        assert_eq!(
+            curl_with_program("https://example.org", true, success.as_os_str()),
+            (204, None)
+        );
+        let _ = fs::remove_file(success);
+
+        let failure =
+            fake_curl("#!/bin/sh\nprintf 'not-a-status'\nprintf 'fixture failure' >&2\nexit 7\n");
+        let (code, error) = curl_with_program("https://example.org", false, failure.as_os_str());
+        assert_eq!(code, 0);
+        assert_eq!(error.as_deref(), Some("fixture failure"));
+        let _ = fs::remove_file(failure);
+
+        let missing = std::env::temp_dir().join(format!(
+            "taxonomy-link-monitor-no-curl-{}",
+            std::process::id()
+        ));
+        let (code, error) = curl_with_program("https://example.org", true, missing.as_os_str());
+        assert_eq!(code, 0);
+        assert!(error.is_some());
+    }
+
+    #[test]
+    fn run_limits_request_frequency_per_host_and_writes_summary() {
+        let root = std::env::temp_dir().join(format!(
+            "taxonomy-link-monitor-rate-limit-{}",
+            std::process::id()
+        ));
+        let taxonomy = root.join("schemas/taxonomy");
+        fs::create_dir_all(&taxonomy).unwrap();
+        fs::write(
+            taxonomy.join("links.yaml"),
+            "url: https://example.org/one\nurl: https://example.org/two\nurl: https://example.org/three\n",
+        )
+        .unwrap();
+        let report = root.join("report.json");
+        let mut calls = 0;
+        run_with(&root, &report, |_| {
+            calls += 1;
+            if calls == 2 {
+                thread::sleep(Duration::from_millis(260));
+            }
+            json!({"status":"healthy"})
+        })
+        .unwrap();
+        assert_eq!(calls, 3);
+        let result: serde_json::Value =
+            serde_json::from_slice(&fs::read(&report).unwrap()).unwrap();
+        assert_eq!(report_summary(&result["results"]), (3, 3, 0, 0, 0));
+        let _ = fs::remove_dir_all(root);
     }
 }

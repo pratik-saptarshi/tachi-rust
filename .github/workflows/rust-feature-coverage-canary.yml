@@ -36,14 +36,14 @@ jobs:
       - name: Install pinned canary tools
         run: |
           cargo install --locked --version 0.6.45 cargo-hack
-          cargo install --locked --version 0.8.7 cargo-llvm-cov
+          cargo install --locked --version 0.9.1 cargo-llvm-cov
 
       - name: Print canary tool proof
         run: |
           cargo hack --version
           cargo hack --version | grep -qx 'cargo-hack 0.6.45'
           cargo llvm-cov --version
-          cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'
+          cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.9.1'
 
       - name: Run feature-combination canary
         run: cargo hack check --workspace --locked --each-feature --no-dev-deps

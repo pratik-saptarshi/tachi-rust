@@ -232,7 +232,7 @@ jobs:
 
       - name: Upload package timing artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-timing-package-${{ matrix.package }}
           path: .ci-timing/${{ matrix.package }}.json
@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload shell timing artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-timing-shell-${{ matrix.suite }}
           path: .ci-timing/${{ matrix.suite }}.json
