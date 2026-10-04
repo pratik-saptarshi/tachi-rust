@@ -34,6 +34,11 @@ fn fixture() -> Fixture {
         fs::write(dir.join("threats.md"), "# Fixture\n").unwrap();
         let path = format!("examples/{name}/security-report.pdf.baseline");
         fs::write(root.0.join(&path), b"%PDF-1.7 original %%EOF").unwrap();
+        fs::write(
+            dir.join("security-report.pdf"),
+            b"%PDF-1.7 published original %%EOF",
+        )
+        .unwrap();
         hashes.push(BaselineHash {
             path,
             sha256: catalog_drift::sha256(b"%PDF-1.7 original %%EOF"),
@@ -123,7 +128,7 @@ fn malformed_missing_empty_and_duplicate_catalogs_fail_explicitly() {
 
 #[cfg(unix)]
 #[test]
-fn third_render_failure_preserves_all_six_baselines_and_manifest() {
+fn third_render_failure_preserves_all_registered_baselines_companions_and_manifest() {
     use std::os::unix::fs::PermissionsExt;
     let root = fixture();
     let templates = root.0.join("templates/tachi/security-report");
@@ -140,4 +145,10 @@ fn third_render_failure_preserves_all_six_baselines_and_manifest() {
     );
     assert_eq!(fs::read(root.0.join(MANIFEST)).unwrap(), before);
     catalog_drift::check(&root.0).unwrap();
+    for name in BASELINES {
+        assert_eq!(
+            fs::read(root.0.join(format!("examples/{name}/security-report.pdf"))).unwrap(),
+            b"%PDF-1.7 published original %%EOF"
+        );
+    }
 }

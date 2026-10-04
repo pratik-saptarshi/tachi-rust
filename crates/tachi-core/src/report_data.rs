@@ -77,6 +77,7 @@ pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String
     output.push_str(&render_maestro_coverage_typst(&threats_content));
     output.push_str(&render_document_data(
         target_dir,
+        template_dir,
         &threats_content,
         &findings,
     ));
@@ -87,12 +88,18 @@ pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String
 // Absent optional analysis is explicitly unavailable, never synthesized.
 fn render_document_data(
     target: &Path,
+    template_dir: &Path,
     content: &str,
     findings: &[crate::parsers::ThreatFinding],
 ) -> String {
     use serde_json::json;
     let scope = crate::parsers::parse_scope_data(content);
     let maestro = crate::infographic::extract_maestro_data(content);
+    let brand_dir = template_dir
+        .ancestors()
+        .nth(3)
+        .map(|root| root.join("brand/final"));
+    let brand = crate::assets::detect_brand_assets(template_dir, brand_dir.as_deref());
     let report = crate::parse_threat_report_md(
         &fs::read_to_string(target.join("threat-report.md")).unwrap_or_default(),
     );
@@ -112,8 +119,9 @@ fn render_document_data(
         "medium-count": findings.iter().filter(|f| f.risk_level == "Medium").count(),
         "low-count": findings.iter().filter(|f| f.risk_level == "Low").count(),
         "total-findings": findings.len(), "data-source-tier": 3,
-        "has-logo-primary": false, "has-logo-horizontal": false,
-        "logo-primary-path": "", "logo-horizontal-path": "",
+        "has-logo-primary": brand.has_logo_primary, "has-logo-horizontal": brand.has_logo_horizontal,
+        "logo-primary-path": brand.logo_primary_path, "logo-primary-dark-path": brand.logo_primary_dark_path,
+        "logo-horizontal-path": brand.logo_horizontal_path,
         "has-risk-scores": false, "has-compensating-controls": false,
         "has-threat-report": report.executive_narrative.is_some(),
         "executive-narrative": report.executive_narrative, "component-distribution": [],
@@ -157,6 +165,80 @@ fn render_document_data(
         }
     }
     let tier = values["data-source-tier"].as_u64().unwrap();
+    let active_findings = values["findings"].as_array().unwrap();
+    let components = active_findings
+        .iter()
+        .map(|finding| {
+            std::collections::BTreeMap::from([(
+                "component".to_string(),
+                finding["component"]
+                    .as_str()
+                    .unwrap_or_default()
+                    .to_string(),
+            )])
+        })
+        .collect::<Vec<_>>();
+    let remediation_findings = active_findings
+        .iter()
+        .map(|finding| {
+            let field = |name: &str| finding[name].as_str().unwrap_or_default().to_string();
+            crate::report_extraction::RemediationFinding {
+                id: field("id"),
+                threat: field("threat"),
+                recommendation: field("recommendation"),
+                control_status: field("control_status"),
+                residual_severity: field("residual_severity"),
+                severity: field("severity"),
+                risk_level: field("risk_level"),
+                mitigation: field("mitigation"),
+            }
+        })
+        .collect::<Vec<_>>();
+    let actions = crate::report_extraction::build_remediation_actions(
+        &remediation_findings,
+        tier as u8,
+        values["has-compensating-controls"] == true,
+        Some(&report),
+    )
+    .unwrap_or_default();
+    values["component-distribution"] =
+        json!(crate::parsers::parse_component_distribution(&components));
+    values["remediation-actions"] = json!(actions.iter().map(|action| json!({
+        "severity":action.severity, "finding-id":action.finding_id, "finding-name":action.finding_name,
+        "recommendation":action.recommendation, "sla":action.sla, "status":action.status,
+    })).collect::<Vec<_>>());
+    let report_text = fs::read_to_string(target.join("threat-report.md")).ok();
+    let image_path = |directory: &str, id: &str, suffix: &str| {
+        [id.to_string(), id.to_ascii_lowercase()]
+            .iter()
+            .flat_map(|id| {
+                ["png", "jpg", "svg"]
+                    .map(|ext| target.join(directory).join(format!("{id}-{suffix}.{ext}")))
+            })
+            .find(|path| path.is_file())
+            .map(|path| {
+                crate::assets::relative_path(template_dir, &path)
+                    .to_string_lossy()
+                    .into_owned()
+            })
+    };
+    let trees = crate::attack_trees::parse_attack_trees(target, findings, report_text.as_deref());
+    values["has-attack-trees"] = json!(!trees.is_empty());
+    values["attack-trees"] = json!(trees.iter().map(|tree| {
+        let image = image_path("attack-trees", &tree.id, "attack-tree");
+        json!({"id":tree.id, "title":tree.title, "component":tree.component, "severity":tree.severity,
+            "has-image":image.is_some(), "image-path":image.unwrap_or_default(),
+            "narrative":tree.narrative, "remediation":tree.mitigation, "mermaid-code":tree.mermaid_code})
+    }).collect::<Vec<_>>());
+    let chain_text = fs::read_to_string(target.join("attack-chains.md")).ok();
+    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref());
+    values["has-attack-chains"] = json!(!chains.is_empty());
+    values["attack-chains"] = json!(chains.iter().map(|chain| {
+        let image = image_path("attack-chains", &chain.chain_id, "attack-chain");
+        json!({"id":chain.chain_id, "title":chain.title, "layers":chain.layers.join(" → "), "max-severity":chain.max_severity,
+            "has-image":image.is_some(), "image-path":image.unwrap_or_default(), "narrative":chain.narrative,
+            "finding-ids":chain.findings.iter().map(|f| &f.finding_id).collect::<Vec<_>>()})
+    }).collect::<Vec<_>>());
     let severity_key = if tier == 1 {
         "residual_severity"
     } else if tier == 2 {

@@ -199,7 +199,7 @@ fn is_nonempty_file(path: &Path) -> bool {
     path.exists() && path.metadata().map(|meta| meta.len() > 0).unwrap_or(false)
 }
 
-fn relative_path(from: &Path, to: &Path) -> PathBuf {
+pub(crate) fn relative_path(from: &Path, to: &Path) -> PathBuf {
     let from_components = normalize_components(from);
     let to_components = normalize_components(to);
 

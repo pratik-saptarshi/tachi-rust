@@ -305,10 +305,10 @@ has_agentic_patterns: true
 |----|-----------|---------------|-----------------|--------|-----------------|------------|--------|------------|------------|
 | LLM-1 | Clinical LLM | L1 — Foundation Model | — | An attacker may inject adversarial prompts into the clinical context window passed to the Clinical LLM via the API Gateway, causing the model to generate harmful, false, or clinically dangerous completions that the Supervisor Orchestrator incorporates into clinical recommendations. | OWASP LLM01:2026 | HIGH | HIGH | Critical | Implement prompt injection detection and sanitization at the API Gateway before forwarding to the Clinical LLM. Apply output validation to detect clinically dangerous completions. Use system prompt hardening to resist instruction injection. |
 | LLM-2 | Clinical LLM | L1 — Foundation Model | — | An adversary may poison the training data or fine-tuning feedback incorporated into the Clinical LLM via the Outcomes Telemetry learning loop, causing the model to produce systematically biased or manipulated clinical completions after re-training. | OWASP LLM05:2026 | MEDIUM | HIGH | High | Implement training data provenance attestation and integrity verification before learning loop incorporation. Apply behavioral baselining to detect post-training output drift. Implement emergency model rollback capability. |
-| LLM-3 | Clinical LLM | L1 — Foundation Model | — | An adversary may extract the Clinical LLM's learned clinical knowledge through repeated targeted queries via the API Gateway, enabling model theft or reconstruction of proprietary medical AI capabilities. | OWASP LLM02:2026 | LOW | MEDIUM | Low | Implement query rate limiting and anomaly detection for systematic extraction patterns. Apply output perturbation to reduce model extraction fidelity. Monitor query patterns for systematic knowledge extraction behavior. |
-| LLM-4 | Risk Stratification Model | L1 — Foundation Model | — | An attacker may craft adversarial patient record inputs passed to the Risk Stratification Model to generate manipulated risk scores, causing incorrect clinical triage and resource allocation decisions. | OWASP LLM01:2026 | MEDIUM | HIGH | High | Implement input validation and anomaly detection for adversarial patient record patterns. Apply ensemble validation by cross-checking risk scores against clinical rules. |
-| LLM-5 | Risk Stratification Model | L1 — Foundation Model | — | An adversary may poison the supervised fine-tuning dataset used to train the Risk Stratification Model, embedding adversarial patterns that cause the model to systematically misclassify high-risk patients as low-risk after re-training. | OWASP LLM05:2026 | MEDIUM | HIGH | High | Implement fine-tuning dataset integrity verification and provenance attestation. Apply behavioral testing against known high-risk cases after each model update. Monitor risk score distribution for systematic drift. |
-| LLM-6 | Risk Stratification Model | L1 — Foundation Model | — | An adversary may conduct membership inference attacks against the Risk Stratification Model to determine which patients were included in the fine-tuning dataset, violating patient privacy even when the model is deployed without direct data access. | OWASP LLM02:2026 | MEDIUM | HIGH | High | Apply differential privacy during model fine-tuning to provide formal privacy guarantees. Implement query auditing to detect membership inference attack patterns. |
+| LLM-3 | Clinical LLM | L1 — Foundation Model | — | An adversary may extract the Clinical LLM's learned clinical knowledge through repeated targeted queries via the API Gateway, enabling model theft or reconstruction of proprietary medical AI capabilities. | OWASP LLM06:2026 | LOW | MEDIUM | Low | Implement query rate limiting and anomaly detection for systematic extraction patterns. Apply output perturbation to reduce model extraction fidelity. Monitor query patterns for systematic knowledge extraction behavior. |
+| LLM-4 | Risk Stratification Model | L1 — Foundation Model | — | An attacker may craft adversarial patient record inputs passed to the Risk Stratification Model to generate manipulated risk scores, causing incorrect clinical triage and resource allocation decisions. | OWASP ML01:2023 | MEDIUM | HIGH | High | Implement input validation and anomaly detection for adversarial patient record patterns. Apply ensemble validation by cross-checking risk scores against clinical rules. |
+| LLM-5 | Risk Stratification Model | L1 — Foundation Model | — | An adversary may poison the supervised fine-tuning dataset used to train the Risk Stratification Model, embedding adversarial patterns that cause the model to systematically misclassify high-risk patients as low-risk after re-training. | OWASP ML02:2023 | MEDIUM | HIGH | High | Implement fine-tuning dataset integrity verification and provenance attestation. Apply behavioral testing against known high-risk cases after each model update. Monitor risk score distribution for systematic drift. |
+| LLM-6 | Risk Stratification Model | L1 — Foundation Model | — | An adversary may conduct membership inference attacks against the Risk Stratification Model to determine which patients were included in the fine-tuning dataset, violating patient privacy even when the model is deployed without direct data access. | OWASP ML04:2023 | MEDIUM | HIGH | High | Apply differential privacy during model fine-tuning to provide formal privacy guarantees. Implement query auditing to detect membership inference attack patterns. |
 
 ---
 
@@ -767,13 +767,13 @@ LLM-2:
   - {taxonomy: owasp, id: LLM05, relationship: primary}
   - {taxonomy: cwe, id: CWE-20, relationship: related}
 LLM-4:
-  - {taxonomy: owasp, id: LLM01, relationship: primary}
+  - {taxonomy: owasp, id: ML01, relationship: primary}
   - {taxonomy: cwe, id: CWE-20, relationship: related}
 LLM-5:
-  - {taxonomy: owasp, id: LLM05, relationship: primary}
+  - {taxonomy: owasp, id: ML02, relationship: primary}
   - {taxonomy: cwe, id: CWE-20, relationship: related}
 LLM-6:
-  - {taxonomy: owasp, id: LLM02, relationship: primary}
+  - {taxonomy: owasp, id: ML04, relationship: primary}
   - {taxonomy: cwe, id: CWE-20, relationship: related}
 AGP-02:
   - {taxonomy: owasp, id: ASI06, relationship: primary}
@@ -893,7 +893,7 @@ D-12:
   - {taxonomy: owasp, id: A04, relationship: primary}
   - {taxonomy: cwe, id: CWE-770, relationship: related}
 LLM-3:
-  - {taxonomy: owasp, id: LLM02, relationship: primary}
+  - {taxonomy: owasp, id: LLM06, relationship: primary}
   - {taxonomy: cwe, id: CWE-20, relationship: related}
 ```
 

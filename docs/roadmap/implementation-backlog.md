@@ -8,6 +8,7 @@
 
 - [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
 - [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
+- [Rust-native upstream milestone delivery (2026-10-04)](./2026-10-04-upstream-milestone-delivery.md) — epic `RT-3zm`, three separately gated PR phases, including PR #42 review remediation.
 
 - Active desktop host: `crates/tachi-desktop`
 - [Beads issue mirror snapshot](../../.beads/issues.jsonl)
@@ -21,11 +22,11 @@
 
 ## Current Status Snapshot
 
-- Rust-native upstream features and delivery are complete under closed epic
-  `RT-5vk`; all six feature implementation/validation pairs and shared audit
-  and delivery tasks are closed. PR #42 records terminal hosted validation.
-  The 2026-10-04 live export contains 235 issues: 232 closed, 0 in progress,
-  3 deferred, 0 open and 0 blocked. Earlier snapshots below remain historical.
+- Rust-native upstream implementation is recorded under historical closed epic
+  `RT-5vk`. Protected delivery and review remediation are tracked by active
+  epic `RT-3zm`: semantic PR #43, native reporting PR #44, and integration
+  evidence PR #42. Implementation closure does not establish merged delivery.
+  Earlier tracker snapshots below remain historical.
 
 - Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
   Baseline reconciliation, pin verification, and local validation are complete.

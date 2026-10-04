@@ -1,5 +1,7 @@
 # Rust-Native Upstream Feature Roadmap — 2026-10-04
 
+Delivery status: implementation evidence below is historical. [Milestone delivery](roadmap/2026-10-04-upstream-milestone-delivery.md), epic `RT-3zm`, now governs phased PRs, review remediation and protected auto-merge. Closure of implementation epic `RT-5vk` did not establish merged delivery; all phase gates must be verified independently.
+
 Review window: May 4–October 4, 2026. Upstream anchor: `63438d78cfedc7abf4ae6e2f6b3301161246299d`; fork anchor: `cb567d3235eee0d45081b099a3c6df7c98f12eb7`. Prioritize value versus effort and preserve the Rust architecture. Implementation lives on `feat/rust-native-upstream-2026-10-04` in an isolated worktree, separate from PR #26 and the original dirty checkout.
 
 ## Mandatory constraints
@@ -70,7 +72,7 @@ Planning/audit records comparison anchors, adoption status, dependency review, c
 
 Active output-integrity instructions use LLM10; vector-filter findings use LLM09 as primary and LLM10 as related. Misinformation uses LLM07, hidden context exposure LLM08, supply-chain compromise LLM04, poisoning LLM05 and resource consumption LLM06. Adapter framework labels now identify 2026. Explicit attack-chain provenance citing the 2025 source remains historical.
 
-The six baseline inputs are current rendering fixtures. In `maestro-reference`, training/fine-tuning poisoning (LLM-2/LLM-5) uses LLM05; knowledge extraction and membership inference (LLM-3/LLM-6) use LLM02 for information disclosure. In `mermaid-agentic-app`, indirect injection (LLM-2) uses LLM01, poisoned knowledge content (T-2/LLM-3) uses LLM05, configuration/system-prompt extraction (LLM-4) uses LLM08, and inference resource exhaustion (D-1) uses LLM06. Removed an orphan attribution for nonexistent LLM-5. These are contextual corrections, not blanket ID substitutions.
+The original six baseline inputs are current rendering fixtures. In `maestro-reference`, Clinical LLM training poisoning (LLM-2) uses LLM05 and model extraction (LLM-3) uses LLM06 per the current pattern catalog. The predictive Risk Stratification Model uses the ML taxonomy: input manipulation (LLM-4) is ML01:2023, training-data poisoning (LLM-5) is ML02:2023, and membership inference (LLM-6) is ML04:2023. Finding identities remain unchanged. In `mermaid-agentic-app`, indirect injection (LLM-2) uses LLM01, poisoned retrieval content (T-2/LLM-3) uses LLM09, configuration/system-prompt extraction (LLM-4) uses LLM08, and inference resource exhaustion (D-1) uses LLM06. Removed an orphan attribution for nonexistent LLM-5. The canonical `agentic-app` source, sample-report copy and attack trees use LLM05 for training poisoning. Active agent and adapter examples have parsed-YAML reference/attribution tests, including companion narratives and SARIF guidance. These are contextual corrections, not blanket ID substitutions.
 
 ## Native validation commands
 
@@ -86,9 +88,11 @@ cargo run --locked -p tachi-cli --bin catalog-drift -- --check
 actionlint .github/workflows/*.yml
 ```
 
-Baseline regeneration requires the native `typst 0.15.1 (9dfd3a08)` executable; no Python, Node or shell renderer wrapper is used. Set `--typst` to that executable and run `cargo run --locked -p tachi-cli --bin catalog-drift -- --regenerate-baselines --typst /absolute/path/to/typst`. Then put the same executable on PATH and run `cargo test -p tachi-core --test backward_compatibility`. Both paths use epoch 1700000000 and embedded fonts only. The offline check validates the committed catalog fingerprints and all six PDF hashes without Typst or network access.
+Baseline regeneration requires the native `typst 0.15.1 (9dfd3a08)` executable; no Python, Node or shell renderer wrapper is used. Set `--typst` to that executable and run `cargo run --locked -p tachi-cli --bin catalog-drift -- --regenerate-baselines --typst /absolute/path/to/typst`. Then put the same executable on PATH and run `cargo test -p tachi-core --test backward_compatibility`. Both paths use epoch 1700000000 and embedded fonts only. The offline check validates the committed catalog fingerprints and all seven registered PDF hashes without Typst or network access. The seventh case is the README-linked `agentic-app/sample-report`, added after review exposed stale canonical artifacts; the original six remain mandatory. Published `security-report.pdf` companions for registered cases are updated in the same staged publication.
 
-The Rust report data builder now supplies the complete template binding contract, preserving available risk-score and compensating-control tiers. Optional report sections not populated by this builder remain explicitly unavailable; regeneration does not claim parity with every historical upstream report section. The PDF compatibility test compares the committed native baselines with this Rust path.
+The Rust report data builder supplies the template binding contract, preserving available risk-score and compensating-control tiers. It binds available attack trees, diagrams, mitigations and cross-layer chain narratives; trees without rendered images retain their Mermaid source. Missing optional evidence remains unavailable. The PDF compatibility test compares the committed native baselines with this Rust path.
+
+Phase 2 corrects three review findings on PR #42: available brand assets are detected and staged for native rendering; remediation recommendations retain their finding IDs, severity, status and SLA; component distribution comes from the selected control/risk/raw tier. Dedicated Rust regressions cover present/absent branding, tier precedence and actual `maestro-reference` recommendations. The canonical sample also exposed nested attribution YAML and explicit OWASP table citations that the Rust reader missed. Parsing now preserves both and rejects malformed nested attribution. The seven-PDF set and canonical sample SARIF are regenerated through native tools.
 
 ## Delivery evidence — 2026-10-04
 

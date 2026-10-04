@@ -23,7 +23,7 @@ inspection, report/infographic data generation, and SARIF export.
   permission-table validation; no interpreter needed.
 - `catalog-drift.rs`: `--check` uses the Rust framework registry, strict loader,
   ordered manifest and PDF hashes offline; `--regenerate-baselines` uses pinned
-  Typst 0.15.1 in a private staging tree before publishing the six-file set.
+  Typst 0.15.1 in a private staging tree before publishing all seven registered baselines and their existing PDF companions.
 
 - `install.rs`, `init.rs`, `update.rs`, `bootstrap.rs`: raw argv -> root plus pass-through
   flags -> `*_output` -> stdout/stderr replay -> returned status.

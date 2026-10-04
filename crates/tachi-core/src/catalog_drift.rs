@@ -13,13 +13,14 @@ use std::{
 pub const MANIFEST: &str = "schemas/taxonomy/catalog-manifest.json";
 pub const TYPST_VERSION: &str = "typst 0.15.1 (9dfd3a08)";
 pub const SOURCE_DATE_EPOCH: &str = "1700000000";
-pub const BASELINES: [&str; 6] = [
+pub const BASELINES: [&str; 7] = [
     "web-app",
     "microservices",
     "ascii-web-api",
     "mermaid-agentic-app",
     "free-text-microservice",
     "maestro-reference",
+    "agentic-app/sample-report",
 ];
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -100,7 +101,7 @@ pub fn check(root: &Path) -> Result<(), String> {
         .collect::<Vec<_>>()
         != expected_paths.iter().collect::<Vec<_>>()
     {
-        return Err("manifest must contain all six baselines in canonical order".into());
+        return Err("manifest must contain every registered baseline in canonical order".into());
     }
     for baseline in manifest.baselines {
         let bytes =
@@ -168,6 +169,10 @@ pub fn regenerate(root: &Path, typst: &Path) -> Result<(), String> {
     fs::create_dir(&stage.0).map_err(|e| e.to_string())?;
     let templates = stage.0.join("templates/tachi/security-report");
     copy_tree(&root.join("templates/tachi/security-report"), &templates)?;
+    let brand = root.join("brand/final");
+    if brand.exists() {
+        copy_tree(&brand, &stage.0.join("brand/final"))?;
+    }
     copy_tree(
         &root.join("schemas/taxonomy"),
         &stage.0.join("schemas/taxonomy"),
@@ -217,6 +222,10 @@ pub fn regenerate(root: &Path, typst: &Path) -> Result<(), String> {
             path: path.clone(),
             sha256: sha256(&bytes),
         });
+        let published_pdf = root.join(&relative).join("security-report.pdf");
+        if published_pdf.is_file() {
+            writes.push((published_pdf, bytes.clone()));
+        }
         writes.push((root.join(path), bytes));
     }
     let manifest = Manifest {

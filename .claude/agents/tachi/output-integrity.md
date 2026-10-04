@@ -14,7 +14,7 @@ model: sonnet
 category: llm
 threat_class: LLM
 dfd_targets: [Process]
-owasp_references: [OWASP LLM10:2026, OWASP ML09:2023]
+owasp_references: [OWASP LLM10:2026, OWASP LLM09:2026, OWASP ML09:2023]
 output_schema: ../../../schemas/finding.yaml
 ```
 

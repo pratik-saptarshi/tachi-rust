@@ -14,6 +14,7 @@ threat_class: LLM
 dfd_targets: [Data Store, Process]
 owasp_references:
   - "OWASP LLM06:2026"
+  - "OWASP LLM08:2026"
   - "OWASP LLM04:2026"
   - "OWASP ML03:2023 — Model Inversion Attack"
   - "OWASP ML04:2023 — Membership Inference Attack"
@@ -35,7 +36,6 @@ For predictive-ML deployments, also covers extraction and artifact-integrity thr
 | Finding format | `.claude/skills/tachi-shared/references/finding-format-shared.md` | At detection start | Canonical finding schema and field guidance |
 ## Detection Workflow
 **MANDATORY**: Read `.claude/skills/tachi-model-theft/references/detection-patterns.md` — load before applying patterns to components.
-
 1. Iterate dispatched components from orchestrator input, filtering to Data Store and Process DFD element types that match the trigger keywords in the reference file (LLM, model, weights, checkpoint, inference, model registry, model serving, model API, fine-tuned).
 2. For each component, walk through the pattern categories in the reference file (direct weight exfiltration, API-based extraction, artifact exposure, side-channel reconstruction, fine-tuned model theft, unbounded consumption, supply chain compromise, ATLAS inference-API exfiltration, system prompt leakage) and collect every indicator present.
 3. For each match, construct a finding using the canonical schema defined in `finding-format-shared.md`, assigning `category: llm`, a sequential `LLM-N` id, and the target component name.
@@ -55,12 +55,12 @@ impact: HIGH
 risk_level: High
 mitigation: "Restrict S3 bucket access to the model serving role and ML engineering team using least-privilege IAM policies. Enable S3 server-side encryption with customer-managed keys (SSE-KMS). Enable S3 access logging and configure alerts for unusual download patterns. Implement a model asset inventory that tracks all stored model artifacts and their access policies."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM06:2026"
   - "CWE-732"
   - "CWE-200"
 source_attribution:
   - taxonomy: owasp
-    id: LLM04
+    id: LLM06
     relationship: primary
   - taxonomy: cwe
     id: CWE-732
@@ -83,12 +83,12 @@ impact: HIGH
 risk_level: High
 mitigation: "Restrict API output to top-k predictions only (k <= 5) rather than full vocabulary logprobs. Implement per-API-key query budgets with alerts at threshold crossings. Deploy query pattern analysis that detects systematic probing (uniform input distributions, grid sampling patterns). Add watermarking to model outputs to enable downstream detection of extracted copies."
 references:
-  - "OWASP ML03:2023"
+  - "OWASP LLM06:2026"
   - "MITRE ATLAS AML.T0024"
   - "CWE-200"
 source_attribution:
   - taxonomy: owasp
-    id: ML03:2023
+    id: LLM06
     relationship: primary
   - taxonomy: cwe
     id: CWE-200
@@ -108,11 +108,11 @@ impact: LOW
 risk_level: Medium
 mitigation: "Implement generic error responses that do not expose model architecture details. Return standardized error codes (e.g., 'input too long', 'service unavailable') without framework-specific information. Route detailed error logging to internal monitoring systems only. Audit all API response schemas for unintended metadata disclosure."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM08:2026"
   - "CWE-209"
 source_attribution:
   - taxonomy: owasp
-    id: LLM04
+    id: LLM08
     relationship: primary
   - taxonomy: cwe
     id: CWE-209

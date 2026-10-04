@@ -155,7 +155,7 @@ impact: LOW
 risk_level: Medium
 mitigation: "Implement generic error responses that do not expose model architecture details. Return standardized error codes (e.g., 'input too long', 'service unavailable') without framework-specific information. Route detailed error logging to internal monitoring systems only. Audit all API response schemas for unintended metadata disclosure."
 references:
-  - "OWASP LLM06:2026"
+  - "OWASP LLM08:2026"
   - "CWE-209"
 dfd_element_type: "Process"
 ```
@@ -172,7 +172,8 @@ Apply the OWASP 3x3 matrix to determine `risk_level` from `likelihood` and `impa
 
 ## References
 
-- **OWASP LLM06:2026 - Model Theft**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+- **OWASP LLM06:2026 - Unbounded Consumption (including model extraction)**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+- **OWASP LLM08:2026 - Hidden Context Exposure**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
 - **OWASP LLM04:2026 - Supply Chain Vulnerabilities**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
 - **MITRE ATLAS - ML Model Access**: Tactic TA0044, Technique AML.T0044
 - **Tramer et al., 2016**: "Stealing Machine Learning Models via Prediction APIs" — foundational work on API-based model extraction
