@@ -473,7 +473,7 @@ fn parse_threats_findings_extracts_source_attribution_and_pattern() {
         .expect("source attribution");
     assert_eq!(records.len(), 3);
     assert_eq!(records[0].taxonomy, "owasp");
-    assert_eq!(records[0].id, "LLM05");
+    assert_eq!(records[0].id, "LLM10");
     assert_eq!(records[0].relationship, "primary");
 }
 

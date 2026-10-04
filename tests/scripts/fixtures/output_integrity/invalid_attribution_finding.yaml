@@ -22,7 +22,7 @@ references:
   - "CWE-73 External Control of File Name or Path"
 source_attribution:
   - taxonomy: owasp
-    id: LLM05
+    id: LLM10
     relationship: primary
   - taxonomy: cwe
       id: CWE-9999
