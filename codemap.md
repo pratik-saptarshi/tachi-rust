@@ -48,6 +48,11 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 ## Roadmap Control Surfaces
 
+The [main-48h remediation roadmap](docs/roadmap/remediation-roadmap-2026-10-04.md),
+Beads `RT-aha`, records nine confirmed P2 corrections and three nonblocking
+P3 decisions from main at `8df554e8`. Planning is complete; fixes and delivery
+validation remain open.
+
 The active [2026-10-04 Rust-native upstream roadmap](docs/feature-roadmap-2026-10-04.md)
 is tracked by Beads `RT-5vk`. It covers OWASP semantic emission contracts,
 permissions CI, typed MAESTRO evaluation evidence, catalog fingerprints and

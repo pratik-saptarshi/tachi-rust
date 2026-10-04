@@ -6,6 +6,8 @@
 
 ## Backlog Navigation
 
+- [Main-48h adversarial remediation (2026-10-04)](./remediation-roadmap-2026-10-04.md) — epic `RT-aha`; nine P2 corrections, three nonblocking P3 decisions; implementation not started.
+
 - [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
 - [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
 - [Rust-native upstream milestone delivery (2026-10-04)](./2026-10-04-upstream-milestone-delivery.md) — epic `RT-3zm`, three separately gated PR phases, including PR #42 review remediation.
