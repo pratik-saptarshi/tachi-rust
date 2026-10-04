@@ -1,0 +1,65 @@
+name: Prisma PostgreSQL migration
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prisma-postgres-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  migration:
+    name: Prisma PostgreSQL migration and RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: tachi_test
+          POSTGRES_USER: tachi_test
+          POSTGRES_PASSWORD: tachi_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tachi_test -d tachi_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: stacks/nextjs-supabase/scaffold
+    env:
+      DATABASE_URL: postgresql://tachi_test:tachi_test@localhost:5432/tachi_test?schema=public
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: stacks/nextjs-supabase/scaffold/package-lock.json
+
+      - name: Install from lockfile and generate Prisma client
+        run: npm ci
+
+      - name: Prepare Supabase-compatible PostgreSQL fixture
+        run: node scripts/prepare-supabase-pg-fixture.mjs
+
+      - name: Apply Prisma migrations to fresh PostgreSQL
+        run: npx prisma migrate deploy
+
+      - name: Verify migration status
+        run: npx prisma migrate status
+
+      - name: Verify row-level security policies
+        run: node scripts/verify-postgres-rls.mjs
