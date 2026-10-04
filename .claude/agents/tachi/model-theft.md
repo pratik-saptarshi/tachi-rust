@@ -36,7 +36,6 @@ For predictive-ML deployments, also covers extraction and artifact-integrity thr
 | Finding format | `.claude/skills/tachi-shared/references/finding-format-shared.md` | At detection start | Canonical finding schema and field guidance |
 ## Detection Workflow
 **MANDATORY**: Read `.claude/skills/tachi-model-theft/references/detection-patterns.md` — load before applying patterns to components.
-
 1. Iterate dispatched components from orchestrator input, filtering to Data Store and Process DFD element types that match the trigger keywords in the reference file (LLM, model, weights, checkpoint, inference, model registry, model serving, model API, fine-tuned).
 2. For each component, walk through the pattern categories in the reference file (direct weight exfiltration, API-based extraction, artifact exposure, side-channel reconstruction, fine-tuned model theft, unbounded consumption, supply chain compromise, ATLAS inference-API exfiltration, system prompt leakage) and collect every indicator present.
 3. For each match, construct a finding using the canonical schema defined in `finding-format-shared.md`, assigning `category: llm`, a sequential `LLM-N` id, and the target component name.
