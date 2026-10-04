@@ -21,10 +21,10 @@
 
 ## Current Status Snapshot
 
-- Rust-native upstream features are implemented under epic `RT-5vk`; all six
-  feature implementation/validation pairs are closed. Delivery verification
-  `RT-5vk.8` and the epic remain in progress until hosted checks are confirmed.
-  The 2026-10-04 live export contains 235 issues: 230 closed, 2 in progress,
+- Rust-native upstream features and delivery are complete under closed epic
+  `RT-5vk`; all six feature implementation/validation pairs and shared audit
+  and delivery tasks are closed. PR #42 records terminal hosted validation.
+  The 2026-10-04 live export contains 235 issues: 232 closed, 0 in progress,
   3 deferred, 0 open and 0 blocked. Earlier snapshots below remain historical.
 
 - Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
