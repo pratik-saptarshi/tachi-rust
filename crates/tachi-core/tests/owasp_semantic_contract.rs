@@ -235,8 +235,9 @@ fn current_baseline_findings_keep_contextual_citations_consistent() {
             vec![
                 ("LLM-2", "LLM05"),
                 ("LLM-3", "LLM06"),
-                ("LLM-5", "LLM05"),
-                ("LLM-6", "LLM02"),
+                ("LLM-4", "ML01"),
+                ("LLM-5", "ML02"),
+                ("LLM-6", "ML04"),
             ],
         ),
         (
@@ -250,8 +251,13 @@ fn current_baseline_findings_keep_contextual_citations_consistent() {
                 .lines()
                 .find(|line| line.starts_with(&format!("| {finding} |")))
                 .unwrap();
+            let year = if category.starts_with("ML") {
+                "2023"
+            } else {
+                "2026"
+            };
             assert!(
-                row.contains(&format!("OWASP {category}:2026")),
+                row.contains(&format!("OWASP {category}:{year}")),
                 "{example}/{finding}: incorrect current category"
             );
             assert!(
@@ -304,5 +310,34 @@ fn canonical_agentic_example_and_companion_narratives_use_current_categories() {
             &format!("OWASP {stale}:2026"),
         )
         .unwrap_or_else(|e| panic!("{path}/{finding}: {e}"));
+    }
+}
+
+#[test]
+fn current_sarif_guidance_uses_catalog_category_meanings() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let path = "examples/maestro-reference/threats.sarif";
+    let sarif: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(root.join(path)).unwrap()).unwrap();
+    let rules = sarif["runs"][0]["tool"]["driver"]["rules"]
+        .as_array()
+        .unwrap();
+    let guidance = rules
+        .iter()
+        .map(|r| r["help"]["markdown"].as_str().unwrap_or_default())
+        .collect::<Vec<_>>()
+        .join("\n");
+    for (current, stale) in [
+        (
+            "OWASP LLM05:2026 (Data and Model Poisoning)",
+            "OWASP LLM04:2026 (Training Data Poisoning)",
+        ),
+        (
+            "OWASP ML05:2023 (Model Theft)",
+            "OWASP LLM06:2026 (Model Theft)",
+        ),
+    ] {
+        check(&guidance, current, stale).unwrap();
+        assert!(check(&guidance.replace(current, stale), current, stale).is_err());
     }
 }
