@@ -23,7 +23,16 @@ pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String
     let findings = parse_threats_findings(&threats_content).unwrap_or_default();
     let has_source_attribution = compute_has_source_attribution(&findings);
     let per_finding_rows = build_per_finding_rows(&findings);
-    let per_framework_aggregates = build_per_framework_aggregates(&findings);
+    let taxonomy_dir = template_dir
+        .ancestors()
+        .nth(3)
+        .map(|root| root.join("schemas/taxonomy"));
+    let per_framework_aggregates = match taxonomy_dir.filter(|dir| dir.is_dir()) {
+        Some(dir) => {
+            crate::coverage_attestation::build_per_framework_aggregates_in_dir(&dir, &findings)
+        }
+        None => build_per_framework_aggregates(&findings),
+    };
 
     let mut output = render_report_data_typst(
         &project_name,
@@ -65,6 +74,232 @@ pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String
         &per_finding_rows,
         &per_framework_aggregates,
     ));
+    output.push_str(&render_maestro_coverage_typst(&threats_content));
+    output.push_str(&render_document_data(
+        target_dir,
+        template_dir,
+        &threats_content,
+        &findings,
+    ));
+    output
+}
+
+// The canonical Rust report path supplies the full Tier-3 template contract.
+// Absent optional analysis is explicitly unavailable, never synthesized.
+fn render_document_data(
+    target: &Path,
+    template_dir: &Path,
+    content: &str,
+    findings: &[crate::parsers::ThreatFinding],
+) -> String {
+    use serde_json::json;
+    let scope = crate::parsers::parse_scope_data(content);
+    let maestro = crate::infographic::extract_maestro_data(content);
+    let brand_dir = template_dir
+        .ancestors()
+        .nth(3)
+        .map(|root| root.join("brand/final"));
+    let brand = crate::assets::detect_brand_assets(template_dir, brand_dir.as_deref());
+    let report = crate::parse_threat_report_md(
+        &fs::read_to_string(target.join("threat-report.md")).unwrap_or_default(),
+    );
+    let metadata = |key: &str| {
+        content
+            .lines()
+            .find_map(|line| line.strip_prefix(&format!("{key}:")))
+            .unwrap_or("unknown")
+            .trim()
+            .trim_matches('"')
+            .to_string()
+    };
+    let mut values = json!({
+        "assessment-date": metadata("date"), "classification": metadata("classification"),
+        "critical-count": findings.iter().filter(|f| f.risk_level == "Critical").count(),
+        "high-count": findings.iter().filter(|f| f.risk_level == "High").count(),
+        "medium-count": findings.iter().filter(|f| f.risk_level == "Medium").count(),
+        "low-count": findings.iter().filter(|f| f.risk_level == "Low").count(),
+        "total-findings": findings.len(), "data-source-tier": 3,
+        "has-logo-primary": brand.has_logo_primary, "has-logo-horizontal": brand.has_logo_horizontal,
+        "logo-primary-path": brand.logo_primary_path, "logo-primary-dark-path": brand.logo_primary_dark_path,
+        "logo-horizontal-path": brand.logo_horizontal_path,
+        "has-risk-scores": false, "has-compensating-controls": false,
+        "has-threat-report": report.executive_narrative.is_some() || !report.remediation_timeline.is_empty(),
+        "executive-narrative": report.executive_narrative, "component-distribution": [],
+        "has-attack-trees": false, "attack-trees": [], "has-attack-chains": false, "attack-chains": [],
+        "coverage-matrix": [], "controls": [], "coverage-summary": {}, "remediation-actions": []
+    });
+    let detail = json!({
+        "scope-component-count": scope.components.len(), "scope-data-flow-count": scope.data_flows.len(), "scope-trust-boundary-count": scope.trust_boundaries.len(),
+        "scope-components": scope.components.iter().map(|c| json!({"name":c.name,"type":c.kind,"description":c.description})).collect::<Vec<_>>(),
+        "scope-data-flows": scope.data_flows.iter().map(|f| json!({"source":f.source,"destination":f.destination,"data":f.data,"protocol":f.protocol})).collect::<Vec<_>>(),
+        "scope-trust-boundaries": scope.trust_boundaries.iter().map(|b| json!({"zone":b.zone,"trust-level":b.trust_level,"components":b.components})).collect::<Vec<_>>(),
+        "scope-boundary-crossings": scope.boundary_crossings.iter().map(|b| json!({"crossing":b.crossing,"from-zone":b.from_zone,"to-zone":b.to_zone,"components":b.components,"controls":b.controls})).collect::<Vec<_>>(),
+        "most-exposed-layer": maestro.most_exposed_layer,
+        "maestro-findings-by-layer": crate::infographic::group_maestro_findings_by_layer(&maestro).iter().map(|g| json!({"layer-id":g.layer_id,"layer-name":g.layer_name,"findings":g.findings.iter().map(|f|json!({"id":f.id,"component":f.component,"severity":f.risk_level,"threat":f.threat})).collect::<Vec<_>>()})).collect::<Vec<_>>(),
+        "findings": findings.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"likelihood":f.likelihood,"impact":f.impact,"risk_level":f.risk_level,"mitigation":f.mitigation})).collect::<Vec<_>>()
+    });
+    values
+        .as_object_mut()
+        .unwrap()
+        .extend(detail.as_object().unwrap().clone());
+    // Preserve the available inherent-risk tier instead of inventing scores.
+    if let Ok(risk) = fs::read_to_string(target.join("risk-scores.md")) {
+        {
+            let rows = crate::parsers::parse_risk_scores_findings(&risk);
+            if !rows.is_empty() {
+                values["has-risk-scores"] = json!(true);
+                values["data-source-tier"] = json!(2);
+                values["findings"] = json!(rows.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"composite_score":f.composite_score,"severity":f.severity,"cvss":f.cvss,"exploitability":f.exploitability})).collect::<Vec<_>>());
+            }
+        }
+    }
+    if let Ok(text) = fs::read_to_string(target.join("compensating-controls.md")) {
+        let data = crate::parse_compensating_controls_md(&text);
+        if !data.findings.is_empty() {
+            values["has-compensating-controls"] = json!(true);
+            values["data-source-tier"] = json!(1);
+            values["findings"] = json!(data.findings.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"residual_score":f.residual_score,"residual_severity":f.residual_severity,"control_status":f.control_status,"recommendation":f.recommendation})).collect::<Vec<_>>());
+            values["coverage-matrix"] = json!(data.coverage_matrix.iter().map(|r| json!({"category":r.category,"found":r.found,"partial":r.partial,"missing":r.missing})).collect::<Vec<_>>());
+            values["controls"] = json!(data.controls.iter().map(|r| json!({"component":r.component,"category":r.category,"status":r.status,"evidence":r.evidence,"effectiveness":r.effectiveness})).collect::<Vec<_>>());
+            values["coverage-summary"] = json!({"total-found":data.coverage_summary.total_found,"total-partial":data.coverage_summary.total_partial,"total-missing":data.coverage_summary.total_missing});
+        }
+    }
+    let tier = values["data-source-tier"].as_u64().unwrap();
+    let active_findings = values["findings"].as_array().unwrap();
+    let components = active_findings
+        .iter()
+        .map(|finding| {
+            std::collections::BTreeMap::from([(
+                "component".to_string(),
+                finding["component"]
+                    .as_str()
+                    .unwrap_or_default()
+                    .to_string(),
+            )])
+        })
+        .collect::<Vec<_>>();
+    let remediation_findings = active_findings
+        .iter()
+        .map(|finding| {
+            let field = |name: &str| finding[name].as_str().unwrap_or_default().to_string();
+            crate::report_extraction::RemediationFinding {
+                id: field("id"),
+                threat: field("threat"),
+                recommendation: field("recommendation"),
+                control_status: field("control_status"),
+                residual_severity: field("residual_severity"),
+                severity: field("severity"),
+                risk_level: field("risk_level"),
+                mitigation: field("mitigation"),
+            }
+        })
+        .collect::<Vec<_>>();
+    let actions = crate::report_extraction::build_remediation_actions(
+        &remediation_findings,
+        tier as u8,
+        values["has-compensating-controls"] == true,
+        Some(&report),
+    )
+    .unwrap_or_default();
+    values["component-distribution"] =
+        json!(crate::parsers::parse_component_distribution(&components));
+    values["remediation-actions"] = json!(actions.iter().map(|action| json!({
+        "severity":action.severity, "finding-id":action.finding_id, "finding-name":action.finding_name,
+        "recommendation":action.recommendation, "sla":action.sla, "status":action.status,
+    })).collect::<Vec<_>>());
+    let report_text = fs::read_to_string(target.join("threat-report.md")).ok();
+    let image_path = |directory: &str, id: &str, suffix: &str| {
+        [id.to_string(), id.to_ascii_lowercase()]
+            .iter()
+            .flat_map(|id| {
+                ["png", "jpg", "svg"]
+                    .map(|ext| target.join(directory).join(format!("{id}-{suffix}.{ext}")))
+            })
+            .find(|path| path.is_file())
+            .map(|path| {
+                crate::assets::relative_path(template_dir, &path)
+                    .to_string_lossy()
+                    .into_owned()
+            })
+    };
+    let trees = crate::attack_trees::parse_attack_trees(target, findings, report_text.as_deref());
+    values["has-attack-trees"] = json!(!trees.is_empty());
+    values["attack-trees"] = json!(trees.iter().map(|tree| {
+        let image = image_path("attack-trees", &tree.id, "attack-tree");
+        json!({"id":tree.id, "title":tree.title, "component":tree.component, "severity":tree.severity,
+            "has-image":image.is_some(), "image-path":image.unwrap_or_default(),
+            "narrative":tree.narrative, "remediation":tree.mitigation, "mermaid-code":tree.mermaid_code})
+    }).collect::<Vec<_>>());
+    let chain_text = fs::read_to_string(target.join("attack-chains.md")).ok();
+    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref());
+    values["has-attack-chains"] = json!(!chains.is_empty());
+    values["attack-chains"] = json!(chains.iter().map(|chain| {
+        let image = image_path("attack-chains", &chain.chain_id, "attack-chain");
+        json!({"id":chain.chain_id, "title":chain.title, "layers":chain.layers.join(" → "), "max-severity":chain.max_severity,
+            "has-image":image.is_some(), "image-path":image.unwrap_or_default(), "narrative":chain.narrative,
+            "finding-ids":chain.findings.iter().map(|f| &f.finding_id).collect::<Vec<_>>()})
+    }).collect::<Vec<_>>());
+    let severity_key = if tier == 1 {
+        "residual_severity"
+    } else if tier == 2 {
+        "severity"
+    } else {
+        "risk_level"
+    };
+    for severity in ["Critical", "High", "Medium", "Low"] {
+        values[format!("{}-count", severity.to_lowercase())] = json!(values["findings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|f| f[severity_key] == severity)
+            .count());
+    }
+    values["total-findings"] = json!(values["findings"].as_array().unwrap().len());
+    values
+        .as_object()
+        .unwrap()
+        .iter()
+        .map(|(key, value)| format!("#let {key} = {}\n", typst_value(value)))
+        .collect()
+}
+
+fn typst_value(value: &serde_json::Value) -> String {
+    match value {
+        serde_json::Value::Null => "none".into(),
+        serde_json::Value::String(s) => typst_string(s),
+        serde_json::Value::Array(items) => format!(
+            "({})",
+            items
+                .iter()
+                .map(|v| format!("{},", typst_value(v)))
+                .collect::<String>()
+        ),
+        serde_json::Value::Object(items) => {
+            if items.is_empty() {
+                return "(:)".into();
+            }
+            format!(
+                "({})",
+                items
+                    .iter()
+                    .map(|(k, v)| format!("{}: {},", typst_string(k), typst_value(v)))
+                    .collect::<String>()
+            )
+        }
+        other => other.to_string(),
+    }
+}
+
+pub fn render_maestro_coverage_typst(content: &str) -> String {
+    let data = crate::infographic::extract_maestro_data(content);
+    let mut output = format!(
+        "#let has-maestro-data = {}\n#let maestro-layer-coverage = (\n",
+        data.has_maestro_data
+    );
+    for layer in &data.maestro_layer_distribution {
+        output.push_str(&format!("  (layer-id: {}, layer-name: {}, finding-count: {}, coverage-state: {}, coverage-label: {}),\n", typst_string(&layer.layer_id), typst_string(&layer.layer_name), layer.finding_count, typst_string(layer.coverage_state.as_str()), typst_string(layer.coverage_state.label())));
+    }
+    output.push_str(")\n#let maestro-layer-distribution = maestro-layer-coverage\n");
     output
 }
 

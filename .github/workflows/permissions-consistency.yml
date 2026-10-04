@@ -1,0 +1,42 @@
+name: Permissions consistency
+
+on:
+  pull_request:
+    branches: [main]
+    paths: &permission_paths
+      - '.claude/settings.json'
+      - 'docs/standards/CLAUDE_PERMISSIONS.md'
+      - '.aod/scripts/bash/claude-permissions-ac2-crosscheck.sh'
+      - '.github/workflows/permissions-consistency.yml'
+      - '.github/actions/rust-setup/**'
+      - 'crates/tachi-core/src/permissions.rs'
+      - 'crates/tachi-core/tests/permissions_consistency.rs'
+      - 'crates/tachi-cli/src/bin/permissions-check.rs'
+      - 'crates/tachi-cli/tests/upstream_contract_commands.rs'
+      - '**/Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+  push:
+    branches: [main]
+    paths: *permission_paths
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  permissions-consistency:
+    name: Permissions consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/rust-setup
+      - name: Validate JSON and documentation contract
+        run: |
+          cargo run --locked -p tachi-cli --bin permissions-check -- .
+          bash .aod/scripts/bash/claude-permissions-ac2-crosscheck.sh
+          cargo test --locked -p tachi-core --test permissions_consistency

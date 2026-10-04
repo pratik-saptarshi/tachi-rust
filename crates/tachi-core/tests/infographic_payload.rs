@@ -147,7 +147,8 @@ fn build_infographic_payload_maestro_stack_includes_layer_summaries() {
         .all(|layer| layer["coverage_status"].is_string()));
     assert!(summaries
         .iter()
-        .any(|layer| layer["coverage_status"] == "analyzed_findings"));
+        .any(|layer| layer["coverage_status"] == "analyzed_findings"
+            && layer["coverage_state"] == "findings"));
     assert!(summaries
         .iter()
         .any(|layer| layer["coverage_status"] == "not_evaluated"));

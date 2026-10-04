@@ -576,6 +576,7 @@ name = "tachi-cli"
 version = "0.1.0"
 dependencies = [
  "serde_json",
+ "tachi-core",
  "tachi-shell",
 ]
 

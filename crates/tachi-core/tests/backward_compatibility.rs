@@ -6,14 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tachi_core::build_report_data_typst;
 
 const SOURCE_DATE_EPOCH: &str = "1700000000";
-const BASELINE_EXAMPLES: &[&str] = &[
-    "web-app",
-    "microservices",
-    "ascii-web-api",
-    "mermaid-agentic-app",
-    "free-text-microservice",
-    "maestro-reference",
-];
+const BASELINE_EXAMPLES: &[&str] = &tachi_core::catalog_drift::BASELINES;
 
 struct ReportDataBackup {
     path: PathBuf,
@@ -113,6 +106,7 @@ fn unmodified_examples_byte_identical_pdfs() {
         let baseline_pdf = target_dir.join("security-report.pdf.baseline");
         let generated_pdf =
             unique_temp_dir("tachi-backward-compatibility").join("security-report.pdf");
+        fs::create_dir_all(generated_pdf.parent().unwrap()).expect("create PDF output directory");
 
         assert!(
             baseline_pdf.exists(),
@@ -125,6 +119,7 @@ fn unmodified_examples_byte_identical_pdfs() {
 
         let result = Command::new("typst")
             .arg("compile")
+            .arg("--ignore-system-fonts")
             .arg(template_dir.join("main.typ"))
             .arg(&generated_pdf)
             .arg("--root")

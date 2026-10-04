@@ -28,7 +28,10 @@ pub fn build_infographic_payload_from_content(
     }
 
     let findings = crate::parsers::parse_threats_findings(threats_content).unwrap_or_default();
-    if findings.is_empty() {
+    if findings.is_empty()
+        && !(matches!(normalized_template, "maestro-stack" | "maestro-heatmap")
+            && super::maestro_coverage_heading(threats_content).is_some())
+    {
         return Err(String::from("no findings parsed from threats.md"));
     }
 

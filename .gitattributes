@@ -1,1 +1,3 @@
 .aod/memory/ merge=ours
+*.pdf.baseline binary
+*.pdf binary

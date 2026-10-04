@@ -105,9 +105,9 @@
 //   - Iterates layers in order (L1-L7, then Unclassified)
 //   - Each layer gets a level-2 heading and findings table
 
-#let maestro-findings-page(classification: none, maestro-findings-by-layer: (), has-maestro-data: false) = {
+#let maestro-findings-page(classification: none, maestro-findings-by-layer: (), has-maestro-data: false, layer-coverage: ()) = {
   // Guard: no data, no output.
-  if not has-maestro-data or maestro-findings-by-layer.len() == 0 {
+  if not has-maestro-data {
     return
   }
 
@@ -122,6 +122,13 @@
   ]
 
   v(0.15in)
+
+  // Consume Rust evidence states; legacy data has no evaluation evidence.
+  for id in ("L1", "L2", "L3", "L4", "L5", "L6", "L7") {
+    let rows = layer-coverage.filter(row => row.at("layer-id", default: "") == id)
+    let label = if rows.len() == 1 { rows.first().at("coverage-label", default: "Not evaluated") } else { "Not evaluated" }
+    block(text(size: 10pt)[#id: #label])
+  }
 
   // Canonical MAESTRO layer names — fallback when layer-name is empty.
   let _maestro-names = (
