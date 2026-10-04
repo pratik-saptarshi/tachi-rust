@@ -37,6 +37,9 @@ Already adopted crosswalk parity, safe image cleanup, taxonomy expansion, asset-
 
 ## Progress
 
+- Phase 1 completed: PR #43 auto-merged on 2026-10-04 at 13:32:02 UTC after required checks and review resolution. Its final source head was `28ad38ca`; full workspace and Clippy passed locally, and an empty-PATH native export plus companion refresh preserved the canonical controls SARIF byte-for-byte. `RT-3zm.1` is closed.
+- Phase 2 delivery: [PR #44](https://github.com/pratik-saptarshi/tachi-rust/pull/44) is synchronized with phase 1 on main. Its previous head passed all 17 required hosted checks plus permissions/catalog checks. Fresh final-head checks and review remain required before protected auto-merge. The following preparation notes are historical validation evidence.
+
 - Phase 1 review prerequisite: native SARIF export now carries explicit Markdown attribution by finding identity, including the canonical nested YAML format and explicit empty records. The companion refresh command therefore retains current citations. This moves the necessary parsing/export portion of UF-05 forward; the full reporting acceptance remains in phase 2. Existing `serde_yaml_ng` is promoted from development to runtime dependency without adding a package or Python execution chain.
 
 - Phase 1: [PR #43](https://github.com/pratik-saptarshi/tachi-rust/pull/43), extracted from freshly fetched main. Review found valid-but-wrong category IDs in examples. Corrected retrieval poisoning to LLM09, training poisoning to LLM05, model extraction/theft to LLM06 per the loaded pattern catalog, and configuration leakage to LLM08 across active agents/adapters. Added parsed-YAML example checks and stale mutations; focused Rust, formatting and documentation validation passed. Hosted checks remain the phase merge gate.
