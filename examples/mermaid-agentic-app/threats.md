@@ -133,8 +133,8 @@ Parsed summary of the Mermaid flowchart architecture input for an agentic AI app
 |----|-----------|---------------|--------|------------------|------------|--------|------------|------------|
 | LLM-1 | LLM Agent Orchestrator | L1 — Foundation Model | User submits a prompt containing adversarial instructions that override the orchestrator's system prompt. The injected instructions cause the orchestrator to exfiltrate sensitive data from retrieved knowledge base documents or system configuration by encoding it in tool call parameters sent to the External API. Direct injection succeeds because user input is concatenated into the LLM context without boundary enforcement or input classification. | OWASP LLM01:2026 | HIGH | HIGH | Critical | Implement structured prompt templates with explicit delimiter tokens between system instructions and user input. Deploy an input classifier that detects adversarial prompt patterns before forwarding to the LLM. Apply output filtering to detect tool calls that contain data patterns matching exfiltration (encoded data, URLs, email addresses). Enforce egress network controls limiting external API request payloads. |
 | LLM-2 | LLM Agent Orchestrator | L1 — Foundation Model | Adversarial instructions embedded in documents stored in the Knowledge Base are retrieved during RAG and injected into the orchestrator's context window. The poisoned context causes the orchestrator to ignore its system prompt, execute unauthorized tool calls, or generate responses containing attacker-controlled content. Indirect injection succeeds because retrieved documents enter the LLM context without content sanitization. | OWASP LLM01:2026 | MEDIUM | HIGH | High | Sanitize retrieved document content before injection into the prompt context. Implement provenance tracking so the LLM can distinguish system instructions from retrieved content. Apply content integrity checks on documents before indexing. Monitor retrieval patterns for anomalous document frequency spikes that may indicate poisoning. |
-| LLM-3 | Knowledge Base | L2 — Data Operations | Attacker with document upload access poisons the knowledge base by inserting documents containing factually incorrect, misleading, or adversarially crafted content. These documents rank highly for targeted queries due to embedding similarity, causing the RAG pipeline to consistently retrieve and present attacker-controlled information as authoritative answers across all user sessions. | OWASP LLM04:2026 | MEDIUM | HIGH | High | Implement content validation and adversarial content detection on all documents before indexing. Apply document-level access controls restricting write access to authorized roles. Add provenance metadata to indexed documents tracking author, source, and review status. Establish a document review workflow requiring approval before new content enters the retrieval index. |
-| LLM-4 | LLM Agent Orchestrator | L1 — Foundation Model | Attacker systematically queries the orchestrator API to extract proprietary model configuration, fine-tuning data, or system prompt contents. The orchestrator API lacks per-user query volume limits and returns responses with sufficient detail to reconstruct model behavior through distillation. Error messages from the orchestrator reveal model framework version and parameter details. | OWASP LLM06:2026 | LOW | HIGH | Medium | Restrict API output to essential response content only. Implement per-user query budgets with alerts at threshold crossings. Deploy query pattern analysis that detects systematic probing. Implement generic error responses that do not expose model architecture details. Add rate limiting on prompt submissions per user session. |
+| LLM-3 | Knowledge Base | L2 — Data Operations | Attacker with document upload access poisons the knowledge base by inserting documents containing factually incorrect, misleading, or adversarially crafted content. These documents rank highly for targeted queries due to embedding similarity, causing the RAG pipeline to consistently retrieve and present attacker-controlled information as authoritative answers across all user sessions. | OWASP LLM09:2026 | MEDIUM | HIGH | High | Implement content validation and adversarial content detection on all documents before indexing. Apply document-level access controls restricting write access to authorized roles. Add provenance metadata to indexed documents tracking author, source, and review status. Establish a document review workflow requiring approval before new content enters the retrieval index. |
+| LLM-4 | LLM Agent Orchestrator | L1 — Foundation Model | Attacker systematically queries the orchestrator API to extract proprietary model configuration, fine-tuning data, or system prompt contents. The orchestrator API lacks per-user query volume limits and returns responses with sufficient detail to reconstruct model behavior through distillation. Error messages from the orchestrator reveal model framework version and parameter details. | OWASP LLM08:2026 | LOW | HIGH | Medium | Restrict API output to essential response content only. Implement per-user query budgets with alerts at threshold crossings. Deploy query pattern analysis that detects systematic probing. Implement generic error responses that do not expose model architecture details. Add rate limiting on prompt submissions per user session. |
 
 ---
 
@@ -216,7 +216,7 @@ T-1:
   - {taxonomy: owasp, id: A03, relationship: primary}
   - {taxonomy: cwe, id: CWE-89, relationship: related}
 T-2:
-  - {taxonomy: owasp, id: LLM06, relationship: primary}
+  - {taxonomy: owasp, id: LLM09, relationship: primary}
   - {taxonomy: cwe, id: CWE-345, relationship: related}
 R-1:
   - {taxonomy: owasp, id: A09, relationship: primary}
@@ -231,7 +231,7 @@ I-3:
   - {taxonomy: owasp, id: A02, relationship: primary}
   - {taxonomy: cwe, id: CWE-522, relationship: related}
 D-1:
-  - {taxonomy: owasp, id: LLM10, relationship: primary}
+  - {taxonomy: owasp, id: LLM06, relationship: primary}
   - {taxonomy: cwe, id: CWE-770, relationship: related}
 D-2:
   - {taxonomy: owasp, id: A04, relationship: primary}
@@ -252,16 +252,13 @@ LLM-1:
   - {taxonomy: owasp, id: LLM01, relationship: primary}
   - {taxonomy: cwe, id: CWE-20, relationship: related}
 LLM-2:
-  - {taxonomy: owasp, id: LLM03, relationship: primary}
+  - {taxonomy: owasp, id: LLM01, relationship: primary}
   - {taxonomy: cwe, id: CWE-1395, relationship: related}
 LLM-3:
-  - {taxonomy: owasp, id: LLM05, relationship: primary}
+  - {taxonomy: owasp, id: LLM09, relationship: primary}
   - {taxonomy: cwe, id: CWE-79, relationship: related}
 LLM-4:
-  - {taxonomy: owasp, id: LLM09, relationship: primary}
+  - {taxonomy: owasp, id: LLM08, relationship: primary}
   - {taxonomy: cwe, id: CWE-345, relationship: related}
-LLM-5:
-  - {taxonomy: owasp, id: LLM06, relationship: primary}
-  - {taxonomy: cwe, id: CWE-200, relationship: related}
 ```
 

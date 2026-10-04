@@ -69,7 +69,7 @@ In addition to STRIDE dispatch, components are evaluated for AI-specific threat 
 
 LLM dispatch triggers these agents:
 - `prompt-injection` (OWASP LLM01:2026)
-- `data-poisoning` (OWASP LLM04:2026)
+- `data-poisoning` (OWASP LLM05:2026 training poisoning; LLM09:2026 retrieval poisoning; LLM04:2026 supply chain)
 - `model-theft` (OWASP LLM06:2026)
 - `output-integrity` (OWASP LLM10:2026) — see emission activation rule below
 - `misinformation` (OWASP LLM07:2026) — see emission activation rule below
@@ -154,7 +154,7 @@ AI findings produced by the dispatched agents are grouped into 2 output tables:
 | Output Table | Agents | Reference Standards |
 |--------------|--------|---------------------|
 | AG (Agentic Threats) | agent-autonomy, tool-abuse, human-trust-exploitation | OWASP Agentic Top 10, MCP Top 10, OWASP ASI09:2026 |
-| LLM (LLM Threats) | prompt-injection, data-poisoning, model-theft, output-integrity, misinformation | OWASP LLM Top 10 v2025 |
+| LLM (LLM Threats) | prompt-injection, data-poisoning, model-theft, output-integrity, misinformation | OWASP LLM Top 10 v2026 |
 
 ---
 

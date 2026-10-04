@@ -1074,7 +1074,7 @@ fn output_integrity_schema_contract_is_rust_native() {
         valid_records.iter().any(|record| record.taxonomy == "owasp"
             && record.id == "LLM10"
             && record.relationship == "primary"),
-        "valid OI fixture should cite OWASP LLM05 as primary"
+        "valid OI fixture should cite OWASP LLM10 as primary"
     );
     assert!(
         validate_source_attribution(
