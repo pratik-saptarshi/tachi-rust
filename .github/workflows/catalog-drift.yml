@@ -8,6 +8,8 @@ on:
       - 'crates/tachi-cli/src/bin/catalog-drift.rs'
       - 'crates/tachi-cli/tests/upstream_contract_commands.rs'
       - 'templates/tachi/security-report/**'
+      - 'brand/final/**'
+      - '.cargo/**'
       - 'examples/**'
       - '**/Cargo.toml'
       - 'Cargo.lock'
