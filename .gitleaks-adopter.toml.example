@@ -1,0 +1,8 @@
+# Copy to .gitleaks-adopter.toml in your repository. Invoke gitleaks directly.
+# Keep the fork's default credential rules and reviewed Tachi exclusions.
+[extend]
+path = ".gitleaks.toml"
+
+# Add organization-specific [[rules]] here, using unique rule IDs.
+# Keep allowlists narrow: exact placeholders or reviewed file paths.
+# Do not replace inherited rules or exclude an entire application tree.

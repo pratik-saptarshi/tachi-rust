@@ -60,6 +60,14 @@ jobs:
           chmod +x gitleaks
           ./gitleaks version
 
+      - name: Shared Rust setup for adopter contract
+        uses: ./.github/actions/rust-setup
+
+      - name: Verify adopter configuration inheritance
+        run: |
+          export PATH="$PWD:$PATH"
+          cargo test --locked -p tachi-core --test adopter_secret_scanning -- --ignored
+
       - name: Run gitleaks (full-repo scan, SARIF output)
         # Capture non-zero exit so SARIF upload still runs; fail closed after upload.
         run: |

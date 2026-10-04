@@ -1,0 +1,35 @@
+name: Catalog drift
+on:
+  pull_request:
+    branches: [main]
+    paths: &catalog_paths
+      - 'schemas/taxonomy/**'
+      - 'crates/tachi-core/**'
+      - 'crates/tachi-cli/src/bin/catalog-drift.rs'
+      - 'crates/tachi-cli/tests/upstream_contract_commands.rs'
+      - 'templates/tachi/security-report/**'
+      - 'examples/**'
+      - '**/Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - '.github/actions/rust-setup/**'
+      - '.github/workflows/catalog-drift.yml'
+  push:
+    branches: [main]
+    paths: *catalog_paths
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  catalog-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/rust-setup
+      - name: Check catalog fingerprints and baseline hashes
+        run: |
+          cargo run --locked -p tachi-cli --bin catalog-drift -- --check
+          cargo test --locked -p tachi-core --test catalog_drift
