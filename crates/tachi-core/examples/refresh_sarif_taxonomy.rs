@@ -1,7 +1,12 @@
 //! Refresh a companion SARIF's taxonomy metadata/citations from a native threat
 //! export and the current catalog, preserving scores, identities and evidence.
 use serde_json::{json, Value};
-use std::{collections::BTreeMap, error::Error, fs, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    error::Error,
+    fs,
+    path::Path,
+};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<_> = std::env::args().skip(1).collect();
@@ -33,19 +38,22 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
     if taxa.is_empty() || taxa.iter().any(|row| !row["name"].is_string()) {
         return Err("OWASP catalog must contain named LLM categories".into());
     }
-    let references: BTreeMap<_, _> = source["runs"][0]["results"]
+    let source_results = source["runs"][0]["results"]
         .as_array()
-        .ok_or("missing source results")?
-        .iter()
-        .map(|r| {
-            (
-                r["partialFingerprints"]["findingId/v1"]
-                    .as_str()
-                    .unwrap_or_default(),
-                &r["properties"]["source-attribution"],
-            )
-        })
-        .collect();
+        .ok_or("missing source results")?;
+    let mut references = BTreeMap::new();
+    for result in source_results {
+        let id = result["partialFingerprints"]["findingId/v1"]
+            .as_str()
+            .filter(|id| !id.is_empty())
+            .ok_or("missing source finding identity")?;
+        if references
+            .insert(id, &result["properties"]["source-attribution"])
+            .is_some()
+        {
+            return Err(format!("duplicate source identity {id}").into());
+        }
+    }
     let runs = target
         .get_mut("runs")
         .and_then(Value::as_array_mut)
@@ -54,6 +62,28 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
         return Err("expected one companion SARIF run".into());
     }
     let run = &mut runs[0];
+    let results = run["results"]
+        .as_array()
+        .ok_or("missing companion results")?;
+    let mut target_ids = BTreeSet::new();
+    for result in results {
+        let id = result["partialFingerprints"]["findingId/v1"]
+            .as_str()
+            .filter(|id| !id.is_empty())
+            .ok_or("missing companion finding identity")?;
+        if !target_ids.insert(id) {
+            return Err(format!("duplicate companion identity {id}").into());
+        }
+    }
+    let source_ids: BTreeSet<_> = references.keys().copied().collect();
+    if source_ids != target_ids {
+        return Err(format!(
+            "companion identity mismatch: missing {:?}; unexpected {:?}",
+            source_ids.difference(&target_ids).collect::<Vec<_>>(),
+            target_ids.difference(&source_ids).collect::<Vec<_>>()
+        )
+        .into());
+    }
     let guidance = taxa
         .iter()
         .map(|r| {
@@ -167,6 +197,21 @@ mod tests {
             .contains("UNKNOWN-1"));
         assert!(refresh(&source, &mut json!({}), &catalog).is_err());
         assert!(refresh(&source, &mut target, &[]).is_err());
+        let mut truncated = once.clone();
+        truncated["runs"][0]["results"] = json!([]);
+        assert!(refresh(&source, &mut truncated, &catalog)
+            .unwrap_err()
+            .to_string()
+            .contains("missing [\"OI-1\"]"));
+        let mut duplicate = source.clone();
+        duplicate["runs"][0]["results"]
+            .as_array_mut()
+            .unwrap()
+            .push(source["runs"][0]["results"][0].clone());
+        assert!(refresh(&duplicate, &mut once.clone(), &catalog)
+            .unwrap_err()
+            .to_string()
+            .contains("duplicate source"));
         let mut absent = source.clone();
         absent["runs"][0]["results"][0]["properties"]
             .as_object_mut()
