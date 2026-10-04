@@ -93,6 +93,37 @@ fn risk_and_raw_tiers_preserve_their_own_component_breakdowns() {
 }
 
 #[test]
+fn timeline_only_reports_enable_the_roadmap_without_executive_narrative() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    fixture.write(
+        "threat-report.md",
+        "# Threat Report\n\n## 1. Executive Summary\n\n### Remediation Timeline\n- **Short-term** (1 High findings)\n",
+    );
+    let output = fixture.render();
+    assert_eq!(
+        binding(&output, "has-threat-report"),
+        "#let has-threat-report = true"
+    );
+    assert_eq!(
+        binding(&output, "has-compensating-controls"),
+        "#let has-compensating-controls = false"
+    );
+    let actions = binding(&output, "remediation-actions");
+    assert!(actions.contains("S-1") && actions.contains("Require signed requests"));
+    fixture.write("threat-report.md", "# Threat Report\n");
+    let empty = fixture.render();
+    assert_eq!(
+        binding(&empty, "has-threat-report"),
+        "#let has-threat-report = false"
+    );
+    assert_eq!(
+        binding(&empty, "remediation-actions"),
+        "#let remediation-actions = ()"
+    );
+}
+
+#[test]
 fn available_brand_assets_are_bound_relative_to_the_template_root() {
     let fixture = Fixture::new();
     let missing = fixture.render();
