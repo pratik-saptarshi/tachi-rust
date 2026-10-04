@@ -45,13 +45,14 @@
   scaffold/Prisma validation, and docs/protected delivery. The export contains
   205 issues before the remediation hierarchy was created.
 - PR #39 remediation tracker state: GitHub issue #40 anchors Beads epic
-  `RT-bz6`; seven children cover PostgreSQL 18 volume migration, Supabase env
+  `RT-bz6`; eight children cover PostgreSQL 18 volume migration, Supabase env
   setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior,
-  documentation/export synchronization, and root atlas Rust version accuracy.
+  documentation/export synchronization, root atlas Rust version accuracy, and
+  runnable scaffold Compose command paths.
   Hosted PostgreSQL migration and RLS assertions passed in run
   [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
   PR #41 final-head checks after commit `d027adb` require a live status refresh
-  before merge readiness is reported. The refreshed export contains 213 issues.
+  before merge readiness is reported. The refreshed export contains 214 issues.
 
 ## Archive Records
 

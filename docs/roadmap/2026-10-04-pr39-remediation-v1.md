@@ -29,6 +29,9 @@
 7. **Root atlas accuracy (PR #41 review).** Update the `Cargo.toml` and
    `rust-toolchain.toml` rows in `codemap.md` to match the Rust 1.99 MSRV and
    1.99.0 toolchain pins.
+8. **Compose command path (PR #41 review).** Add the scaffold Compose file path
+   to each migration command so the documented steps work from the repository
+   root.
 
 ## Validation plan
 
@@ -39,6 +42,8 @@
   and workflow syntax with the repository gates.
 - Run `actionlint .github/workflows/prisma-postgres.yml` and
   `git diff --check`.
+- Verify each Docker Compose command in `POSTGRESQL_UPGRADE.md` names the
+  scaffold Compose file and that the referenced file exists.
 - Read back the active GitHub ruleset and main branch required contexts. Confirm
   CodeQL is still required and feature pushes no longer trigger a pending-scan
   bypass notice.
@@ -67,12 +72,15 @@
 - PR #41's inline codemap correction is included in commit `d027adb`; the root
   atlas now matches `Cargo.toml` Rust 1.99 MSRV and `rust-toolchain.toml`
   1.99.0 channel. `make docs-version-gate` and whitespace checks passed.
+- PR #41's Compose-path comment is tracked as `RT-bz6.8`; the migration guide
+  now passes `-f stacks/fastapi-react/scaffold/docker-compose.yml` to each
+  command run from the repository root.
 
 ## Tracker and delivery status
 
-The Beads hierarchy is `RT-bz6` with seven children. Each child records acceptance
+The Beads hierarchy is `RT-bz6` with eight children. Each child records acceptance
 criteria and a test plan. The checked-in `.beads/issues.jsonl` export now
-contains 213 issues, including the new hierarchy. Hosted PostgreSQL migration
+contains 214 issues, including the new hierarchy. Hosted PostgreSQL migration
 and RLS validation passed in run `37191445486`; local PostgreSQL remains
 unavailable because the Docker daemon is inaccessible. The epic remains open
 until PR #41 is merged and final required checks are confirmed.
