@@ -249,7 +249,7 @@ jobs:
       matrix:
         include:
           - suite: shell-smoke
-            command: cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane
+            command: cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test output_integrity_preservation --test report_data_result --test tauri_shell_scaffold --test control_plane
           - suite: shell-init
             command: cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary
           - suite: shell-integration

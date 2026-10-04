@@ -58,7 +58,7 @@
       "kind": "shell",
       "stage": "test-slice",
       "suite": "shell-smoke",
-      "argv": ["cargo", "test", "-p", "tachi-shell", "--test", "command_registry", "--test", "coverage_audit", "--test", "infographic_data", "--test", "report_data_result", "--test", "tauri_shell_scaffold", "--test", "control_plane"],
+      "argv": ["cargo", "test", "-p", "tachi-shell", "--test", "command_registry", "--test", "coverage_audit", "--test", "infographic_data", "--test", "output_integrity_preservation", "--test", "report_data_result", "--test", "tauri_shell_scaffold", "--test", "control_plane"],
       "modes": ["local-full", "local-route-equivalent"],
       "timeout_seconds": 900
     },
