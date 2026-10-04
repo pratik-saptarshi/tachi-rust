@@ -32,6 +32,39 @@ const IMAGE_STEMS: &[(&str, &str)] = &[
     ),
 ];
 
+/// Remove mislabeled copies only when the correctly named sibling has the
+/// same bytes. Failures are intentionally non-fatal to report generation.
+pub fn cleanup_mislabeled_images(target_dir: &Path) {
+    for (_, stem) in IMAGE_STEMS {
+        let jpg = target_dir.join(format!("{stem}.jpg"));
+        let png = target_dir.join(format!("{stem}.png"));
+        let jpg_is_png = image_format(&jpg) == Some("png");
+        let png_is_jpeg = image_format(&png) == Some("jpeg");
+        let candidate = if jpg_is_png && files_are_identical(&jpg, &png) {
+            Some(jpg)
+        } else if png_is_jpeg && files_are_identical(&png, &jpg) {
+            Some(png)
+        } else {
+            None
+        };
+        if let Some(path) = candidate {
+            if let Err(err) = fs::remove_file(&path) {
+                eprintln!(
+                    "warning: failed to remove duplicate mislabeled image {}: {err}",
+                    path.display()
+                );
+            }
+        }
+    }
+}
+
+fn files_are_identical(left: &Path, right: &Path) -> bool {
+    match (fs::read(left), fs::read(right)) {
+        (Ok(left), Ok(right)) => left == right,
+        _ => false,
+    }
+}
+
 pub fn detect_images(target_dir: &Path, template_dir: &Path) -> ImageAssets {
     let rel_target = relative_path(template_dir, target_dir);
     let mut images = ImageAssets::default();

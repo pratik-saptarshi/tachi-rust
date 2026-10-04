@@ -844,6 +844,205 @@ fn report_data_binary_warns_when_correcting_mislabeled_png() {
 }
 
 #[test]
+fn report_data_cleanup_flag_removes_only_identical_mislabeled_sibling() {
+    let repo_root = fixture_report_data_repo();
+    let target_dir = repo_root.join(REPORT_TARGET_DIR);
+    let mislabeled = target_dir.join("threat-executive-architecture.jpg");
+    let correct = target_dir.join("threat-executive-architecture.png");
+    let bytes = [PNG_MAGIC, b"duplicate-payload"].concat();
+    fs::write(&mislabeled, &bytes).expect("write mislabeled png");
+    fs::write(&correct, &bytes).expect("write identical correctly named png");
+    let output = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            repo_root
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--cleanup-mislabeled-images",
+        ])
+        .output()
+        .expect("run report-data with cleanup flag");
+    assert!(output.status.success());
+    assert!(
+        !mislabeled.exists(),
+        "identical mislabeled copy should be removed"
+    );
+    assert_eq!(fs::read(&correct).expect("read correct image"), bytes);
+}
+
+#[test]
+fn report_data_cleanup_flag_removes_duplicate_created_by_image_correction() {
+    let repo_root = fixture_report_data_repo();
+    let target_dir = repo_root.join(REPORT_TARGET_DIR);
+    let mislabeled = target_dir.join("threat-executive-architecture.jpg");
+    let corrected = target_dir.join("threat-executive-architecture.png");
+    fs::write(&mislabeled, [PNG_MAGIC, b"payload"].concat()).expect("write mislabeled png");
+    let output = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            repo_root
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--cleanup-mislabeled-images",
+        ])
+        .output()
+        .expect("run report-data with cleanup flag");
+    assert!(output.status.success());
+    assert!(
+        !mislabeled.exists(),
+        "mislabeled source should be removed after correction"
+    );
+    assert!(corrected.exists(), "correctly named sibling should remain");
+    assert!(String::from_utf8_lossy(&output.stdout).contains("threat-executive-architecture.png"));
+}
+
+#[test]
+fn report_data_cleanup_flag_removes_duplicate_created_by_jpeg_correction() {
+    let repo_root = fixture_report_data_repo();
+    let target_dir = repo_root.join(REPORT_TARGET_DIR);
+    let mislabeled = target_dir.join("threat-executive-architecture.png");
+    let corrected = target_dir.join("threat-executive-architecture.jpg");
+    let _ = fs::remove_file(&corrected);
+    fs::write(&mislabeled, [JPEG_MAGIC, b"payload"].concat()).expect("write mislabeled jpeg");
+    let output = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            repo_root
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--cleanup-mislabeled-images",
+        ])
+        .output()
+        .expect("run report-data with cleanup flag");
+    assert!(output.status.success());
+    assert!(
+        !mislabeled.exists(),
+        "mislabeled source should be removed after correction"
+    );
+    assert!(corrected.exists(), "correctly named sibling should remain");
+    assert!(String::from_utf8_lossy(&output.stdout).contains("threat-executive-architecture.jpg"));
+}
+
+#[test]
+fn report_data_cleanup_flag_preserves_nonidentical_sibling_collision() {
+    let repo_root = fixture_report_data_repo();
+    let target_dir = repo_root.join(REPORT_TARGET_DIR);
+    let mislabeled = target_dir.join("threat-executive-architecture.jpg");
+    let correct = target_dir.join("threat-executive-architecture.png");
+    fs::write(&mislabeled, [PNG_MAGIC, b"source"].concat()).expect("write mislabeled png");
+    fs::write(&correct, [PNG_MAGIC, b"different sibling"].concat())
+        .expect("write pre-existing sibling collision");
+    let source_before = fs::read(&mislabeled).expect("read source before report");
+    let sibling_before = fs::read(&correct).expect("read sibling before report");
+    let output = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            repo_root
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--cleanup-mislabeled-images",
+        ])
+        .output()
+        .expect("run report-data with cleanup flag");
+    assert!(output.status.success());
+    assert_eq!(
+        fs::read(&mislabeled).expect("source remains"),
+        source_before
+    );
+    assert_eq!(fs::read(&correct).expect("sibling remains"), sibling_before);
+}
+
+#[test]
+fn report_data_default_preserves_mislabeled_image_after_correction() {
+    let repo_root = fixture_report_data_repo();
+    let target_dir = repo_root.join(REPORT_TARGET_DIR);
+    let mislabeled = target_dir.join("threat-executive-architecture.jpg");
+    fs::write(&mislabeled, [PNG_MAGIC, b"payload"].concat()).expect("write mislabeled png");
+    let output = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            repo_root
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+        ])
+        .output()
+        .expect("run report-data without cleanup flag");
+    assert!(output.status.success());
+    assert!(
+        mislabeled.exists(),
+        "default invocation must preserve original image"
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn report_data_cleanup_failure_does_not_fail_report_generation() {
+    let repo_root = fixture_report_data_repo();
+    let target_dir = repo_root.join(REPORT_TARGET_DIR);
+    let mislabeled = target_dir.join("threat-executive-architecture.jpg");
+    let correct = target_dir.join("threat-executive-architecture.png");
+    let bytes = [PNG_MAGIC, b"duplicate-payload"].concat();
+    fs::write(&mislabeled, &bytes).expect("write mislabeled png");
+    fs::write(&correct, &bytes).expect("write identical correctly named png");
+
+    let probe = target_dir.join("remove-permission-probe");
+    fs::write(&probe, b"probe").expect("write permission probe");
+    let original_permissions = fs::metadata(&target_dir)
+        .expect("read target directory permissions")
+        .permissions();
+    fs::set_permissions(&target_dir, fs::Permissions::from_mode(0o555))
+        .expect("make target directory read-only");
+    let deletion_is_blocked = fs::remove_file(&probe).is_err();
+    fs::set_permissions(&target_dir, original_permissions.clone())
+        .expect("restore target directory permissions");
+    if !deletion_is_blocked {
+        let _ = fs::remove_file(&probe);
+        return;
+    }
+
+    fs::set_permissions(&target_dir, fs::Permissions::from_mode(0o555))
+        .expect("make target directory read-only");
+    let output = Command::new(binary_path("report-data"))
+        .args([
+            "--target-dir",
+            target_dir.to_string_lossy().as_ref(),
+            "--template-dir",
+            repo_root
+                .join(REPORT_TEMPLATE_DIR)
+                .to_string_lossy()
+                .as_ref(),
+            "--cleanup-mislabeled-images",
+        ])
+        .output()
+        .expect("run report-data when cleanup cannot delete");
+    fs::set_permissions(&target_dir, original_permissions)
+        .expect("restore target directory permissions");
+
+    assert!(output.status.success());
+    assert!(
+        mislabeled.exists(),
+        "failed cleanup must leave the source image intact"
+    );
+    assert!(String::from_utf8_lossy(&output.stderr)
+        .contains("failed to remove duplicate mislabeled image"));
+}
+
+#[test]
 fn report_data_binary_keeps_clean_jpeg_without_format_warning() {
     let repo_root = fixture_report_data_repo();
     let target_dir = repo_root.join(REPORT_TARGET_DIR);

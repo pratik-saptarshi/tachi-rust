@@ -9,6 +9,7 @@ const CATALOG_FILENAMES: &[&str] = &[
     "mitre-attack.yaml",
     "mitre-atlas.yaml",
     "nist-ai-rmf.yaml",
+    "nist-ai-600-1.yaml",
     "cwe.yaml",
     "tachi-control-category.yaml",
     "tachi-stride-ai-category.yaml",
@@ -20,6 +21,7 @@ const TAXONOMIES: &[&str] = &[
     "mitre-attack",
     "mitre-atlas",
     "nist-ai-rmf",
+    "nist-ai-600-1",
     "cwe",
     "tachi-control-category",
     "tachi-stride-ai-category",
@@ -29,6 +31,512 @@ const TAXONOMIES: &[&str] = &[
 const EDGE_TYPES: &[&str] = &["primary", "related", "superseded"];
 const CONFIDENCE_VALUES: &[&str] = &["high", "medium", "low"];
 const PRIMARY_EDGE_FLOOR: usize = 500;
+const UPSTREAM_PARITY_DELTA_2026_08_13: &[(&str, &str, &str, &str, &str, &str)] = &[
+    (
+        "owasp",
+        "LLM01",
+        "cwe",
+        "CWE-77",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "cwe",
+        "CWE-200",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "cwe",
+        "CWE-1395",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM05",
+        "cwe",
+        "CWE-20",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "cwe",
+        "CWE-20",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "cwe",
+        "CWE-94",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "cwe",
+        "CWE-1427",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "cwe",
+        "CWE-201",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "cwe",
+        "CWE-538",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "cwe",
+        "CWE-359",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "cwe",
+        "CWE-1357",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "cwe",
+        "CWE-494",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "cwe",
+        "CWE-829",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM05",
+        "cwe",
+        "CWE-502",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM05",
+        "cwe",
+        "CWE-915",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM05",
+        "cwe",
+        "CWE-1395",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "cwe",
+        "CWE-250",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "cwe",
+        "CWE-269",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "cwe",
+        "CWE-285",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "cwe",
+        "CWE-732",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "API8",
+        "cwe",
+        "CWE-16",
+        "primary",
+        "https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/",
+    ),
+    (
+        "mitre-attack",
+        "T1562",
+        "cwe",
+        "CWE-693",
+        "primary",
+        "https://attack.mitre.org/techniques/T1562/",
+    ),
+    (
+        "owasp",
+        "ASI01",
+        "cwe",
+        "CWE-1427",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+    ),
+    (
+        "owasp",
+        "ASI04",
+        "cwe",
+        "CWE-1357",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+    ),
+    (
+        "owasp",
+        "ASI07",
+        "cwe",
+        "CWE-319",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+    ),
+    (
+        "owasp",
+        "ASI09",
+        "cwe",
+        "CWE-1426",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+    ),
+    (
+        "owasp",
+        "ASI10",
+        "cwe",
+        "CWE-1427",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "mitre-atlas",
+        "AML.T0051",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0051",
+    ),
+    (
+        "owasp",
+        "LLM05",
+        "mitre-atlas",
+        "AML.T0020",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0020",
+    ),
+    (
+        "owasp",
+        "LLM05",
+        "mitre-atlas",
+        "AML.T0018",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0018",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "mitre-atlas",
+        "AML.T0010",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0010",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "mitre-attack",
+        "T1195",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "mitre-atlas",
+        "AML.T0061",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0061",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "mitre-attack",
+        "T1548",
+        "primary",
+        "https://attack.mitre.org/techniques/T1548/",
+    ),
+    (
+        "owasp",
+        "LLM06",
+        "mitre-attack",
+        "T1499",
+        "primary",
+        "https://attack.mitre.org/techniques/T1499/",
+    ),
+    (
+        "owasp",
+        "LLM06",
+        "mitre-attack",
+        "T1498",
+        "primary",
+        "https://attack.mitre.org/techniques/T1498/",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "cwe",
+        "CWE-79",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "cwe",
+        "CWE-116",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "cwe",
+        "CWE-532",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "cwe",
+        "CWE-209",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM03",
+        "cwe",
+        "CWE-284",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "mitre-attack",
+        "T1005",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "mitre-attack",
+        "T1213",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "mitre-attack",
+        "T1195.001",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM04",
+        "mitre-attack",
+        "T1195.002",
+        "primary",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "mitre-attack",
+        "T1190",
+        "cwe",
+        "CWE-20",
+        "primary",
+        "https://attack.mitre.org/techniques/T1190/",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0060",
+        "mitre-attack",
+        "T1557",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0060",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0000",
+        "mitre-attack",
+        "T1213",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0000",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0003",
+        "mitre-attack",
+        "T1195.002",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0003",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0016",
+        "mitre-attack",
+        "T1195.002",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0016",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0029",
+        "mitre-attack",
+        "T1499",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0029",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0001",
+        "mitre-attack",
+        "T1213",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0001",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0005",
+        "mitre-attack",
+        "T1213",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0005",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0025",
+        "mitre-attack",
+        "T1005",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0025",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0037",
+        "mitre-attack",
+        "T1213",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0037",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0043",
+        "mitre-attack",
+        "T1190",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0043",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0048",
+        "mitre-attack",
+        "T1499",
+        "primary",
+        "https://atlas.mitre.org/techniques/AML.T0048",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0011",
+        "mitre-attack",
+        "T1204",
+        "related",
+        "https://atlas.mitre.org/techniques/AML.T0011 (ATT&CK-reference T1204)",
+    ),
+    (
+        "mitre-atlas",
+        "AML.T0037",
+        "mitre-attack",
+        "T1005",
+        "related",
+        "https://atlas.mitre.org/techniques/AML.T0037 (ATT&CK-reference T1005)",
+    ),
+    (
+        "owasp",
+        "LLM01",
+        "mitre-atlas",
+        "AML.T0054",
+        "related",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM02",
+        "mitre-atlas",
+        "AML.T0024",
+        "related",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM07",
+        "mitre-atlas",
+        "AML.T0048",
+        "related",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+    (
+        "owasp",
+        "LLM06",
+        "mitre-atlas",
+        "AML.T0025",
+        "related",
+        "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+    ),
+];
 const PRE_MISINFORMATION_ID_PREFIXES: &[&str] =
     &["S", "T", "R", "I", "D", "E", "AG", "LLM", "AGP", "OI"];
 const PRE_OUTPUT_INTEGRITY_ID_PREFIXES: &[&str] =
@@ -72,7 +580,7 @@ fn parse_catalog_records(text: &str) -> Vec<CatalogRecord> {
         if let Some(rest) = line.trim().strip_prefix("- id: ") {
             if let Some(id) = current_id.replace(rest.trim().to_string()) {
                 records.push(CatalogRecord {
-                    id,
+                    id: id.trim_matches(['"', '\'']).to_string(),
                     body: std::mem::take(&mut current_body),
                 });
             }
@@ -83,7 +591,7 @@ fn parse_catalog_records(text: &str) -> Vec<CatalogRecord> {
 
     if let Some(id) = current_id {
         records.push(CatalogRecord {
-            id,
+            id: id.trim_matches(['"', '\'']).to_string(),
             body: current_body,
         });
     }
@@ -190,6 +698,11 @@ fn source_attribution_records(text: &str) -> Vec<SourceAttributionRecord> {
     }
 
     records
+}
+
+fn profile_sort_key(id: &str) -> (u32, u32) {
+    let (major, minor) = id.split_once('.').unwrap_or((id, "0"));
+    (major.parse().unwrap_or(0), minor.parse().unwrap_or(0))
 }
 
 fn nist_sort_key(id: &str) -> (String, u32, u32, String) {
@@ -341,6 +854,8 @@ fn taxonomy_integrity_contract_is_rust_native() {
         let mut expected = ids.clone();
         if *filename == "nist-ai-rmf.yaml" {
             expected.sort_by_key(|id| nist_sort_key(id));
+        } else if *filename == "nist-ai-600-1.yaml" {
+            expected.sort_by_key(|id| profile_sort_key(id));
         } else {
             expected.sort();
         }
@@ -361,9 +876,39 @@ fn taxonomy_integrity_contract_is_rust_native() {
         !edges.is_empty(),
         "crosswalk.yaml: expected non-empty edges"
     );
+    assert_eq!(
+        edges.len(),
+        645,
+        "crosswalk edge total after upstream parity"
+    );
+    let actual_edge_citations: BTreeMap<_, _> = edges
+        .iter()
+        .map(|edge| {
+            (
+                (
+                    edge.source_taxonomy.as_str(),
+                    edge.source_id.as_str(),
+                    edge.target_taxonomy.as_str(),
+                    edge.target_id.as_str(),
+                    edge.edge_type.as_str(),
+                ),
+                edge.citation.as_str(),
+            )
+        })
+        .collect();
+    for &(source_taxonomy, source_id, target_taxonomy, target_id, edge_type, citation) in
+        UPSTREAM_PARITY_DELTA_2026_08_13
+    {
+        assert_eq!(
+            actual_edge_citations.get(&(source_taxonomy, source_id, target_taxonomy, target_id, edge_type)),
+            Some(&citation),
+            "missing upstream edge or changed citation: {source_taxonomy}:{source_id} -> {target_taxonomy}:{target_id} ({edge_type})",
+        );
+    }
 
     let mut seen_edges = BTreeSet::new();
     let mut primary_count = 0;
+    let mut related_count = 0;
     for edge in &edges {
         assert!(TAXONOMIES.contains(&edge.source_taxonomy.as_str()));
         assert!(TAXONOMIES.contains(&edge.target_taxonomy.as_str()));
@@ -405,9 +950,13 @@ fn taxonomy_integrity_contract_is_rust_native() {
 
         if edge.edge_type == "primary" {
             primary_count += 1;
+        } else if edge.edge_type == "related" {
+            related_count += 1;
         }
     }
 
+    assert_eq!(primary_count, 608, "crosswalk primary edge total");
+    assert_eq!(related_count, 37, "crosswalk related edge total");
     assert!(
         primary_count >= PRIMARY_EDGE_FLOOR,
         "crosswalk.yaml: {primary_count} primary edges below floor of {PRIMARY_EDGE_FLOOR}"
@@ -469,7 +1018,7 @@ fn output_integrity_schema_contract_is_rust_native() {
             schema_path.display()
         )
     });
-    assert_eq!(schema_version(&schema), "1.8");
+    assert_eq!(schema_version(&schema), "1.9");
     let prefixes = finding_id_prefixes(&schema);
 
     for prefix in PRE_OUTPUT_INTEGRITY_ID_PREFIXES {
@@ -523,7 +1072,7 @@ fn output_integrity_schema_contract_is_rust_native() {
     );
     assert!(
         valid_records.iter().any(|record| record.taxonomy == "owasp"
-            && record.id == "LLM05"
+            && record.id == "LLM10"
             && record.relationship == "primary"),
         "valid OI fixture should cite OWASP LLM05 as primary"
     );
@@ -544,8 +1093,8 @@ fn output_integrity_schema_contract_is_rust_native() {
     assert!(
         invalid_records
             .iter()
-            .any(|record| record.taxonomy == "cwe" && record.id == "CWE-73"),
-        "invalid OI fixture should retain the absent CWE-73 citation"
+            .any(|record| record.taxonomy == "cwe" && record.id == "CWE-9999"),
+        "invalid OI fixture should retain its absent CWE citation"
     );
     let errors = validate_source_attribution(
         &[ThreatFinding {
@@ -558,8 +1107,8 @@ fn output_integrity_schema_contract_is_rust_native() {
     assert!(
         errors
             .iter()
-            .any(|error| error.record.taxonomy == "cwe" && error.record.id == "CWE-73"),
-        "invalid OI fixture should fail on absent cwe:CWE-73"
+            .any(|error| error.record.taxonomy == "cwe" && error.record.id == "CWE-9999"),
+        "invalid OI fixture should fail on its absent CWE identifier"
     );
 }
 

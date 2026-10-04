@@ -1,7 +1,20 @@
 # Publish Readiness Checklist
 
+The dependency/runtime upgrade closeout is active. Use the
+[dated execution plan](roadmap/2026-10-04-dependency-runtime-upgrade-closeout-v1.md)
+for its current pin-verification, scaffold, Rust, Prisma, and protected-CI
+evidence. Its dated verification record supersedes historical checklist rows
+and prior package observations below.
+
+PR #39 review remediation is tracked in
+[issue #40 and its dated plan](roadmap/2026-10-04-pr39-remediation-v1.md).
+The PostgreSQL 18 migration and RLS checks passed in hosted run
+[37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
+CodeQL remains required. Refresh the PR #41 final-head status before declaring
+the follow-up merge-ready.
+
 **Status**: Active release gate
-**Last Updated**: 2026-07-12
+**Last Updated**: 2026-10-04
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
 **Scope**: security, privacy, docs, tests, coverage, CI, and release hygiene
 
@@ -9,12 +22,33 @@ Use this checklist before publishing to GitHub or cutting a release. The
 active desktop host is `crates/tachi-desktop`; the former `src-tauri` adapter is
 retired from the active dependency surface.
 
+## Current closeout status (2026-10-04)
+
+- Rust formatting, locked workspace Clippy, locked workspace tests, supply-chain
+  policy, workflow, scaffold dependency, docs/version, secret scan, release,
+  and full publish gates pass on the fresh `origin/main` worktree. Nightly
+  branch coverage measured 85.08174386920983%, above the 85% threshold.
+- All three scaffold installs, lint, configured tests, and builds pass from
+  committed lockfiles. Prisma generation, schema validation, and migration SQL
+  generation pass; a live PostgreSQL migration is unavailable because no local
+  PostgreSQL server or accessible Docker daemon is present.
+- PR #41 is the active follow-up PR on the issue-numbered branch. Final-head
+  check status must be read from GitHub before merge readiness is reported.
+- PostgreSQL 18 Prisma migration and RLS policy checks passed in hosted CI.
+  The CodeQL status remains required on protected PRs; its redundant push-time
+  ruleset check was removed.
+
 ## 0. Canonical publish sequence
 
 - [ ] `pre-commit run --all-files` or the equivalent `gitleaks` scan passes.
 - [ ] `make gitleaks-gate` passes and is included in `make publish-gate`; the
       local gate validates SARIF shape and propagates scanner failures.
-- [ ] `make publish-gate` passes on the release candidate branch.
+- [x] `make publish-gate` passes on the release candidate branch; the complete
+      historical run on `feat/e2e-publish-gate-closeout-007` exited 0 and the
+      fresh host-assisted run produced cleanup receipt
+      `20260713T045400Z-79992` with cargo audit/deny success. Current PR #33
+      hosted checks are terminal and green; protected merge state is tracked
+      separately below.
 - [ ] `cargo test -p tachi-shell` passes after the script executor boundary
       slice and coverage-invariant cleanup.
 - [ ] `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio`
@@ -27,13 +61,14 @@ retired from the active dependency surface.
 - [ ] `make scaffold-dependency-gate` passes before publishing scaffold or template changes.
 - [ ] `make fuzz-mutation-gate` passes and `.github/workflows/fuzz-mutation-audit.yml` remains scheduled/manual and non-blocking.
 - [ ] The `E2E-COV*` roadmap and Beads hierarchy are synchronized with the
-      current E2E journey matrix and no critical user-facing boundary is
-      represented only by a unit or integration test.
+      current E2E journey matrix; the E2E-COV hierarchy is closed, and no
+      critical user-facing boundary is represented only by a unit or
+      integration test.
 - [ ] The explicit E2E inventory is current: CLI artifact, desktop command,
       MCP stdio, initialization, composed init/install/update/analysis
       lifecycle, and cross-boundary failure/cancellation journeys have
-      focused suites; E2E-COV-007 remains for coverage evidence and publish
-      enforcement.
+      focused suites; E2E-COV-007 coverage evidence and publish enforcement
+      are complete and recorded in the closeout plan.
 - [ ] `cargo run -q -p tachi-cli --bin coverage-audit` reports the intended
       E2E inventory, with no double-counting between integration, smoke, and
       true end-to-end categories.
@@ -91,13 +126,24 @@ retired from the active dependency surface.
 - [x] Local runner evidence records per-stage and aggregate build/test duration, cold/warm cache context, toolchain/host provenance, pass/fail/timeout/cancellation counts, result/log paths, and cleanup status. Terminal local-full run `20260712T173705Z-72397` passed 8/8 in 536,162 ms (compile/test 466,327 ms; test slices 68,906 ms), with zero failures/timeouts/cancellations and verified cleanup. Hosted timing-artifact validation is recorded separately below.
 - [x] Local route-equivalent evidence records 8/8 passed units with zero failure/timeout/cancellation outcomes: initial 320,184 ms, full 294,483 ms, labeled warm 304,650 ms, and controlled cold 321,636 ms (compile/test 266,987 ms; test slices 53,842 ms). Hosted comparison and repeated reliability evidence are recorded below.
 - [x] Hosted timing artifact integrity is verified for main run `29178308727`, prior PR run `29178255153`, and merged PR #24 run `29203699709`: eight artifacts per run, with commit/run/stage/unit/duration fields validated by `make verify-ci-timing-artifacts`; pull-request evidence uses the synthetic merge commit embedded in `GITHUB_SHA` artifacts.
-- [ ] Hosted timing verification independently binds artifact provenance to GitHub run metadata, and local log retention/redaction policy is contract-tested (`E2E-COV.2`). Current verification is artifact self-consistency plus run-download identity; the hardening follow-up remains open.
+- [x] Hosted timing verification independently binds artifact provenance to GitHub run metadata, and local log retention/redaction policy is contract-tested (`E2E-COV.2`). Workflow/status/run/event/attempt including workflow_dispatch, exact push/ref semantics, explicit PR merge-commit requirement, synthetic PR source/ref rejection, unsupported rerun-attempt fail-closed behavior, runner provenance, nullglob artifact matching, fail-closed cleanup, exact tiny-log caps, path normalization, expanded redaction, offline unit/aggregate/receipt schema validation, and schema-backed 0600 ephemeral-cleanup receipts are tested and Beads-closed.
 - [x] Hosted CI evidence records comparable per-job elapsed timing and queue-versus-run timing where available; local and hosted measurements are clearly labeled and not treated as interchangeable. Pull-request samples report a 22-run workspace median of 85s (79–101s) and a 23-run route-observe median of 14s (11–17s), both with 0s queue median. The latest five PR #24 workspace/route runs completed successfully.
 - [x] Current mainline timing evidence is recorded: workspace 40-run median 71s and route-observe 11-run median 14s, both with 0s queue median.
 - [x] Repository branch protection is enabled and required checks are verified; `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection` returns 16 required contexts with strict up-to-date enforcement, linear history, conversation resolution, and force-push/deletion protection.
 - [x] Hosted workspace run `29175545285` passed route, five package/all-target, and three shell-slice jobs; timing artifacts were produced for all eight units and job durations ranged from 37s to 67s. Repeated samples and queue/run medians are recorded above.
+- [x] Post-merge commit `2bf68bb` completed all main push workflows successfully: workspace tests `29212792288`, supply-chain `29212792282`, clippy `29212792277`, init matrix `29212792275`, release-please `29212792287`, and dynamic Push on main/CodeQL `29212792021`.
+- [x] Follow-up documentation merge `f34f5a5` passed all 20 pull-request checks; automated Copilot/Codex review records were present, and their actionable findings were addressed in the follow-up reconciliation.
+- [x] PR #33 merged normally at `e0ea1b35f9cff5842d5e655274ad50886752242c`
+      from feature head `586916758e09bc5622e9a3a4745de589032ca3d3`; the live
+      pre-merge check set
+      is terminal with 20 passes and 0 failures, including CodeQL,
+      supply-chain, gitleaks, clippy, rustfmt, route, and workspace suites.
+      passed 20/20 with 0 failures. Copilot review is optional under the
+      permanently updated secure ruleset, and no administrator bypass was
+      used. Post-merge main workflows completed successfully.
 - [ ] Repeated local and hosted observations show no unexplained reliability regression, leaked child process, partial artifact, or nondeterministic aggregate exit; any limitation has an owner, issue, and rollback/mitigation note.
-- [ ] `make act-smoke` is opt-in and advisory only. If used, rootless Podman Docker-API preflight, image digest, empty secrets, disabled network, no host/socket mounts, resource profile, and `SKIPPED_UNAVAILABLE`/failure distinction are recorded.
+- [x] Colima act evidence is advisory — not publish evidence: the wrapper is opt-in and uses the Colima CLI plus Docker API. `make act-smoke` and `make act-smoke-run` enforce the exact route-observe workflow/job allowlist and trusted workflow hash, local-unix endpoint binding, empty secrets, sanitized act environment, no daemon-socket mount, no privileged mode, `--rm`, default `network=none`, explicit recorded host-network exception only for the synthetic route fetch, pinned image digest verification, derived cache state, side-effect fields, cleanup/log/artifact verification, timeout, and `SKIPPED_UNAVAILABLE` behavior. Colima evidence passed two cold runs (32,384/32,864 ms; 556/562 ms pulls) and five warm runs (29,753–31,347 ms; median 31,225 ms) with no hosted artifact/SARIF/release/security side effects.
+- [x] Colima capability and serial cold/warm resource evidence are complete for the advisory lane; this result remains non-equivalent to hosted CI and cannot satisfy publish, CodeQL/SARIF, release, or security acceptance by itself.
 - [ ] `Cargo.toml` declares workspace `rust-version = "1.96"` and active
       crates inherit it with `rust-version.workspace = true`.
 - [ ] `rust-toolchain.toml` pins the approved release toolchain and includes
@@ -105,9 +151,9 @@ retired from the active dependency surface.
 - [ ] Required Rust workflows install the checked-in toolchain policy and print
       `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, and
       `rustup which rustc`.
-- [ ] `cargo audit` passes locally or in the equivalent
+- [x] `cargo audit` passes locally or in the equivalent
       `.github/workflows/rust-supply-chain.yml` gate.
-- [ ] `cargo deny check advisories bans licenses sources` passes against
+- [x] `cargo deny check advisories bans licenses sources` passes against
       `deny.toml`, and any future license/source exceptions include owner,
       expiry, issue, and remediation metadata.
 - [ ] `cargo test --workspace --all-targets` passes or the equivalent
@@ -137,12 +183,16 @@ retired from the active dependency surface.
       cancellation/shutdown tests, compatibility evidence, dependency diff, and
       rollback plan.
 - [ ] `cargo clippy --all-targets -- -D warnings` passes.
-- [ ] `make llvm-cov` passes and the coverage floor remains above the project
-      threshold; latest local run on 2026-07-11 measured 90.56% lines / 90.22%
-      regions, with the configured 85% line threshold passing.
-- [ ] The governed nightly branch command produces at least 85% branch
-      coverage. Current evidence is 85.09% (1,408 total / 210 missed) on
-      nightly 1.99.0 using explicit rustup-resolved compiler and LLVM tools.
+- [x] `make llvm-cov` passes and the coverage floor remains above the project
+      threshold; latest current local run on 2026-07-13 measured 93.24% lines /
+      92.60% regions, with the configured 85% line threshold passing. The
+      earlier 90.56% / 90.22% result is retained only as historical publish-gate
+      evidence.
+- [x] The governed nightly branch command produces at least 85% branch
+      coverage. The fresh host-assisted invocation exited 0 at 85.15625%
+      (1,408 total / 210 missed) on nightly 1.99.0 using explicit
+      rustup-resolved compiler and LLVM tools. The CACHEDIR cleanup warning is
+      non-fatal; the report, threshold check, and command exit all passed.
 - [ ] Any benchmark or regression gate referenced by the roadmap has its current
       baseline recorded.
 - [ ] `INSTALL_MANIFEST.md` only references files/directories that exist in the
@@ -170,7 +220,7 @@ retired from the active dependency surface.
 - [ ] `SECURITY.md` matches the current private-reporting and privacy policy.
 - [ ] `CHANGELOG.md` is redaction-safe and reflects only releasable notes.
 - [ ] `docs/roadmap/implementation-backlog.md` points at the archived AQ
-      roadmap, active AISVS/security roadmap, live RT-CI execution track,
+      roadmap, active AISVS/security roadmap, completed RT-CI execution record,
       closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
 - [ ] `docs/tachi-rust-ci-execution-plan.md`, `docs/tachi-rust-ci-beads-issue-cards.md`,
       and `docs/tachi-rust-ci-review-panel.md` stay synchronized with the live
@@ -215,6 +265,19 @@ retired from the active dependency surface.
       individual test names.
 - [ ] The DOC-00X documentation-update plan remains separate from the parity
       and docs-sweep tracks.
+- [x] `E2E-COV-010.1` has direct promotion traceability in
+      `docs/testing/tdd-evidence.json` and
+      `crates/tachi-core/tests/tdd_evidence_contract.rs`: unit, integration,
+      functional, E2E, and agentic levels are passed. `E2E-COV-010.2` final
+      review confirms fixed fake-tool invocation, bounded safety cases,
+      descendant cleanup, and an independent 0600 JSONL audit sink.
+- [x] The act runner records a bounded machine-readable `FAILED` result for
+      runtime setup/probe failures, including failure stage, no-workflow side
+      effects, and cleanup status; this does not substitute for hosted-CI,
+      publish, CodeQL/SARIF, release, or security evidence.
+- [x] The current dated coverage-audit refresh is reconciled as 119 active
+      modules (13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression);
+      the historical 114/96 publish-gate snapshot is labeled separately.
 - [ ] `docs/bill-of-materials.html.md` and `docs/publish-readiness-checklist.html.md`
       agree on the publish gate, security surfaces, RT-CI workflow surfaces,
       and remote publication flow.
@@ -277,7 +340,9 @@ retired from the active dependency surface.
 - [ ] `.github/workflows/tachi-pytest.yml` is either retired or scoped strictly to
       transitional compatibility with a documented deprecation plan.
 - [ ] The docs/version gate is green on the current branch.
-- [ ] The release artifact gate and checksum matrix pass via `make publish-gate`.
+- [x] The release artifact gate and checksum matrix pass via the fresh
+      host-assisted `make publish-gate`; local-full cleanup receipt is
+      `20260713T045400Z-79992`.
 - [ ] MCP roadmap, issue cards, BOM, and publish checklist remain synchronized
       as closed MCP evidence before any future MCP release promotion opens a
       new tracker hierarchy.
@@ -292,16 +357,20 @@ retired from the active dependency surface.
 
 ## 7. Remote publication
 
-- [ ] The branch to publish is up to date with the intended base branch.
-- [ ] `gh run list --workflow rust-workspace.yml --branch main --status completed --limit 5`
-      is checked after merge and before release claim.
+- [x] The merged branch is verified against remote `main` at
+      `e0ea1b35f9cff5842d5e655274ad50886752242c`; PR #33 merged from feature
+      head `586916758e09bc5622e9a3a4745de589032ca3d3`.
+- [x] Post-merge `main` workflows were checked to completion: workspace tests
+      `29255467369`, supply-chain `29255467273`, clippy `29255467376`, init
+      matrix `29255467380`, release-please `29255467215`, and CodeQL
+      `29255466398` all passed.
 - [ ] `gh run watch <run-id>` completes with a green `rust-workspace.yml`,
       `ci-route-observe.yml` (if scoped), and `release-please.yml` sequence.
 - [ ] All required-check migration evidence required by RT-CI remains in the
       local closeout notes and the associated Beads issue note trail.
 - [ ] The publish commit history is linear or intentionally merged.
 - [ ] The push target is `origin/main` or a clearly named release branch.
-- [ ] `make publish-gate` runs clean on the branch being published, including
+- [x] `make publish-gate` runs clean on the branch being published, including
       workflow drift, scaffold dependency-floor, and release artifact parity checks.
 - [ ] The post-push CI monitor command is ready, for example:
 

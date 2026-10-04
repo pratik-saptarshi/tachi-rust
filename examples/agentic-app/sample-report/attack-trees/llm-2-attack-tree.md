@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Hijack Orchestrator reasoning via adversarial content embedded in KB documents (OWASP LLM01:2025)"]
+    Goal["[GOAL] Hijack Orchestrator reasoning via adversarial content embedded in KB documents (OWASP LLM01:2026)"]
     Goal --> A["[OR] Inject adversarial documents into Knowledge Base (T-6)"]
     A --> A1["Gain write access to KB corpus"]
     A --> A2["Embed instruction-like patterns in document content"]

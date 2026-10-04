@@ -10,7 +10,8 @@
  *   const user = await api.post<User>("/users", { name: "Alice" });
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api/v1";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ?? "http://localhost:8000/api/v1";
 
 /**
  * Structured API error with status code and response body.
@@ -35,9 +36,9 @@ async function request<T>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
-  const headers: HeadersInit = { ...options.headers };
-  if (options.body) {
-    headers["Content-Type"] = headers["Content-Type"] ?? "application/json";
+  const headers = new Headers(options.headers);
+  if (options.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
   }
 
   const response = await fetch(url, {

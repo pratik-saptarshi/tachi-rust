@@ -7,9 +7,10 @@ use serde::Serialize;
 use crate::progress::{CancellationToken, NoopProgressReporter, ProgressReporter};
 
 pub use crate::command_use_cases::{
-    coverage_audit_output, infographic_data_output, render_report_data_result, report_data_output,
-    report_data_result, risk_scores_sarif_output, threats_sarif_output,
-    validate_report_data_result, ReportDataResult, RiskScoresSarifOutput, ThreatsSarifOutput,
+    cleanup_mislabeled_report_images, coverage_audit_output, infographic_data_output,
+    render_report_data_result, report_data_output, report_data_result, risk_scores_sarif_output,
+    threats_sarif_output, validate_report_data_result, ReportDataResult, RiskScoresSarifOutput,
+    ThreatsSarifOutput,
 };
 
 mod runtime_helpers;

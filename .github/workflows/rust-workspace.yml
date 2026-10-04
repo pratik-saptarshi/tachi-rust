@@ -195,7 +195,13 @@ jobs:
           mkdir -p .ci-timing
           start_ns="$(date +%s%N)"
           printf '%s\n' "$start_ns" > .ci-timing/start_ns
-          cargo test -p ${{ matrix.package }} --all-targets
+          if [ "${{ matrix.package }}" = "tachi-core" ]; then
+            # ci_local_runner_contract contains process-tree timing checks that
+            # must not contend with sibling test binaries on the same runner.
+            cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1
+          else
+            cargo test -p ${{ matrix.package }} --all-targets
+          fi
           end_ns="$(date +%s%N)"
           elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
           {
@@ -217,13 +223,16 @@ jobs:
             --arg unit "cargo-test-${{ matrix.package }}" \
             --arg package "${{ matrix.package }}" \
             --arg commit "${{ github.sha }}" \
+            --arg workflow_name "${{ github.workflow }}" \
+            --arg ref "${{ github.ref }}" \
+            --arg source_head_sha "${{ github.event.pull_request.head.sha || github.sha }}" \
             --argjson duration_ms "$duration_ms" \
-            '{schema_version:1,stage:$stage,unit:$unit,package:$package,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT}}' \
+            '{schema_version:1,stage:$stage,unit:$unit,package:$package,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT,workflow_name:$workflow_name,ref:$ref,head_sha:$commit,source_head_sha:$source_head_sha}}' \
             > .ci-timing/${{ matrix.package }}.json
 
       - name: Upload package timing artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-timing-package-${{ matrix.package }}
           path: .ci-timing/${{ matrix.package }}.json
@@ -288,13 +297,16 @@ jobs:
             --arg unit "shell-tests-${{ matrix.suite }}" \
             --arg suite "${{ matrix.suite }}" \
             --arg commit "${{ github.sha }}" \
+            --arg workflow_name "${{ github.workflow }}" \
+            --arg ref "${{ github.ref }}" \
+            --arg source_head_sha "${{ github.event.pull_request.head.sha || github.sha }}" \
             --argjson duration_ms "$duration_ms" \
-            '{schema_version:1,stage:$stage,unit:$unit,suite:$suite,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT}}' \
+            '{schema_version:1,stage:$stage,unit:$unit,suite:$suite,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT,workflow_name:$workflow_name,ref:$ref,head_sha:$commit,source_head_sha:$source_head_sha}}' \
             > .ci-timing/${{ matrix.suite }}.json
 
       - name: Upload shell timing artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-timing-shell-${{ matrix.suite }}
           path: .ci-timing/${{ matrix.suite }}.json

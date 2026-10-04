@@ -222,11 +222,7 @@ pub fn compute_severity_percentages(severity: &SeverityCounts) -> Vec<SeverityPe
 
 pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLayerDistribution> {
     let rows = parse_markdown_table(threats_content, "#### Risk by MAESTRO Layer");
-    if rows.is_empty() {
-        return Vec::new();
-    }
-
-    let mut result = Vec::with_capacity(rows.len());
+    let mut by_layer = BTreeMap::new();
 
     for row in rows {
         let layer_raw = row.get("MAESTRO Layer").map_or("", |value| value.trim());
@@ -245,14 +241,35 @@ pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLay
             .map(|value| value.trim().to_string())
             .unwrap_or_default();
 
-        result.push(MaestroLayerDistribution {
-            layer_id,
-            layer_name,
-            finding_count,
-            highest_severity,
-        });
+        by_layer.insert(
+            layer_id.clone(),
+            MaestroLayerDistribution {
+                layer_id,
+                layer_name,
+                finding_count,
+                highest_severity: if finding_count == 0 && highest_severity.is_empty() {
+                    String::from("Not evaluated")
+                } else {
+                    highest_severity
+                },
+            },
+        );
     }
 
+    let mut result = crate::coverage_taxonomy::maestro_layer_catalog()
+        .into_iter()
+        .map(|layer| {
+            by_layer
+                .remove(layer.layer_id)
+                .unwrap_or_else(|| MaestroLayerDistribution {
+                    layer_id: layer.layer_id.to_string(),
+                    layer_name: layer.layer_name.to_string(),
+                    finding_count: 0,
+                    highest_severity: String::from("Not evaluated"),
+                })
+        })
+        .collect::<Vec<_>>();
+    result.extend(by_layer.into_values());
     result
 }
 
@@ -278,14 +295,19 @@ pub fn parse_component_layer_mapping(threats_content: &str) -> BTreeMap<String, 
 }
 
 pub fn compute_most_exposed_layer(layer_distribution: &[MaestroLayerDistribution]) -> String {
-    let Some(top) = layer_distribution.iter().max_by(|left, right| {
-        left.finding_count
-            .cmp(&right.finding_count)
-            .then_with(|| {
-                severity_rank(&left.highest_severity).cmp(&severity_rank(&right.highest_severity))
-            })
-            .then_with(|| right.layer_id.cmp(&left.layer_id))
-    }) else {
+    let Some(top) = layer_distribution
+        .iter()
+        .filter(|layer| layer.finding_count > 0)
+        .max_by(|left, right| {
+            left.finding_count
+                .cmp(&right.finding_count)
+                .then_with(|| {
+                    severity_rank(&left.highest_severity)
+                        .cmp(&severity_rank(&right.highest_severity))
+                })
+                .then_with(|| right.layer_id.cmp(&left.layer_id))
+        })
+    else {
         return String::new();
     };
 
@@ -392,7 +414,7 @@ pub fn extract_maestro_data(threats_content: &str) -> MaestroData {
     let most_exposed_layer = compute_most_exposed_layer(&maestro_layer_distribution);
 
     let has_maestro_data =
-        !maestro_layer_distribution.is_empty() || !per_finding_maestro.is_empty();
+        threats_content.contains("#### Risk by MAESTRO Layer") || !per_finding_maestro.is_empty();
 
     MaestroData {
         maestro_layer_distribution,

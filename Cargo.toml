@@ -9,5 +9,5 @@ members = [
 ]
 
 [workspace.package]
-rust-version = "1.96"
+rust-version = "1.99"
 license = "Apache-2.0"

@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Hijack Specialist Agent task execution via injection in delegation message (OWASP LLM01:2025)"]
+    Goal["[GOAL] Hijack Specialist Agent task execution via injection in delegation message (OWASP LLM01:2026)"]
     Goal --> A["[OR] Inject adversarial content into delegation message"]
     A --> A1["Channel tampering (T-4) modifies delegation message payload"]
     A --> A2["Orchestrator compromise (LLM-1) causes adversarial delegation emission"]

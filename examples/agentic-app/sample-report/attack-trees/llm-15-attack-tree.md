@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: LLM Agent Orchestrator
-**Threat**: Cost amplification via recursive or cost-asymmetric prompting (OWASP LLM10:2025 Cat 10)
+**Threat**: Cost amplification via recursive or cost-asymmetric prompting (OWASP LLM06:2026 Cat 10)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Drive operator inference cost exceeding revenue via recursive cost amplification (OWASP LLM10:2025)"]
+    Goal["[GOAL] Drive operator inference cost exceeding revenue via recursive cost amplification (OWASP LLM06:2026)"]
     Goal --> A["[OR] Submit recursive or cost-asymmetric prompt"]
     A --> A1["No recursive-prompt depth limit at inference-runtime layer"]
     A --> A2["Output-token cap missing or set to model maximum (not p99)"]

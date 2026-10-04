@@ -5,7 +5,7 @@ pub use crate::aisvs::{
     OrchestrationAction, OrchestrationPolicy, PromptInput, SupplyChainEvidence, TrainingDataAsset,
 };
 pub use crate::artifacts::{detect_artifacts, determine_tier};
-pub use crate::assets::{detect_brand_assets, detect_images};
+pub use crate::assets::{cleanup_mislabeled_images, detect_brand_assets, detect_images};
 pub use crate::attack_chains::{
     generate_chain_mermaid, parse_attack_chains, AttackChain, AttackChainFinding,
 };

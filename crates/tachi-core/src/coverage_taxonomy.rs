@@ -21,11 +21,11 @@ pub const MAESTRO_LAYERS: [&str; 7] = ["L1", "L2", "L3", "L4", "L5", "L6", "L7"]
 pub fn owasp_coverage_family_catalog() -> Vec<OwaspCoverageFamily> {
     vec![
         OwaspCoverageFamily {
-            framework: "LLM 2025",
-            bucket: "OWASP-LLM-2025",
+            framework: "LLM 2026",
+            bucket: "OWASP-LLM-2026",
             items: "LLM01-LLM10",
             status: "10/10",
-            anchor: "https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/",
+            anchor: "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
             detection_adrs: &["ADR-030", "ADR-031", "ADR-034", "ADR-045"],
         },
         OwaspCoverageFamily {

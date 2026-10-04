@@ -84,7 +84,7 @@ fn build_per_finding_rows_groups_taxonomies_and_preserves_order() {
 }
 
 #[test]
-fn build_per_framework_aggregates_emits_five_frameworks_and_na_for_zero_denominator() {
+fn build_per_framework_aggregates_emits_six_frameworks_and_na_for_zero_denominator() {
     let findings = vec![
         finding(
             "AG-1",
@@ -110,7 +110,7 @@ fn build_per_framework_aggregates_emits_five_frameworks_and_na_for_zero_denomina
 
     let aggregates: Vec<CoverageFrameworkAggregate> = build_per_framework_aggregates(&findings);
 
-    assert_eq!(aggregates.len(), 5);
+    assert_eq!(aggregates.len(), 6);
     let owasp = aggregates
         .iter()
         .find(|aggregate| aggregate.framework == "owasp")
@@ -124,4 +124,36 @@ fn build_per_framework_aggregates_emits_five_frameworks_and_na_for_zero_denomina
     assert!(aggregates.iter().any(|aggregate| {
         aggregate.coverage_percentage == "N/A" || aggregate.coverage_percentage.ends_with('%')
     }));
+}
+
+#[test]
+fn quoted_nist_profile_ids_match_unquoted_source_attribution() {
+    let finding = finding(
+        "AG-3",
+        "NIST profile citation",
+        "High",
+        vec![SourceAttributionRecord {
+            taxonomy: String::from("nist-ai-600-1"),
+            id: String::from("2.1"),
+            relationship: String::from("primary"),
+        }],
+    );
+
+    let profile = build_per_framework_aggregates(&[finding])
+        .into_iter()
+        .find(|aggregate| aggregate.framework == "nist-ai-600-1")
+        .expect("NIST AI 600-1 framework aggregate");
+
+    assert_eq!(profile.covered_count, 1);
+    assert_eq!(profile.partial_count, 0);
+    assert_eq!(profile.gap_count, 11);
+    assert_eq!(
+        profile
+            .items
+            .iter()
+            .find(|item| item.id == "2.1")
+            .unwrap()
+            .classification,
+        "covered"
+    );
 }

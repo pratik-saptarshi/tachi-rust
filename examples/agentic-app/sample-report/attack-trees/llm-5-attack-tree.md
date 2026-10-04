@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Execute attacker-controlled JavaScript in victim user's browser via LLM response (OWASP LLM05:2025)"]
+    Goal["[GOAL] Execute attacker-controlled JavaScript in victim user's browser via LLM response (OWASP LLM10:2026)"]
     Goal --> A["[OR] Prime Orchestrator to emit XSS payload in response"]
     A --> A1["Direct prompt injection (LLM-1) causes Orchestrator to emit script tag"]
     A --> A2["RAG poisoning (LLM-2) causes adversarial document content in response"]

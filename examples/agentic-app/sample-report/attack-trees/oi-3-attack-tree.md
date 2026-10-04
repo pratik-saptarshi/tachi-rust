@@ -2,11 +2,11 @@
 
 **Risk Level**: High
 **Component**: LLM Agent Orchestrator
-**Threat**: SSRF via LLM-synthesized URL in Tool Call Request to MCP Tool Server (OWASP LLM05:2025)
+**Threat**: SSRF via LLM-synthesized URL in Tool Call Request to MCP Tool Server (OWASP LLM10:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Access internal network resources via SSRF in LLM-synthesized Tool Call URL (OWASP LLM05:2025)"]
+    Goal["[GOAL] Access internal network resources via SSRF in LLM-synthesized Tool Call URL (OWASP LLM10:2026)"]
     Goal --> A["[OR] Cause Orchestrator to emit internal URL as tool parameter"]
     A --> A1["Prompt injection instructs Orchestrator to fetch specific internal URL"]
     A --> A2["RAG poisoning embeds internal URL in retrieved context driving tool call"]

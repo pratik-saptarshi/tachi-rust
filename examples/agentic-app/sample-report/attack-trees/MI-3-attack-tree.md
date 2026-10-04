@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: Clinical Advisory Sub-Agent
-**Threat**: Retrieval-grounding gap causes hallucinated clinical content on out-of-distribution queries (OWASP LLM09:2025)
+**Threat**: Retrieval-grounding gap causes hallucinated clinical content on out-of-distribution queries (OWASP LLM07:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Cause ClinAdvisor to generate hallucinated clinical content on queries it cannot retrieve (OWASP LLM09:2025)"]
+    Goal["[GOAL] Cause ClinAdvisor to generate hallucinated clinical content on queries it cannot retrieve (OWASP LLM07:2026)"]
     Goal --> A["[OR] Submit clinical query for condition not in Knowledge Base"]
     A --> A1["Out-of-distribution query (new disease, rare condition, stale KB)"]
     A --> A2["KB does not contain documents relevant to the clinical query"]

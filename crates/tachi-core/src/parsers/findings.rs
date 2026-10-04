@@ -19,8 +19,14 @@ pub const VALID_AGENTIC_PATTERNS: [&str; 8] = [
 ];
 
 pub const SEVERITY_ORDER: [&str; 5] = ["Critical", "High", "Medium", "Low", "Note"];
-pub const VALID_SOURCE_ATTRIBUTION_TAXONOMIES: [&str; 5] =
-    ["owasp", "mitre-attack", "mitre-atlas", "nist-ai-rmf", "cwe"];
+pub const VALID_SOURCE_ATTRIBUTION_TAXONOMIES: [&str; 6] = [
+    "owasp",
+    "mitre-attack",
+    "mitre-atlas",
+    "nist-ai-rmf",
+    "nist-ai-600-1",
+    "cwe",
+];
 pub const VALID_SOURCE_ATTRIBUTION_RELATIONSHIPS: [&str; 3] = ["primary", "related", "derived"];
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -388,7 +394,7 @@ fn load_catalog_ids(taxonomy: &str, taxonomy_dir: &Path) -> BTreeSet<String> {
     for line in text.lines() {
         let trimmed = line.trim();
         if let Some(rest) = trimmed.strip_prefix("- id: ") {
-            ids.insert(rest.trim().to_string());
+            ids.insert(rest.trim().trim_matches(['"', '\'']).to_string());
         }
     }
 

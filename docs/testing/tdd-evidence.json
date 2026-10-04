@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "scope": "E2E-COV-010.1",
+  "levels": [
+    {
+      "level": "unit",
+      "acceptance_criteria": "Core policy and serialization helpers preserve deterministic result/error contracts.",
+      "red": "cargo test -p tachi-core --lib --no-fail-fast",
+      "green": "cargo test -p tachi-core --lib",
+      "refactor": "cargo fmt --all -- --check",
+      "promotion_status": "passed",
+      "promotion_note": "Rust unit suite is promoted by the local and workspace gates.",
+      "tests": ["cargo test -p tachi-core --lib"]
+    },
+    {
+      "level": "integration",
+      "acceptance_criteria": "Workflow, manifest, schema, provenance, and policy boundaries reject unsafe or stale contracts.",
+      "red": "cargo test -p tachi-core --test workflow_ci_gates -- --nocapture",
+      "green": "cargo test -p tachi-core --test workflow_ci_gates -- --nocapture",
+      "refactor": "make workflow-gate && make gitleaks-gate",
+      "promotion_status": "passed",
+      "promotion_note": "Workflow and provenance contracts are promoted by focused Rust tests and security gates.",
+      "tests": ["crates/tachi-core/tests/workflow_ci_gates.rs", "crates/tachi-core/tests/ci_timing_artifacts_contract.rs"]
+    },
+    {
+      "level": "functional",
+      "acceptance_criteria": "The real manifest-driven runner produces bounded, redacted, schema-valid aggregate outcomes across success and failure controls.",
+      "red": "cargo test -p tachi-core --test ci_local_runner_contract -- --nocapture",
+      "green": "cargo test -p tachi-core --test ci_local_runner_contract -- --nocapture --test-threads=1",
+      "refactor": "make test-route",
+      "promotion_status": "passed",
+      "promotion_note": "Manifest-driven local runner success/failure/timeout evidence is promoted by focused contracts and route execution.",
+      "tests": ["crates/tachi-core/tests/ci_local_runner_contract.rs"]
+    },
+    {
+      "level": "e2e",
+      "acceptance_criteria": "CLI, desktop, MCP stdio, lifecycle, and failure/cancellation journeys have executable Rust-owned boundaries and publish evidence.",
+      "red": "make coverage-audit",
+      "green": "make publish-gate",
+      "refactor": "make llvm-cov && make llvm-cov-nightly-branch",
+      "promotion_status": "passed",
+      "promotion_note": "Rust-owned E2E suites and the durable E2E-COV-007 closeout are recorded in integration_log.jsonl.",
+      "tests": ["cargo run -q -p tachi-cli --bin coverage-audit", "crates/tachi-shell/tests/init_adversarial.rs", "crates/tachi-mcp/tests/stdio.rs", "integration_log.jsonl:E2E-COV-007-CLOSEOUT"]
+    },
+    {
+      "level": "agentic",
+      "acceptance_criteria": "Deterministic scripted model/tool replay is bounded, allowlisted, auditable, and has no live model or network dependency.",
+      "red": "cargo test -p tachi-core --test agentic_replay_contract deterministic_replay_covers_safety_outcomes_without_live_model_or_network -- --nocapture # expected audit_sink assertion failure before E2E-COV-010.2 transition/sink implementation",
+      "green": "cargo test -p tachi-core --test agentic_replay_contract -- --nocapture",
+      "refactor": "cargo fmt --all -- --check && make gitleaks-gate",
+      "promotion_status": "passed",
+      "promotion_note": "Final code review confirms the fixed repository-owned fake tool is invoked for approval, bounded timeout, cancellation, and circuit-breaker cases; denial remains non-invoked. The harness proves explicit safety transitions, deterministic repeated bytes, exact independent audit correlation, 0600 sink permissions, output/audit collision rejection, and descendant cleanup. No live model or network is used.",
+      "tests": ["crates/tachi-core/tests/agentic_replay_contract.rs::deterministic_replay_covers_safety_outcomes_without_live_model_or_network", "crates/tachi-core/tests/agentic_replay_contract.rs::replay_rejects_live_network_fixture", "crates/tachi-core/tests/agentic_replay_contract.rs::replay_rejects_allowlisted_denial_fixture", "tests/fixtures/agentic/fake-tool.sh"]
+    }
+  ]
+}

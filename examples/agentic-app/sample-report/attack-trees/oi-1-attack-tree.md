@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: LLM Agent Orchestrator
-**Threat**: Client-side XSS via LLM response in browser DOM (OWASP LLM05:2025)
+**Threat**: Client-side XSS via LLM response in browser DOM (OWASP LLM10:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Inject XSS payload into victim browser via LLM response DOM insertion (OWASP LLM05:2025)"]
+    Goal["[GOAL] Inject XSS payload into victim browser via LLM response DOM insertion (OWASP LLM10:2026)"]
     Goal --> A["[OR] Prime Orchestrator to emit XSS payload"]
     A --> A1["Prompt injection causes Orchestrator to emit script tag in response"]
     A --> A2["RAG poisoning embeds event-handler payload in KB document content"]

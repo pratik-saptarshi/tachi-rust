@@ -3,8 +3,7 @@ use serde_json::Value;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use tachi_core::infographic::{
-    build_infographic_payload, build_infographic_payload_from_content, MaestroLayerDistribution,
-    PerLayerSummary, PromptScaffold,
+    build_infographic_payload, build_infographic_payload_from_content, PromptScaffold,
 };
 
 static TEMP_DIR_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -127,75 +126,31 @@ const EXECUTIVE_ARCHITECTURE_NO_SCOPE_MD: &str = r#"
 | Total | 1 |
 "#;
 
-fn layer_distribution_fixture() -> Vec<MaestroLayerDistribution> {
-    vec![
-        MaestroLayerDistribution {
-            layer_id: String::from("L5"),
-            layer_name: String::from("Evaluation and Observability"),
-            finding_count: 2,
-            highest_severity: String::from("High"),
-        },
-        MaestroLayerDistribution {
-            layer_id: String::from("L6"),
-            layer_name: String::from("Security and Compliance"),
-            finding_count: 1,
-            highest_severity: String::from("Critical"),
-        },
-    ]
-}
-
-fn expected_stack_payload() -> Value {
-    let per_layer = vec![
-        PerLayerSummary {
-            layer_id: String::from("L5"),
-            layer_name: String::from("Evaluation and Observability"),
-            finding_count: 2,
-            highest_severity: String::from("High"),
-            top_findings: vec![
-                tachi_core::infographic::PerLayerTopFinding {
-                    id: String::from("S-1"),
-                    threat: String::from("Prompt override risk"),
-                },
-                tachi_core::infographic::PerLayerTopFinding {
-                    id: String::from("A-1"),
-                    threat: String::from("Tool abuse injection"),
-                },
-            ],
-        },
-        PerLayerSummary {
-            layer_id: String::from("L6"),
-            layer_name: String::from("Security and Compliance"),
-            finding_count: 1,
-            highest_severity: String::from("Critical"),
-            top_findings: vec![tachi_core::infographic::PerLayerTopFinding {
-                id: String::from("I-1"),
-                threat: String::from("Model output exfiltration"),
-            }],
-        },
-    ];
-
-    let expected_template_data = serde_json::json!({
-        "maestro_layer_distribution": layer_distribution_fixture(),
-        "most_exposed_layer": "L5 — Evaluation and Observability",
-        "per_layer_summaries": per_layer,
-        "has_maestro_data": true,
-    });
-
-    serde_json::json!({
-        "template_data": expected_template_data,
-    })
-}
-
 #[test]
 fn build_infographic_payload_maestro_stack_includes_layer_summaries() {
     let root = temp_dir_with_threats();
     let payload = build_infographic_payload(&root, "maestro-stack").expect("payload");
-    let expected = expected_stack_payload();
 
     assert_eq!(payload["template"], "maestro-stack");
     assert_eq!(payload["metadata"]["data_source_type"], "threats-only");
     assert_eq!(payload["has_maestro_data"], true);
-    assert_eq!(payload["template_data"], expected["template_data"]);
+    let layers = payload["template_data"]["maestro_layer_distribution"]
+        .as_array()
+        .expect("MAESTRO distribution");
+    assert_eq!(layers.len(), 7);
+    let summaries = payload["template_data"]["per_layer_summaries"]
+        .as_array()
+        .expect("per-layer summaries");
+    assert_eq!(summaries.len(), 7);
+    assert!(summaries
+        .iter()
+        .all(|layer| layer["coverage_status"].is_string()));
+    assert!(summaries
+        .iter()
+        .any(|layer| layer["coverage_status"] == "analyzed_findings"));
+    assert!(summaries
+        .iter()
+        .any(|layer| layer["coverage_status"] == "not_evaluated"));
 }
 
 #[test]

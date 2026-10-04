@@ -4,16 +4,17 @@
 **Scope**: native desktop GUI host for `tachi-rust` without GTK/Wry in the
 active workspace dependency tree
 **Execution model**: TDD-first, Beads issue graph, stage-gated parity checks
-**Status**: active planning roadmap
+**Status**: Completed historical roadmap; all DT-GUI issues are closed
 **Source context**: `crates/tachi-desktop/`, `crates/tachi-shell/src/commands.rs`,
 `crates/tachi-shell/src/tauri_bridge.rs`, `docs/roadmap/implementation-backlog.md`,
 `docs/bill-of-materials.html.md`, `docs/publish-readiness-checklist.html.md`
 
 ## Executive summary
 
-The active desktop plan is to turn `crates/tachi-desktop` into the primary
-native GUI host, with `tachi-shell` remaining the single source of command
-behavior, validation, and artifact semantics.
+The delivered desktop host is `crates/tachi-desktop`, with `tachi-shell` as the
+single source of command behavior, validation, and artifact semantics. The
+stages below preserve the original plan and acceptance criteria as a historical
+record; the corresponding DT-GUI issues are closed.
 
 The GUI host must be Rust-native end to end. It may use a `winit`-based stack
 such as `eframe/egui`, but it must not rely on webview, Tauri, or GTK/Wry in

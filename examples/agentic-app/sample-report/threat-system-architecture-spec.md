@@ -76,7 +76,7 @@ image_generated: true
 | 4 | E-1 | Guardrails Service | Prompt injection that bypasses the Guardrails Service elevates attacker privilege to trusted caller | High (7.7) |
 | 5 | D-10 [NEW] | LLM Agent Orchestrator | LLM Inference-Request Flooding and Token Exhaustion without per-tenant QPS rate limiting | High (7.2) |
 
-> **F-5 callout**: D-10 is a new finding introduced in Feature 229 Wave 2, covering OWASP LLM10:2025 Unbounded Consumption — inference-request flooding vector.
+> **F-5 callout**: D-10 is a new finding introduced in Feature 229 Wave 2, covering OWASP LLM06:2026 Unbounded Consumption — inference-request flooding vector.
 
 ---
 

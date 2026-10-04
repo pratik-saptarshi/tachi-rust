@@ -153,7 +153,7 @@ When baseline-aware, an additional Status column is included after ID:
 
 - **MAESTRO Layer**: The CSA MAESTRO architectural layer classification inherited from the component's Phase 1 classification. Same field as in STRIDE tables.
 - **Agentic Pattern**: The canonical CSA MAESTRO cross-cutting agentic threat pattern assigned during Phase 3.6 pattern synthesis (Feature 142). Same field as in STRIDE tables (see Section 3 for the full enum value list and semantics). Column always renders; `none` values display as `—`. Introduced in schema version 1.4.
-- **OWASP Reference**: The applicable OWASP identifier (e.g., `ASI-01`, `MCP-03`, `OWASP LLM01:2025`).
+- **OWASP Reference**: The applicable OWASP identifier (e.g., `ASI-01`, `MCP-03`, `OWASP LLM01:2026`).
 
 **5-agent-to-2-table mapping**:
 
@@ -233,9 +233,13 @@ A subsection within the Risk Summary showing finding counts and highest severity
 | MAESTRO Layer | Finding Count | Highest Severity |
 |---------------|---------------|------------------|
 | _{layer name}_ | _{deduplicated count}_ | _{Critical\|High\|Medium\|Low\|Note}_ |
+| _{analyzed layer with no findings}_ | 0 | Analyzed — no findings this scan |
+| _{layer outside the architecture}_ | 0 | Not applicable |
+| _{layer not checked}_ | 0 | Not evaluated |
 
-- **Ordering**: Rows are ordered by highest severity descending (Critical first), then by finding count descending within the same severity.
-- **Omission**: Layers with zero findings are omitted from the table.
+- **Completeness**: Always include all 7 canonical MAESTRO layers (L1–L7), including zero-finding layers, in canonical L1→L7 order.
+- **Coverage state**: Use `Analyzed — no findings this scan` only when the layer was actually evaluated and clean. Use `Not applicable` when the architecture has no such layer and `Not evaluated` when the layer was not checked. These states are distinct from severity.
+- **Unclassified row**: If any findings have `Unclassified` as their MAESTRO layer, include that row after L7.
 - **Deduplication**: Finding counts use deduplicated values — correlation groups count as 1.
 - **"Unclassified" row**: If any findings have "Unclassified" as their MAESTRO layer, include an "Unclassified" row in the table. Do not omit it.
 

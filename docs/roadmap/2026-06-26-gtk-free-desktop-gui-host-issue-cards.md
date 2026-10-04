@@ -1,7 +1,7 @@
 # GTK-Free Desktop GUI Host Issue Cards
 
 **Last Updated**: 2026-06-26
-**Status**: Beads-ready execution slices for the GTK-free desktop GUI host plan
+**Status**: Completed historical issue-card set; all DT-GUI issues are closed
 **Source**: [2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md](./2026-06-26-gtk-free-desktop-gui-host-roadmap.html.md)
 
 These cards are TDD-first and ordered by measurable outcome.

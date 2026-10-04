@@ -2,11 +2,11 @@
 
 **Risk Level**: High
 **Component**: Clinical Advisory Sub-Agent
-**Threat**: Server-side execution via clinical summary injected into Orchestrator Tool Call Request (OWASP LLM05:2025)
+**Threat**: Server-side execution via clinical summary injected into Orchestrator Tool Call Request (OWASP LLM10:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Achieve server-side execution via adversarial clinical output injected into downstream Tool Call Request (OWASP LLM05:2025)"]
+    Goal["[GOAL] Achieve server-side execution via adversarial clinical output injected into downstream Tool Call Request (OWASP LLM10:2026)"]
     Goal --> A["[OR] Inject adversarial content into ClinAdvisor Clinical Summary"]
     A --> A1["Compromise ClinAdvisor via prompt injection (LLM-13)"]
     A --> A2["Adversarial KB document causes adversarial clinical recommendation text"]

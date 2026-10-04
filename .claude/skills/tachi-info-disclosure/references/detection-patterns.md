@@ -103,7 +103,7 @@ The SSRF surface in this category intersects with OWASP API Security Top 10 2023
 
 Primary citation cross-link:
 
-- OWASP LLM02:2025 Sensitive Information Disclosure: https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/
+- OWASP LLM02:2026 Sensitive Information Disclosure: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
 - OWASP API Security Top 10 2023 API10:2023 — Unsafe Consumption of APIs: https://owasp.org/API-Security/editions/2023/en/0xaa-unsafe-consumption-of-apis/
 
 ## Pattern Category 8: Information Exposure Through Error Messages and Debug Output

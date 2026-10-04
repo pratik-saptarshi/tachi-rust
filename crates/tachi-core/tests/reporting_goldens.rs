@@ -234,6 +234,7 @@ fn threats_sarif_matches_canonical_golden() {
         impact: String::from("High"),
         risk_level: String::from("High"),
         mitigation: String::from("Harden prompts"),
+        affected_assets: Vec::new(),
     };
 
     let source_threats_uri = "reports/golden/threats.md";
@@ -304,7 +305,7 @@ fn risk_scores_sarif_matches_canonical_golden() {
         String::from("AG-8"),
         vec![SourceAttributionRecord {
             taxonomy: String::from("OWASP"),
-            id: String::from("LLM05:2025"),
+            id: String::from("LLM10:2026"),
             relationship: String::from("relevant"),
         }],
     );
@@ -327,6 +328,7 @@ fn risk_scores_sarif_matches_canonical_golden() {
             threats_status: &threats_status,
             threats_full: &threats_full,
             source_attribution: &source_attribution,
+            affected_assets: &BTreeMap::new(),
             component_meta: &component_meta,
             source_threats_uri,
             baseline_run_id: Some(source_threats_uri),
@@ -499,8 +501,13 @@ fn assert_infographic_payload_semantics(actual: &Value) {
                 "Medium": {"label": "Medium", "count": 1, "percentage": 33, "color": "#CA8A04"},
             },
             "maestro_layer_distribution": {
+                "L1": {"layer_id": "L1", "layer_name": "Foundation Model", "finding_count": 0, "highest_severity": "Not evaluated"},
                 "L2": {"layer_id": "L2", "layer_name": "Data Operations", "finding_count": 2, "highest_severity": "High"},
+                "L3": {"layer_id": "L3", "layer_name": "Agent Framework", "finding_count": 0, "highest_severity": "Not evaluated"},
+                "L4": {"layer_id": "L4", "layer_name": "Deployment Infrastructure", "finding_count": 0, "highest_severity": "Not evaluated"},
                 "L5": {"layer_id": "L5", "layer_name": "Evaluation and Observability", "finding_count": 1, "highest_severity": "Critical"},
+                "L6": {"layer_id": "L6", "layer_name": "Security and Compliance", "finding_count": 0, "highest_severity": "Not evaluated"},
+                "L7": {"layer_id": "L7", "layer_name": "Agent Ecosystem", "finding_count": 0, "highest_severity": "Not evaluated"},
             },
             "most_exposed_layer": "L2 — Data Operations",
         })

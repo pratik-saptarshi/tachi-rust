@@ -64,6 +64,30 @@ fn extract_maestro_data_aggregates_sections_and_flags_presence() {
     let expected = MaestroData {
         maestro_layer_distribution: vec![
             MaestroLayerDistribution {
+                layer_id: String::from("L1"),
+                layer_name: String::from("Foundation Model"),
+                finding_count: 0,
+                highest_severity: String::from("Not evaluated"),
+            },
+            MaestroLayerDistribution {
+                layer_id: String::from("L2"),
+                layer_name: String::from("Data Operations"),
+                finding_count: 0,
+                highest_severity: String::from("Not evaluated"),
+            },
+            MaestroLayerDistribution {
+                layer_id: String::from("L3"),
+                layer_name: String::from("Agent Framework"),
+                finding_count: 0,
+                highest_severity: String::from("Not evaluated"),
+            },
+            MaestroLayerDistribution {
+                layer_id: String::from("L4"),
+                layer_name: String::from("Deployment Infrastructure"),
+                finding_count: 0,
+                highest_severity: String::from("Not evaluated"),
+            },
+            MaestroLayerDistribution {
                 layer_id: String::from("L5"),
                 layer_name: String::from("Evaluation and Observability"),
                 finding_count: 2,
@@ -74,6 +98,12 @@ fn extract_maestro_data_aggregates_sections_and_flags_presence() {
                 layer_name: String::from("Security and Compliance"),
                 finding_count: 1,
                 highest_severity: String::from("Critical"),
+            },
+            MaestroLayerDistribution {
+                layer_id: String::from("L7"),
+                layer_name: String::from("Agent Ecosystem"),
+                finding_count: 0,
+                highest_severity: String::from("Not evaluated"),
             },
         ],
         most_exposed_layer: String::from("L5 — Evaluation and Observability"),

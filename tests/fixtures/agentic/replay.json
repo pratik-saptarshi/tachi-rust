@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "model": "scripted-fake",
+  "seed": 4242,
+  "max_iterations": 8,
+  "timeout_seconds": 2,
+  "network": false,
+  "allowlisted_commands": ["printf", "echo"],
+  "cases": [
+    {"id": "approval", "expected": "approved", "tool": "printf"},
+    {"id": "denial", "expected": "denied", "tool": "curl"},
+    {"id": "timeout", "expected": "timed_out", "tool": "printf"},
+    {"id": "cancel", "expected": "cancelled", "tool": "printf"},
+    {"id": "circuit_breaker", "expected": "blocked", "tool": "printf"}
+  ]
+}

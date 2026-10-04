@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: live Beads hierarchy; overseer remediation integrated; E2E-COV-007.1 branch target met, E2E-COV-007.3 terminal local runner evidence complete, aggregate publish-gate closeout pending
+**Status**: Completed historical issue-card set; E2E-COV and all child issues are closed; the 2026-07-13 119-module audit and post-merge evidence are recorded in the closeout plan
 
 ## Epic
 
@@ -17,9 +17,9 @@
 
 ## Hierarchy and evidence contract
 
-The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces.
+The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces. Closed child cards retain their historical closeout counts in notes; current acceptance and parent closeout use the dated 119-module audit.
 
-The canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **113 active modules** — 13 unit, 95 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. Older 109/110/112-module references are historical and must not be copied into new acceptance criteria.
+The 2026-07-13 canonical baseline recorded by `cargo run -q -p tachi-cli --bin coverage-audit` was **119 active modules** — 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. The 114/96 closeout snapshot and older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
 
 | Capability | User-facing function | Current boundary | Required evidence | Feature |
 |---|---|---|---|---|
@@ -29,7 +29,7 @@ The canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin c
 | Lifecycle composition | init → install/update → analysis | `scripts/init.sh` / shell / CLI | isolated clone, offline control-plane, final artifact | `E2E-COV-005` |
 | Failure cleanup | timeout/cancel/error → safe terminal state | all user-facing boundaries | process liveness, artifact tree, redacted diagnostics | `E2E-COV-006` |
 | Local CI parity | CI matrix/slices → local observable units | `Makefile` / `scripts/ci-local-runner.*` | parsed manifest parity, JSON result/provenance, bounded runner | `E2E-COV-008` |
-| Workflow emulation | workflow/event/job → advisory local result | `act` + Podman API | opt-in smoke, empty secrets, isolation/resource/provenance | `E2E-COV-009` |
+| Workflow emulation | workflow/event/job → advisory local result | `act` + Colima CLI/Docker API | opt-in smoke, empty secrets, isolation/resource/provenance | `E2E-COV-009` |
 | Test governance | RED/GREEN evidence → promotion decision | Rust tests/docs/Beads | level-specific TDD evidence and agentic replay | `E2E-COV-010` |
 
 ### Required issue evidence template
@@ -51,7 +51,7 @@ Every new or reopened card must include:
 - **Dependencies**: none
 - **Acceptance**:
   - journey matrix and boundary ownership are recorded;
-  - current dated 113-module / four-E2E baseline is captured from the coverage-audit binary;
+  - current dated 119-module / four-E2E baseline is captured from the coverage-audit binary;
   - semantic coverage-audit tests distinguish module inventory from test-suite count;
   - deterministic fixture and privacy rules are documented.
 - **Validation**: `cargo test -p tachi-core --test coverage_audit --test coverage_catalog --test reporting_goldens`; `cargo run -q -p tachi-cli --bin coverage-audit`.
@@ -154,22 +154,22 @@ Every new or reopened card must include:
   - **Validation**: RED/GREEN unit and integration tests, executable fake-cargo argv/redaction/timeout/descendant-cleanup tests in `ci_local_runner_contract.rs`, real five-package functional run, repeated cold/warm measurements, `make workflow-gate`, focused workspace contracts, `make verify-ci-timing-artifacts` for all eight hosted artifacts, comparable hosted job/queue timing, and remote package-matrix CI. For pull requests, artifact commit provenance is the synthetic merge commit exposed to the workflow, not necessarily the API run `headSha`.
 - **Priority**: P1
 
-### E2E-COV-009 — Advisory act workflow emulation with Podman
+### E2E-COV-009 — Advisory act workflow emulation with Colima
 
 - **Type**: feature
 - **Dependencies**: `E2E-COV-008`; does not block product E2E or publish-gate acceptance.
 - **Capability**: provide fast local workflow/action wiring feedback without treating emulation as GitHub-hosted proof.
 - **Acceptance**:
   - one opt-in `make act-smoke`/`scripts/act-smoke.sh` command targets a named workflow/job and synthetic event fixture;
-  - rootless Podman through its Docker-compatible API is preferred only after capability preflight; unsupported or unavailable environments return `SKIPPED_UNAVAILABLE` distinctly from failure;
-  - no privileged, host-network, host-filesystem, Docker/Podman socket, SSH-agent, cloud credential, repository secret, or real `GITHUB_TOKEN` access is permitted; network is disabled by default;
-  - runner image digest, act/Podman versions, architecture, CPU/memory/disk profile, cache mode, isolation flags, repository commit, and action references/resolved SHAs are recorded;
-  - cold/warm performance samples record startup, wall time, CPU, peak memory, image/cache size, and cleanup; thresholds are baselined before enforcement;
+  - Colima CLI readiness and its Docker-compatible API are preflighted; unsupported or unavailable environments return `SKIPPED_UNAVAILABLE` distinctly from failure;
+  - no privileged, host-filesystem, Docker socket, SSH-agent, cloud credential, repository secret, or real `GITHUB_TOKEN` access is permitted; network is disabled by default, with host networking allowed only for the explicitly recorded synthetic read-only route fetch;
+  - runner image digest, act/Colima versions, provider, architecture, CPU/memory/disk profile, cache mode, isolation flags, repository commit, and action references/resolved SHAs are recorded;
+  - cold/warm performance samples record startup, wall time, runtime CPU/memory profile, image/cache size, and cleanup; peak usage is recorded where the selected runtime supports safe sampling, and thresholds are baselined before enforcement;
   - act results cannot satisfy hosted-CI, CodeQL/SARIF-ingestion, release, security, coverage, or publish acceptance by themselves.
-- **Functions/tasks**: capability probe, Podman machine profile, event fixture, smoke selector, resource sampler, provenance/result reporter, secret/network policy contract.
-- **Child issues**: `E2E-COV-009.1` act/Podman capability preflight; `E2E-COV-009.2` advisory smoke and resource benchmark.
+- **Functions/tasks**: capability probe, Colima profile, event fixture, smoke selector, resource sampler, provenance/result reporter, secret/network policy contract.
+- **Child issues**: `E2E-COV-009.1` act/Colima capability preflight; `E2E-COV-009.2` advisory smoke and resource benchmark.
 - **MicroVM boundary**: Firecracker/Cloud Hypervisor is deferred to a Linux/KVM-only experiment; it is not a drop-in act backend and is not required on macOS.
-- **Validation**: RED/GREEN script-contract tests, Podman smoke when available, unavailable-runtime test, isolation-policy test, and remote CI comparison.
+- **Validation**: RED/GREEN script-contract tests, Colima CLI/API smoke when available, unavailable-runtime test, isolation-policy test, and remote CI comparison.
 - **Priority**: P2
 
 ### E2E-COV-010 — Governed multi-level and agentic test evidence
@@ -197,7 +197,7 @@ Every new or reopened card must include:
   - stable line/region thresholds remain unchanged and green;
   - newly exercised desktop, shell-bridge, CLI, and error paths have focused tests;
   - Beads, roadmap, BOM, checklist, and codemap report one consistent baseline.
-- **Current evidence after uplift slice 24**: 85.09% branch coverage, 1,408 total branches / 210 missed, measured with explicit nightly `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` paths. Slice 24 adds deterministic CLI help/error and artifact-write cases, desktop headless/schema/offline cases, MCP stdio blank-line/startup cases, shell-bridge cancellation and artifact failure edges, and a fail-closed local gitleaks publish target. Stable line/region gates remain 90.56% / 90.22%.
+- **Current evidence after uplift slice 24**: 85.15625% branch coverage, 1,408 total branches / 210 missed, measured with explicit nightly `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` paths. Slice 24 adds deterministic CLI help/error and artifact-write cases, desktop headless/schema/offline cases, MCP stdio blank-line/startup cases, shell-bridge cancellation and artifact failure edges, and a fail-closed local gitleaks publish target. Stable line/region gates remain 90.56% / 90.22%.
 - **Validation**: nightly branch report, focused boundary tests, `make llvm-cov`, gitleaks, and `make publish-gate`.
 
 ### E2E-COV-007.3 — Resolve aggregate local publish-gate test runtime boundary
@@ -217,7 +217,7 @@ Every new or reopened card must include:
 - Use `.github/ci-test-units.json` as the canonical manifest and `scripts/ci-local-runner.sh --mode local-full|local-route-equivalent` as the observable runner; do not replay workflow command strings with `eval` or `sh -c`.
 - Require JSON result/provenance records, rustup path/version proof, secure `0700` temp roots, containment/symlink checks, redaction, bounded logs, timeout/signal/process-tree cleanup, and deterministic aggregate exit semantics.
 - Add workflow-contract tests for package membership, all-target flags, shell-suite membership, route modes, duplicate/stale units, and manifest drift.
-- Evaluate [`nektos/act`](https://github.com/nektos/act) only as an opt-in advisory workflow/action smoke tool. Prefer rootless Podman through its Docker-compatible API when preflight passes, but treat compatibility as best-effort; no secrets, privileged mode, host/network/socket/credential mounts, or hosted-CI claims. Defer Dagger and self-hosted runners as separate architecture decisions.
+- Evaluate [`nektos/act`](https://github.com/nektos/act) only as an opt-in advisory workflow/action smoke tool using the installed Colima CLI and Docker-compatible API; no secrets, privileged mode, host/network/socket/credential mounts, or hosted-CI claims. Defer Dagger and self-hosted runners as separate architecture decisions.
 - Close only after terminal local evidence or a deterministic, contract-tested environment workaround is documented in the roadmap, BOM, readiness checklist, codemap, and Beads export.
 
 ### E2E-COV-007.5 — CodeQL v4 maintenance and release verification

@@ -271,6 +271,11 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "cargo-test",
         "cargo test -p ${{ matrix.package }} --all-targets",
     );
+    assert!(
+        workflow_run_bodies(&workflow).any(|command| command
+            .contains("cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1")),
+        "core package process-tree tests must run with serialized test threads"
+    );
     assert_eq!(
         workflow_job_name(&workflow, "shell-tests"),
         Some("cargo test -p tachi-shell (${{ matrix.suite }})"),
@@ -486,6 +491,14 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         "expected_artifacts:8",
         ".commit == $commit",
         "[ \"$COMMIT\" = \"auto\" ]",
+        "gh run view",
+        "workflowName",
+        "conclusion",
+        "completed",
+        "attempt",
+        "workflow_name",
+        "source_head_sha",
+        "GITHUB_REF",
     ] {
         assert!(
             timing_script_text.contains(required),
@@ -496,6 +509,22 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         makefile.contains("verify-ci-timing-artifacts:"),
         "Makefile must expose hosted timing artifact verification"
     );
+    let runner_text = fs::read_to_string(repo_root().join("scripts/ci-local-runner.sh"))
+        .expect("read local runner");
+    for required in [
+        "CI_LOCAL_RETENTION",
+        "ephemeral",
+        "retain",
+        "CI_LOCAL_MAX_LOG_BYTES",
+        "ci-cleanup-receipt.schema.json",
+        "ci-run-aggregate.schema.json",
+        "rm -rf -- \"$RUN_DIR\"",
+    ] {
+        assert!(
+            runner_text.contains(required),
+            "local runner must define retention contract: {required}"
+        );
+    }
 }
 
 #[test]
@@ -818,9 +847,24 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
             == Some("route decision artifact and stable orchestrator check"),
         "route observe job must stay the required orchestrator check"
     );
+    assert_eq!(
+        workflow_step_field(&workflow, "Upload route decision artifact", "if"),
+        Some("env.ACT_SMOKE != 'true'"),
+        "local act runs must not call the hosted artifact service"
+    );
+    assert_eq!(
+        workflow_step_field(&workflow, "Validate local act route artifact", "if"),
+        Some("env.ACT_SMOKE == 'true'"),
+        "local act runs must validate the generated route artifact in-container"
+    );
+    assert!(
+        workflow_run_bodies(&workflow)
+            .any(|run| run.contains("local act route artifact validated")),
+        "local act validation step must emit a deterministic success marker"
+    );
     assert!(
         workflow_step_field(&workflow, "Upload route decision artifact", "uses")
-            == Some("actions/upload-artifact@v4"),
+            == Some("actions/upload-artifact@v7"),
         "route observe workflow must upload the route artifact"
     );
     assert_workflow_has_run_line(&workflow, "cat > route.json <<EOF");
@@ -901,7 +945,7 @@ fn publish_gate_runs_supply_chain_policy_checks() {
     assert_workflow_uses_pinned_repo_toolchain("rust-supply-chain.yml", &workflow_text);
     for command in [
         "cargo install --locked --version 0.22.2 cargo-audit",
-        "cargo install --locked --version 0.19.9 cargo-deny",
+        "cargo install --locked --version 0.20.2 cargo-deny",
         "cargo audit",
         "cargo deny check advisories bans licenses sources",
     ] {
@@ -999,11 +1043,11 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
     );
     for command in [
         "cargo install --locked --version 0.6.45 cargo-hack",
-        "cargo install --locked --version 0.8.7 cargo-llvm-cov",
+        "cargo install --locked --version 0.9.1 cargo-llvm-cov",
         "cargo hack --version",
         "cargo llvm-cov --version",
         "cargo hack --version | grep -qx 'cargo-hack 0.6.45'",
-        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'",
+        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.9.1'",
         "cargo hack check --workspace --locked --each-feature --no-dev-deps",
         "git diff --exit-code -- Cargo.toml 'crates/*/Cargo.toml'",
         "./scripts/llvm-cov.sh --workspace --summary-only --fail-under-lines 85 --ignore-filename-regex 'target/|tests/'",
@@ -1016,7 +1060,7 @@ fn feature_and_coverage_canary_tools_are_pinned_and_non_required() {
         "cargo hack check --workspace --each-feature --no-dev-deps",
         "git diff --quiet -- Cargo.toml crates/*/Cargo.toml",
         "coverage-tool-proof:",
-        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.8.7'",
+        "cargo llvm-cov --version | grep -qx 'cargo-llvm-cov 0.9.1'",
         "$(MAKE) llvm-cov",
     ] {
         assert!(
@@ -1229,7 +1273,7 @@ fn repo_pins_required_rust_toolchain_components() {
         fs::read_to_string(repo_root().join("Cargo.toml")).expect("read workspace Cargo.toml");
 
     for required in [
-        "channel = \"1.96.1\"",
+        "channel = \"1.99.0\"",
         "profile = \"minimal\"",
         "\"clippy\"",
         "\"rustfmt\"",
@@ -1241,7 +1285,7 @@ fn repo_pins_required_rust_toolchain_components() {
         );
     }
     assert!(
-        workspace_manifest.contains("rust-version = \"1.96\""),
+        workspace_manifest.contains("rust-version = \"1.99\""),
         "workspace must declare the public Rust compiler floor"
     );
     for manifest in [

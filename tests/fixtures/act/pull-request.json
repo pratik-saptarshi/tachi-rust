@@ -1,0 +1,10 @@
+{
+  "action": "opened",
+  "number": 27,
+  "pull_request": {
+    "number": 27,
+    "head": {"ref": "synthetic/act-smoke", "sha": "0000000000000000000000000000000000000000"},
+    "base": {"ref": "main", "sha": "1111111111111111111111111111111111111111"}
+  },
+  "repository": {"full_name": "pratik-saptarshi/tachi-rust"}
+}

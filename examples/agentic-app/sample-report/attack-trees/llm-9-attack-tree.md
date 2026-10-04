@@ -6,7 +6,7 @@
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Shift Specialist Agent behavior via self-poisoning of its own decision logs (OWASP LLM03:2025)"]
+    Goal["[GOAL] Shift Specialist Agent behavior via self-poisoning of its own decision logs (OWASP LLM04:2026)"]
     Goal --> A["[OR] Cause Specialist to log adversarially crafted decision records"]
     A --> A1["Prompt injection (LLM-8) causes Specialist to log attacker-controlled action records"]
     A --> A2["Delegation message tampering (T-3) causes Specialist to log false task completions"]

@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: LLM Agent Orchestrator
-**Threat**: Context-window latency amplification blocking inference slots (OWASP LLM10:2025 Vector A)
+**Threat**: Context-window latency amplification blocking inference slots (OWASP LLM06:2026 Vector A)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Spike per-request latency to per-tenant timeout blocking inference (OWASP LLM10:2025 Cat 13)"]
+    Goal["[GOAL] Spike per-request latency to per-tenant timeout blocking inference (OWASP LLM06:2026 Cat 13)"]
     Goal --> A["[OR] Construct adversarially long prompt payload"]
     A --> A1["No max-context-window enforcement at API gateway"]
     A --> A2["No per-conversation truncation policy"]

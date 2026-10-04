@@ -22,6 +22,7 @@ pub struct ThreatSarifFinding {
     pub impact: String,
     pub risk_level: String,
     pub mitigation: String,
+    pub affected_assets: Vec<String>,
 }
 
 pub fn build_threats_sarif(
@@ -87,6 +88,7 @@ fn build_result(
         "severity": finding.risk_level,
         "likelihood": finding.likelihood,
         "impact": finding.impact,
+        "affected_assets": finding.affected_assets,
     });
 
     if !finding.agentic_pattern.is_empty() {
@@ -329,6 +331,7 @@ mod tests {
                 impact: String::from("High"),
                 risk_level: String::from("High"),
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
             ThreatSarifFinding {
                 id: String::from("AGP-1"),
@@ -343,6 +346,7 @@ mod tests {
                 impact: String::from("Medium"),
                 risk_level: String::from("Medium"),
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
             ThreatSarifFinding {
                 id: String::from("LLM-1"),
@@ -357,6 +361,7 @@ mod tests {
                 impact: String::from("Low"),
                 risk_level: String::from("Low"),
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
             ThreatSarifFinding {
                 id: String::from("OI-1"),
@@ -371,6 +376,7 @@ mod tests {
                 impact: String::from("Low"),
                 risk_level: String::from("Low"),
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
             ThreatSarifFinding {
                 id: String::from("MI-1"),
@@ -385,6 +391,7 @@ mod tests {
                 impact: String::from("Low"),
                 risk_level: String::from("Low"),
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
             ThreatSarifFinding {
                 id: String::from("ZZ-1"),
@@ -399,6 +406,7 @@ mod tests {
                 impact: String::from("Note"),
                 risk_level: String::from("Note"),
                 mitigation: String::from("Mitigate"),
+                affected_assets: Vec::new(),
             },
         ];
 
