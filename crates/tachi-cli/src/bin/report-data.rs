@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use tachi_shell::commands::{
-    cleanup_mislabeled_report_images, render_report_data_result, report_data_result,
+    cleanup_mislabeled_report_images, render_report_data_result, try_report_data_result,
 };
 
 fn main() -> ExitCode {
@@ -14,7 +14,13 @@ fn main() -> ExitCode {
         }
     };
 
-    let result = report_data_result(&target_dir, &template_dir);
+    let result = match try_report_data_result(&target_dir, &template_dir) {
+        Ok(result) => result,
+        Err(error) => {
+            eprintln!("{error}");
+            return ExitCode::from(1);
+        }
+    };
     if cleanup_images {
         cleanup_mislabeled_report_images(&target_dir);
     }

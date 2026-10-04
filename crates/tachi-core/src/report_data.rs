@@ -17,10 +17,26 @@ pub struct ReportImageBinding {
 }
 
 pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String {
-    let images = detect_images(target_dir, template_dir);
-    let threats_content = fs::read_to_string(target_dir.join("threats.md")).unwrap_or_default();
+    // Compatibility API: invalid input produces an explicitly unrenderable
+    // document. Commands use the checked API below to return the original error.
+    try_build_report_data_typst(target_dir, template_dir)
+        .unwrap_or_else(|error| format!("#panic({})\n", typst_string(&error)))
+}
+
+pub fn try_build_report_data_typst(
+    target_dir: &Path,
+    template_dir: &Path,
+) -> Result<String, String> {
+    let input = target_dir.join("threats.md");
+    let threats_content = match fs::read_to_string(&input) {
+        Ok(content) => content,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => String::new(),
+        Err(error) => return Err(format!("{}: {error}", input.display())),
+    };
     let project_name = resolve_report_project_name(&threats_content, None, Some(target_dir));
-    let findings = parse_threats_findings(&threats_content).unwrap_or_default();
+    let findings = parse_threats_findings(&threats_content)
+        .map_err(|error| format!("{}: {error}", input.display()))?;
+    let images = detect_images(target_dir, template_dir);
     let has_source_attribution = compute_has_source_attribution(&findings);
     let per_finding_rows = build_per_finding_rows(&findings);
     let taxonomy_dir = template_dir
@@ -81,7 +97,7 @@ pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String
         &threats_content,
         &findings,
     ));
-    output
+    Ok(output)
 }
 
 // The canonical Rust report path supplies the full Tier-3 template contract.

@@ -27,6 +27,15 @@ pub fn report_data_result(target_dir: &Path, template_dir: &Path) -> ReportDataR
     }
 }
 
+pub fn try_report_data_result(
+    target_dir: &Path,
+    template_dir: &Path,
+) -> Result<ReportDataResult, String> {
+    Ok(ReportDataResult {
+        typst: tachi_core::try_build_report_data_typst(target_dir, template_dir)?,
+    })
+}
+
 pub fn cleanup_mislabeled_report_images(target_dir: &Path) {
     cleanup_report_images(target_dir);
 }

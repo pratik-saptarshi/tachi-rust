@@ -275,7 +275,7 @@ pub fn regenerate(root: &Path, typst: &Path) -> Result<(), String> {
             .map_err(|e| format!("{name}/threats.md: {e}"))?;
         crate::parsers::parse_threats_findings(&threats)
             .map_err(|e| format!("{name}/threats.md: {e}"))?;
-        let data = crate::build_report_data_typst(&target, &templates);
+        let data = crate::try_build_report_data_typst(&target, &templates)?;
         fs::write(templates.join("report-data.typ"), data).map_err(|e| e.to_string())?;
         let pdf = target.join("security-report.pdf.baseline");
         // Remove the copied baseline so a successful no-op renderer cannot pass.

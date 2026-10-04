@@ -41,8 +41,8 @@ pub use facade::{
     owasp_coverage_family_catalog, parse_attack_chains, parse_compensating_controls_md,
     parse_component_metadata, parse_risk_md_section2, parse_risk_md_section3,
     parse_risk_md_section4, parse_threat_report_md, parse_threats_findings, prefix_for, render,
-    render_owasp_coverage_matrix, AttackChain, AttackChainFinding, MaestroLayer,
-    MermaidRenderFailure, OwaspCoverageFamily, RemediationAction, RemediationFinding,
+    render_owasp_coverage_matrix, try_build_report_data_typst, AttackChain, AttackChainFinding,
+    MaestroLayer, MermaidRenderFailure, OwaspCoverageFamily, RemediationAction, RemediationFinding,
     RemediationTimelineEntry, RiskScoreBreakdown, RiskScoreFinding, RiskScoreGovernance,
     RiskScoreSarifInputs, ThreatReportData, ThreatSarifFinding, MMDC_INSTALL_HINT,
 };

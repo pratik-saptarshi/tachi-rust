@@ -291,6 +291,7 @@ fn parse_total_count(value: &str) -> Option<(usize, Option<usize>)> {
 }
 
 pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, String> {
+    let source_attribution_block = extract_source_attribution_block(content)?;
     let rows = parse_markdown_table(content, "## 7. Recommended Actions");
     if rows.is_empty() {
         return Ok(Vec::new());
@@ -304,7 +305,6 @@ pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, Strin
         })
         .cloned();
 
-    let source_attribution_block = extract_source_attribution_block(content)?;
     let mut findings = Vec::new();
 
     for row in rows {

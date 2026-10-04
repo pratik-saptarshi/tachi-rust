@@ -221,12 +221,23 @@ fn canonical_agentic_sample_preserves_nested_citations_and_attack_sections() {
 
 #[test]
 fn malformed_nested_attribution_fails_instead_of_silently_losing_citations() {
+    let fixture = Fixture::new();
     for block in [
         "OI-1: [",
         "OI-1:\n  source_attribution:\n    - {taxonomy: bogus, id: LLM10, relationship: primary}",
     ] {
         let text = format!("{THREATS}\n**Source Attribution**:\n```yaml\n{block}\n```\n");
         assert!(tachi_core::parsers::parse_threats_findings(&text).is_err());
+        fixture.write("threats.md", &text);
+        let error = tachi_core::try_build_report_data_typst(&fixture.0.join("report"), &fixture.0)
+            .unwrap_err();
+        assert!(
+            error.contains("threats.md") && error.to_ascii_lowercase().contains("attribution"),
+            "{error}"
+        );
+        let legacy = fixture.render();
+        assert!(legacy.starts_with("#panic("));
+        assert!(!legacy.contains("#let total-findings = 0"));
         assert!(tachi_core::parsers::parse_threats_findings(
             &text.replace("**Source Attribution**:", "## 9. Source Attribution")
         )

@@ -10,8 +10,8 @@ use crate::tools::{
 };
 use crate::{build_contract_snapshot, McpContractSnapshot};
 use tachi_shell::commands::{
-    coverage_audit_output, infographic_data_output, report_data_output, risk_scores_sarif_output,
-    threats_sarif_output,
+    coverage_audit_output, infographic_data_output, risk_scores_sarif_output, threats_sarif_output,
+    try_report_data_result,
 };
 
 #[derive(Debug, Clone)]
@@ -117,7 +117,7 @@ impl McpServer {
             }
             McpToolId::ReportData => {
                 let input: ReportDataInput = deserialize(payload, tool_id.tool_name())?;
-                let content = report_data_output(&input.target_dir, &input.template_dir);
+                let content = try_report_data_result(&input.target_dir, &input.template_dir)?.typst;
                 self.write_or_return(
                     context,
                     tool_id,

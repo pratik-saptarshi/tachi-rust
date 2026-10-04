@@ -1,6 +1,35 @@
 use std::{fs, process::Command};
 
 #[test]
+fn malformed_attribution_fails_report_cli_without_overwriting_output() {
+    let root = std::env::temp_dir().join(format!("tachi-bad-report-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    fs::write(root.join("threats.md"), "## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation |\n|---|---|---|---|---|\n| OI-1 | Agent | Injection | High | Validate |\n\n## 9. Source Attribution\n\n```yaml\nOI-1: [\n```\n").unwrap();
+    let output_path = root.join("report-data.typ");
+    fs::write(&output_path, "existing report").unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_report-data"))
+        .env("PATH", "")
+        .arg("--target-dir")
+        .arg(&root)
+        .arg("--template-dir")
+        .arg(&root)
+        .arg("--output")
+        .arg(&output_path)
+        .arg("--cleanup-mislabeled-images")
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(output.stdout.is_empty());
+    let error = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        error.contains("threats.md") && error.contains("malformed YAML"),
+        "{error}"
+    );
+    assert_eq!(fs::read_to_string(output_path).unwrap(), "existing report");
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn permission_command_runs_without_interpreters_and_rejects_bad_files() {
     let root = std::env::temp_dir().join(format!("tachi-permissions-cli-{}", std::process::id()));
     fs::create_dir_all(root.join(".claude")).unwrap();

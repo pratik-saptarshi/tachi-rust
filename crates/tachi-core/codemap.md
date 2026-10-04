@@ -42,6 +42,9 @@ catalog membership/order/scope and stage complete PDF baseline regeneration.
   preserving the host-independent boundary.
 - `tests/report_document_contract.rs` verifies that selected-tier components,
   remediation recommendations and available brand assets survive Typst data assembly.
+- `try_build_report_data_typst` propagates attribution/read errors to CLI, desktop,
+  MCP and regeneration callers before output publication. The legacy string builder
+  returns a Typst panic document on invalid input, never a zero-finding report.
 - Detailed source map: [src/codemap.md](src/codemap.md).
 - `examples/refresh_sarif_taxonomy.rs`: native maintenance command for companion
   SARIF taxonomy metadata/citations, preserving finding IDs, scores and evidence.

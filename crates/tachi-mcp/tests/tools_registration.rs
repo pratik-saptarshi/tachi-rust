@@ -22,6 +22,32 @@ fn context(request_id: &str) -> McpRequestContext {
 }
 
 #[test]
+fn report_parse_errors_fail_mcp_without_publishing_artifacts() {
+    let root = temp_root("bad-report");
+    fs::create_dir_all(&root).unwrap();
+    fs::write(
+        root.join("threats.md"),
+        "**Source Attribution**:\n```yaml\nOI-1: [\n```\n",
+    )
+    .unwrap();
+    let error = McpServer::default()
+        .invoke_json(
+            &context("bad-report"),
+            "tachi.report-data",
+            &json!({
+                "target_dir": root, "template_dir": root, "output_mode": "artifact"
+            }),
+        )
+        .unwrap_err();
+    assert!(
+        error.contains("threats.md") && error.contains("malformed YAML"),
+        "{error}"
+    );
+    assert!(!root.join("mcp/report-data.typ").exists());
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn registered_tools_match_the_analysis_surface_only() {
     let server = McpServer::default();
     let expected = [

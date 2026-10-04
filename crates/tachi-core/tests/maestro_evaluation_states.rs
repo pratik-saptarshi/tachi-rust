@@ -44,6 +44,23 @@ fn classification_requires_unambiguous_evidence() {
 }
 
 #[test]
+fn malformed_attribution_cannot_be_rendered_as_clean_maestro_evidence() {
+    let content = format!("{EVIDENCE}\n## 9. Source Attribution\n\n```yaml\nOI-1: [\n```\n");
+    for template in ["maestro-stack", "maestro-heatmap"] {
+        let error = build_infographic_payload_from_content(
+            &content,
+            3,
+            "Invalid".into(),
+            None,
+            None,
+            template,
+        )
+        .unwrap_err();
+        assert!(error.contains("threats.md") && error.contains("malformed YAML"));
+    }
+}
+
+#[test]
 fn evaluated_zero_finding_reports_can_render_maestro() {
     for heading in [
         "### Risk by MAESTRO Layer",

@@ -6424,7 +6424,7 @@
     },
     {
       "path": "crates/tachi-core/src/catalog_drift.rs",
-      "sha256": "f927d8821bb2f65872293499c017af41db9d863ff80f1e483e7fe27fd2c374af"
+      "sha256": "c9e98ec4b4e069315dd258a41cd023c9a77aa881d4c09b41427dfd091be00e08"
     },
     {
       "path": "crates/tachi-core/src/codemap.md",
@@ -6448,7 +6448,7 @@
     },
     {
       "path": "crates/tachi-core/src/facade.rs",
-      "sha256": "98a66b4eb0e30d26714766e34c6178f74e592b839f234ef73773663e42363c27"
+      "sha256": "bbfdb3185d19c0f21c11cb6823579717b62b8afd365bd9bb8596c487baddb96d"
     },
     {
       "path": "crates/tachi-core/src/fixtures.rs",
@@ -6472,7 +6472,7 @@
     },
     {
       "path": "crates/tachi-core/src/infographic/payload.rs",
-      "sha256": "7a5005e0e69ea58864ed368b6b70ca782ea5b24dd5ea1def701f4e619eba47e4"
+      "sha256": "e93e3ed1d9e6cf48ed5a92ee8d82453e4c494f864da98cdd49c25e766dcef586"
     },
     {
       "path": "crates/tachi-core/src/infographic/prompt_scaffold.rs",
@@ -6480,7 +6480,7 @@
     },
     {
       "path": "crates/tachi-core/src/lib.rs",
-      "sha256": "3c7512d99113c386540c30187107b77bbb4f5987f75ed85a8ba7da38d1ee011c"
+      "sha256": "29f477f9b03c0e6e1aa2a7d3e4eaa23821bb9457968c47fe193dc6e4d5683a74"
     },
     {
       "path": "crates/tachi-core/src/maestro_coverage.rs",
@@ -6508,7 +6508,7 @@
     },
     {
       "path": "crates/tachi-core/src/parsers/findings.rs",
-      "sha256": "a7a2dc18ed6d73fca33db2f73d51fb66c94d23a161a386387bbfd3378cf3c669"
+      "sha256": "708ff9ce21099e2df14f0f86a0cf244b619ceb7d21730fad1f66242da1fe462e"
     },
     {
       "path": "crates/tachi-core/src/parsers/mermaid.rs",
@@ -6532,7 +6532,7 @@
     },
     {
       "path": "crates/tachi-core/src/report_data.rs",
-      "sha256": "11f830da44ce2a60d8fe54bf2b1da5b764425bebf37c18719c3b3ee7d382e240"
+      "sha256": "b24536b6e9f02ffeb7e0c18609ddb17e493948df37a09486f63b0e01026b490f"
     },
     {
       "path": "crates/tachi-core/src/report_extraction.rs",
