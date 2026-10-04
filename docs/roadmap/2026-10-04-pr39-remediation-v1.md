@@ -1,10 +1,10 @@
 # PR #39 Review and Closeout Remediation
 
-**Date:** 2026-10-04  
-**GitHub issue:** [#40](https://github.com/pratik-saptarshi/tachi-rust/issues/40)  
-**Beads epic:** `RT-bz6` (children `RT-bz6.1` through `RT-bz6.6`)  
-**Branch:** `040-pr39-closeout-remediation`  
-**Parent PR:** [#39](https://github.com/pratik-saptarshi/tachi-rust/pull/39)
+- **Date:** 2026-10-04
+- **GitHub issue:** [#40](https://github.com/pratik-saptarshi/tachi-rust/issues/40)
+- **Beads epic:** `RT-bz6` (children `RT-bz6.1` through `RT-bz6.6`)
+- **Branch:** `040-pr39-closeout-remediation`
+- **Original PR:** [#39](https://github.com/pratik-saptarshi/tachi-rust/pull/39)
 
 ## Findings and changes
 
