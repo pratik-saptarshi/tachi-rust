@@ -317,6 +317,10 @@ fn control_stubs_do_not_erase_valid_risk_findings_but_empty_assessments_are_reta
         "Generator failed",
         "# Compensating Controls\n\n## 2. Coverage Matrix\n\n## 3. Control Details\n",
         "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | failed |\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n| Missing | 0 |\n| Found | 1 |\n",
+        "## 2. Coverage Matrix\n\n| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |\n",
     ] {
         fixture.write("compensating-controls.md", invalid);
         let output = fixture.render();

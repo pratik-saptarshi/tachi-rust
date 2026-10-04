@@ -6532,7 +6532,7 @@
     },
     {
       "path": "crates/tachi-core/src/report_data.rs",
-      "sha256": "b24536b6e9f02ffeb7e0c18609ddb17e493948df37a09486f63b0e01026b490f"
+      "sha256": "c4fe5c237eef7c19ebefe12d0b8ec17ecaa73e9cd4a24b9c4d07268568dc2424"
     },
     {
       "path": "crates/tachi-core/src/report_extraction.rs",

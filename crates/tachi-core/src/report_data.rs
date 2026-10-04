@@ -292,8 +292,19 @@ fn has_control_assessment(
     // A completed assessment may have an empty residual table. Require its
     // canonical section and actual column contract, not just a nonblank file.
     let lines: Vec<_> = content.lines().map(str::trim).collect();
-    let has_coverage_section = lines.contains(&"## 2. Coverage Matrix");
-    let has_residual_header = lines.iter().any(|line| {
+    let coverage = lines
+        .iter()
+        .position(|line| *line == "## 2. Coverage Matrix")
+        .map(|start| {
+            let end = lines[start + 1..]
+                .iter()
+                .position(|line| line.starts_with("## "))
+                .map_or(lines.len(), |offset| start + 1 + offset);
+            &lines[start + 1..end]
+        })
+        .unwrap_or_default();
+    let has_residual_header = coverage.windows(2).any(|pair| {
+        let line = pair[0];
         if !line.starts_with('|') {
             return false;
         }
@@ -301,6 +312,19 @@ fn has_control_assessment(
             .split('|')
             .map(|cell| cell.trim().trim_matches('*'))
             .collect();
+        let separator: Vec<_> = pair[1]
+            .trim_matches('|')
+            .split('|')
+            .map(str::trim)
+            .collect();
+        if separator.len() != cells.iter().filter(|cell| !cell.is_empty()).count()
+            || !separator.iter().all(|cell| {
+                cell.trim_matches(':').len() >= 3
+                    && cell.trim_matches(':').chars().all(|c| c == '-')
+            })
+        {
+            return false;
+        }
         [
             "Threat ID",
             "Component",
@@ -312,7 +336,7 @@ fn has_control_assessment(
         .iter()
         .all(|column| cells.contains(column))
     });
-    if has_coverage_section && has_residual_header {
+    if has_residual_header {
         return true;
     }
     // Explicit numeric coverage metadata, including all-zero rows, is also
@@ -320,23 +344,24 @@ fn has_control_assessment(
     ["Coverage Distribution", "## 1. Executive Summary"]
         .iter()
         .any(|heading| {
-            crate::parsers::parse_markdown_table(content, heading)
-                .iter()
-                .any(|row| {
-                    row.get("Status").is_some_and(|status| {
-                        matches!(
-                            status.as_str(),
-                            "Found"
-                                | "Partial"
-                                | "Missing"
-                                | "Control Found"
-                                | "Partial Control"
-                                | "No Control"
-                        )
-                    }) && row
+            let mut seen = [false; 3];
+            for row in crate::parsers::parse_markdown_table(content, heading) {
+                let index = match row.get("Status").map(String::as_str) {
+                    Some("Found" | "Control Found") => 0,
+                    Some("Partial" | "Partial Control") => 1,
+                    Some("Missing" | "No Control") => 2,
+                    _ => continue,
+                };
+                if seen[index]
+                    || !row
                         .get("Count")
                         .is_some_and(|count| count.parse::<usize>().is_ok())
-                })
+                {
+                    return false;
+                }
+                seen[index] = true;
+            }
+            seen.into_iter().all(|present| present)
         })
 }
 
