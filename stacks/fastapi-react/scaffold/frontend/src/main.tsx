@@ -5,9 +5,10 @@
  * for server state management. The QueryClient is configured
  * with sensible defaults for stale time and garbage collection.
  */
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App } from "@/App";
 import "@/app.css";
 
@@ -24,7 +25,9 @@ const queryClient = new QueryClient({
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
-  throw new Error("Root element not found. Ensure index.html contains <div id='root'></div>.");
+  throw new Error(
+    "Root element not found. Ensure index.html contains <div id='root'></div>.",
+  );
 }
 
 createRoot(rootElement).render(
