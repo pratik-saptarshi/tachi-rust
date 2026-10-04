@@ -11,18 +11,21 @@ fn group_maestro_findings_by_layer_orders_canonical_layers_before_unclassified()
                 layer_name: String::from("Foundation Model"),
                 finding_count: 2,
                 highest_severity: String::from("High"),
+                coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
             },
             MaestroLayerDistribution {
                 layer_id: String::from("L5"),
                 layer_name: String::from("Evaluation and Observability"),
                 finding_count: 1,
                 highest_severity: String::from("Critical"),
+                coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
             },
             MaestroLayerDistribution {
                 layer_id: String::from("L6"),
                 layer_name: String::from("Security and Compliance"),
                 finding_count: 1,
                 highest_severity: String::from("High"),
+                coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
             },
         ],
         per_finding_maestro: vec![
@@ -96,6 +99,7 @@ fn group_maestro_findings_retains_unclassified_and_replaces_empty_names() {
             layer_name: String::new(),
             finding_count: 0,
             highest_severity: String::new(),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::NotEvaluated,
         }],
         per_finding_maestro: vec![
             MaestroFinding {

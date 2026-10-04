@@ -7,6 +7,12 @@
 
 ## Layout: 3-Zone, 16:9 Landscape
 
+Consume the Rust `coverage_state` for all seven canonical layers. Display
+`findings` with its count/severity, `clean` as "Evaluated — no findings",
+`not_applicable` as "Not applicable", and `not_evaluated` as "Not evaluated".
+Missing legacy state defaults to `not_evaluated`. Never infer evaluation or
+applicability from zero counts, empty severity, or component-layer mappings.
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  TOP SECTION                                                            │

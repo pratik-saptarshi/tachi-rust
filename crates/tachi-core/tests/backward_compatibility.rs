@@ -113,6 +113,7 @@ fn unmodified_examples_byte_identical_pdfs() {
         let baseline_pdf = target_dir.join("security-report.pdf.baseline");
         let generated_pdf =
             unique_temp_dir("tachi-backward-compatibility").join("security-report.pdf");
+        fs::create_dir_all(generated_pdf.parent().unwrap()).expect("create PDF output directory");
 
         assert!(
             baseline_pdf.exists(),
@@ -125,6 +126,7 @@ fn unmodified_examples_byte_identical_pdfs() {
 
         let result = Command::new("typst")
             .arg("compile")
+            .arg("--ignore-system-fonts")
             .arg(template_dir.join("main.typ"))
             .arg(&generated_pdf)
             .arg("--root")

@@ -204,6 +204,9 @@ The following OWASP 3x3 risk matrix documents how risk levels are computed for e
 | L7 — Agent Ecosystem | 2 | Critical |
 | L2 — Data Operations | 5 | High |
 | L6 — Security and Compliance | 4 | High |
+| L1 — Foundation Model | 0 | Not evaluated |
+| L3 — Agent Framework | 0 | Not evaluated |
+| L5 — Evaluation and Observability | 0 | Not evaluated |
 
 | Risk Level | Count | Percentage |
 |------------|-------|------------|
@@ -322,4 +325,3 @@ E-2:
   - {taxonomy: owasp, id: A01, relationship: primary}
   - {taxonomy: cwe, id: CWE-285, relationship: related}
 ```
-

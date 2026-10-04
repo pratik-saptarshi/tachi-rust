@@ -1,5 +1,12 @@
 # Threat Infographic Design Template: MAESTRO Component-Layer Heatmap
 
+Use the shared Rust `maestro_layer_distribution[].coverage_state` alongside
+the heatmap for all seven canonical layers: `findings`, `clean`,
+`not_applicable`, or `not_evaluated`. Empty heatmap cells say only that no
+finding is mapped to that intersection. They do not prove a clean evaluation.
+Missing legacy state defaults to `not_evaluated`; do not infer applicability
+from component mappings.
+
 > **Purpose**: Locked-in visual design for a MAESTRO component-layer heatmap showing threat
 > concentration across CSA MAESTRO seven-layer taxonomy. The infographic agent
 > MUST follow this layout. Only data values change between runs — structure stays fixed.
