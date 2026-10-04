@@ -123,7 +123,7 @@ fn render_document_data(
         "logo-primary-path": brand.logo_primary_path, "logo-primary-dark-path": brand.logo_primary_dark_path,
         "logo-horizontal-path": brand.logo_horizontal_path,
         "has-risk-scores": false, "has-compensating-controls": false,
-        "has-threat-report": report.executive_narrative.is_some(),
+        "has-threat-report": report.executive_narrative.is_some() || !report.remediation_timeline.is_empty(),
         "executive-narrative": report.executive_narrative, "component-distribution": [],
         "has-attack-trees": false, "attack-trees": [], "has-attack-chains": false, "attack-chains": [],
         "coverage-matrix": [], "controls": [], "coverage-summary": {}, "remediation-actions": []
