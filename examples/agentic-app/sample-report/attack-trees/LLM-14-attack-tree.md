@@ -2,11 +2,11 @@
 
 **Risk Level**: Critical
 **Component**: Clinical Advisory Sub-Agent
-**Threat**: Training data poisoning via adversarial Clinical Decision Log Entries (OWASP LLM04:2026)
+**Threat**: Training data poisoning via adversarial Clinical Decision Log Entries (OWASP LLM05:2026)
 
 ```mermaid
 graph TD
-    Goal["[GOAL] Shift ClinAdvisor clinical reasoning toward attacker-preferred outputs via training data poisoning (OWASP LLM04:2026)"]
+    Goal["[GOAL] Shift ClinAdvisor clinical reasoning toward attacker-preferred outputs via training data poisoning (OWASP LLM05:2026)"]
     Goal --> A["[OR] Inject adversarial Clinical Decision Log Entries into Audit Logger"]
     A --> A1["Compromise service with Audit Logger write access"]
     A --> A2["Cause ClinAdvisor to log attacker-controlled clinical interactions (via LLM-13)"]
