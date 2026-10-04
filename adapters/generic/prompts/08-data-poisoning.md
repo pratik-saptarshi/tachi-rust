@@ -79,6 +79,8 @@ When the architecture input contains no LLM, language model, training pipeline, 
 
 ## Finding Template
 
+Choose LLM05:2026 for training/fine-tuning poisoning, LLM09:2026 for retrieval-index poisoning, and LLM04:2026 for supply-chain compromise. The generic template below illustrates training-data poisoning.
+
 ```yaml
 id: "LLM-{N}"
 category: llm
@@ -89,7 +91,7 @@ impact: "{LOW | MEDIUM | HIGH}"
 risk_level: "{computed from OWASP 3x3 matrix}"
 mitigation: "{recommended countermeasure}"
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM05:2026"
 dfd_element_type: "{Data Store | Data Flow}"
 ```
 
@@ -107,7 +109,7 @@ impact: HIGH
 risk_level: Critical
 mitigation: "Implement content validation and adversarial content detection on all documents before indexing. Apply document-level access controls so that user-uploaded content is retrievable only within the uploader's trust boundary. Add provenance metadata to indexed documents so the model can distinguish source trustworthiness. Monitor retrieval patterns for anomalous document frequency spikes."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM09:2026"
 dfd_element_type: "Data Store"
 ```
 
@@ -123,7 +125,7 @@ impact: HIGH
 risk_level: Medium
 mitigation: "Implement immutable training data snapshots with cryptographic hash verification. Restrict write access to the training data bucket to a dedicated data engineering role. Validate dataset integrity before each training run by comparing checksums against a signed manifest. Add anomaly detection on training data distributions to flag unexpected content changes."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM05:2026"
 dfd_element_type: "Data Flow"
 ```
 
@@ -139,7 +141,7 @@ impact: MEDIUM
 risk_level: Medium
 mitigation: "Implement mandatory review workflows for knowledge base edits with approval from subject matter experts. Maintain versioned snapshots of the knowledge base and compare diffs before re-indexing. Add audit logging for all edits with author attribution. Consider read-only knowledge base replicas for the model, updated on a controlled schedule after review."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM09:2026"
 dfd_element_type: "Data Store"
 ```
 

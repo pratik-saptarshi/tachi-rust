@@ -44,6 +44,95 @@ const CONTRACTS: &[(&str, &str, &str)] = &[
     ),
 ];
 
+fn check_example(text: &str, heading: &str, category: &str) -> Result<(), String> {
+    let section = text
+        .split_once(&format!("**{heading}**:"))
+        .ok_or("missing example")?
+        .1;
+    let yaml = section
+        .split_once("```yaml\n")
+        .ok_or("missing YAML")?
+        .1
+        .split("```")
+        .next()
+        .unwrap();
+    let finding: serde_yaml::Value = serde_yaml::from_str(yaml).map_err(|e| e.to_string())?;
+    let reference = format!("OWASP {category}:2026");
+    if !finding["references"]
+        .as_sequence()
+        .ok_or("missing references")?
+        .iter()
+        .any(|r| r.as_str() == Some(&reference))
+    {
+        return Err(format!("{heading}: expected reference {reference}"));
+    }
+    if let Some(attribution) = finding["source_attribution"].as_sequence() {
+        let primary = attribution.iter().find(|r| {
+            r["taxonomy"].as_str() == Some("owasp") && r["relationship"].as_str() == Some("primary")
+        });
+        if primary.and_then(|r| r["id"].as_str()) != Some(category) {
+            return Err(format!(
+                "{heading}: expected primary attribution {category}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn every_active_agent_and_adapter_example_uses_contextual_categories() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    for (family, mappings) in [
+        (
+            "data-poisoning",
+            vec![
+                ("RAG Index Poisoning via User-Uploaded Documents", "LLM09"),
+                ("Fine-Tuning Data Manipulation via Shared Storage", "LLM05"),
+            ],
+        ),
+        (
+            "model-theft",
+            vec![
+                ("Model Weights Exposed via Unprotected Storage", "LLM06"),
+                ("API-Based Model Extraction via Logprob Exposure", "LLM06"),
+                ("Model Architecture Leakage via Error Messages", "LLM08"),
+            ],
+        ),
+    ] {
+        let generic_number = if family == "data-poisoning" {
+            "08"
+        } else {
+            "09"
+        };
+        for path in [
+            format!(".claude/agents/tachi/{family}.md"),
+            format!("agents/ai/{family}.md"),
+            format!("adapters/claude-code/agents/{family}.md"),
+            format!("adapters/copilot/agents/{family}.agent.md"),
+            format!("adapters/cursor/rules/{family}.mdc"),
+            format!("adapters/generic/prompts/{generic_number}-{family}.md"),
+        ] {
+            let text = fs::read_to_string(root.join(&path)).unwrap();
+            for (heading, category) in &mappings {
+                check_example(&text, heading, category).unwrap_or_else(|e| panic!("{path}: {e}"));
+                let stale = text.replace(category, "LLM04");
+                assert!(
+                    check_example(&stale, heading, category).is_err(),
+                    "{path}/{heading}: stale mutation escaped"
+                );
+            }
+            if text.contains("**Knowledge Base Corruption via Unaudited Edits**:") {
+                check_example(
+                    &text,
+                    "Knowledge Base Corruption via Unaudited Edits",
+                    "LLM09",
+                )
+                .unwrap_or_else(|e| panic!("{path}: {e}"));
+            }
+        }
+    }
+}
+
 fn check(text: &str, required: &str, stale: &str) -> Result<(), String> {
     if !text.contains(required) || text.contains(stale) {
         return Err(format!("expected {required}; stale instruction {stale}"));
@@ -108,14 +197,14 @@ fn current_baseline_findings_keep_contextual_citations_consistent() {
             "maestro-reference",
             vec![
                 ("LLM-2", "LLM05"),
-                ("LLM-3", "LLM02"),
+                ("LLM-3", "LLM06"),
                 ("LLM-5", "LLM05"),
                 ("LLM-6", "LLM02"),
             ],
         ),
         (
             "mermaid-agentic-app",
-            vec![("LLM-2", "LLM01"), ("LLM-3", "LLM05"), ("LLM-4", "LLM08")],
+            vec![("LLM-2", "LLM01"), ("LLM-3", "LLM09"), ("LLM-4", "LLM08")],
         ),
     ] {
         let text = fs::read_to_string(root.join(format!("examples/{example}/threats.md"))).unwrap();

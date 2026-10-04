@@ -71,12 +71,12 @@ impact: HIGH
 risk_level: Critical
 mitigation: "Implement content validation and adversarial content detection on all documents before indexing. Apply document-level access controls so that user-uploaded content is retrievable only within the uploader's trust boundary. Add provenance metadata to indexed documents so the model can distinguish source trustworthiness. Monitor retrieval patterns for anomalous document frequency spikes."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM09:2026"
   - "CWE-345"
   - "CWE-1395"
 source_attribution:
   - taxonomy: owasp
-    id: LLM04
+    id: LLM09
     relationship: primary
   - taxonomy: cwe
     id: CWE-345
@@ -99,12 +99,12 @@ impact: HIGH
 risk_level: Medium
 mitigation: "Implement immutable training data snapshots with cryptographic hash verification. Restrict write access to the training data bucket to a dedicated data engineering role. Validate dataset integrity before each training run by comparing checksums against a signed manifest. Add anomaly detection on training data distributions to flag unexpected content changes."
 references:
-  - "OWASP LLM04:2026"
+  - "OWASP LLM05:2026"
   - "CWE-494"
   - "CWE-345"
 source_attribution:
   - taxonomy: owasp
-    id: LLM04
+    id: LLM05
     relationship: primary
   - taxonomy: cwe
     id: CWE-494
