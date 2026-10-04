@@ -163,11 +163,7 @@ pub fn attach_source_attribution(sarif: &mut Value, findings: &[crate::parsers::
         let Some(finding) = findings.iter().find(|f| f.id == id) else {
             continue;
         };
-        let Some(records) = finding
-            .source_attribution
-            .as_ref()
-            .filter(|r| !r.is_empty())
-        else {
+        let Some(records) = finding.source_attribution.as_ref() else {
             continue;
         };
         result["properties"]["source-attribution"] = json!(records);
