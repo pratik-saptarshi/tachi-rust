@@ -20,6 +20,12 @@ desktop, MCP, and filesystem orchestration to adapter crates.
 
 ## Data & Control Flow
 
+`maestro_coverage` defines the shared `EvaluationState` classifier and output
+agreement diagnostics. Infographics and report data carry its explicit states.
+`permissions` validates JSON and documentation consistency. `catalog_drift`
+uses the renderer's strict YAML loader and ordered framework registry to check
+catalog membership/order/scope and stage complete PDF baseline regeneration.
+
 1. A host reads workspace artifacts and invokes the public facade.
 2. Parsers convert Markdown, Mermaid, and taxonomy content into typed findings,
    scope, severity, attribution, and risk records.

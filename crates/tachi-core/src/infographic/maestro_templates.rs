@@ -38,7 +38,8 @@ pub(crate) fn build_maestro_stack_template_data(maestro_data: &MaestroData) -> V
                 "layer_name": layer.layer_name,
                 "finding_count": layer.finding_count,
                 "highest_severity": layer.highest_severity,
-                "coverage_status": maestro_coverage_status(&layer.highest_severity),
+                "coverage_status": layer.coverage_state.as_str(),
+                "coverage_state": layer.coverage_state,
                 "top_findings": top.collect::<Vec<_>>(),
             })
         })
@@ -50,15 +51,6 @@ pub(crate) fn build_maestro_stack_template_data(maestro_data: &MaestroData) -> V
         "per_layer_summaries": per_layer_summaries,
         "has_maestro_data": maestro_data.has_maestro_data,
     })
-}
-
-fn maestro_coverage_status(highest_severity: &str) -> &'static str {
-    match highest_severity.trim() {
-        "Analyzed — no findings this scan" => "analyzed_clean",
-        "Not applicable" => "not_applicable",
-        "Not evaluated" | "" => "not_evaluated",
-        _ => "analyzed_findings",
-    }
 }
 
 pub(crate) fn build_maestro_heatmap_template_data(maestro_data: &MaestroData) -> Value {
@@ -78,6 +70,7 @@ fn to_value_layer_distribution(layers: &[MaestroLayerDistribution]) -> Vec<Value
                 "layer_name": layer.layer_name,
                 "finding_count": layer.finding_count,
                 "highest_severity": layer.highest_severity,
+                "coverage_state": layer.coverage_state,
             })
         })
         .collect()
@@ -125,6 +118,7 @@ mod tests {
                 layer_name: String::from("Data Operations"),
                 finding_count: 1,
                 highest_severity: String::from("High"),
+                coverage_state: crate::maestro_coverage::EvaluationState::Findings,
             }],
             most_exposed_layer: String::from("L2 — Data Operations"),
             component_layer_map: BTreeMap::new(),

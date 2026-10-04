@@ -57,9 +57,10 @@ pub struct CoverageFrameworkAggregate {
     pub items: Vec<CoverageFrameworkItem>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct FrameworkRecord {
     pub id: String,
+    #[serde(default)]
     pub out_of_scope: bool,
 }
 
@@ -298,8 +299,7 @@ pub fn load_framework_yaml_records_from_dir(
     in_scope_only: bool,
 ) -> Vec<FrameworkRecord> {
     let path = taxonomy_dir.join(format!("{framework_name}.yaml"));
-    let text = fs::read_to_string(path).unwrap_or_default();
-    load_framework_records_from_text(&text, in_scope_only)
+    load_framework_yaml_records_checked(&path, in_scope_only).unwrap_or_default()
 }
 
 pub fn load_framework_yaml_record_counts() -> BTreeMap<String, usize> {
@@ -360,52 +360,30 @@ pub fn load_framework_yaml_in_scope_record_counts_from_store(
         .collect()
 }
 
-fn load_framework_records_from_text(text: &str, in_scope_only: bool) -> Vec<FrameworkRecord> {
-    let mut records = Vec::new();
-    let mut current: Option<FrameworkRecord> = None;
-
-    for line in text.lines() {
-        let trimmed = line.trim_start();
-        if let Some(id) = trimmed.strip_prefix("- id: ") {
-            if let Some(record) = current.take() {
-                if !in_scope_only || !record.out_of_scope {
-                    records.push(record);
-                }
-            }
-            current = Some(FrameworkRecord {
-                id: strip_yaml_scalar_quotes(id),
-                out_of_scope: false,
-            });
-            continue;
-        }
-
-        let Some(record) = current.as_mut() else {
-            continue;
-        };
-
-        let trimmed = line.trim();
-        if let Some(value) = trimmed.strip_prefix("out_of_scope:") {
-            record.out_of_scope = value.trim().eq_ignore_ascii_case("true");
+/// Shared renderer/drift loading semantics. Strict callers retain actionable errors.
+pub fn load_framework_yaml_records_checked(
+    path: &Path,
+    in_scope_only: bool,
+) -> Result<Vec<FrameworkRecord>, String> {
+    let text = fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let records: Vec<FrameworkRecord> = serde_yaml::from_str(&text)
+        .map_err(|e| format!("{}: malformed catalog: {e}", path.display()))?;
+    if records.is_empty() {
+        return Err(format!("{}: empty catalog", path.display()));
+    }
+    let mut seen = std::collections::BTreeSet::new();
+    for record in &records {
+        if record.id.trim().is_empty() || record.id != record.id.trim() || !seen.insert(&record.id)
+        {
+            return Err(format!(
+                "{}: empty, padded or duplicate id {:?}",
+                path.display(),
+                record.id
+            ));
         }
     }
-
-    if let Some(record) = current.take() {
-        if !in_scope_only || !record.out_of_scope {
-            records.push(record);
-        }
-    }
-
-    records
-}
-
-fn strip_yaml_scalar_quotes(value: &str) -> String {
-    let value = value.trim();
-    if value.len() >= 2 {
-        let first = value.as_bytes()[0];
-        let last = value.as_bytes()[value.len() - 1];
-        if (first == b'"' && last == b'"') || (first == b'\'' && last == b'\'') {
-            return value[1..value.len() - 1].to_string();
-        }
-    }
-    value.to_string()
+    Ok(records
+        .into_iter()
+        .filter(|r| !in_scope_only || !r.out_of_scope)
+        .collect())
 }

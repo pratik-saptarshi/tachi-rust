@@ -31,12 +31,14 @@ pub const SEVERITY_COLORS: [(&str, &str); 5] = [
     ("Note", "#6B7280"),
 ];
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, serde::Deserialize)]
 pub struct MaestroLayerDistribution {
     pub layer_id: String,
     pub layer_name: String,
     pub finding_count: usize,
     pub highest_severity: String,
+    #[serde(default)]
+    pub coverage_state: crate::maestro_coverage::EvaluationState,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -232,10 +234,10 @@ pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLay
 
         let normalized_layer = normalize_maestro_layer_label(layer_raw);
         let (layer_id, layer_name) = split_maestro_layer(&normalized_layer);
-        let finding_count = row
+        let parsed_count = row
             .get("Finding Count")
-            .and_then(|value| value.trim().parse::<usize>().ok())
-            .unwrap_or(0);
+            .and_then(|value| value.trim().parse::<usize>().ok());
+        let finding_count = parsed_count.unwrap_or(0);
         let highest_severity = row
             .get("Highest Severity")
             .map(|value| value.trim().to_string())
@@ -244,6 +246,10 @@ pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLay
         by_layer.insert(
             layer_id.clone(),
             MaestroLayerDistribution {
+                coverage_state: crate::maestro_coverage::classify_evaluation(
+                    parsed_count,
+                    row.get("Evaluation State").unwrap_or(&highest_severity),
+                ),
                 layer_id,
                 layer_name,
                 finding_count,
@@ -262,6 +268,7 @@ pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLay
             by_layer
                 .remove(layer.layer_id)
                 .unwrap_or_else(|| MaestroLayerDistribution {
+                    coverage_state: crate::maestro_coverage::EvaluationState::NotEvaluated,
                     layer_id: layer.layer_id.to_string(),
                     layer_name: layer.layer_name.to_string(),
                     finding_count: 0,
@@ -407,9 +414,35 @@ pub fn parse_per_finding_maestro(threats_content: &str) -> Vec<MaestroFinding> {
 }
 
 pub fn extract_maestro_data(threats_content: &str) -> MaestroData {
-    let maestro_layer_distribution = parse_maestro_layer_distribution(threats_content);
+    let mut maestro_layer_distribution = parse_maestro_layer_distribution(threats_content);
     let component_layer_map = parse_component_layer_mapping(threats_content);
     let per_finding_maestro = parse_per_finding_maestro(threats_content);
+    for layer in &mut maestro_layer_distribution {
+        let observed = per_finding_maestro
+            .iter()
+            .filter(|finding| {
+                split_maestro_layer(&normalize_maestro_layer_label(&finding.maestro_layer)).0
+                    == layer.layer_id
+            })
+            .count();
+        if observed > 0 {
+            layer.finding_count = layer.finding_count.max(observed);
+            layer.coverage_state = crate::maestro_coverage::EvaluationState::Findings;
+            if let Some(severity) = per_finding_maestro
+                .iter()
+                .filter(|finding| {
+                    split_maestro_layer(&normalize_maestro_layer_label(&finding.maestro_layer)).0
+                        == layer.layer_id
+                })
+                .map(|finding| &finding.risk_level)
+                .max_by_key(|severity| severity_rank(severity))
+            {
+                if severity_rank(severity) > severity_rank(&layer.highest_severity) {
+                    layer.highest_severity = severity.clone();
+                }
+            }
+        }
+    }
     let maestro_heatmap = compute_maestro_heatmap(&per_finding_maestro);
     let most_exposed_layer = compute_most_exposed_layer(&maestro_layer_distribution);
 
