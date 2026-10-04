@@ -295,3 +295,39 @@ fn compact_attack_tree_metadata_keeps_each_field_separate() {
     assert_eq!(trees[0].component, "Inter-Agent Channel");
     assert_eq!(trees[0].severity, "Critical");
 }
+
+#[test]
+fn control_stubs_do_not_erase_valid_risk_findings_but_empty_assessments_are_retained() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    fixture.write("risk-scores.md", "## 2. Scored Threat Table\n\n| ID | Component | Threat | Composite | Severity |\n|---|---|---|---|---|\n| S-1 | Risk Agent | Impersonation | 7.2 | High |\n");
+    for invalid in [
+        "---\nstatus: error\n---",
+        "Generator failed",
+        "# Compensating Controls\n\n## 2. Coverage Matrix\n\n## 3. Control Details\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | failed |\n",
+    ] {
+        fixture.write("compensating-controls.md", invalid);
+        let output = fixture.render();
+        assert_eq!(
+            binding(&output, "data-source-tier"),
+            "#let data-source-tier = 2",
+            "{invalid}"
+        );
+        assert_eq!(
+            binding(&output, "has-compensating-controls"),
+            "#let has-compensating-controls = false"
+        );
+        assert_eq!(
+            binding(&output, "total-findings"),
+            "#let total-findings = 1"
+        );
+        assert!(binding(&output, "findings").contains("Risk Agent"));
+    }
+    for valid in ["## 2. Coverage Matrix\n\n### High Residual Severity\n\n| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |\n|---|---|---|---|---|---|\n", "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n| Missing | 0 |\n"] {
+        fixture.write("compensating-controls.md", valid);
+        let output = fixture.render();
+        assert_eq!(binding(&output, "data-source-tier"), "#let data-source-tier = 1");
+        assert_eq!(binding(&output, "total-findings"), "#let total-findings = 0");
+    }
+}

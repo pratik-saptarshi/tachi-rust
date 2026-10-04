@@ -155,7 +155,7 @@ fn render_document_data(
     }
     if let Ok(text) = fs::read_to_string(target.join("compensating-controls.md")) {
         let data = crate::parse_compensating_controls_md(&text);
-        if !text.trim().is_empty() {
+        if has_control_assessment(&text, &data) {
             values["has-compensating-controls"] = json!(true);
             values["data-source-tier"] = json!(1);
             values["findings"] = json!(data.findings.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"residual_score":f.residual_score,"residual_severity":f.residual_severity,"control_status":f.control_status,"recommendation":f.recommendation})).collect::<Vec<_>>());
@@ -264,6 +264,64 @@ fn render_document_data(
         .iter()
         .map(|(key, value)| format!("#let {key} = {}\n", typst_value(value)))
         .collect()
+}
+
+fn has_control_assessment(
+    content: &str,
+    data: &crate::compensating_controls::CompensatingControlsData,
+) -> bool {
+    if !data.findings.is_empty() || !data.controls.is_empty() || !data.coverage_matrix.is_empty() {
+        return true;
+    }
+    // A completed assessment may have an empty residual table. Require its
+    // canonical section and actual column contract, not just a nonblank file.
+    let lines: Vec<_> = content.lines().map(str::trim).collect();
+    let has_coverage_section = lines.contains(&"## 2. Coverage Matrix");
+    let has_residual_header = lines.iter().any(|line| {
+        if !line.starts_with('|') {
+            return false;
+        }
+        let cells: Vec<_> = line
+            .split('|')
+            .map(|cell| cell.trim().trim_matches('*'))
+            .collect();
+        [
+            "Threat ID",
+            "Component",
+            "Threat",
+            "Residual Score",
+            "Residual Severity",
+            "Control Status",
+        ]
+        .iter()
+        .all(|column| cells.contains(column))
+    });
+    if has_coverage_section && has_residual_header {
+        return true;
+    }
+    // Explicit numeric coverage metadata, including all-zero rows, is also
+    // assessment evidence. Unrecognized tables and error prose remain absent.
+    ["Coverage Distribution", "## 1. Executive Summary"]
+        .iter()
+        .any(|heading| {
+            crate::parsers::parse_markdown_table(content, heading)
+                .iter()
+                .any(|row| {
+                    row.get("Status").is_some_and(|status| {
+                        matches!(
+                            status.as_str(),
+                            "Found"
+                                | "Partial"
+                                | "Missing"
+                                | "Control Found"
+                                | "Partial Control"
+                                | "No Control"
+                        )
+                    }) && row
+                        .get("Count")
+                        .is_some_and(|count| count.parse::<usize>().is_ok())
+                })
+        })
 }
 
 fn typst_value(value: &serde_json::Value) -> String {
