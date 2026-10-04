@@ -27,12 +27,14 @@
 - PR #39 review remediation is active under GitHub issue #40 and Beads epic
   `RT-bz6`. The follow-up fixes the PostgreSQL 18 volume path, Supabase env
   template, user-table RLS, live Prisma migration evidence, and pending CodeQL
-  ruleset bypass notice. CI migration and hosted PR checks remain to be verified.
+  ruleset bypass notice. PR #41 review also identified and corrected stale
+  Rust toolchain values in the root codemap. The seven-child Beads hierarchy
+  tracks all review action items.
 
-- Live Beads audit on 2026-10-04: 12 open, 0 in progress, 0 blocked, and 197
+- Live Beads audit on 2026-10-04: 13 open, 0 in progress, 0 blocked, and 197
   closed issues; 5 open issues belong to the dependency/runtime closeout
   hierarchy `RT-bbi` and children `.1` through `.4`, and 7 belong to the PR #39
-  remediation hierarchy `RT-bz6` and children `.1` through `.6`.
+  remediation hierarchy `RT-bz6` and children `.1` through `.7`.
 - `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
   issue cards below are retained as completed execution records; future work
   should use new issues rather than reopening completed cards without review.
@@ -44,9 +46,9 @@
   205 issues before the remediation hierarchy was created.
 - PR #39 remediation tracker state: GitHub issue #40 anchors Beads epic
   `RT-bz6`; six children cover PostgreSQL 18 volume migration, Supabase env
-  setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior, and
-  documentation/export synchronization. The refreshed export contains 212
-  issues.
+  setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior,
+  documentation/export synchronization, and root atlas Rust version accuracy.
+  The refreshed export contains 213 issues.
 
 ## Archive Records
 

@@ -5,6 +5,7 @@
 - **Beads epic:** `RT-bz6` (children `RT-bz6.1` through `RT-bz6.6`)
 - **Branch:** `040-pr39-closeout-remediation`
 - **Original PR:** [#39](https://github.com/pratik-saptarshi/tachi-rust/pull/39)
+- **Current PR:** [#41](https://github.com/pratik-saptarshi/tachi-rust/pull/41)
 
 ## Findings and changes
 
@@ -25,6 +26,9 @@
 6. **Branch/issue alignment.** Anchor this remediation to issue #40 and use its
    zero-padded number in the follow-up branch name. Existing `RT-bbi` history
    remains unchanged.
+7. **Root atlas accuracy (PR #41 review).** Update the `Cargo.toml` and
+   `rust-toolchain.toml` rows in `codemap.md` to match the Rust 1.99 MSRV and
+   1.99.0 toolchain pins.
 
 ## Validation plan
 
@@ -60,7 +64,7 @@
 
 ## Tracker and delivery status
 
-The Beads hierarchy is `RT-bz6` with six children. Each child records acceptance
+The Beads hierarchy is `RT-bz6` with seven children. Each child records acceptance
 criteria and a test plan. The checked-in `.beads/issues.jsonl` export now
 contains 212 issues, including the new hierarchy. The live PostgreSQL migration
 has not been run on this host; the Docker daemon is inaccessible. CI is the
