@@ -346,13 +346,49 @@ fn current_sarif_guidance_uses_catalog_category_meanings() {
             "OWASP LLM04:2026 (Training Data Poisoning)",
         ),
         (
-            "OWASP ML05:2023 (Model Theft)",
+            "OWASP LLM06:2026 (Unbounded Consumption)",
             "OWASP LLM06:2026 (Model Theft)",
         ),
     ] {
         check(&guidance, current, stale).unwrap();
         assert!(check(&guidance.replace(current, stale), current, stale).is_err());
     }
+    let markdown = fs::read_to_string(root.join("examples/maestro-reference/threats.md")).unwrap();
+    let findings = tachi_core::parse_threats_findings(&markdown).unwrap();
+    let catalog: Vec<serde_json::Value> = serde_yaml::from_str(
+        &fs::read_to_string(root.join("schemas/taxonomy/owasp.yaml")).unwrap(),
+    )
+    .unwrap();
+    for finding in findings.iter().filter(|f| f.id.starts_with("LLM-")) {
+        for attribution in finding
+            .source_attribution
+            .as_ref()
+            .unwrap()
+            .iter()
+            .filter(|r| r.taxonomy == "owasp")
+        {
+            let category = catalog.iter().find(|r| r["id"] == attribution.id).unwrap();
+            let year = if attribution.id.starts_with("ML") {
+                "2023"
+            } else {
+                "2026"
+            };
+            let citation = format!(
+                "OWASP {}:{year} ({})",
+                attribution.id,
+                category["name"].as_str().unwrap()
+            );
+            assert!(
+                guidance.contains(&citation),
+                "{}/SARIF guidance missing {citation}",
+                finding.id
+            );
+        }
+    }
+    assert!(
+        !guidance.contains("OWASP ML05:2023"),
+        "unused replacement taxonomy contradicts paired findings"
+    );
 }
 
 #[test]
