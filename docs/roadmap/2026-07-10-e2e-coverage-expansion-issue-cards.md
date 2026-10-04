@@ -2,7 +2,7 @@
 
 **Source plan**: [Rust-Native End-to-End Coverage Expansion Roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 **Namespace**: `E2E-COV*`
-**Status**: live Beads hierarchy; current 119-module audit synchronized; product E2E epic remains open only for final parent acceptance verification
+**Status**: Completed historical issue-card set; E2E-COV and all child issues are closed; the 2026-07-13 119-module audit and post-merge evidence are recorded in the closeout plan
 
 ## Epic
 
@@ -19,7 +19,7 @@
 
 The tracker uses the following refinement: `E2E-COV` epic → capability features (`E2E-COV-007` through `E2E-COV-010`) → boundary functions → implementation tasks/issues. Each issue must name its production boundary, test seam, owner, dependency, RED command/failure, GREEN command, regression command, and synchronized documentation surfaces. Closed child cards retain their historical closeout counts in notes; current acceptance and parent closeout use the dated 119-module audit.
 
-The current canonical baseline is the dated output of `cargo run -q -p tachi-cli --bin coverage-audit`: **119 active modules** — 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. The 114/96 closeout snapshot and older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
+The 2026-07-13 canonical baseline recorded by `cargo run -q -p tachi-cli --bin coverage-audit` was **119 active modules** — 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support/regression — with four E2E modules. The 114/96 closeout snapshot and older 109/110/112/113-module references are historical and must not be copied into new acceptance criteria.
 
 | Capability | User-facing function | Current boundary | Required evidence | Feature |
 |---|---|---|---|---|

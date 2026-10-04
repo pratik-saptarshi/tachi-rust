@@ -1,15 +1,15 @@
 # Rust-Native End-to-End Coverage Expansion Roadmap
 
-**Status**: Remediation plan integrated from overseer review; Colima advisory and governed test-evidence slices are closed; the product E2E epic remains open only for final parent acceptance verification
+**Status**: Completed historical roadmap; E2E-COV and all child issues are closed after protected merge and post-merge verification
 **Date**: 2026-07-10
 **Scope**: CLI, desktop-host, MCP-stdio, lifecycle, and cross-boundary failure/cancellation workflows
 **Primary tracker namespace**: `E2E-COV*`
 
 ## Executive decision
 
-The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. The expansion now adds `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, while the init module also composes install, update, and analysis artifact delivery. The critical success journeys exist, the manifest-driven local runner has terminal full-mode evidence, the baseline failure/cancellation matrix and repeated hosted evidence are closed, and the advisory act lane uses the installed Colima CLI/Docker API. Remaining work is parent acceptance reconciliation and final publish/security verification; Colima is the supported local runtime.
+The repository started with one genuine end-to-end module, `crates/tachi-shell/tests/init_substitution.rs`, with five passing tests. This completed expansion added `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, and `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, while the init module also composes install, update, and analysis artifact delivery. Critical journeys, the manifest-driven local runner, the failure/cancellation matrix, repeated hosted evidence, and the advisory Colima act lane are complete. E2E-COV closed after protected merge and post-merge verification; Colima remains advisory and is not a hosted-CI substitute.
 
-This roadmap expands E2E coverage around stable user-facing boundaries while preserving the existing Rust-native unit and integration pyramid. The work is intentionally staged: freeze the boundary contract first, then execute independent CLI, desktop, and MCP slices in parallel, then compose lifecycle and failure/cancellation flows, and finally enforce coverage evidence.
+This roadmap records the expansion of E2E coverage around stable user-facing boundaries while preserving the Rust-native unit and integration pyramid. The completed work froze the boundary contract, added independent CLI, desktop, and MCP slices, composed lifecycle and failure/cancellation flows, and enforced coverage evidence.
 
 ## Remediation plan from overseer review
 
@@ -108,7 +108,7 @@ The current four E2E modules cover initialization, CLI artifacts, desktop comman
 | Evidence | Current state | Consequence |
 |---|---|---|
 | Coverage audit | 119 active modules: 13 unit, 101 integration, 1 smoke, 4 E2E, 0 support | The E2E denominator is explicitly classified and includes CLI, desktop, MCP, and initialization journeys; 114/96 is retained only as the historical closeout snapshot. |
-| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the baseline cross-boundary failure matrix are covered; the 85% nightly branch target and publish-gate closeout are evidenced, while the parent epic remains open until final current-state reconciliation. |
+| Current E2E modules | `crates/tachi-cli/tests/e2e_artifacts.rs`, `crates/tachi-desktop/tests/e2e_command_journey.rs`, `crates/tachi-mcp/tests/e2e_stdio_journey.rs`, and `crates/tachi-shell/tests/init_substitution.rs` | Initialization, CLI artifacts, desktop commands, MCP stdio, init/install/update/analysis lifecycle behavior, and the cross-boundary failure matrix are covered; the 85% nightly branch target and publish-gate closeout are evidenced. E2E-COV is closed after final current-state reconciliation. |
 | Workspace tests | Workspace suites pass; the current audit reports 119 active modules (101 integration, 13 unit, 1 smoke, 4 E2E) | Suite count and coverage-audit module count are different metrics and must remain separate. |
 | LLVM coverage | 93.24% lines, 92.60% regions (current); 90.56% / 90.22% historical | Current stable gate passes its 85% line threshold; governed nightly branch evidence is 85.15625% (1,408 covered / 210 missed). |
 | Branch coverage capability | Pinned stable 1.96.1 rejects `-Z coverage-options=branch`; explicitly pinned nightly 1.99.0 now produces 85.15625% (1,408 branches, 210 missed) when `RUSTC`, `RUSTDOC`, `LLVM_COV`, and `LLVM_PROFDATA` resolve through rustup | E2E-COV-007 meets the requested 85% branch target; retain the separately governed nightly lane and do not silently lower the threshold. |
@@ -134,14 +134,14 @@ The current four E2E modules cover initialization, CLI artifacts, desktop comman
 
 ## Target journey matrix
 
-| Journey | Primary boundary | Success oracle | Failure/cancellation oracle | Planned issue |
+| Journey | Primary boundary | Success oracle | Failure/cancellation oracle | Completed issue record |
 |---|---|---|---|---|
-| Init and personalization | `scripts/init.sh` via shell test harness | Personalized files and modes match baseline | Unmanifested/tracked files remain unchanged; no residual placeholders | Existing `init_substitution`; extend under `E2E-COV-005` |
-| CLI analysis and artifacts | `crates/tachi-cli/src/bin/*` and shell facade | Report-data, threats-SARIF, and risk-SARIF outputs are valid and semantically consistent | Invalid args fail closed; no partial output; source URI and status remain stable | `E2E-COV-002` |
-| Desktop host command flow | `crates/tachi-desktop` → `tachi-shell` | Command status/stdout/stderr and saved bytes match shared dispatch | Typed errors, path escape rejection, timeout/cancel, and child cleanup | `E2E-COV-003` |
-| MCP stdio | `crates/tachi-mcp` stdio transport | Explicit startup and allowlisted request produce validated result | Cancelled/malformed/disallowed requests fail without artifact leakage | `E2E-COV-004` |
+| Init and personalization | `scripts/init.sh` via shell test harness | Personalized files and modes match baseline | Unmanifested/tracked files remain unchanged; no residual placeholders | `E2E-COV-005` (completed; lifecycle contracts are closed) |
+| CLI analysis and artifacts | `crates/tachi-cli/src/bin/*` and shell facade | Report-data, threats-SARIF, and risk-SARIF outputs are valid and semantically consistent | Invalid args fail closed; no partial output; source URI and status remain stable | `E2E-COV-002` (completed; Beads closed) |
+| Desktop host command flow | `crates/tachi-desktop` → `tachi-shell` | Command status/stdout/stderr and saved bytes match shared dispatch | Typed errors, path escape rejection, timeout/cancel, and child cleanup | `E2E-COV-003` (completed; Beads closed) |
+| MCP stdio | `crates/tachi-mcp` stdio transport | Explicit startup and allowlisted request produce validated result | Cancelled/malformed/disallowed requests fail without artifact leakage | `E2E-COV-004` (completed; Beads closed) |
 | Full adopter lifecycle | init → install/update → analysis | A clean temporary clone reaches a usable analysis artifact | Missing input, failed subprocess, and interrupted lifecycle leave no unsafe residue | `E2E-COV-005` (implemented in init-substitution E2E) |
-| Cross-boundary failure/cancel | shell, desktop, CLI, MCP seams | Status/error behavior is explicit across callers | Timeout/cancel is observable and no child process or partial artifact survives | `E2E-COV-006` (partial evidence; matrix completion remains open) |
+| Cross-boundary failure/cancel | shell, desktop, CLI, MCP seams | Status/error behavior is explicit across callers | Timeout/cancel is observable and no child process or partial artifact survives | `E2E-COV-006` (completed; Beads closed) |
 
 ### Failure/cancellation evidence matrix
 
@@ -149,11 +149,11 @@ The current four E2E modules cover initialization, CLI artifacts, desktop comman
 
 | Boundary | Failure modes | Required oracle | Status |
 |---|---|---|---|
-| CLI | invalid args/input, output write failure, cancellation | nonzero exit taxonomy, no partial artifact, bounded/redacted stderr, temp-root cleanup | partial; add named tests |
-| Desktop | typed command error, path escape, timeout, cancel during child I/O | typed status, descendant liveness poll, artifact-tree snapshot, cleanup | partial; strengthen existing cancel test |
-| MCP stdio | blank/malformed/unknown/disallowed request, cancellation | request ID continuity, fail-closed response, no artifact leakage, child cleanup | partial; add process-level cases |
-| Lifecycle | missing manifest, install/update failure, interrupted analysis | clone remains bounded, no residual placeholders/secrets, final artifact absent or valid | success path present; failure matrix open |
-| Local runner | missing toolchain, timeout, SIGINT/SIGTERM, stale manifest, child leak | JSON result, deterministic aggregate exit, process tree gone, secure logs | planned in `E2E-COV-008` |
+| CLI | invalid args/input, output write failure, cancellation | nonzero exit taxonomy, no partial artifact, bounded/redacted stderr, temp-root cleanup | covered by the completed CLI artifact and failure contracts |
+| Desktop | typed command error, path escape, timeout, cancel during child I/O | typed status, descendant liveness poll, artifact-tree snapshot, cleanup | covered by the completed desktop host and failure contracts |
+| MCP stdio | blank/malformed/unknown/disallowed request, cancellation | request ID continuity, fail-closed response, no artifact leakage, child cleanup | covered by the completed MCP stdio and session-policy contracts |
+| Lifecycle | missing manifest, install/update failure, interrupted analysis | clone remains bounded, no residual placeholders/secrets, final artifact absent or valid | success and failure/cancellation evidence recorded in the closed E2E-COV hierarchy |
+| Local runner | missing toolchain, timeout, SIGINT/SIGTERM, stale manifest, child leak | JSON result, deterministic aggregate exit, process tree gone, secure logs | implemented and verified under closed `E2E-COV-008` |
 | act/Colima | unavailable/stopped runtime, unsafe mount/secret, unsupported context, timeout | `SKIPPED_UNAVAILABLE` vs failure, policy rejection, no host access, provenance | closed in `E2E-COV-009`; advisory only |
 
 ## Phased execution plan
@@ -176,10 +176,10 @@ Each slice follows red test → minimal production wiring only if required → g
 
 ### Phase 2 — Composition and resilience
 
-- `E2E-COV-005` composes init/install/update with one real analysis/artifact path in an isolated clone.
-- `E2E-COV-006` adds cross-boundary failure, timeout, cancellation, partial-write, and child-process cleanup scenarios, reusing the typed error/status contracts established in Phase 1. The current matrix is covered across CLI, desktop, and MCP E2E suites; E2E-COV-007 remains for coverage evidence and publish enforcement.
+- `E2E-COV-005` composes init/install/update with one real analysis/artifact path in an isolated clone; this slice is complete.
+- `E2E-COV-006` added cross-boundary failure, timeout, cancellation, partial-write, and child-process cleanup scenarios, reusing the typed error/status contracts established in Phase 1. The matrix is covered across CLI, desktop, and MCP E2E suites; E2E-COV-007 coverage and publish enforcement are also complete.
 
-Phase 2 must not hide failures behind retries. Each scenario has one deterministic setup, one invocation, and explicit cleanup assertions. `E2E-COV-005` now proves the local init → install → update → SARIF path in an isolated sparse clone; `E2E-COV-006` remains the follow-up matrix for broader cross-boundary failure and cancellation consistency.
+Phase 2 did not hide failures behind retries. Each scenario uses deterministic setup, one invocation, and explicit cleanup assertions. `E2E-COV-005` proves the local init → install → update → SARIF path in an isolated sparse clone; `E2E-COV-006` records the completed cross-boundary failure and cancellation matrix.
 
 ### Phase 3 — Coverage governance and publish gate (`E2E-COV-007`)
 

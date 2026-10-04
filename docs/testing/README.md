@@ -2,7 +2,7 @@
 
 **Last Updated**: {{CURRENT_DATE}}
 **Owner**: Architect + Team Lead
-**Status**: Repository-specific guidance; E2E-COV-008 through E2E-COV-010 define the active runner and test-governance plan.
+**Status**: Repository-specific guidance; E2E-COV-008 through E2E-COV-010 record the completed runner and test-governance work.
 
 ---
 
