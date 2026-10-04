@@ -154,7 +154,7 @@ AI findings produced by the dispatched agents are grouped into 2 output tables:
 | Output Table | Agents | Reference Standards |
 |--------------|--------|---------------------|
 | AG (Agentic Threats) | agent-autonomy, tool-abuse, human-trust-exploitation | OWASP Agentic Top 10, MCP Top 10, OWASP ASI09:2026 |
-| LLM (LLM Threats) | prompt-injection, data-poisoning, model-theft, output-integrity, misinformation | OWASP LLM Top 10 v2025 |
+| LLM (LLM Threats) | prompt-injection, data-poisoning, model-theft, output-integrity, misinformation | OWASP LLM Top 10 v2026 |
 
 ---
 

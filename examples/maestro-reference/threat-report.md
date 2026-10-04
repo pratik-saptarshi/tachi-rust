@@ -50,7 +50,7 @@ The Healthcare Clinical Decision Support System (CDSS) — a multi-agent AI plat
 4. Enforce human-in-the-loop confirmation gates for high-consequence Supervisor Orchestrator delegation decisions and require RBAC compliance checks before every delegation command.
 5. Apply row-level integrity checksums and encryption at rest to all FHIR resources, with write access gated exclusively through the Consent and De-identification Guardrail.
 
-**Compliance relevance**: Findings across Tampering, Information Disclosure, and Repudiation categories carry direct HIPAA implications for PHI protection and audit trail integrity. SOC2 Trust Services Criteria CC6.1 (logical access controls) is implicated by the RBAC bypass findings (E-4, E-7, E-11). ISO 27001 A.9 (access control) and A.12 (operations security) apply to the agent access control gaps. OWASP LLM01:2026 and LLM04:2026 map directly to LLM-1 and LLM-2.
+**Compliance relevance**: Findings across Tampering, Information Disclosure, and Repudiation categories carry direct HIPAA implications for PHI protection and audit trail integrity. SOC2 Trust Services Criteria CC6.1 (logical access controls) is implicated by the RBAC bypass findings (E-4, E-7, E-11). ISO 27001 A.9 (access control) and A.12 (operations security) apply to the agent access control gaps. OWASP LLM01:2026 and LLM05:2026 map directly to LLM-1 and LLM-2.
 
 **Remediation timeline:**
 - **Immediate** (17 Critical findings): Address before next deployment. Priority: T-11, T-16, AG-1, LLM-1, and all inter-agent channel security gaps.

@@ -54,7 +54,7 @@ For predictive-ML deployments, also covers training-pipeline integrity threats a
 2. For each component, match against the loaded pattern catalog (training data manipulation, RAG index poisoning, knowledge base corruption, fine-tuning supply chain, context window contamination, RAG/vector store poisoning, backdoor triggers).
 3. For each match, construct a finding using the canonical schema defined in `finding-format-shared.md`, assigning `category: llm`, a sequential `LLM-N` id, and the target component name.
 4. Assign `likelihood` and `impact` using OWASP factors (attacker skill, opportunity, detection difficulty; loss of integrity, availability, accountability), then compute `risk_level` via the matrix in `severity-bands-shared.md`.
-5. Provide actionable, technology-specific `mitigation` guidance and cite supporting `references` (OWASP LLM03/LLM04/LLM08, ATLAS AML.T0018/T0020/T0010, CWE-345, CWE-1395, OWASP ML06:2023/ML07:2023/ML08:2023, ATLAS AML.T0019/T0031) from the pattern catalog's Primary Sources list. Populate `source_attribution` with one `relationship: primary` taxonomy entry (typically OWASP LLM04:2026 / LLM05:2026 / LLM09:2026 for LLM/RAG poisoning surfaces, or OWASP ML06:2023 / ML07:2023 / ML08:2023 for predictive-ML training-pipeline surfaces per F-6 ADR-035 corpus-side lineage) plus ≥1 `relationship: related` CWE entry, mirroring the F-1/F-2/F-4 net-new agent precedent per ADR-037 D-3.
+5. Provide actionable, technology-specific `mitigation` guidance and cite supporting `references` (OWASP LLM04/LLM05/LLM09, ATLAS AML.T0018/T0020/T0010, CWE-345, CWE-1395, OWASP ML06:2023/ML07:2023/ML08:2023, ATLAS AML.T0019/T0031) from the pattern catalog's Primary Sources list. Populate `source_attribution` with one `relationship: primary` taxonomy entry (typically OWASP LLM04:2026 / LLM05:2026 / LLM09:2026 for LLM/RAG poisoning surfaces, or OWASP ML06:2023 / ML07:2023 / ML08:2023 for predictive-ML training-pipeline surfaces per F-6 ADR-035 corpus-side lineage) plus ≥1 `relationship: related` CWE entry, mirroring the F-1/F-2/F-4 net-new agent precedent per ADR-037 D-3.
 6. Emit the finding list to the orchestrator for Phase 3 aggregation. If no components match any trigger keyword, return zero findings; do not speculate.
 
 ## Example Findings
@@ -76,7 +76,7 @@ references:
   - "CWE-1395"
 source_attribution:
   - taxonomy: owasp
-    id: LLM04:2026
+    id: LLM04
     relationship: primary
   - taxonomy: cwe
     id: CWE-345
@@ -104,7 +104,7 @@ references:
   - "CWE-345"
 source_attribution:
   - taxonomy: owasp
-    id: LLM04:2026
+    id: LLM04
     relationship: primary
   - taxonomy: cwe
     id: CWE-494

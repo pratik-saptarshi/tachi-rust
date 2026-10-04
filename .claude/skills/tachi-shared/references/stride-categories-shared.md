@@ -55,7 +55,7 @@ AI findings are grouped into 2 output tables:
 | Output Table | ID Prefix | Agents | Reference Standards |
 |--------------|-----------|--------|---------------------|
 | Agentic Threats (AG) | AG | agent-autonomy, tool-abuse | OWASP Agentic Top 10, MCP Top 10 |
-| LLM Threats (LLM) | LLM | prompt-injection, data-poisoning, model-theft | OWASP LLM Top 10 v2025 |
+| LLM Threats (LLM) | LLM | prompt-injection, data-poisoning, model-theft | OWASP LLM Top 10 v2026 |
 
 ---
 
