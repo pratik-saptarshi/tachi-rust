@@ -67,3 +67,41 @@ fn vector_filter_identity_attribution_assets_and_paths_survive() {
         .all(|r| r["partialFingerprints"]["findingId/v1"] != "OI-1"));
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn canonical_sample_sarif_preserves_every_explicit_citation() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let input = root.join("examples/agentic-app/sample-report/threats.md");
+    let regenerated: Value =
+        serde_json::from_str(&threats_sarif_output(&input).unwrap().sarif).unwrap();
+    let committed: Value =
+        serde_json::from_str(&fs::read_to_string(input.with_extension("sarif")).unwrap()).unwrap();
+    let expected = committed["runs"][0]["results"].as_array().unwrap();
+    let actual = regenerated["runs"][0]["results"].as_array().unwrap();
+    assert_eq!(actual.len(), expected.len());
+    for finding in actual {
+        let id = &finding["partialFingerprints"]["findingId/v1"];
+        let saved = expected
+            .iter()
+            .find(|r| &r["partialFingerprints"]["findingId/v1"] == id)
+            .unwrap_or_else(|| panic!("missing {id}"));
+        assert_eq!(
+            finding["properties"]["source-attribution"], saved["properties"]["source-attribution"],
+            "{id}: committed citations differ from Rust output"
+        );
+    }
+    for (id, reference) in [("LLM-4", "LLM05"), ("OI-1", "LLM10"), ("MI-1", "LLM07")] {
+        let finding = actual
+            .iter()
+            .find(|r| r["partialFingerprints"]["findingId/v1"] == id)
+            .unwrap();
+        assert!(
+            finding["properties"]["source-attribution"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|r| r["id"] == reference),
+            "{id}: lost {reference}"
+        );
+    }
+}

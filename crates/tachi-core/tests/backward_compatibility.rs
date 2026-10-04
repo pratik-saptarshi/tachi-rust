@@ -6,14 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tachi_core::build_report_data_typst;
 
 const SOURCE_DATE_EPOCH: &str = "1700000000";
-const BASELINE_EXAMPLES: &[&str] = &[
-    "web-app",
-    "microservices",
-    "ascii-web-api",
-    "mermaid-agentic-app",
-    "free-text-microservice",
-    "maestro-reference",
-];
+const BASELINE_EXAMPLES: &[&str] = &tachi_core::catalog_drift::BASELINES;
 
 struct ReportDataBackup {
     path: PathBuf,

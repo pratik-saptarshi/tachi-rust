@@ -207,6 +207,38 @@ fn render_document_data(
         "severity":action.severity, "finding-id":action.finding_id, "finding-name":action.finding_name,
         "recommendation":action.recommendation, "sla":action.sla, "status":action.status,
     })).collect::<Vec<_>>());
+    let report_text = fs::read_to_string(target.join("threat-report.md")).ok();
+    let image_path = |directory: &str, id: &str, suffix: &str| {
+        [id.to_string(), id.to_ascii_lowercase()]
+            .iter()
+            .flat_map(|id| {
+                ["png", "jpg", "svg"]
+                    .map(|ext| target.join(directory).join(format!("{id}-{suffix}.{ext}")))
+            })
+            .find(|path| path.is_file())
+            .map(|path| {
+                crate::assets::relative_path(template_dir, &path)
+                    .to_string_lossy()
+                    .into_owned()
+            })
+    };
+    let trees = crate::attack_trees::parse_attack_trees(target, findings, report_text.as_deref());
+    values["has-attack-trees"] = json!(!trees.is_empty());
+    values["attack-trees"] = json!(trees.iter().map(|tree| {
+        let image = image_path("attack-trees", &tree.id, "attack-tree");
+        json!({"id":tree.id, "title":tree.title, "component":tree.component, "severity":tree.severity,
+            "has-image":image.is_some(), "image-path":image.unwrap_or_default(),
+            "narrative":tree.narrative, "remediation":tree.mitigation, "mermaid-code":tree.mermaid_code})
+    }).collect::<Vec<_>>());
+    let chain_text = fs::read_to_string(target.join("attack-chains.md")).ok();
+    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref());
+    values["has-attack-chains"] = json!(!chains.is_empty());
+    values["attack-chains"] = json!(chains.iter().map(|chain| {
+        let image = image_path("attack-chains", &chain.chain_id, "attack-chain");
+        json!({"id":chain.chain_id, "title":chain.title, "layers":chain.layers.join(" → "), "max-severity":chain.max_severity,
+            "has-image":image.is_some(), "image-path":image.unwrap_or_default(), "narrative":chain.narrative,
+            "finding-ids":chain.findings.iter().map(|f| &f.finding_id).collect::<Vec<_>>()})
+    }).collect::<Vec<_>>());
     let severity_key = if tier == 1 {
         "residual_severity"
     } else if tier == 2 {

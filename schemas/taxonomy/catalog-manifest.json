@@ -6342,7 +6342,7 @@
     },
     {
       "path": "examples/mermaid-agentic-app/security-report.pdf.baseline",
-      "sha256": "9aa7d5d876cab6417ac659554ac64e64acf0cedf0670553d7931a3c1ab3eebe5"
+      "sha256": "ab46ab62856cb18ec34a9f8945762fa2040da5aa4d204965c32b7efc08eee2cd"
     },
     {
       "path": "examples/free-text-microservice/security-report.pdf.baseline",
@@ -6350,7 +6350,11 @@
     },
     {
       "path": "examples/maestro-reference/security-report.pdf.baseline",
-      "sha256": "13d0c2ce48e44c9879ce3d1a64f350afd828f74c66ddf1f87ed73a7c87a068fe"
+      "sha256": "d6dcbb174ac9974e1db6445b1ab02abf1ca5cafde8e729ec2d44db85d396e42e"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/security-report.pdf.baseline",
+      "sha256": "5cf5c3d2305d5465b4af710d3e5101fcfb340418785540186b94cf326faf40d5"
     }
   ]
 }

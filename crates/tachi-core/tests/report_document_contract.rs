@@ -32,10 +32,10 @@ impl Drop for Fixture {
 }
 
 fn binding<'a>(output: &'a str, name: &str) -> &'a str {
-    output
-        .lines()
-        .find(|line| line.starts_with(&format!("#let {name} = ")))
-        .unwrap_or_else(|| panic!("missing {name}"))
+    let start = output
+        .find(&format!("#let {name} = "))
+        .unwrap_or_else(|| panic!("missing {name}"));
+    output[start..].split("\n#let ").next().unwrap().trim_end()
 }
 
 const THREATS: &str = "# Threat Model: Review\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation |\n|---|---|---|---|---|\n| S-1 | Raw Agent | Impersonation | High | Require signed requests |\n";
@@ -150,4 +150,51 @@ fn maestro_reference_report_contains_its_actual_recommendations() {
         );
     }
     assert_ne!(actions, "#let remediation-actions = ()");
+}
+
+#[test]
+fn canonical_agentic_sample_preserves_nested_citations_and_attack_sections() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let target = root.join("examples/agentic-app/sample-report");
+    let text = fs::read_to_string(target.join("threats.md")).unwrap();
+    let findings = tachi_core::parsers::parse_threats_findings(&text).unwrap();
+    for (id, taxonomy, category) in [
+        ("LLM-4", "owasp", "LLM05"),
+        ("LLM-14", "owasp", "LLM05"),
+        ("OI-1", "owasp", "LLM10"),
+        ("OI-1", "cwe", "CWE-79"),
+    ] {
+        let finding = findings.iter().find(|f| f.id == id).unwrap();
+        assert!(
+            finding
+                .source_attribution
+                .as_ref()
+                .unwrap_or_else(|| panic!("{id}: missing attribution"))
+                .iter()
+                .any(|r| r.taxonomy == taxonomy && r.id == category),
+            "{id}: lost {category}"
+        );
+    }
+    let output = build_report_data_typst(&target, &root.join("templates/tachi/security-report"));
+    assert_eq!(
+        binding(&output, "has-attack-trees"),
+        "#let has-attack-trees = true"
+    );
+    assert_eq!(
+        binding(&output, "has-attack-chains"),
+        "#let has-attack-chains = true"
+    );
+    assert!(binding(&output, "attack-trees").contains("LLM05:2026"));
+    assert!(binding(&output, "attack-chains").contains("CHAIN-005"));
+}
+
+#[test]
+fn malformed_nested_attribution_fails_instead_of_silently_losing_citations() {
+    for block in [
+        "OI-1: [",
+        "OI-1:\n  source_attribution:\n    - {taxonomy: bogus, id: LLM10, relationship: primary}",
+    ] {
+        let text = format!("{THREATS}\n**Source Attribution**:\n```yaml\n{block}\n```\n");
+        assert!(tachi_core::parsers::parse_threats_findings(&text).is_err());
+    }
 }
