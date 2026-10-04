@@ -359,6 +359,59 @@ fn canonical_machine_readable_exports_preserve_identities_and_current_citations(
         let text = fs::read_to_string(root.join(filename)).unwrap();
         let sarif: serde_json::Value = serde_json::from_str(&text).unwrap();
         let results = sarif["runs"][0]["results"].as_array().unwrap();
+        let rules = sarif["runs"][0]["tool"]["driver"]["rules"]
+            .as_array()
+            .unwrap();
+        assert_eq!(rules.len(), 8, "{filename}: lost rule descriptors");
+        for result in results {
+            assert!(
+                rules.iter().any(|r| r["id"] == result["ruleId"]
+                    && r["shortDescription"]["text"]
+                        .as_str()
+                        .is_some_and(|s| !s.is_empty())),
+                "{filename}: missing descriptor for {}",
+                result["ruleId"]
+            );
+            if let Some(run_id) = result["partialFingerprints"]["baselineRunId"].as_str() {
+                assert!(
+                    !run_id.ends_with(".md"),
+                    "{filename}: source path substituted for run identity"
+                );
+            }
+        }
+        if filename == "threats.sarif" {
+            let s1 = results
+                .iter()
+                .find(|r| r["partialFingerprints"]["findingId/v1"] == "S-1")
+                .unwrap();
+            assert_eq!(s1["properties"]["maestro-layer"], "L7 — Agent Ecosystem");
+            assert_eq!(s1["properties"]["likelihood"], "HIGH");
+            assert_eq!(s1["properties"]["impact"], "HIGH");
+            assert_eq!(s1["properties"]["maestro-pattern"], "trust_exploitation");
+            assert_eq!(
+                s1["partialFingerprints"]["baselineRunId"],
+                "2026-04-19T03-20-30"
+            );
+            let markdown = fs::read_to_string(root.join("threats.md")).unwrap();
+            let details =
+                tachi_core::parsers::parse_markdown_table(&markdown, "### 3.1 Spoofing (S)");
+            let row = details
+                .iter()
+                .find(|r| r.get("ID").map(String::as_str) == Some("S-1"))
+                .unwrap();
+            assert_eq!(s1["message"]["text"], row["Threat"]);
+            assert_eq!(s1["message"]["markdown"], row["Mitigation"]);
+            for result in results
+                .iter()
+                .filter(|r| r["partialFingerprints"]["findingId/v1"] != "AGP-01")
+            {
+                assert_ne!(
+                    result["properties"]["likelihood"], "—",
+                    "detailed likelihood lost"
+                );
+                assert_ne!(result["properties"]["impact"], "—", "detailed impact lost");
+            }
+        }
         let actual: std::collections::BTreeSet<_> = results
             .iter()
             .map(|r| r["partialFingerprints"]["findingId/v1"].as_str().unwrap())

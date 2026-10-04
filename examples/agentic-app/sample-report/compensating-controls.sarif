@@ -166,7 +166,7 @@
                 "text": "Large language model specific threats"
               },
               "fullDescription": {
-                "text": "Threats specific to LLM systems including prompt injection, training data poisoning, model theft, improper output handling, and misinformation emission."
+                "text": "LLM integration threats classified by the current catalog: OWASP LLM01:2026 (Prompt Injection), OWASP LLM02:2026 (Sensitive Information Disclosure), OWASP LLM03:2026 (Excessive Agency), OWASP LLM04:2026 (Supply Chain), OWASP LLM05:2026 (Data and Model Poisoning), OWASP LLM06:2026 (Unbounded Consumption), OWASP LLM07:2026 (Misinformation), OWASP LLM08:2026 (Hidden Context Exposure), OWASP LLM09:2026 (Vector and Embedding Weaknesses), OWASP LLM10:2026 (Improper Output Handling)."
               },
               "properties": {
                 "tags": [
@@ -176,6 +176,9 @@
                   "owasp-llm"
                 ],
                 "security-severity": "6.6"
+              },
+              "help": {
+                "markdown": "Review prompt boundaries, training data provenance, model access controls and output validation.\n\n**References**: OWASP LLM01:2026 (Prompt Injection), OWASP LLM02:2026 (Sensitive Information Disclosure), OWASP LLM03:2026 (Excessive Agency), OWASP LLM04:2026 (Supply Chain), OWASP LLM05:2026 (Data and Model Poisoning), OWASP LLM06:2026 (Unbounded Consumption), OWASP LLM07:2026 (Misinformation), OWASP LLM08:2026 (Hidden Context Exposure), OWASP LLM09:2026 (Vector and Embedding Weaknesses), OWASP LLM10:2026 (Improper Output Handling); CWE-74 (Improper Neutralization of Special Elements)."
               }
             }
           ]

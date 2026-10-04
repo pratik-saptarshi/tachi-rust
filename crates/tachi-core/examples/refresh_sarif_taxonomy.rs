@@ -22,11 +22,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), Box<dyn Error>> {
+    if source["runs"].as_array().is_none_or(|runs| runs.len() != 1) {
+        return Err("expected one source SARIF run".into());
+    }
     let taxa: Vec<_> = catalog
         .iter()
         .filter(|r| r["id"].as_str().is_some_and(|id| id.starts_with("LLM")))
         .map(|r| json!({"id":r["id"], "name":r["name"]}))
         .collect();
+    if taxa.is_empty() || taxa.iter().any(|row| !row["name"].is_string()) {
+        return Err("OWASP catalog must contain named LLM categories".into());
+    }
     let references: BTreeMap<_, _> = source["runs"][0]["results"]
         .as_array()
         .ok_or("missing source results")?
@@ -40,7 +46,33 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
             )
         })
         .collect();
-    let run = &mut target["runs"][0];
+    let runs = target
+        .get_mut("runs")
+        .and_then(Value::as_array_mut)
+        .ok_or("missing companion runs array")?;
+    if runs.len() != 1 {
+        return Err("expected one companion SARIF run".into());
+    }
+    let run = &mut runs[0];
+    let guidance = taxa
+        .iter()
+        .map(|r| {
+            format!(
+                "OWASP {}:2026 ({})",
+                r["id"].as_str().unwrap(),
+                r["name"].as_str().unwrap()
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+    if let Some(rules) = run["tool"]["driver"]["rules"].as_array_mut() {
+        for rule in rules.iter_mut().filter(|r| r["id"] == "tachi/ai/llm") {
+            rule["fullDescription"]["text"] = json!(format!(
+                "LLM integration threats classified by the current catalog: {guidance}."
+            ));
+            rule["help"]["markdown"] = json!(format!("Review prompt boundaries, training data provenance, model access controls and output validation.\n\n**References**: {guidance}; CWE-74 (Improper Neutralization of Special Elements)."));
+        }
+    }
     for taxonomy in run["taxonomies"]
         .as_array_mut()
         .ok_or("missing companion taxonomies")?
@@ -70,6 +102,25 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
             .ok_or_else(|| format!("{id}: absent from native threat export"))?;
         if records.is_array() {
             result["properties"]["source-attribution"] = (*records).clone();
+            if let Some(primary) = records
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|r| r["taxonomy"] == "owasp" && r["relationship"] == "primary")
+            {
+                let category = primary["id"].as_str().ok_or("invalid primary category")?;
+                if !result["properties"]["owasp_id"].is_null() {
+                    result["properties"]["owasp_id"] = json!(category
+                        .strip_prefix("LLM")
+                        .map(|suffix| format!("LLM-{suffix}"))
+                        .unwrap_or_else(|| category.into()));
+                }
+                if !result["properties"]["owasp-reference"].is_null() && category.starts_with("LLM")
+                {
+                    result["properties"]["owasp-reference"] =
+                        json!(format!("OWASP {category}:2026"));
+                }
+            }
         }
     }
     Ok(())
@@ -108,5 +159,7 @@ mod tests {
             .unwrap_err()
             .to_string()
             .contains("UNKNOWN-1"));
+        assert!(refresh(&source, &mut json!({}), &catalog).is_err());
+        assert!(refresh(&source, &mut target, &[]).is_err());
     }
 }
