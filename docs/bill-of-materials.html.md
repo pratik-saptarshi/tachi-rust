@@ -46,17 +46,17 @@ with the shipped release workflow before publication.
 | `CHANGELOG.md` | Release history | Publishable | Redaction-safe release notes only. |
 | `docs/bill-of-materials.html.md` | Publish inventory | Publishable | Canonical inventory of publication surfaces and validation gates. |
 | `docs/publish-readiness-checklist.html.md` | Publish readiness checklist | Publishable | Required pre-push gate for security, privacy, docs, CI, release hygiene, and public-doc alignment. Must describe `crates/tachi-desktop` as the active desktop host and include branch-protection/remote-evidence requirements before merge closure. |
-| `docs/tachi-rust-ci-route-policy.md` | RT-CI route policy manifest | Publishable with review | Human-readable escalation rules for the live RT-CI routing track before observe-only proof and fixture enforcement. |
-| `docs/tachi-rust-ci-route-fixtures.md` | RT-CI route fixture manifest | Publishable with review | Common change-set matrix and stable JSON examples for route decisions. |
-| `docs/tachi-rust-ci-route-artifact.md` | RT-CI route artifact manifest | Publishable with review | Observable `route.json` schema and stable orchestrator check notes for the route-observe lane. |
-| `docs/tachi-rust-ci-baseline.md` | RT-CI baseline snapshot | Publishable with review | Phase-0 inventory and local validation snapshot for the pre-routing CI contract. |
+| `docs/tachi-rust-ci-route-policy.md` | RT-CI route policy record | Publishable with review | Human-readable escalation rules for the completed RT-CI routing track. |
+| `docs/tachi-rust-ci-route-fixtures.md` | RT-CI route fixture record | Publishable with review | Common change-set matrix and stable JSON examples for route decisions. |
+| `docs/tachi-rust-ci-route-artifact.md` | RT-CI route artifact record | Publishable with review | Observable `route.json` schema and orchestrator check notes for the completed route-observe lane. |
+| `docs/tachi-rust-ci-baseline.md` | RT-CI baseline snapshot | Publishable with review | Phase-0 inventory and local validation snapshot for the completed pre-routing CI contract. |
 | `docs/tachi-rust-ci-closeout.md` | RT-CI closeout notes | Complete with hosted caveats | Separates locally proven RT-CI changes from GitHub-side verification evidence; all seven RT-CI children and the umbrella are Beads-closed. |
-| `docs/ci-improvement-plan.html` | RT-CI source plan draft | Publishable with review | Original plan-review integrator output that feeds the live RT-CI execution docs and tracker cards. |
-| `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation notes for the live RT-CI CI hardening track. |
-| `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Source text for the live RT-CI hierarchy and acceptance criteria. |
-| `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Validation notes from the plan-review and overseer pass. |
-| `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md` | E2E coverage expansion roadmap | Publishable with review | Defines the CLI, desktop, MCP, lifecycle, resilience, and branch-coverage workstream. |
-| `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md` | E2E coverage issue cards | Publishable with review | Source text for the `E2E-COV*` Beads hierarchy and dependency order. |
+| `docs/ci-improvement-plan.html` | RT-CI source plan draft | Publishable with review | Original plan-review integrator output retained as historical input to the completed RT-CI execution. |
+| `docs/tachi-rust-ci-execution-plan.md` | RT-CI execution plan | Publishable with review | Phase sequencing and validation record for the completed RT-CI CI hardening track. |
+| `docs/tachi-rust-ci-beads-issue-cards.md` | RT-CI issue cards | Publishable with review | Historical acceptance criteria for the closed RT-CI hierarchy. |
+| `docs/tachi-rust-ci-review-panel.md` | RT-CI review panel | Publishable with review | Historical validation notes from the plan-review and overseer pass. |
+| `docs/roadmap/2026-07-10-e2e-coverage-expansion-roadmap.html.md` | E2E coverage expansion roadmap | Publishable with review | Completed historical plan for the CLI, desktop, MCP, lifecycle, resilience, and branch-coverage workstream. |
+| `docs/roadmap/2026-07-10-e2e-coverage-expansion-issue-cards.md` | E2E coverage issue cards | Publishable with review | Historical acceptance criteria for the closed `E2E-COV*` Beads hierarchy. |
 | `docs/standards/PUBLISHING_SECURITY.md` | Security and privacy gate | Publishable | Source of truth for public-push safety rules, disclosure boundaries, and release-note hygiene. |
 | `docs/standards/PRECOMMIT_HOOKS.md` | Secret-scanning hook guide | Publishable with review | Must not imply weaker scanning than the current gate. |
 | `scripts/rt-ci-latency-evidence.sh` | RT-CI latency evidence helper | Publishable with review | Collects queue vs run medians from GitHub Actions lanes; required for route evidence closeout. |
@@ -65,8 +65,8 @@ with the shipped release workflow before publication.
 
 | Path | Role | Publish status | Notes |
 |---|---|---|---|
-| `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; declares workspace Rust `1.96` MSRV. |
-| `rust-toolchain.toml` | Pinned Rust toolchain policy | Publishable | Required Rust workflows install Rust `1.96.1` with `clippy`, `rustfmt`, and `llvm-tools-preview` from the checked-in policy. |
+| `Cargo.toml` | Rust workspace manifest | Publishable | Canonical workspace root for `tachi-core`, `tachi-cli`, `tachi-mcp`, `tachi-shell`, and `crates/tachi-desktop`; declares workspace Rust `1.99` MSRV. |
+| `rust-toolchain.toml` | Pinned Rust toolchain policy | Publishable | Required Rust workflows install Rust `1.99.0` with `clippy`, `rustfmt`, and `llvm-tools-preview` from the checked-in policy. |
 | `deny.toml` | Cargo dependency policy | Publishable | Cargo-deny policy for advisories, bans, license allowlist, source allowlist, and exception metadata discipline. |
 | `README.md` | Public repository landing page | Publishable | Must stay aligned with the actual build, auditor workflow, and usage path. |
 | `LICENSE` | License text | Publishable | Required public artifact. |
@@ -126,7 +126,7 @@ with the shipped release workflow before publication.
 
 | Path | Purpose | Publish note |
 |---|---|---|
-| `docs/roadmap/implementation-backlog.md` | Backlog navigation hub | Canonical link target for active implementation sequencing and live RT-CI / security / toolchain reconciliation. |
+| `docs/roadmap/implementation-backlog.md` | Backlog navigation hub | Canonical link target for implementation records and the current live Beads status snapshot. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md` | Active AISVS/security roadmap | Canonical sequencing for the live Dependabot alert, AISVS C01-C12 rollout, and TDD-backed validation gates. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md` | Active AISVS/security issue cards | Beads-ready execution templates for the RT-00i epic and its phase slices. |
 | `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md#phase-5-publish-readiness-and-release-gates` | Completed Phase 5 publish-readiness slice | Historical evidence for closed `RT-00i.6`, which synchronized the AISVS docs and release-gate follow-up. |
@@ -161,7 +161,8 @@ with the shipped release workflow before publication.
 | `.github/workflows/rustfmt.yml` | Rust formatting gate | Required PR-side `cargo fmt --all -- --check` lane for isolated formatting drift. |
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |
-| `.github/workflows/rust-feature-coverage-canary.yml` | Feature-combination and coverage-tool canary | Manual/scheduled lane that pins `cargo-hack 0.6.45` and `cargo-llvm-cov 0.8.7`; not a required PR or main-push gate until signal/noise review promotes it. |
+| `docs/dependency-upgrade-2026-10-03.md` | Dependency/runtime selected pins and verification evidence | Selected 2026-10-03 pins; current-version verification and full publish-gate evidence are tracked in the [2026-10-04 closeout plan](roadmap/2026-10-04-dependency-runtime-upgrade-closeout-v1.md). |
+| `.github/workflows/rust-feature-coverage-canary.yml` | Feature-combination and coverage-tool canary | Manual/scheduled lane that pins `cargo-hack 0.6.45` and `cargo-llvm-cov 0.9.1`; not a required PR or main-push gate until signal/noise review promotes it. |
 | `.github/workflows/release-please.yml` | Release orchestration | Main-push release automation without release-PR branch churn; release gate now covers manifest and checksum parity. |
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |
 | `.github/workflows/tachi-mmdc-preflight.yml` | Mermaid preflight | Protects docs and renderable diagram outputs. |
@@ -195,18 +196,18 @@ The repository policy for these surfaces is:
 | Rust toolchain proof | `rustup toolchain install --no-self-update`, `rustc -Vv`, `cargo -Vv`, `which rustc`, `which cargo`, `rustup which rustc` | Required Rust workflows consume `rust-toolchain.toml` and prove the compiler path before running tests or lint. |
 | Full workspace PR behavior gate | `cargo test --workspace --all-targets` and `.github/workflows/rust-workspace.yml` | Pull requests apply routing: full mode is preserved on protected refs and active/shared surfaces, while passive docs and dependency-closure-aware changes are narrowed by design. |
 | Semantic CI contract tests | `cargo test -p tachi-core --test workflow_ci_gates -- --nocapture` | Workflow contracts parse YAML for events, jobs, matrices, steps, and run commands; package matrices derive from root workspace members instead of copied strings. |
-| Rust E2E and bridge checks | `cargo test -p tachi-cli --test e2e_artifacts`, `cargo test -p tachi-desktop --test e2e_command_journey`, `cargo test -p tachi-mcp --test e2e_stdio_journey`, `cargo test -p tachi-shell --test init_substitution`, the `E2E-COV*` focused suites, and `cargo test -p tachi-core --test rt009_docs` | Current explicit E2E inventory covers initialization, CLI artifacts, desktop commands, MCP stdio, composed lifecycle, and cross-boundary failure/cancellation; E2E-COV-007 remains for coverage evidence and publish enforcement. |
+| Rust E2E and bridge checks | `cargo test -p tachi-cli --test e2e_artifacts`, `cargo test -p tachi-desktop --test e2e_command_journey`, `cargo test -p tachi-mcp --test e2e_stdio_journey`, `cargo test -p tachi-shell --test init_substitution`, the `E2E-COV*` focused suites, and `cargo test -p tachi-core --test rt009_docs` | The completed E2E inventory covers initialization, CLI artifacts, desktop commands, MCP stdio, composed lifecycle, and cross-boundary failure/cancellation; E2E-COV-007 coverage and publish evidence are recorded in the closeout plan. |
 | E2E coverage inventory | `cargo run -q -p tachi-cli --bin coverage-audit` | The audit must classify every critical journey exactly once and keep E2E distinct from integration/smoke modules. |
 | MCP scaffold and contract checks | `cargo test -p tachi-mcp --test contract_snapshot --test schema_snapshot --test tools_registration --test session_policy --test stdio` and `cargo build -p tachi-mcp --features stdio` | MCP registry, stdio transport, request-id continuity, cancellation handling, schema snapshots, and contract snapshots remain deterministic. |
 | Core infographic and scaffold seams | `cargo test -p tachi-core` | Prompt scaffold, infographic payload, parser, and reporting seams remain green after boundary splits. |
 | Infographic payload seam | `cargo test -p tachi-core` | Payload orchestration remains behavior-compatible after moving filesystem loading and template assembly. |
 | Parser hardening regression | `cargo test -p tachi-core compute_delta_counts_trims_case_and_ignores_unknown_statuses -- --nocapture` | Must pass for panic-free delta counting and status normalization. |
 | Lint gate | `cargo clippy --all-targets -- -D warnings` and `.github/workflows/rust-clippy.yml` | No warnings allowed; SARIF upload remains `if: always()` but clippy status fails closed. |
-| Supply-chain gate | `cargo audit`, `cargo deny check advisories bans licenses sources`, `make supply-chain-gate`, and `.github/workflows/rust-supply-chain.yml` | RustSec advisories, dependency bans, license policy, and registry/source policy pass locally and in CI with pinned helper tools. |
+| Supply-chain gate | `cargo audit`, `cargo deny check advisories bans licenses sources`, `make supply-chain-gate`, and `.github/workflows/rust-supply-chain.yml` | Local RustSec advisories, dependency bans, license policy, and registry/source policy passed on 2026-10-04. Hosted protected checks remain unverified; see the active dependency/runtime closeout plan. |
 | Retired adapter guard | `cargo test -p tachi-core --test scaffold_dependency_floors --test workflow_ci_gates` | `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, and `.github/workflows/tauri-adapter-compatibility.yml` stay absent; the active workspace release host is `crates/tachi-desktop`. |
-| Feature and coverage canary | `make feature-combination-canary`, `make coverage-tool-proof`, and `.github/workflows/rust-feature-coverage-canary.yml` | `cargo-hack 0.6.45` checks workspace feature combinations with no dev-dependencies; `cargo-llvm-cov 0.8.7` records coverage-tool proof through the active toolchain LLVM wrapper; lane stays advisory until promoted. |
+| Feature and coverage canary | `make feature-combination-canary`, `make coverage-tool-proof`, and `.github/workflows/rust-feature-coverage-canary.yml` | `cargo-hack 0.6.45` checks workspace feature combinations with no dev-dependencies; `cargo-llvm-cov 0.9.1` records coverage-tool proof through the active toolchain LLVM wrapper; lane stays advisory until promoted. |
 | Async runtime ADR boundary | `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md` and `cargo metadata --locked --format-version 1` | `smol-rs` runtime crates stay outside the toolchain track; any future adoption requires a separate async-runtime feature with benchmarks, cancellation/shutdown tests, compatibility evidence, dependency diff, and rollback plan. |
-| Coverage gate | `make llvm-cov`; governed nightly branch command with explicit `RUSTC`/`RUSTDOC`/`LLVM_COV`/`LLVM_PROFDATA` paths | Fresh host-assisted publish-gate coverage stages passed. Current stable coverage is 93.24% lines / 92.60% regions; governed nightly 1.99.0 branch gate exited 0 at 85.15625% (1,408 total / 210 missed). The older 90.22% / 90.56% values remain historical. |
+| Coverage gate | `make llvm-cov`; governed nightly branch command with explicit `RUSTC`/`RUSTDOC`/`LLVM_COV`/`LLVM_PROFDATA` paths | Historical stable evidence remains 93.24% lines / 92.60% regions. The 2026-10-04 full publish gate passes at 85.08174386920983% nightly branch coverage after adding taxonomy-monitor coverage and stabilizing the runner timeout fixture. |
 | Reporting goldens | `cargo test -p tachi-core --test reporting_goldens -- --nocapture` | Canonical report, threat, risk, coverage, Typst, and infographic outputs remain stable through parsed semantic projections and compact rendering-contract snapshots. |
 | Advisory fuzz/mutation lane | `make fuzz-mutation-gate` and `.github/workflows/fuzz-mutation-audit.yml` | Commands stay documented, scheduled/manual runs remain non-blocking, and survivor reports stay offline-safe. |
 | Diff hygiene | `git diff --check` | No whitespace or patch-format issues. |
@@ -265,7 +266,7 @@ privacy, doc accuracy, and release readiness before `main` is pushed to
 - [ ] `make feature-combination-canary` and `make coverage-tool-proof` pass
       serially before promoting feature/coverage canaries from advisory to
       required release gates.
-- [ ] `docs/roadmap/implementation-backlog.md` points at the active AISVS/security roadmap, the live RT-CI track, closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
+- [ ] `docs/roadmap/implementation-backlog.md` points at the AISVS/security roadmap, completed RT-CI records, closed docs-sweep/MCP/RT-TC records, and archived provenance docs.
 - [ ] The active AISVS roadmap is `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-roadmap.html.md`.
 - [ ] The active AISVS Beads cards are `docs/roadmap/2026-06-23-aisvs-dependabot-remediation-issue-cards.md`.
 - [ ] The MCP issue hierarchy is closed; `docs/roadmap/2026-06-25-standalone-mcp-server-roadmap.html.md` and `docs/roadmap/2026-06-25-standalone-mcp-server-issue-cards.md` are retained as historical source records.
