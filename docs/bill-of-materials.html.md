@@ -155,6 +155,7 @@ with the shipped release workflow before publication.
 |---|---|---|
 | `.github/workflows/gitleaks.yml` | Full-repo secret scanning | Required publication gate. |
 | `.github/workflows/rust-workspace.yml` | Full Rust workspace PR test gate with passive-docs, dependency-closure, and emergency override route controls | Required behavior gate for package matrix tests under the checked-in Rust toolchain; skips the heavy matrix for passive-docs-only PRs, narrows crate-local changes to their dependency closure, and supports an emergency full-CI override while preserving the stable route classifier. |
+| `.github/workflows/prisma-postgres.yml` | Disposable PostgreSQL 18 migration and RLS validation | Installs the Next.js scaffold from its lockfile, applies Prisma migrations to an ephemeral database, verifies migration status, and checks anonymous and cross-user profile isolation. Required follow-up gate tracked by issue #40. |
 | `.github/actions/rust-setup/action.yml` | Shared Rust setup action | Local composite action that centralizes toolchain install, cache, and proof steps for Rust-facing workflows. |
 | `.github/workflows/ci-workflow-parse.yml` | Workflow syntax gate | Required PR-side `actionlint` lane for early GitHub Actions YAML failures. |
 | `.github/workflows/ci-route-observe.yml` | Route artifact gate | Observe-only PR lane that uploads `route.json` and preserves the stable orchestrator check while routing is non-enforcing. |
@@ -162,6 +163,7 @@ with the shipped release workflow before publication.
 | `.github/workflows/rust-clippy.yml` | Rust lint gate | Prevents warnings from shipping under the checked-in Rust toolchain. |
 | `.github/workflows/rust-supply-chain.yml` | Cargo audit and dependency policy gate | Runs pinned `cargo-audit` and `cargo-deny` checks for advisories, bans, licenses, and sources. |
 | `docs/dependency-upgrade-2026-10-03.md` | Dependency/runtime selected pins and verification evidence | Selected 2026-10-03 pins; current-version verification and full publish-gate evidence are tracked in the [2026-10-04 closeout plan](roadmap/2026-10-04-dependency-runtime-upgrade-closeout-v1.md). |
+| `docs/roadmap/2026-10-04-pr39-remediation-v1.md` | PR #39 review follow-up and remaining closeout limitations | Tracks fixes for PostgreSQL 18 volume compatibility, Supabase environment setup and RLS, ephemeral migration validation, and CodeQL push-time ruleset behavior under issue #40 / Beads `RT-bz6`. |
 | `.github/workflows/rust-feature-coverage-canary.yml` | Feature-combination and coverage-tool canary | Manual/scheduled lane that pins `cargo-hack 0.6.45` and `cargo-llvm-cov 0.9.1`; not a required PR or main-push gate until signal/noise review promotes it. |
 | `.github/workflows/release-please.yml` | Release orchestration | Main-push release automation without release-PR branch churn; release gate now covers manifest and checksum parity. |
 | `.github/workflows/fuzz-mutation-audit.yml` | Advisory fuzz/mutation lane | Scheduled/manual non-blocking lane for parser and reporting survivor discovery. |

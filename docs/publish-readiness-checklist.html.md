@@ -6,6 +6,11 @@ for its current pin-verification, scaffold, Rust, Prisma, and protected-CI
 evidence. Its dated verification record supersedes historical checklist rows
 and prior package observations below.
 
+PR #39 review remediation is tracked in
+[issue #40 and its dated plan](roadmap/2026-10-04-pr39-remediation-v1.md).
+The required PostgreSQL migration workflow and updated CodeQL ruleset need
+terminal hosted evidence before this follow-up is merge-ready.
+
 **Status**: Active release gate
 **Last Updated**: 2026-10-04
 **Purpose**: confirm `tachi-rust` is ready to publish to `origin/main`
@@ -28,6 +33,9 @@ retired from the active dependency surface.
 - PR #39 has terminal successful results for all 16 required branch-protection
   contexts and GitHub reports it mergeable. The final documentation sync
   requires a fresh required-check rollup before merge readiness is reported.
+- The new PostgreSQL 18 Prisma migration workflow and RLS policy tests are a
+  required follow-up gate. The CodeQL status remains required on protected PRs;
+  its redundant push-time ruleset check was removed.
 
 ## 0. Canonical publish sequence
 

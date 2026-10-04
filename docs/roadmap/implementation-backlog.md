@@ -14,6 +14,7 @@
 - [Rust-native E2E coverage expansion roadmap](./2026-07-10-e2e-coverage-expansion-roadmap.html.md)
 - [Rust-native E2E coverage expansion issue cards](./2026-07-10-e2e-coverage-expansion-issue-cards.md)
 - [Dependency and Runtime Upgrade Closeout plan](./2026-10-04-dependency-runtime-upgrade-closeout-v1.md)
+- [PR #39 review and closeout remediation](./2026-10-04-pr39-remediation-v1.md)
 
 ## Current Status Snapshot
 
@@ -23,9 +24,15 @@
   passed and GitHub reports it mergeable. Live PostgreSQL migration evidence
   and merge remain open gates.
 
-- Live Beads audit on 2026-10-04: 5 open, 0 in progress, 0 blocked, and 197
-  closed issues; all 5 ready issues belong to the new dependency/runtime
-  closeout hierarchy `RT-bbi` and children `RT-bbi.1` through `RT-bbi.4`.
+- PR #39 review remediation is active under GitHub issue #40 and Beads epic
+  `RT-bz6`. The follow-up fixes the PostgreSQL 18 volume path, Supabase env
+  template, user-table RLS, live Prisma migration evidence, and pending CodeQL
+  ruleset bypass notice. CI migration and hosted PR checks remain to be verified.
+
+- Live Beads audit on 2026-10-04: 12 open, 0 in progress, 0 blocked, and 197
+  closed issues; 5 open issues belong to the dependency/runtime closeout
+  hierarchy `RT-bbi` and children `.1` through `.4`, and 7 belong to the PR #39
+  remediation hierarchy `RT-bz6` and children `.1` through `.6`.
 - `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
   issue cards below are retained as completed execution records; future work
   should use new issues rather than reopening completed cards without review.
@@ -34,7 +41,12 @@
   [the 2026-10-04 closeout plan](./2026-10-04-dependency-runtime-upgrade-closeout-v1.md).
   Its children cover baseline/pin reconciliation, Rust and release gates,
   scaffold/Prisma validation, and docs/protected delivery. The export contains
-  205 issues as of 2026-10-04.
+  205 issues before the remediation hierarchy was created.
+- PR #39 remediation tracker state: GitHub issue #40 anchors Beads epic
+  `RT-bz6`; six children cover PostgreSQL 18 volume migration, Supabase env
+  setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior, and
+  documentation/export synchronization. The refreshed export contains 212
+  issues.
 
 ## Archive Records
 
