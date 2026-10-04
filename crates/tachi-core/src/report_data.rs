@@ -155,7 +155,7 @@ fn render_document_data(
     }
     if let Ok(text) = fs::read_to_string(target.join("compensating-controls.md")) {
         let data = crate::parse_compensating_controls_md(&text);
-        if !data.findings.is_empty() {
+        if !text.trim().is_empty() {
             values["has-compensating-controls"] = json!(true);
             values["data-source-tier"] = json!(1);
             values["findings"] = json!(data.findings.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"residual_score":f.residual_score,"residual_severity":f.residual_severity,"control_status":f.control_status,"recommendation":f.recommendation})).collect::<Vec<_>>());
@@ -231,7 +231,10 @@ fn render_document_data(
             "narrative":tree.narrative, "remediation":tree.mitigation, "mermaid-code":tree.mermaid_code})
     }).collect::<Vec<_>>());
     let chain_text = fs::read_to_string(target.join("attack-chains.md")).ok();
-    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref());
+    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref())
+        .into_iter()
+        .filter(|chain| chain.surfaced)
+        .collect::<Vec<_>>();
     values["has-attack-chains"] = json!(!chains.is_empty());
     values["attack-chains"] = json!(chains.iter().map(|chain| {
         let image = image_path("attack-chains", &chain.chain_id, "attack-chain");

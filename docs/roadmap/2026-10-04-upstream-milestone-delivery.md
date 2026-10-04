@@ -2,7 +2,7 @@
 
 Date: 2026-10-04. Tracking: epic `RT-3zm`. Original implementation: epic `RT-5vk` and [PR #42](https://github.com/pratik-saptarshi/tachi-rust/pull/42). Comparison anchors remain upstream `63438d78` and fork `cb567d32`.
 
-Current delivery: semantic PR #43 and reporting PR #44 are merged. All six feature contracts are on main. PR #42 now contains only the final documentation and tracker reconciliation; its protected final checks and merge remain the publication gate. `RT-3zm.1` and `.2` are closed; `.3` and the epic remain in progress until that gate completes. The committed tracker export is a dated pre-merge snapshot.
+Current delivery: semantic PR #43 and reporting PR #44 are merged. PR #42 carries late review corrections plus final documentation and tracker reconciliation; its protected final checks and merge remain the publication gate. `RT-3zm.1` and `.2` are closed; `.3` and the epic remain in progress until that gate completes. The committed tracker export is a dated pre-merge snapshot.
 
 The six-feature implementation was initially submitted together. This delivery plan separates it into independently validated milestones. Implementation issue closure is historical evidence of code and tests; it does not prove merge readiness. Three actionable review findings on PR #42 require remediation before reporting delivery complete.
 
@@ -64,4 +64,6 @@ Phase 2 completed: PR #44 auto-merged on 2026-10-04 at 13:57:02 UTC from `d20241
 
 Dependency audit: no external package was added or upgraded. The existing Rust `serde_yaml_ng` dependency moved into core runtime; its normal/build tree has no interpreter requirement. New workflows reuse existing checkout/cache pins and shell-based Rust setup; Gitleaks remains a native pinned executable. No Python application, build, test, generation, documentation or new action dependency was introduced.
 
-Validation records: full workspace and Clippy passed after the MAESTRO compatibility and rendering-input fixes. The subsequent timeline-only correction passed report-document, extraction and remediation tests plus Clippy; fresh hosted workspace checks cover its final head. Formatting, actionlint, documentation gates, no-interpreter CLI checks and seven pinned PDF comparisons passed. Final publication still requires the phase-two and integration PR gates described above.
+Validation records: full workspace and Clippy passed after the MAESTRO compatibility and rendering-input fixes. The subsequent timeline-only correction passed report-document, extraction and remediation tests plus Clippy; hosted workspace checks passed on its final head. Formatting, actionlint, documentation gates, no-interpreter CLI checks and seven pinned PDF comparisons passed. Only the integration PR's final validation and merge remain publication gates.
+
+Late reviews on the merged phase PRs are remediated in #42: numbered nested attribution retains OWASP/CWE records; companion ML references derive their year from the catalog; empty control assessments retain their metadata; attack-chain output includes only surfaced entries; and compact attack-tree metadata splits fields at separators. Each correction has a dedicated regression, and affected PDF baselines are regenerated with the same pinned native tool.

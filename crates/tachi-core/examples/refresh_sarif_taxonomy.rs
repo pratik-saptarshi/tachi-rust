@@ -145,10 +145,18 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
                         .map(|suffix| format!("LLM-{suffix}"))
                         .unwrap_or_else(|| category.into()));
                 }
-                if !result["properties"]["owasp-reference"].is_null() && category.starts_with("LLM")
-                {
+                if !result["properties"]["owasp-reference"].is_null() {
+                    let full_id = catalog
+                        .iter()
+                        .find(|row| row["id"] == category)
+                        .and_then(|row| row["full_id"].as_str())
+                        .ok_or_else(|| format!("{category}: missing catalog full_id"))?;
+                    let year = full_id
+                        .split('-')
+                        .find(|part| part.len() == 4 && part.chars().all(|c| c.is_ascii_digit()))
+                        .ok_or_else(|| format!("{category}: missing catalog year"))?;
                     result["properties"]["owasp-reference"] =
-                        json!(format!("OWASP {category}:2026"));
+                        json!(format!("OWASP {category}:{year}"));
                 }
             }
         } else if records.is_null() {
@@ -165,6 +173,30 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn refreshes_reference_year_from_the_catalog_for_llm_and_ml_categories() {
+        let catalog: Vec<Value> =
+            serde_yaml::from_str(include_str!("../../../schemas/taxonomy/owasp.yaml")).unwrap();
+        for (category, year) in [
+            ("LLM10", "2026"),
+            ("ML01", "2023"),
+            ("ML02", "2023"),
+            ("ML04", "2023"),
+        ] {
+            let source = json!({"runs":[{"results":[{"partialFingerprints":{"findingId/v1":"LLM-1"},"properties":{"source-attribution":[{"taxonomy":"owasp","id":category,"relationship":"primary"}]}}]}]});
+            let mut target = json!({"runs":[{"tool":{"driver":{"supportedTaxonomies":[]}},"taxonomies":[],"results":[{"partialFingerprints":{"findingId/v1":"LLM-1"},"properties":{"owasp-reference":"OWASP LLM05:2025", "owasp_id":"LLM-05"}}]}]});
+            refresh(&source, &mut target, &catalog).unwrap();
+            assert_eq!(
+                target["runs"][0]["results"][0]["properties"]["owasp-reference"],
+                format!("OWASP {category}:{year}")
+            );
+            assert_eq!(
+                target["runs"][0]["results"][0]["properties"]["source-attribution"][0]["id"],
+                category
+            );
+        }
+    }
 
     #[test]
     fn refresh_preserves_identity_scores_evidence_and_rejects_unknown_findings() {
