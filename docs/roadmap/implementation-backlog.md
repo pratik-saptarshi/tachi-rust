@@ -6,6 +6,9 @@
 
 ## Backlog Navigation
 
+- [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
+- [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
+
 - Active desktop host: `crates/tachi-desktop`
 - [Beads issue mirror snapshot](../../.beads/issues.jsonl)
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
@@ -17,6 +20,12 @@
 - [PR #39 review and closeout remediation](./2026-10-04-pr39-remediation-v1.md)
 
 ## Current Status Snapshot
+
+- Rust-native upstream features are implemented under epic `RT-5vk`; all six
+  feature implementation/validation pairs are closed. Delivery verification
+  `RT-5vk.8` and the epic remain in progress until hosted checks are confirmed.
+  The 2026-10-04 live export contains 235 issues: 230 closed, 2 in progress,
+  3 deferred, 0 open and 0 blocked. Earlier snapshots below remain historical.
 
 - Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
   Baseline reconciliation, pin verification, and local validation are complete.
