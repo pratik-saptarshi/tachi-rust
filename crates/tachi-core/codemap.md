@@ -43,3 +43,7 @@ catalog membership/order/scope and stage complete PDF baseline regeneration.
 - `tests/report_document_contract.rs` verifies that selected-tier components,
   remediation recommendations and available brand assets survive Typst data assembly.
 - Detailed source map: [src/codemap.md](src/codemap.md).
+- `examples/refresh_sarif_taxonomy.rs`: native maintenance command for companion
+  SARIF taxonomy metadata/citations, preserving finding IDs, scores and evidence.
+  Run `cargo run -p tachi-core --example refresh_sarif_taxonomy -- THREATS_SARIF COMPANION_SARIF`
+  after generating the native threat export; the current OWASP catalog supplies labels.
