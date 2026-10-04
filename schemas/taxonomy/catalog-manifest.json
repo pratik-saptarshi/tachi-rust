@@ -6330,27 +6330,27 @@
   "baselines": [
     {
       "path": "examples/web-app/security-report.pdf.baseline",
-      "sha256": "e8d1cf29bb12780f98ba589382664f513c78fa8c31dc83caf658134270311933"
+      "sha256": "c24ede1db339aa8152329c702bbc6ec16a432b4ea65714cc7860a1aa8e7c5ec5"
     },
     {
       "path": "examples/microservices/security-report.pdf.baseline",
-      "sha256": "979000bc02ba1894d2c640034dc2df61ed8bb5a428867d6045173f433a6e9bf3"
+      "sha256": "bdf91e8b33ad0397bf2badceb7a9b55ea14b7a56d445c8ff3610f43aff740984"
     },
     {
       "path": "examples/ascii-web-api/security-report.pdf.baseline",
-      "sha256": "d4ac4b501aaceacec85ee646feb3606403c964101383459fbd929fc9a1b73a8e"
+      "sha256": "11cd7763b02ba34d05b0bf69534d41eb5d24eb520b2ca64ebcb0f604d1438bf9"
     },
     {
       "path": "examples/mermaid-agentic-app/security-report.pdf.baseline",
-      "sha256": "6a4eb1c456631f2ca35a1d844106e58e296388a5f55cc2c145b7e67eb03081db"
+      "sha256": "9aa7d5d876cab6417ac659554ac64e64acf0cedf0670553d7931a3c1ab3eebe5"
     },
     {
       "path": "examples/free-text-microservice/security-report.pdf.baseline",
-      "sha256": "fc1d3948399c21b1ea06388255f32e7dbec21ee1b4e45faaf32090ab6525a60a"
+      "sha256": "9c0f401a513ad8e2242cbfd6fb528adeaec9e5903d8d33e0b857f0ea4049bee1"
     },
     {
       "path": "examples/maestro-reference/security-report.pdf.baseline",
-      "sha256": "13fc62faa39ca5a30e020ccbfc5e3bb617af2cc91dc202ff2be5dc3351198c5a"
+      "sha256": "13d0c2ce48e44c9879ce3d1a64f350afd828f74c66ddf1f87ed73a7c87a068fe"
     }
   ]
 }

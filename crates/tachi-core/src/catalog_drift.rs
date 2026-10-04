@@ -168,6 +168,10 @@ pub fn regenerate(root: &Path, typst: &Path) -> Result<(), String> {
     fs::create_dir(&stage.0).map_err(|e| e.to_string())?;
     let templates = stage.0.join("templates/tachi/security-report");
     copy_tree(&root.join("templates/tachi/security-report"), &templates)?;
+    let brand = root.join("brand/final");
+    if brand.exists() {
+        copy_tree(&brand, &stage.0.join("brand/final"))?;
+    }
     copy_tree(
         &root.join("schemas/taxonomy"),
         &stage.0.join("schemas/taxonomy"),
