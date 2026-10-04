@@ -6,6 +6,8 @@
 
 ## Backlog Navigation
 
+- [Rust-native upstream milestone delivery (2026-10-04)](./2026-10-04-upstream-milestone-delivery.md) — epic `RT-3zm`, three separately gated PR phases, including PR #42 review remediation.
+
 - Active desktop host: `crates/tachi-desktop`
 - [Beads issue mirror snapshot](../../.beads/issues.jsonl)
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
