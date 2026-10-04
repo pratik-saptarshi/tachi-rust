@@ -113,6 +113,31 @@ fn every_active_agent_and_adapter_example_uses_contextual_categories() {
             format!("adapters/generic/prompts/{generic_number}-{family}.md"),
         ] {
             let text = fs::read_to_string(root.join(&path)).unwrap();
+            if family == "model-theft" && !path.starts_with(".claude/") {
+                assert!(
+                    text.contains("**OWASP LLM08:2026 - Hidden Context Exposure**"),
+                    "{path}: missing declared reference"
+                );
+                if !path.starts_with("adapters/generic/") {
+                    let inventory = text
+                        .lines()
+                        .find(|line| line.starts_with("owasp_references:"))
+                        .expect("declared OWASP inventory");
+                    let metadata: serde_yaml::Value = serde_yaml::from_str(inventory).unwrap();
+                    let declared = metadata["owasp_references"]
+                        .as_sequence()
+                        .expect("declared OWASP inventory");
+                    for category in ["LLM06", "LLM08", "LLM04"] {
+                        assert!(
+                            declared
+                                .iter()
+                                .any(|value| value.as_str()
+                                    == Some(&format!("OWASP {category}:2026"))),
+                            "{path}: undeclared {category}"
+                        );
+                    }
+                }
+            }
             for (heading, category) in &mappings {
                 check_example(&text, heading, category).unwrap_or_else(|e| panic!("{path}: {e}"));
                 let stale = text.replace(category, "LLM04");
@@ -156,6 +181,18 @@ fn active_emission_instructions_reject_stale_semantics() {
 #[test]
 fn changed_categories_resolve_to_current_catalog_meanings() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let output_agent =
+        fs::read_to_string(root.join(".claude/agents/tachi/output-integrity.md")).unwrap();
+    let declared = output_agent
+        .lines()
+        .find(|line| line.starts_with("owasp_references:"))
+        .unwrap();
+    for category in ["LLM09:2026", "LLM10:2026"] {
+        assert!(
+            declared.contains(category),
+            "output-integrity: undeclared emission category {category}"
+        );
+    }
     let catalog: Vec<serde_yaml::Value> = serde_yaml::from_str(
         &fs::read_to_string(root.join("schemas/taxonomy/owasp.yaml")).unwrap(),
     )

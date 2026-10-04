@@ -173,6 +173,7 @@ Apply the OWASP 3x3 matrix to determine `risk_level` from `likelihood` and `impa
 ## References
 
 - **OWASP LLM06:2026 - Unbounded Consumption (including model extraction)**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
+- **OWASP LLM08:2026 - Hidden Context Exposure**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
 - **OWASP LLM04:2026 - Supply Chain Vulnerabilities**: https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/
 - **MITRE ATLAS - ML Model Access**: Tactic TA0044, Technique AML.T0044
 - **Tramer et al., 2016**: "Stealing Machine Learning Models via Prediction APIs" — foundational work on API-based model extraction
