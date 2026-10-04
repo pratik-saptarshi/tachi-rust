@@ -8,8 +8,10 @@ and prior package observations below.
 
 PR #39 review remediation is tracked in
 [issue #40 and its dated plan](roadmap/2026-10-04-pr39-remediation-v1.md).
-The required PostgreSQL migration workflow and updated CodeQL ruleset need
-terminal hosted evidence before this follow-up is merge-ready.
+The PostgreSQL 18 migration and RLS checks passed in hosted run
+[37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
+CodeQL remains required. Refresh the PR #41 final-head status before declaring
+the follow-up merge-ready.
 
 **Status**: Active release gate
 **Last Updated**: 2026-10-04
@@ -30,12 +32,11 @@ retired from the active dependency surface.
   committed lockfiles. Prisma generation, schema validation, and migration SQL
   generation pass; a live PostgreSQL migration is unavailable because no local
   PostgreSQL server or accessible Docker daemon is present.
-- PR #39 has terminal successful results for all 16 required branch-protection
-  contexts and GitHub reports it mergeable. The final documentation sync
-  requires a fresh required-check rollup before merge readiness is reported.
-- The new PostgreSQL 18 Prisma migration workflow and RLS policy tests are a
-  required follow-up gate. The CodeQL status remains required on protected PRs;
-  its redundant push-time ruleset check was removed.
+- PR #41 is the active follow-up PR on the issue-numbered branch. Final-head
+  check status must be read from GitHub before merge readiness is reported.
+- PostgreSQL 18 Prisma migration and RLS policy checks passed in hosted CI.
+  The CodeQL status remains required on protected PRs; its redundant push-time
+  ruleset check was removed.
 
 ## 0. Canonical publish sequence
 

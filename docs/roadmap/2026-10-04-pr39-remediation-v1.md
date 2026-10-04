@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-04
 - **GitHub issue:** [#40](https://github.com/pratik-saptarshi/tachi-rust/issues/40)
-- **Beads epic:** `RT-bz6` (children `RT-bz6.1` through `RT-bz6.6`)
+- **Beads epic:** `RT-bz6` (children `RT-bz6.1` through `RT-bz6.7`)
 - **Branch:** `040-pr39-closeout-remediation`
 - **Original PR:** [#39](https://github.com/pratik-saptarshi/tachi-rust/pull/39)
 - **Current PR:** [#41](https://github.com/pratik-saptarshi/tachi-rust/pull/41)
@@ -59,20 +59,28 @@
 - `actionlint .github/workflows/prisma-postgres.yml`, `make workflow-gate`,
   `make docs-version-gate`, Node syntax checks for both PostgreSQL scripts, and
   Compose YAML parsing pass.
-- `docker info` cannot reach the Colima daemon (`permission denied`), so no
-  live migration was run locally. Hosted PostgreSQL CI is still pending.
+- `docker info` cannot reach the Colima daemon (`permission denied`), so a live
+  migration could not run locally. Hosted validation succeeded instead: run
+  [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486)
+  on implementation commit `01634d5` completed PostgreSQL 18 setup, Prisma
+  migration deploy/status, and all RLS assertions successfully.
+- PR #41's inline codemap correction is included in commit `d027adb`; the root
+  atlas now matches `Cargo.toml` Rust 1.99 MSRV and `rust-toolchain.toml`
+  1.99.0 channel. `make docs-version-gate` and whitespace checks passed.
 
 ## Tracker and delivery status
 
 The Beads hierarchy is `RT-bz6` with seven children. Each child records acceptance
 criteria and a test plan. The checked-in `.beads/issues.jsonl` export now
-contains 212 issues, including the new hierarchy. The live PostgreSQL migration
-has not been run on this host; the Docker daemon is inaccessible. CI is the
-planned live validation environment, and its result must be added to this
-record before the Beads epic is closed.
+contains 213 issues, including the new hierarchy. Hosted PostgreSQL migration
+and RLS validation passed in run `37191445486`; local PostgreSQL remains
+unavailable because the Docker daemon is inaccessible. The epic remains open
+until PR #41 is merged and final required checks are confirmed.
 
 The ruleset update was applied on 2026-10-04 to ruleset `17635989`. The
 `code_scanning` rule was removed from push-time ruleset evaluation; the main
 branch still requires the `CodeQL` status context. No force push or GitHub
-bypass flag was used. Verify the resulting PR head after the next push to
-confirm GitHub no longer emits a pending-CodeQL bypass notice.
+bypass flag was used. The subsequent implementation push did not report a
+bypass notice. CodeQL remains required by protected PR checks. A final-head CI
+rollup must still be verified after the latest documentation-only update before
+reporting merge readiness.
