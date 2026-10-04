@@ -32,7 +32,7 @@ desktop, MCP, and filesystem orchestration to adapter crates.
 
 - Consumed by `tachi-shell`, `tachi-desktop`, and other host adapters through
   the facade rather than private implementation modules.
-- Depends only on `serde`, `serde_json`, `sha2`, and `thiserror` at runtime,
+- Depends only on `serde`, `serde_json`, `serde_yaml_ng`, `sha2`, and `thiserror` at runtime,
   preserving the host-independent boundary.
 - Detailed source map: [src/codemap.md](src/codemap.md).
 - `examples/refresh_sarif_taxonomy.rs`: native maintenance command for companion

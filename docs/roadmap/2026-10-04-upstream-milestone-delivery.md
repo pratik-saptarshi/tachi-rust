@@ -37,5 +37,7 @@ Already adopted crosswalk parity, safe image cleanup, taxonomy expansion, asset-
 
 ## Progress
 
+- Phase 1 review prerequisite: native SARIF export now carries explicit Markdown attribution by finding identity, including the canonical nested YAML format and explicit empty records. The companion refresh command therefore retains current citations. This moves the necessary parsing/export portion of UF-05 forward; the full reporting acceptance remains in phase 2. Existing `serde_yaml_ng` is promoted from development to runtime dependency without adding a package or Python execution chain.
+
 - Phase 1: [PR #43](https://github.com/pratik-saptarshi/tachi-rust/pull/43), extracted from freshly fetched main. Review found valid-but-wrong category IDs in examples. Corrected retrieval poisoning to LLM09, training poisoning to LLM05, model extraction/theft to LLM06 per the loaded pattern catalog, and configuration leakage to LLM08 across active agents/adapters. Added parsed-YAML example checks and stale mutations; focused Rust, formatting and documentation validation passed. Hosted checks remain the phase merge gate.
 - Phases 2 and 3: pending phase gates. PR #42 is preserved until its changes are delivered through these milestones; it must not merge the combined implementation ahead of phase completion.

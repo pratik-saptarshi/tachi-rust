@@ -151,6 +151,36 @@ fn default_component_meta() -> ComponentMetadata {
     }
 }
 
+/// Preserve evidence by finding identity, since OI and LLM share a rule ID.
+pub fn attach_source_attribution(sarif: &mut Value, findings: &[crate::parsers::ThreatFinding]) {
+    let Some(results) = sarif["runs"][0]["results"].as_array_mut() else {
+        return;
+    };
+    for result in results {
+        let id = result["partialFingerprints"]["findingId/v1"]
+            .as_str()
+            .unwrap_or_default();
+        let Some(finding) = findings.iter().find(|f| f.id == id) else {
+            continue;
+        };
+        let Some(records) = finding.source_attribution.as_ref() else {
+            continue;
+        };
+        result["properties"]["source-attribution"] = json!(records);
+        if let Some(primary) = records
+            .iter()
+            .find(|r| r.taxonomy == "owasp" && r.relationship == "primary")
+        {
+            let reference = if primary.id.starts_with("LLM") {
+                format!("OWASP {}:2026", primary.id)
+            } else {
+                primary.id.clone()
+            };
+            result["properties"]["owasp_id"] = json!(normalize_owasp_id(&reference, ""));
+        }
+    }
+}
+
 fn level_for_risk(risk_level: &str) -> &'static str {
     match risk_level {
         "Critical" | "High" => "error",
