@@ -11,7 +11,8 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  // Use the authenticated Supabase user UUID as the profile ID.
+  id        String   @id @db.Uuid
   email     String   @unique
   name      String?
   createdAt DateTime @default(now())
