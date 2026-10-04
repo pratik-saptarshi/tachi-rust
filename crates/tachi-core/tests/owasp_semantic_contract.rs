@@ -341,3 +341,49 @@ fn current_sarif_guidance_uses_catalog_category_meanings() {
         assert!(check(&guidance.replace(current, stale), current, stale).is_err());
     }
 }
+
+#[test]
+fn canonical_machine_readable_exports_preserve_identities_and_current_citations() {
+    let root =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/agentic-app/sample-report");
+    let findings =
+        tachi_core::parse_threats_findings(&fs::read_to_string(root.join("threats.md")).unwrap())
+            .unwrap();
+    let expected: std::collections::BTreeSet<_> = findings.iter().map(|f| f.id.as_str()).collect();
+    assert_eq!(expected.len(), 86);
+    for filename in ["threats.sarif", "risk-scores.sarif"] {
+        let text = fs::read_to_string(root.join(filename)).unwrap();
+        let sarif: serde_json::Value = serde_json::from_str(&text).unwrap();
+        let results = sarif["runs"][0]["results"].as_array().unwrap();
+        let actual: std::collections::BTreeSet<_> = results
+            .iter()
+            .map(|r| r["partialFingerprints"]["findingId/v1"].as_str().unwrap())
+            .collect();
+        assert_eq!(actual, expected, "{filename}: finding identity lost");
+        for (id, category) in [
+            ("LLM-4", "LLM05"),
+            ("LLM-9", "LLM05"),
+            ("LLM-11", "LLM05"),
+            ("LLM-14", "LLM05"),
+            ("OI-1", "LLM10"),
+            ("MI-1", "LLM07"),
+        ] {
+            let finding = results
+                .iter()
+                .find(|r| r["partialFingerprints"]["findingId/v1"] == id)
+                .unwrap();
+            assert!(
+                finding["properties"]["source-attribution"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|r| r["taxonomy"] == "owasp" && r["id"] == category),
+                "{filename}/{id}: missing {category}"
+            );
+        }
+        assert!(
+            !text.contains("LLM03:2025") && !text.contains("LLM Top 10 v2025"),
+            "{filename}: stale taxonomy guidance"
+        );
+    }
+}
