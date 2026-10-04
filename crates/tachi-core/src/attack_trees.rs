@@ -80,9 +80,11 @@ fn parse_attack_tree_file(
 
     for line in content.lines() {
         let stripped = line.trim();
-        for key in ["Risk Level", "Component", "Threat"] {
-            if let Some(value) = stripped.strip_prefix(&format!("**{key}**:")) {
-                meta.insert(key.to_string(), value.trim().to_string());
+        for field in stripped.split('|') {
+            for key in ["Risk Level", "Component", "Threat"] {
+                if let Some(value) = field.trim().strip_prefix(&format!("**{key}**:")) {
+                    meta.insert(key.to_string(), value.trim().to_string());
+                }
             }
         }
         if stripped.starts_with("| Field") {

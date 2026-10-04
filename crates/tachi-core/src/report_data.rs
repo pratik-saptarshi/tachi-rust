@@ -17,10 +17,26 @@ pub struct ReportImageBinding {
 }
 
 pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String {
-    let images = detect_images(target_dir, template_dir);
-    let threats_content = fs::read_to_string(target_dir.join("threats.md")).unwrap_or_default();
+    // Compatibility API: invalid input produces an explicitly unrenderable
+    // document. Commands use the checked API below to return the original error.
+    try_build_report_data_typst(target_dir, template_dir)
+        .unwrap_or_else(|error| format!("#panic({})\n", typst_string(&error)))
+}
+
+pub fn try_build_report_data_typst(
+    target_dir: &Path,
+    template_dir: &Path,
+) -> Result<String, String> {
+    let input = target_dir.join("threats.md");
+    let threats_content = match fs::read_to_string(&input) {
+        Ok(content) => content,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => String::new(),
+        Err(error) => return Err(format!("{}: {error}", input.display())),
+    };
     let project_name = resolve_report_project_name(&threats_content, None, Some(target_dir));
-    let findings = parse_threats_findings(&threats_content).unwrap_or_default();
+    let findings = parse_threats_findings(&threats_content)
+        .map_err(|error| format!("{}: {error}", input.display()))?;
+    let images = detect_images(target_dir, template_dir);
     let has_source_attribution = compute_has_source_attribution(&findings);
     let per_finding_rows = build_per_finding_rows(&findings);
     let taxonomy_dir = template_dir
@@ -81,7 +97,7 @@ pub fn build_report_data_typst(target_dir: &Path, template_dir: &Path) -> String
         &threats_content,
         &findings,
     ));
-    output
+    Ok(output)
 }
 
 // The canonical Rust report path supplies the full Tier-3 template contract.
@@ -155,7 +171,7 @@ fn render_document_data(
     }
     if let Ok(text) = fs::read_to_string(target.join("compensating-controls.md")) {
         let data = crate::parse_compensating_controls_md(&text);
-        if !data.findings.is_empty() {
+        if has_control_assessment(&text, &data) {
             values["has-compensating-controls"] = json!(true);
             values["data-source-tier"] = json!(1);
             values["findings"] = json!(data.findings.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"residual_score":f.residual_score,"residual_severity":f.residual_severity,"control_status":f.control_status,"recommendation":f.recommendation})).collect::<Vec<_>>());
@@ -231,7 +247,10 @@ fn render_document_data(
             "narrative":tree.narrative, "remediation":tree.mitigation, "mermaid-code":tree.mermaid_code})
     }).collect::<Vec<_>>());
     let chain_text = fs::read_to_string(target.join("attack-chains.md")).ok();
-    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref());
+    let chains = crate::attack_chains::parse_attack_chains(chain_text.as_deref())
+        .into_iter()
+        .filter(|chain| chain.surfaced)
+        .collect::<Vec<_>>();
     values["has-attack-chains"] = json!(!chains.is_empty());
     values["attack-chains"] = json!(chains.iter().map(|chain| {
         let image = image_path("attack-chains", &chain.chain_id, "attack-chain");
@@ -261,6 +280,89 @@ fn render_document_data(
         .iter()
         .map(|(key, value)| format!("#let {key} = {}\n", typst_value(value)))
         .collect()
+}
+
+fn has_control_assessment(
+    content: &str,
+    data: &crate::compensating_controls::CompensatingControlsData,
+) -> bool {
+    if !data.findings.is_empty() || !data.controls.is_empty() || !data.coverage_matrix.is_empty() {
+        return true;
+    }
+    // A completed assessment may have an empty residual table. Require its
+    // canonical section and actual column contract, not just a nonblank file.
+    let lines: Vec<_> = content.lines().map(str::trim).collect();
+    let coverage = lines
+        .iter()
+        .position(|line| *line == "## 2. Coverage Matrix")
+        .map(|start| {
+            let end = lines[start + 1..]
+                .iter()
+                .position(|line| line.starts_with("## "))
+                .map_or(lines.len(), |offset| start + 1 + offset);
+            &lines[start + 1..end]
+        })
+        .unwrap_or_default();
+    let has_residual_header = coverage.windows(2).any(|pair| {
+        let line = pair[0];
+        if !line.starts_with('|') {
+            return false;
+        }
+        let cells: Vec<_> = line
+            .split('|')
+            .map(|cell| cell.trim().trim_matches('*'))
+            .collect();
+        let separator: Vec<_> = pair[1]
+            .trim_matches('|')
+            .split('|')
+            .map(str::trim)
+            .collect();
+        if separator.len() != cells.iter().filter(|cell| !cell.is_empty()).count()
+            || !separator.iter().all(|cell| {
+                cell.trim_matches(':').len() >= 3
+                    && cell.trim_matches(':').chars().all(|c| c == '-')
+            })
+        {
+            return false;
+        }
+        [
+            "Threat ID",
+            "Component",
+            "Threat",
+            "Residual Score",
+            "Residual Severity",
+            "Control Status",
+        ]
+        .iter()
+        .all(|column| cells.contains(column))
+    });
+    if has_residual_header {
+        return true;
+    }
+    // Explicit numeric coverage metadata, including all-zero rows, is also
+    // assessment evidence. Unrecognized tables and error prose remain absent.
+    ["Coverage Distribution", "## 1. Executive Summary"]
+        .iter()
+        .any(|heading| {
+            let mut seen = [false; 3];
+            for row in crate::parsers::parse_markdown_table(content, heading) {
+                let index = match row.get("Status").map(String::as_str) {
+                    Some("Found" | "Control Found") => 0,
+                    Some("Partial" | "Partial Control") => 1,
+                    Some("Missing" | "No Control") => 2,
+                    _ => continue,
+                };
+                if seen[index]
+                    || !row
+                        .get("Count")
+                        .is_some_and(|count| count.parse::<usize>().is_ok())
+                {
+                    return false;
+                }
+                seen[index] = true;
+            }
+            seen.into_iter().all(|present| present)
+        })
 }
 
 fn typst_value(value: &serde_json::Value) -> String {

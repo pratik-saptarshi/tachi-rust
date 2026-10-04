@@ -221,11 +221,128 @@ fn canonical_agentic_sample_preserves_nested_citations_and_attack_sections() {
 
 #[test]
 fn malformed_nested_attribution_fails_instead_of_silently_losing_citations() {
+    let fixture = Fixture::new();
     for block in [
         "OI-1: [",
         "OI-1:\n  source_attribution:\n    - {taxonomy: bogus, id: LLM10, relationship: primary}",
     ] {
         let text = format!("{THREATS}\n**Source Attribution**:\n```yaml\n{block}\n```\n");
         assert!(tachi_core::parsers::parse_threats_findings(&text).is_err());
+        fixture.write("threats.md", &text);
+        let error = tachi_core::try_build_report_data_typst(&fixture.0.join("report"), &fixture.0)
+            .unwrap_err();
+        assert!(
+            error.contains("threats.md") && error.to_ascii_lowercase().contains("attribution"),
+            "{error}"
+        );
+        let legacy = fixture.render();
+        assert!(legacy.starts_with("#panic("));
+        assert!(!legacy.contains("#let total-findings = 0"));
+        assert!(tachi_core::parsers::parse_threats_findings(
+            &text.replace("**Source Attribution**:", "## 9. Source Attribution")
+        )
+        .is_err());
+    }
+}
+
+#[test]
+fn completed_empty_controls_preserve_the_assessment_and_control_metadata() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    fixture.write("compensating-controls.md", "# Compensating Controls\n\n## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n| Missing | 0 |\n\n## 2. Coverage Matrix\n\n### High Residual Severity\n\n| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |\n|---|---|---|---|---|---|\n\n## 3. Control Details\n\n### Authentication\n\n**Status**: Found | **Effectiveness**: High\n**Component**: Assessed Agent\n**Evidence**: Verified signatures\n\n## 4. Recommendations\n");
+    let output = fixture.render();
+    assert_eq!(
+        binding(&output, "data-source-tier"),
+        "#let data-source-tier = 1"
+    );
+    assert_eq!(
+        binding(&output, "has-compensating-controls"),
+        "#let has-compensating-controls = true"
+    );
+    assert_eq!(
+        binding(&output, "total-findings"),
+        "#let total-findings = 0"
+    );
+    assert!(binding(&output, "controls").contains("Authentication"));
+    assert!(binding(&output, "coverage-summary").contains("\"total-found\": 0"));
+    fixture.write("compensating-controls.md", "  \n");
+    assert_eq!(
+        binding(&fixture.render(), "has-compensating-controls"),
+        "#let has-compensating-controls = false"
+    );
+}
+
+#[test]
+fn report_chains_exclude_unsurfaced_candidates_and_hide_an_empty_section() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    let chains = "# Cross-Layer Attack Chains\n\n## 2. Chain Details\n\n### CHAIN-001: Selected\n\n**Layers**: L1 -> L2\n**Max Severity**: High\n**Surfaced**: Yes\n\n### CHAIN-002: Excluded\n\n**Layers**: L2 -> L3\n**Max Severity**: Medium\n**Surfaced**: No\n";
+    fixture.write("attack-chains.md", chains);
+    let output = fixture.render();
+    assert_eq!(
+        binding(&output, "has-attack-chains"),
+        "#let has-attack-chains = true"
+    );
+    assert!(binding(&output, "attack-chains").contains("CHAIN-001"));
+    assert!(!binding(&output, "attack-chains").contains("CHAIN-002"));
+    fixture.write(
+        "attack-chains.md",
+        &chains.replace("**Surfaced**: Yes", "**Surfaced**: No"),
+    );
+    assert_eq!(
+        binding(&fixture.render(), "has-attack-chains"),
+        "#let has-attack-chains = false"
+    );
+}
+
+#[test]
+fn compact_attack_tree_metadata_keeps_each_field_separate() {
+    let fixture = Fixture::new();
+    let target = fixture.0.join("report");
+    fs::create_dir_all(target.join("attack-trees")).unwrap();
+    fixture.write("attack-trees/S-5.md", "# Attack Tree: S-5 — Impersonation\n\n**Component**: Inter-Agent Channel | **Risk Level**: Critical | **Finding**: S-5\n\n```mermaid\ngraph TD\n A --> B\n```\n");
+    let trees = tachi_core::attack_trees::parse_attack_trees(&target, &[], None);
+    assert_eq!(trees.len(), 1);
+    assert_eq!(trees[0].component, "Inter-Agent Channel");
+    assert_eq!(trees[0].severity, "Critical");
+}
+
+#[test]
+fn control_stubs_do_not_erase_valid_risk_findings_but_empty_assessments_are_retained() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    fixture.write("risk-scores.md", "## 2. Scored Threat Table\n\n| ID | Component | Threat | Composite | Severity |\n|---|---|---|---|---|\n| S-1 | Risk Agent | Impersonation | 7.2 | High |\n");
+    for invalid in [
+        "---\nstatus: error\n---",
+        "Generator failed",
+        "# Compensating Controls\n\n## 2. Coverage Matrix\n\n## 3. Control Details\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | failed |\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n",
+        "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n| Missing | 0 |\n| Found | 1 |\n",
+        "## 2. Coverage Matrix\n\n| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |\n",
+    ] {
+        fixture.write("compensating-controls.md", invalid);
+        let output = fixture.render();
+        assert_eq!(
+            binding(&output, "data-source-tier"),
+            "#let data-source-tier = 2",
+            "{invalid}"
+        );
+        assert_eq!(
+            binding(&output, "has-compensating-controls"),
+            "#let has-compensating-controls = false"
+        );
+        assert_eq!(
+            binding(&output, "total-findings"),
+            "#let total-findings = 1"
+        );
+        assert!(binding(&output, "findings").contains("Risk Agent"));
+    }
+    for valid in ["## 2. Coverage Matrix\n\n### High Residual Severity\n\n| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |\n|---|---|---|---|---|---|\n", "## 1. Executive Summary\n\n| Status | Count |\n|---|---|\n| Found | 0 |\n| Partial | 0 |\n| Missing | 0 |\n"] {
+        fixture.write("compensating-controls.md", valid);
+        let output = fixture.render();
+        assert_eq!(binding(&output, "data-source-tier"), "#let data-source-tier = 1");
+        assert_eq!(binding(&output, "total-findings"), "#let total-findings = 0");
     }
 }

@@ -291,6 +291,7 @@ fn parse_total_count(value: &str) -> Option<(usize, Option<usize>)> {
 }
 
 pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, String> {
+    let source_attribution_block = extract_source_attribution_block(content)?;
     let rows = parse_markdown_table(content, "## 7. Recommended Actions");
     if rows.is_empty() {
         return Ok(Vec::new());
@@ -304,7 +305,6 @@ pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, Strin
         })
         .cloned();
 
-    let source_attribution_block = extract_source_attribution_block(content)?;
     let mut findings = Vec::new();
 
     for row in rows {
@@ -434,6 +434,13 @@ fn extract_source_attribution_block(
     if !seen_fence {
         return Ok(Some(BTreeMap::new()));
     }
+    let _: serde_yaml::Value = serde_yaml::from_str(&body.join("\n"))
+        .map_err(|e| format!("Source Attribution: malformed YAML: {e}"))?;
+    if body.iter().any(|line| {
+        line.trim() == "source_attribution:" || line.trim().starts_with("source_attribution: ")
+    }) {
+        return parse_nested_source_attribution_yaml(&body.join("\n")).map(Some);
+    }
 
     let mut result: BTreeMap<String, Vec<SourceAttributionRecord>> = BTreeMap::new();
     let mut current_id: Option<String> = None;
@@ -477,6 +484,12 @@ fn extract_nested_source_attribution(
     let Some((yaml, _)) = fenced.split_once("```") else {
         return Err("Source Attribution: unterminated YAML block".into());
     };
+    parse_nested_source_attribution_yaml(yaml).map(Some)
+}
+
+fn parse_nested_source_attribution_yaml(
+    yaml: &str,
+) -> Result<BTreeMap<String, Vec<SourceAttributionRecord>>, String> {
     #[derive(serde::Deserialize)]
     struct Entry {
         source_attribution: Vec<SourceAttributionRecord>,
@@ -498,7 +511,7 @@ fn extract_nested_source_attribution(
         }
         result.insert(id, entry.source_attribution);
     }
-    Ok(Some(result))
+    Ok(result)
 }
 
 fn explicit_owasp_reference(

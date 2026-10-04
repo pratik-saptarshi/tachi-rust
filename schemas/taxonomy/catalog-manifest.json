@@ -6350,7 +6350,7 @@
     },
     {
       "path": "examples/maestro-reference/security-report.pdf.baseline",
-      "sha256": "d6dcbb174ac9974e1db6445b1ab02abf1ca5cafde8e729ec2d44db85d396e42e"
+      "sha256": "ff73783df0dc6b8e0da4f2e628781f278cf009f013e7e89276ce7f97416f1f41"
     },
     {
       "path": "examples/agentic-app/sample-report/security-report.pdf.baseline",
@@ -6420,11 +6420,11 @@
     },
     {
       "path": "crates/tachi-core/src/attack_trees.rs",
-      "sha256": "ee4ecfed0523c678ffa82a7958037836e963fe4153c794053059bec4d70cfcb1"
+      "sha256": "50c2e4970fe4d950e4b15bfc6b1c7110e880b26991b02b2c35c3d19c3b0630b1"
     },
     {
       "path": "crates/tachi-core/src/catalog_drift.rs",
-      "sha256": "f927d8821bb2f65872293499c017af41db9d863ff80f1e483e7fe27fd2c374af"
+      "sha256": "c9e98ec4b4e069315dd258a41cd023c9a77aa881d4c09b41427dfd091be00e08"
     },
     {
       "path": "crates/tachi-core/src/codemap.md",
@@ -6448,7 +6448,7 @@
     },
     {
       "path": "crates/tachi-core/src/facade.rs",
-      "sha256": "98a66b4eb0e30d26714766e34c6178f74e592b839f234ef73773663e42363c27"
+      "sha256": "bbfdb3185d19c0f21c11cb6823579717b62b8afd365bd9bb8596c487baddb96d"
     },
     {
       "path": "crates/tachi-core/src/fixtures.rs",
@@ -6472,7 +6472,7 @@
     },
     {
       "path": "crates/tachi-core/src/infographic/payload.rs",
-      "sha256": "7a5005e0e69ea58864ed368b6b70ca782ea5b24dd5ea1def701f4e619eba47e4"
+      "sha256": "e93e3ed1d9e6cf48ed5a92ee8d82453e4c494f864da98cdd49c25e766dcef586"
     },
     {
       "path": "crates/tachi-core/src/infographic/prompt_scaffold.rs",
@@ -6480,7 +6480,7 @@
     },
     {
       "path": "crates/tachi-core/src/lib.rs",
-      "sha256": "3c7512d99113c386540c30187107b77bbb4f5987f75ed85a8ba7da38d1ee011c"
+      "sha256": "29f477f9b03c0e6e1aa2a7d3e4eaa23821bb9457968c47fe193dc6e4d5683a74"
     },
     {
       "path": "crates/tachi-core/src/maestro_coverage.rs",
@@ -6508,7 +6508,7 @@
     },
     {
       "path": "crates/tachi-core/src/parsers/findings.rs",
-      "sha256": "af4bfde4f5fdcd4c037f8203fb18f2859c3dbcee8221b9da0e950b03e3ec07c1"
+      "sha256": "708ff9ce21099e2df14f0f86a0cf244b619ceb7d21730fad1f66242da1fe462e"
     },
     {
       "path": "crates/tachi-core/src/parsers/mermaid.rs",
@@ -6532,7 +6532,7 @@
     },
     {
       "path": "crates/tachi-core/src/report_data.rs",
-      "sha256": "34e1373665f3cb9b4f4a85c2289998d60ff8208d863d17146cfcd8bd1b795ef6"
+      "sha256": "c4fe5c237eef7c19ebefe12d0b8ec17ecaa73e9cd4a24b9c4d07268568dc2424"
     },
     {
       "path": "crates/tachi-core/src/report_extraction.rs",

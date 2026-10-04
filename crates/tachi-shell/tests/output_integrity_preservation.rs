@@ -5,6 +5,29 @@ use tachi_shell::commands::{report_data_output, threats_sarif_output};
 const FIXTURE: &str = include_str!("../../../tests/fixtures/output-integrity-vector/threats.md");
 
 #[test]
+fn numbered_canonical_attribution_preserves_nested_owasp_and_cwe_records() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let output = threats_sarif_output(&root.join("examples/agentic-app/threats.md")).unwrap();
+    let sarif: Value = serde_json::from_str(&output.sarif).unwrap();
+    for (id, expected) in [("OI-1", "LLM10"), ("OI-1", "CWE-79"), ("MI-1", "LLM07")] {
+        let result = sarif["runs"][0]["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["partialFingerprints"]["findingId/v1"] == id)
+            .unwrap();
+        assert!(
+            result["properties"]["source-attribution"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|record| record["id"] == expected),
+            "{id}: missing {expected}"
+        );
+    }
+}
+
+#[test]
 fn explicit_empty_attribution_is_distinct_from_missing_evidence() {
     let mut findings = tachi_core::parse_threats_findings(FIXTURE).unwrap();
     findings[0].source_attribution = Some(vec![]);

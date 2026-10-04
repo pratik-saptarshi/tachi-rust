@@ -528,6 +528,34 @@ fn dispatch_command_renders_report_data_to_stdout_and_file() {
 }
 
 #[test]
+fn report_dispatch_propagates_attribution_errors_before_artifact_writes() {
+    let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
+    let root = fixture_repo();
+    fs::write(
+        root.join("threats.md"),
+        "**Source Attribution**:\n```yaml\nOI-1: [\n```\n",
+    )
+    .unwrap();
+    let output = dispatch_command(
+        "report-data",
+        &root,
+        &[
+            "--target-dir",
+            root.to_str().unwrap(),
+            "--template-dir",
+            root.to_str().unwrap(),
+            "--output",
+            "report-data.typ",
+        ],
+    );
+    assert_eq!(output.status, 1);
+    assert!(output.stdout.is_empty());
+    assert!(output.stderr.contains("threats.md") && output.stderr.contains("malformed YAML"));
+    assert!(!root.join("report-data.typ").exists());
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn dispatch_command_renders_infographic_data_to_stdout_and_file() {
     let _guard = EXEC_POLICY_LOCK.lock().expect("policy lock");
     let root = fixture_repo();

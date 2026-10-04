@@ -1,5 +1,7 @@
 # Upstream Feature Adoption Roadmap
 
+**Historical — delivered:** crosswalk parity and opt-in safe image cleanup are present in fork `main` `cb567d32`. New work is tracked in the [2026-10-04 Rust-native roadmap](feature-roadmap-2026-10-04.md); do not reopen these delivered items.
+
 **Review date:** 2026-10-03
 **Version:** 1
 **Fork baseline:** `ddd19ef852e99f805eed23c0062a1b932ba7f462` (`origin/main`)
