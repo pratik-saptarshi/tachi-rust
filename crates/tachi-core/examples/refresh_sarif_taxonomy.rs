@@ -121,6 +121,12 @@ fn refresh(source: &Value, target: &mut Value, catalog: &[Value]) -> Result<(), 
                         json!(format!("OWASP {category}:2026"));
                 }
             }
+        } else if records.is_null() {
+            if let Some(properties) = result["properties"].as_object_mut() {
+                properties.remove("source-attribution");
+            }
+        } else {
+            return Err(format!("{id}: source attribution must be an array or absent").into());
         }
     }
     Ok(())
@@ -161,5 +167,21 @@ mod tests {
             .contains("UNKNOWN-1"));
         assert!(refresh(&source, &mut json!({}), &catalog).is_err());
         assert!(refresh(&source, &mut target, &[]).is_err());
+        let mut absent = source.clone();
+        absent["runs"][0]["results"][0]["properties"]
+            .as_object_mut()
+            .unwrap()
+            .remove("source-attribution");
+        target = once;
+        refresh(&absent, &mut target, &catalog).unwrap();
+        assert!(target["runs"][0]["results"][0]["properties"]
+            .get("source-attribution")
+            .is_none());
+        absent["runs"][0]["results"][0]["properties"]["source-attribution"] = json!([]);
+        refresh(&absent, &mut target, &catalog).unwrap();
+        assert_eq!(
+            target["runs"][0]["results"][0]["properties"]["source-attribution"],
+            json!([])
+        );
     }
 }

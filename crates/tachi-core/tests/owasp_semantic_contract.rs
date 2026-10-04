@@ -176,6 +176,19 @@ fn active_emission_instructions_reject_stale_semantics() {
             "{path}: stale mutation escaped"
         );
     }
+    let tool = fs::read_to_string(root.join(".claude/agents/tachi/tool-abuse.md")).unwrap();
+    let inventory = tool
+        .lines()
+        .find(|line| line.starts_with("owasp_references:"))
+        .unwrap();
+    assert!(
+        inventory.contains("LLM04:2026"),
+        "tool-abuse metadata omits Category 6"
+    );
+    assert!(
+        tool.contains("OWASP LLM04 for Category 6 supply-chain findings"),
+        "tool-abuse workflow contradicts its pattern catalog"
+    );
 }
 
 #[test]
