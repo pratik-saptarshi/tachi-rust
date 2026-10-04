@@ -73,7 +73,7 @@ branch protection is now enabled on `pratik-saptarshi/tachi-rust/main` with the
 verified route, security, formatting, package, and shell checks required. The
 collector passes its governance check as well as its timing collection.
 
-- PR-side timing evidence was collected via GitHub Actions APIs in this session.
+- PR-side timing evidence was collected via GitHub Actions APIs on 2026-07-12.
   Representative command lines:
 
   ```bash
@@ -85,9 +85,9 @@ collector passes its governance check as well as its timing collection.
   - `ci-route-observe.yml`: `sample_size=23`, `run_med_ms=14000`,
     `queue_med_ms=0`, `run_range_ms=11000..17000`, `queue_range_ms=0..0`.
 
-  The sample is representative of the current PR workflow population; the
-  latest five PR runs passed. Historical failures remain visible in the raw
-  sample and are not suppressed.
+  At collection time, this was the representative PR workflow sample; the
+  latest five PR runs in that sample passed. These are dated historical
+  measurements, and historical failures remain visible in the raw sample.
 
 - Suggested GitHub median evidence command set (run once a feature branch has
   remote visibility):
@@ -110,7 +110,7 @@ collector passes its governance check as well as its timing collection.
 - Keep queue time and run time separated in notes so route narrowing impact is
   not masked by workflow scheduling delays.
 
-- Live PR-run timing evidence required by the original baseline plan is now
+- Live PR-run timing evidence required by the original baseline plan is
   complete, along with branch-protection verification. Future samples are
   operational monitoring, not a prerequisite for this closure.
 

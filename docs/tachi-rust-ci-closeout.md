@@ -2,8 +2,8 @@
 
 **Status**: timing closeout evidence for RT-CI; ongoing monitoring remains
 operational follow-up
-**Purpose**: separate locally proven RT-CI changes from external verification
-items that still require GitHub access
+**Purpose**: distinguish locally proven RT-CI changes, hosted governance
+evidence, and post-closeout operational monitoring
 
 ## Proven Locally
 
@@ -27,24 +27,20 @@ items that still require GitHub access
 - The local gitleaks 8.30.1 scan passed with no leaks; this does not replace
   the required GitHub gitleaks workflow result.
 
-## Remaining Follow-up Verification
+## Operational Monitoring (post-closeout)
 
 - Continue collecting representative PR-specific timing samples via
   `make rt-ci-latency-evidence` as operational monitoring; the current
   closeout sample is recorded in `docs/tachi-rust-ci-baseline.md`.
-- Branch-protection verification is complete for the current migration: the
-  live API reports `main` protected with the required contexts, strict
-  up-to-date enforcement, linear history, conversation resolution, and
-  force-push/deletion protection. Continue monitoring after future policy
-  changes.
+- Branch-protection verification was refreshed on 2026-10-04: `main` requires
+  17 strict status contexts, including CodeQL and the PostgreSQL migration/RLS
+  workflow. Admin enforcement and linear history are enabled; force pushes and
+  branch deletion are disabled. Recheck after future policy changes.
 - Post-push monitoring of `main` after a publish step.
 
-## Latest Remote Evidence Pull (2026-07-12)
+## Dated Remote Evidence
 
-- `make rt-ci-latency-evidence` and direct API checks were executed from this
-  branch with elevated network privileges:
-  - `branch_protection=pratik-saptarshi/tachi-rust/main: enabled`; the
-    replayable command is `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection`.
+- The representative PR timing sample below was captured on 2026-07-12:
   - `rust-workspace.yml` PR-side median evidence command (`pull_request` event):
     `sample_size=22`, `run_med_ms=85000`, `queue_med_ms=0`,
     `run_range_ms=79000..101000`.
@@ -63,11 +59,13 @@ items that still require GitHub access
 - Current mainline median collection: `rust-workspace.yml` sample size 40,
   run median 71 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
   size 11, run median 14 seconds, queue median 0 seconds. Branch protection is
-  enabled and the required-check API response matches the documented contract.
+  enabled; the 2026-10-04 live response confirms 17 strict required contexts.
 
-## Publish-Readiness Guardrails Before Merge Closure
+## Historical Publish-Readiness Guardrails (satisfied)
 
-- `make publish-gate` must pass before any branch merge intended to close RT-CI.
+- These gates were required before RT-CI closure. The RT-CI epic and all seven
+  children are now closed in Beads.
+- `make publish-gate` passed before RT-CI closure.
 - Mainline remote evidence must include both:
   - stable full-mode coverage for protected refs (`main`, release refs, tags, and
     lockfile/workflow changes), and

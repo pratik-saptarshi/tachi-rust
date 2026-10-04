@@ -2,12 +2,15 @@
 
 **Date**: 2026-07-09  
 **Source input**: `/Volumes/dev/Git-SCM/tachi-rust/docs/ci-improvement-plan.html`  
-**Status**: timing closeout package; ongoing monitoring is operational follow-up<br>
+**Status**: historical execution record; RT-CI is closed and monitoring is operational follow-up
 **Primary objective**: reduce wasted pull-request CI time without weakening `tachi-rust`'s existing SARIF, supply-chain, cross-platform, and contract-specific guarantees
 
 ## Repo-State Reconciliation
 
-- The source plan is currently an untracked draft on `main`.
+This section records the repository state when the plan was drafted on
+2026-07-09; it is not a description of the current branch.
+
+- The source plan was an untracked draft on `main` at plan creation.
 - The Rust toolchain modernization hierarchy (`RT-TC*`) is already closed in Beads and must not be reused as the live tracker for this work.
 - The backlog snapshot says future CI/toolchain work should open a new Beads hierarchy and keep `.beads/issues.jsonl`, the backlog snapshot, and the roadmap synchronized.
 - The current workflow surface already contains protected specialist or privileged lanes:
@@ -35,6 +38,17 @@ The current draft is directionally right about delta routing, fast-fail lanes, a
 - shadow-mode route proof,
 - dependency-closure-aware package routing,
 - and a required-check migration step before any lane is renamed or replaced.
+
+## Current Closeout Status (2026-10-04)
+
+- RT-CI and all seven children are closed in Beads; no RT-CI issues remain open.
+- The representative PR timing samples are historical, captured on 2026-07-12:
+  workspace sample size 22 (85 s median) and route-observe sample size 23
+  (14 s median), with zero queue medians.
+- Main branch protection was rechecked on 2026-10-04: strict mode is enabled
+  with 17 required contexts, including CodeQL and PostgreSQL migration/RLS.
+- New work on CI policy or timing should use a new Beads hierarchy and fresh
+  evidence rather than reopening the completed RT-CI hierarchy.
 
 ## Non-Negotiables
 
@@ -297,13 +311,14 @@ Current local evidence:
 - Warm local comparison: `origin/main` ran the same test in `real 0.58s`,
   `user 0.08s`, `sys 0.08s` after cache warm-up, while the current branch ran
   it in `real 1.39s`, `user 0.10s`, `sys 0.08s`.
-- Live PR timing evidence is closed out with workspace `sample_size=22`,
+- Historical PR timing evidence, collected 2026-07-12, closed out with workspace
+  `sample_size=22`,
   `run_med_ms=85000`, `run_range_ms=79000..101000`, and route-observe
   `sample_size=23`, `run_med_ms=14000`, `run_range_ms=11000..17000`; both queue
   medians are `0 ms`. Branch protection is enabled and the required-check
   migration was verified against the protected `main` branch.
 
-### Phase 6 - Release Policy, Required-Check Migration, And Closeout
+### Phase 6 - Release Policy, Required-Check Migration, And Closeout (complete)
 
 Purpose: codify where delta routing applies and where the repository must always stay broad.
 
@@ -402,9 +417,10 @@ Validation:
 | `CI-05` reduce duplicated setup | Bundle after routing stability | Phase 5 |
 | `CI-06` PR concurrency cancellation | Must-fix, low-risk first slice | Phase 1 |
 
-## Final Recommendation
+## Final Recommendation (historical; rollout complete)
 
-Proceed, but as a new `RT-CI` execution package rather than an extension of `RT-TC`.
+The recommendation was to proceed as a new `RT-CI` execution package rather
+than an extension of `RT-TC`. The package and all seven children are now closed.
 
 The safest rollout order is:
 

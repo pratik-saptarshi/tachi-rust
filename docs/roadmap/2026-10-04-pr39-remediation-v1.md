@@ -78,17 +78,17 @@
 
 ## Tracker and delivery status
 
-The Beads hierarchy is `RT-bz6` with eight children. Each child records acceptance
-criteria and a test plan. The checked-in `.beads/issues.jsonl` export now
-contains 214 issues, including the new hierarchy. Hosted PostgreSQL migration
-and RLS validation passed in run `37191445486`; local PostgreSQL remains
-unavailable because the Docker daemon is inaccessible. The epic remains open
-until PR #41 is merged and final required checks are confirmed.
+The Beads hierarchy is `RT-bz6` with eight children. Each child records
+acceptance criteria and a test plan. All eight children and the epic are closed
+after PR #41 merged at `cb567d3`. Hosted PostgreSQL migration and RLS validation
+passed in PR CI and post-merge run `37193448630`; the Docker daemon remains
+unavailable locally. PR #41 finished with 24 successful checks, zero failures,
+and one skipped check. The regenerated `.beads/issues.jsonl` is the tracker
+snapshot for this closeout.
 
 The ruleset update was applied on 2026-10-04 to ruleset `17635989`. The
 `code_scanning` rule was removed from push-time ruleset evaluation; the main
 branch still requires the `CodeQL` status context. No force push or GitHub
 bypass flag was used. The subsequent implementation push did not report a
-bypass notice. CodeQL remains required by protected PR checks. A final-head CI
-rollup must still be verified after the latest documentation-only update before
-reporting merge readiness.
+bypass notice. CodeQL remains required by protected PR checks. PR #41 is merged;
+final-head and post-merge checks have been verified.

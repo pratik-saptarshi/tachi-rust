@@ -63,3 +63,54 @@ jobs:
 
       - name: Verify row-level security policies
         run: node scripts/verify-postgres-rls.mjs
+
+      - name: Verify PostgreSQL 18 Compose volume persists across container recreation
+        working-directory: ${{ github.workspace }}
+        env:
+          POSTGRES_HOST_PORT: "55432"
+          POSTGRES_USER: compose_test
+          POSTGRES_PASSWORD: compose_test
+          POSTGRES_DB: compose_test
+          DATABASE_URL: postgresql://compose_test:compose_test@localhost:55432/compose_test
+          SECRET_KEY: compose-test-only
+          CORS_ORIGINS: http://localhost:5173
+        run: |
+          compose_file=stacks/fastapi-react/scaffold/docker-compose.yml
+          compose=(docker compose --project-name pr41-volume-smoke -f "$compose_file")
+          cleanup() {
+            "${compose[@]}" down --volumes --remove-orphans
+          }
+          trap cleanup EXIT
+
+          "${compose[@]}" config --quiet
+          "${compose[@]}" up -d db
+          for attempt in {1..30}; do
+            if "${compose[@]}" exec -T db pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; then
+              break
+            fi
+            if [[ "$attempt" == 30 ]]; then
+              echo "PostgreSQL did not become ready after 60 seconds" >&2
+              exit 1
+            fi
+            sleep 2
+          done
+          "${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+            -c "CREATE TABLE volume_probe (payload text NOT NULL); INSERT INTO volume_probe VALUES ('persisted');"
+
+          # Removing the container while preserving the isolated named volume
+          # proves data survives a PostgreSQL 18 container recreation.
+          "${compose[@]}" down --remove-orphans
+          "${compose[@]}" up -d db
+          for attempt in {1..30}; do
+            if "${compose[@]}" exec -T db pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; then
+              break
+            fi
+            if [[ "$attempt" == 30 ]]; then
+              echo "Recreated PostgreSQL did not become ready after 60 seconds" >&2
+              exit 1
+            fi
+            sleep 2
+          done
+          result=$("${compose[@]}" exec -T db psql -Atq -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+            -c 'SELECT payload FROM volume_probe')
+          test "$result" = persisted

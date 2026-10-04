@@ -1,7 +1,7 @@
 # Dependency and Runtime Upgrade Closeout
 
 **Date:** 2026-10-04
-**Status:** PR #39 is mergeable; all required checks passed at the implementation head
+**Status:** Complete; PR #41 merged to `main` on 2026-10-04
 **Scope:** Rust workspace, frontend scaffolds, CI/runtime pins, supply-chain and release evidence.
 
 ## Baseline and preservation
@@ -37,7 +37,7 @@
 - Each of the three frontends completed clean lockfile installation, lint, configured tests, and production build. All three have no test files yet; Vitest is configured with `--passWithNoTests`. Next.js also passes Prisma client generation, `prisma validate`, migration SQL generation (schema, users table, primary key, and unique email index), and production build. Live PostgreSQL migration is unavailable: `pg_isready` is not installed, localhost port 5432 is closed, and the Colima Docker socket is inaccessible.
 - Workflow, scaffold, RustSec, and secret-scan gates pass in the aggregate publish gate. Git diff whitespace validation passes. Package/build outputs were removed after validation and are not part of the changeset.
 - PR #39 is open at `https://github.com/pratik-saptarshi/tachi-rust/pull/39`. At implementation head `a3de8c7ed9445b05b32d202db50ab4ef858f9eb6`, GitHub reports all 16 required branch-protection contexts successful; the check summary has 23 successes, 0 failures, and one skipped/cancelled optional job. GitHub reports the PR as mergeable, with no required review configured. The PR is not merged.
-- The protected-check snapshot above predates this final documentation-only synchronization commit. Verify the required check rollup again against the final PR head before reporting merge readiness. Live PostgreSQL migration evidence remains unverified because the local server/runtime is unavailable.
+- PR #41 merged at `cb567d3235eee0d45081b099a3c6df7c98f12eb7`. Its final PR rollup had 24 successful checks, no failures, and one skipped check. The required post-merge workflows completed successfully, including PostgreSQL 18 migration/RLS and CodeQL. The local PostgreSQL runtime remained unavailable, so live validation was supplied by hosted CI.
 
 ## Delivery record
 
@@ -49,5 +49,5 @@ The changes are split into these reviewed commit slices:
 
 The branch uses the Beads scope `RT-bbi`; repository guidance prefers a
 zero-padded GitHub issue number, but no matching GitHub issue was found during
-the read-only issue search. PR #39 is open and mergeable with all 16 required
-contexts passing at the implementation head. This closeout has not been merged.
+the read-only issue search. PR #39 was superseded by PR #41, which is merged.
+The `RT-bbi` hierarchy is closed and its tracker export is synchronized.

@@ -715,7 +715,10 @@ fn baseline_snapshot_records_the_phase_zero_contract() {
         "`origin/main` warm run: `real 0.58s`",
         "Current branch warm run: `real 1.39s`",
         "Timing Notes",
-        "live PR-run timing evidence required by the original baseline plan",
+        "sample_size=22",
+        "sample_size=23",
+        "timing evidence required by the original baseline plan is",
+        "operational monitoring, not a prerequisite",
     ] {
         assert!(
             text.contains(required),
@@ -725,7 +728,7 @@ fn baseline_snapshot_records_the_phase_zero_contract() {
 }
 
 #[test]
-fn closeout_notes_separate_local_proof_from_external_verification() {
+fn closeout_notes_separate_proof_from_operational_monitoring() {
     let text = fs::read_to_string(repo_root().join("docs/tachi-rust-ci-closeout.md"))
         .expect("read closeout notes");
 
@@ -739,8 +742,10 @@ fn closeout_notes_separate_local_proof_from_external_verification() {
         "Protected refs (`main`, `release/*`, and tags) are forced to full mode.",
         "Shared Rust setup is centralized",
         "Heavy Rust-facing workflows emit elapsed runtime summaries.",
-        "Remaining Follow-up Verification",
-        "Live GitHub Actions timing evidence",
+        "Operational Monitoring (post-closeout)",
+        "operational monitoring",
+        "sample_size=22",
+        "sample_size=23",
         "Branch-protection verification",
         "Post-push monitoring of `main` after a publish step",
         "Warm local timing comparison exists",

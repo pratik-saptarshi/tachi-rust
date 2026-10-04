@@ -1,5 +1,6 @@
 # Docker Compose — Local Development Only
 #
+# Run the commands below from this scaffold directory.
 # Usage:
 #   cp .env.example .env    # configure environment variables
 #   docker compose up -d    # start all services
@@ -8,7 +9,7 @@
 #   docker compose down -v  # stop and remove volumes (destroys data)
 #
 # Services:
-#   db       — PostgreSQL 16 (port 5432)
+#   db       — PostgreSQL 18 (host port 5432 by default)
 #   backend  — FastAPI + uvicorn with hot-reload (port 8000)
 #   frontend — React + Vite dev server with hot-reload (port 5173)
 #
@@ -22,7 +23,7 @@ services:
     image: postgres:18-alpine
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
