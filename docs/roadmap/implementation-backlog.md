@@ -30,8 +30,8 @@
 
 - Live Beads audit on 2026-10-04: the `RT-bbi` dependency/runtime hierarchy
   and `RT-bz6` PR #39 remediation hierarchy are closed after PR #41 merged.
-  The current export is regenerated from the live tracker; see `bd list` for
-  unrelated open work.
+  The tracker now reports zero open issues; `.beads/issues.jsonl` was
+  regenerated after closing both hierarchies.
 - `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
   issue cards below are retained as completed execution records; future work
   should use new issues rather than reopening completed cards without review.
@@ -161,9 +161,9 @@
 
 - Live Beads state is authoritative for issue status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- The 2026-10-04 live audit reports five open/ready issues, all in `RT-bbi`.
-  Earlier open-work snapshots in dated records are historical and must not be
-  treated as current.
+- An earlier 2026-10-04 audit during closeout found five open/ready issues in
+  `RT-bbi`; this snapshot is historical. The current tracker has zero open
+  issues, and dated records must not override live Beads state.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 
