@@ -2,9 +2,9 @@
 
 Date: 2026-10-04. Tracking: completed epic `RT-3zm`. Original implementation: epic `RT-5vk` and [PR #42](https://github.com/pratik-saptarshi/tachi-rust/pull/42). Comparison anchors remain upstream `63438d78` and fork `cb567d32`.
 
-Current delivery is complete: semantic PR #43, reporting PR #44, and final evidence PR #42 are protected auto-merges. All three phase issues and epic `RT-3zm` are closed. PR #42 merged at `8df554e884b1e5dd24146111a965597eff5f4779` after final required checks, review resolution, and evidence reconciliation. The committed tracker export is a dated pre-merge snapshot.
+Current delivery is complete: semantic PR #43, reporting PR #44, and final evidence PR #42 are protected auto-merges. All three phase issues and epic `RT-3zm` are closed. PR #42 merged at `8df554e884b1e5dd24146111a965597eff5f4779` after final required checks, review resolution, and evidence reconciliation. The committed tracker export was synchronized after merge and records the completed issue state.
 
-The six-feature implementation was initially submitted together, then delivered through independently validated milestones. Three actionable review findings on PR #42 were corrected before merge; every review thread was resolved. Live Beads closure records final delivery evidence; the dated export remains a pre-merge snapshot.
+The six-feature implementation was initially submitted together, then delivered through independently validated milestones. Three actionable review findings on PR #42 were corrected before merge; every review thread was resolved. Live Beads closure records final delivery evidence, and the checked-in export was synchronized afterward. References below to an earlier pre-merge snapshot describe historical planning evidence only.
 
 ## Invariants
 
@@ -64,7 +64,7 @@ Phase 2 completed: PR #44 auto-merged on 2026-10-04 at 13:57:02 UTC from `d20241
 
 Dependency audit: no external package was added or upgraded. The existing Rust `serde_yaml_ng` dependency moved into core runtime; its normal/build tree has no interpreter requirement. New workflows reuse existing checkout/cache pins and shell-based Rust setup; Gitleaks remains a native pinned executable. No Python application, build, test, generation, documentation or new action dependency was introduced.
 
-Validation records: full workspace and Clippy passed after the MAESTRO compatibility and rendering-input fixes. The subsequent timeline-only correction passed report-document, extraction and remediation tests plus Clippy; hosted workspace checks passed on its final head. Formatting, actionlint, documentation gates, no-interpreter CLI checks and seven pinned PDF comparisons passed. Only the integration PR's final validation and merge remain publication gates.
+Historical checkpoint: full workspace and Clippy passed after the MAESTRO compatibility and rendering-input fixes. The subsequent timeline-only correction passed report-document, extraction and remediation tests plus Clippy; hosted workspace checks passed on its final head. Formatting, actionlint, documentation gates, no-interpreter CLI checks and seven pinned PDF comparisons passed. At the time, only the integration PR's final validation and merge remained publication gates; PR #42 later satisfied those gates and merged at `8df554e884b1e5dd24146111a965597eff5f4779`.
 
 Late reviews on the merged phase PRs are remediated in #42: numbered nested attribution retains OWASP/CWE records; companion ML references derive their year from the catalog; empty control assessments retain their metadata; attack-chain output includes only surfaced entries; and compact attack-tree metadata splits fields at separators. Each correction has a dedicated regression, and affected PDF baselines are regenerated with the same pinned native tool.
 
