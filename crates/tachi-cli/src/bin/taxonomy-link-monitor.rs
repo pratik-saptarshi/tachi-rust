@@ -123,6 +123,16 @@ fn curl(url: &str, head: bool) -> (u16, Option<String>) {
     curl_with_program(url, head, OsStr::new("curl"))
 }
 
+#[cfg(windows)]
+fn curl_output_sink() -> &'static OsStr {
+    OsStr::new("nul")
+}
+
+#[cfg(not(windows))]
+fn curl_output_sink() -> &'static OsStr {
+    OsStr::new("/dev/null")
+}
+
 fn curl_with_program(url: &str, head: bool, program: &OsStr) -> (u16, Option<String>) {
     let mut command = Command::new(program);
     command.args([
@@ -132,10 +142,10 @@ fn curl_with_program(url: &str, head: bool, program: &OsStr) -> (u16, Option<Str
         "--max-time",
         "20",
         "--output",
-        "/dev/null",
-        "--write-out",
-        "%{http_code}",
     ]);
+    command
+        .arg(curl_output_sink())
+        .args(["--write-out", "%{http_code}"]);
     if head {
         command.arg("--head");
     } else {
@@ -263,6 +273,14 @@ mod tests {
         assert_eq!(classify(0, false), "transient");
         assert_eq!(classify(204, true), "transient");
         assert_eq!(classify(302, true), "transient");
+    }
+
+    #[test]
+    fn curl_output_sink_is_valid_for_the_compilation_target() {
+        #[cfg(windows)]
+        assert_eq!(curl_output_sink(), OsStr::new("nul"));
+        #[cfg(not(windows))]
+        assert_eq!(curl_output_sink(), OsStr::new("/dev/null"));
     }
 
     #[test]
