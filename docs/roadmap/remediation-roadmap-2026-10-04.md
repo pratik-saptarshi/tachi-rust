@@ -1,7 +1,7 @@
 # Main-48h Adversarial Remediation Roadmap — 2026-10-04
 
 Status: **implementation and advisory decisions complete; final control-document
-synchronization is in PR #51**. Epic: **RT-aha**. All nine confirmed P2
+synchronization merged in PR #51**. Epic: **RT-aha**. All nine confirmed P2
 corrections (A1–A9) are implemented and merged; the three nonblocking P3
 decisions (A10–A12) are recorded below. The initial setup snapshot farther down
 is historical and is superseded by the final delivery receipts.
@@ -419,6 +419,9 @@ Beads closed the roadmap epic and delivery task after synchronizing this
 roadmap and `.beads/issues.jsonl`. Final tracker state: 258 issues total, 255
 closed, 0 open, 0 in progress, 0 blocked, and 3 deferred. The three deferred
 items are outside this roadmap's A1–A12 worklist.
+
+The final roadmap and root-atlas synchronization merged through PR #51 at
+`2026-10-05T05:11:32Z` as `e2231108561292f8adc49e5807c68d5cbd4c9628`.
 
 ## Action-item mapping
 
