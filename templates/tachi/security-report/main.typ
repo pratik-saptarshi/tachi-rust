@@ -377,6 +377,7 @@
       classification: classification,
       maestro-findings-by-layer: maestro-findings-by-layer,
       has-maestro-data: has-maestro-data,
+      layer-coverage: dictionary(report-data-module).at("maestro-layer-coverage", default: ()),
     )
   ]
 }

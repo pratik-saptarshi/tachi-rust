@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use crate::commands::{
     bootstrap_control_plane_args, command_dispatch_kind, infographic_data_output,
-    render_report_data_result, report_data_result, validate_report_data_result,
+    render_report_data_result, try_report_data_result, validate_report_data_result,
     CommandDispatchKind,
 };
 use crate::commands::{
@@ -279,7 +279,16 @@ fn dispatch_report_data(_root: &Path, args: &[&str]) -> CommandOutput {
             }
         };
 
-    let result = report_data_result(&target_dir, &template_dir);
+    let result = match try_report_data_result(&target_dir, &template_dir) {
+        Ok(result) => result,
+        Err(message) => {
+            return CommandOutput {
+                status: 1,
+                stdout: String::new(),
+                stderr: format!("{message}\n"),
+            }
+        }
+    };
     if let Err(message) = validate_report_data_result(&result) {
         return CommandOutput {
             status: 1,

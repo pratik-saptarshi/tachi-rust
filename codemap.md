@@ -48,6 +48,30 @@ The repository is still migrating away from the original Python ecosystem. Remai
 
 ## Roadmap Control Surfaces
 
+The [main-48h remediation roadmap](docs/roadmap/remediation-roadmap-2026-10-04.md),
+Beads `RT-aha`, records nine confirmed P2 corrections and three nonblocking
+P3 decisions from main at `8df554e8`. All A1–A9 corrections have been
+implemented and merged, and A10–A12 have explicit nonblocking decisions. Local
+and hosted validation receipts are recorded in the roadmap. PR #51 carries the
+final synchronization of this roadmap and the root atlas; it merged at
+`2026-10-05T05:11:32Z` as `e2231108561292f8adc49e5807c68d5cbd4c9628`. The
+roadmap's initial setup snapshot is historical and superseded by its delivery
+receipts.
+
+The active [2026-10-04 Rust-native upstream roadmap](docs/feature-roadmap-2026-10-04.md)
+is tracked by Beads `RT-5vk`. It covers OWASP semantic emission contracts,
+permissions CI, typed MAESTRO evaluation evidence, catalog fingerprints and
+transactional baseline regeneration, output-integrity identity/attribution, and
+adopter scanning. Delivery evidence is recorded in that roadmap.
+
+`catalog-drift --check` validates `schemas/taxonomy/catalog-manifest.json`
+offline, using the same strict Rust YAML loader and ordered framework registry
+as report coverage. `--regenerate-baselines --typst PATH` requires Typst
+0.15.1 and stages all six PDF baselines before publishing the set and manifest.
+`permissions-check` validates settings JSON and the section-4 permissions table.
+The Rust report-data builder supplies the Typst document bindings and explicit
+MAESTRO coverage states; infographic templates consume the same enum.
+
 | Track | Current Direction |
 |---|---|
 | Rust toolchain modernization | `docs/roadmap/2026-07-05-rust-toolchain-upgrade-roadmap.html.md` is the completed historical roadmap for the closed `RT-TC` Beads hierarchy. `RT-TC-001` landed the repository toolchain pin and workflow proof; `RT-TC-002` added fail-closed audit, deny, gitleaks, and clippy SARIF policy gates; `RT-TC-003` converted workflow/reporting tests to semantic YAML, workspace-derived, parsed rendering, and keyed JSON projections; `RT-TC-004` added pinned `cargo-hack` / `cargo-llvm-cov` manual-scheduled canaries; `RT-TC-005` first resolved `src-tauri` as standalone evidence, then `RT-00i.2.5` retired that adapter from the active dependency surface to unblock the live GTK/GLib advisory; `RT-TC-006` is implemented by `docs/architecture/02_ADRs/ADR-046-async-runtime-adoption-boundary.md`, which defers `smol-rs` runtime crates to a separate async-runtime feature with benchmarks and cancellation/shutdown tests. |

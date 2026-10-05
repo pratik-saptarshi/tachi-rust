@@ -473,8 +473,32 @@ fn parse_threats_findings_extracts_source_attribution_and_pattern() {
         .expect("source attribution");
     assert_eq!(records.len(), 3);
     assert_eq!(records[0].taxonomy, "owasp");
-    assert_eq!(records[0].id, "LLM05");
+    assert_eq!(records[0].id, "LLM10");
     assert_eq!(records[0].relationship, "primary");
+}
+
+#[test]
+fn nested_source_attribution_defaults_relationship_to_primary() {
+    let markdown = r#"
+## 7. Recommended Actions
+
+| Finding ID | Component | Threat | Risk Level | Mitigation |
+| --- | --- | --- | --- | --- |
+| S-1 | API | Spoofing | High | Require signed requests |
+
+**Source Attribution**:
+```yaml
+S-1:
+  source_attribution:
+    - {taxonomy: owasp, id: A01}
+```
+"#;
+
+    let findings = parse_threats_findings(markdown).expect("nested attribution parses");
+    assert_eq!(
+        findings[0].source_attribution.as_ref().unwrap()[0].relationship,
+        "primary"
+    );
 }
 
 #[test]

@@ -40,7 +40,7 @@ Detects prompt injection vulnerabilities in LLM-integrated components. Prompt in
 2. Scan each DFD Process element in the architecture input and match its name or description against the trigger keywords (case-insensitive).
 3. For each matching component, walk through the pattern categories and collect any indicators present (input flows, retrieval sources, orchestration shape, output filtering gaps).
 4. Load `.claude/skills/tachi-shared/references/severity-bands-shared.md` and compute `likelihood`, `impact`, and `risk_level` for every finding using the matrix.
-5. Emit findings conforming to `schemas/finding.yaml` with `category: llm`, stable `LLM-{N}` ids, mitigations, and OWASP LLM01/LLM07 references. Use the example findings below for shape guidance. Populate `source_attribution` with one `relationship: primary` taxonomy entry (typically OWASP LLM01:2026 for direct/indirect injection and jailbreak surfaces, or OWASP LLM08:2026 for system-prompt extraction surfaces) plus ≥1 `relationship: related` CWE entry, mirroring the F-1/F-2/F-4 net-new agent precedent per ADR-037 D-3.
+5. Emit findings conforming to `schemas/finding.yaml` with `category: llm`, stable `LLM-{N}` ids, mitigations, and OWASP LLM01/LLM08 references. Use the example findings below for shape guidance. Populate `source_attribution` with one `relationship: primary` taxonomy entry (typically OWASP LLM01:2026 for direct/indirect injection and jailbreak surfaces, or OWASP LLM08:2026 for system-prompt extraction surfaces) plus ≥1 `relationship: related` CWE entry, mirroring the F-1/F-2/F-4 net-new agent precedent per ADR-037 D-3.
 6. If no components match any trigger keyword, return zero findings; do not speculate.
 
 ## Example Findings
@@ -62,7 +62,7 @@ references:
   - "CWE-94"
 source_attribution:
   - taxonomy: owasp
-    id: LLM01:2026
+    id: LLM01
     relationship: primary
   - taxonomy: cwe
     id: CWE-77
@@ -90,7 +90,7 @@ references:
   - "CWE-94"
 source_attribution:
   - taxonomy: owasp
-    id: LLM01:2026
+    id: LLM01
     relationship: primary
   - taxonomy: cwe
     id: CWE-77
@@ -117,7 +117,7 @@ references:
   - "CWE-77"
 source_attribution:
   - taxonomy: owasp
-    id: LLM01:2026
+    id: LLM01
     relationship: primary
   - taxonomy: cwe
     id: CWE-77

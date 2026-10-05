@@ -14,7 +14,7 @@
               "name": "OWASP-LLM",
               "index": 0,
               "guid": "b4da3eca-0deb-4f4e-8c3c-1c0e2d3f4a5b",
-              "version": "2025",
+              "version": "2026",
               "informationUri": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
             },
             {
@@ -166,7 +166,7 @@
                 "text": "Large language model specific threats"
               },
               "fullDescription": {
-                "text": "Threats specific to LLM systems including prompt injection, training data poisoning, model theft, improper output handling, and misinformation emission."
+                "text": "LLM integration threats classified by the current catalog: OWASP LLM01:2026 (Prompt Injection), OWASP LLM02:2026 (Sensitive Information Disclosure), OWASP LLM03:2026 (Excessive Agency), OWASP LLM04:2026 (Supply Chain), OWASP LLM05:2026 (Data and Model Poisoning), OWASP LLM06:2026 (Unbounded Consumption), OWASP LLM07:2026 (Misinformation), OWASP LLM08:2026 (Hidden Context Exposure), OWASP LLM09:2026 (Vector and Embedding Weaknesses), OWASP LLM10:2026 (Improper Output Handling)."
               },
               "properties": {
                 "tags": [
@@ -176,6 +176,9 @@
                   "owasp-llm"
                 ],
                 "security-severity": "7.7"
+              },
+              "help": {
+                "markdown": "Review prompt boundaries, training data provenance, model access controls and output validation.\n\n**References**: OWASP LLM01:2026 (Prompt Injection), OWASP LLM02:2026 (Sensitive Information Disclosure), OWASP LLM03:2026 (Excessive Agency), OWASP LLM04:2026 (Supply Chain), OWASP LLM05:2026 (Data and Model Poisoning), OWASP LLM06:2026 (Unbounded Consumption), OWASP LLM07:2026 (Misinformation), OWASP LLM08:2026 (Hidden Context Exposure), OWASP LLM09:2026 (Vector and Embedding Weaknesses), OWASP LLM10:2026 (Improper Output Handling); CWE-74 (Improper Neutralization of Special Elements)."
               }
             }
           ]
@@ -184,7 +187,7 @@
       "taxonomies": [
         {
           "name": "OWASP-LLM",
-          "version": "2025",
+          "version": "2026",
           "guid": "b4da3eca-0deb-4f4e-8c3c-1c0e2d3f4a5b",
           "informationUri": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
           "taxa": [
@@ -193,20 +196,40 @@
               "name": "Prompt Injection"
             },
             {
+              "id": "LLM02",
+              "name": "Sensitive Information Disclosure"
+            },
+            {
               "id": "LLM03",
-              "name": "Training Data Poisoning"
+              "name": "Excessive Agency"
+            },
+            {
+              "id": "LLM04",
+              "name": "Supply Chain"
             },
             {
               "id": "LLM05",
-              "name": "Improper Output Handling"
+              "name": "Data and Model Poisoning"
             },
             {
-              "id": "LLM09",
+              "id": "LLM06",
+              "name": "Unbounded Consumption"
+            },
+            {
+              "id": "LLM07",
               "name": "Misinformation"
             },
             {
+              "id": "LLM08",
+              "name": "Hidden Context Exposure"
+            },
+            {
+              "id": "LLM09",
+              "name": "Vector and Embedding Weaknesses"
+            },
+            {
               "id": "LLM10",
-              "name": "Model Theft"
+              "name": "Improper Output Handling"
             }
           ]
         },
@@ -557,7 +580,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "7d",
             "risk-disposition": "Mitigate",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM10",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -611,12 +641,17 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM05",
+                "id": "LLM10",
                 "relationship": "primary"
               },
               {
                 "taxonomy": "cwe",
                 "id": "CWE-89",
+                "relationship": "related"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-78",
                 "relationship": "related"
               }
             ]
@@ -668,7 +703,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "7d",
             "risk-disposition": "Mitigate",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM10",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -722,8 +764,13 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM05",
+                "id": "LLM10",
                 "relationship": "primary"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-79",
+                "relationship": "related"
               }
             ]
           }
@@ -774,7 +821,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "7d",
             "risk-disposition": "Mitigate",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM01",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -823,7 +877,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "7d",
             "risk-disposition": "Mitigate",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM01",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -876,12 +937,17 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM10",
+                "id": "LLM06",
                 "relationship": "primary"
               },
               {
                 "taxonomy": "cwe",
                 "id": "CWE-400",
+                "relationship": "related"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-770",
                 "relationship": "related"
               }
             ],
@@ -939,8 +1005,13 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM10",
+                "id": "LLM06",
                 "relationship": "primary"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-400",
+                "relationship": "related"
               }
             ],
             "new-finding": true
@@ -1042,7 +1113,14 @@
             "remediation-sla": "7d",
             "risk-disposition": "Mitigate",
             "score-source": "inherited",
-            "correlation-primary": "I-2"
+            "correlation-primary": "I-2",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM01",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1093,7 +1171,14 @@
             "risk-disposition": "Mitigate",
             "score-source": "inherited",
             "correlation-primary": "D-10",
-            "new-finding": true
+            "new-finding": true,
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM06",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1147,7 +1232,7 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM10",
+                "id": "LLM06",
                 "relationship": "primary"
               }
             ],
@@ -1201,7 +1286,14 @@
             "remediation-sla": "7d",
             "risk-disposition": "Mitigate",
             "score-source": "inherited",
-            "correlation-primary": "T-2"
+            "correlation-primary": "T-2",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM05",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1544,7 +1636,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "30d",
             "risk-disposition": "Review",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM01",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1642,7 +1741,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "30d",
             "risk-disposition": "Review",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM10",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1692,7 +1798,14 @@
             "remediation-sla": "30d",
             "risk-disposition": "Review",
             "score-source": "inherited",
-            "correlation-primary": "T-9"
+            "correlation-primary": "T-9",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM05",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1746,8 +1859,13 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM09",
+                "id": "LLM07",
                 "relationship": "primary"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-223",
+                "relationship": "related"
               }
             ]
           }
@@ -1847,7 +1965,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "30d",
             "risk-disposition": "Review",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM10",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -1901,8 +2026,13 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM09",
+                "id": "LLM07",
                 "relationship": "primary"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-345",
+                "relationship": "related"
               }
             ]
           }
@@ -1958,8 +2088,13 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM09",
+                "id": "LLM07",
                 "relationship": "primary"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-345",
+                "relationship": "related"
               }
             ]
           }
@@ -2015,8 +2150,13 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM05",
+                "id": "LLM10",
                 "relationship": "primary"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-918",
+                "relationship": "related"
               }
             ]
           }
@@ -2465,12 +2605,17 @@
             "source-attribution": [
               {
                 "taxonomy": "owasp",
-                "id": "LLM05",
+                "id": "LLM10",
                 "relationship": "primary"
               },
               {
                 "taxonomy": "cwe",
                 "id": "CWE-918",
+                "relationship": "related"
+              },
+              {
+                "taxonomy": "cwe",
+                "id": "CWE-78",
                 "relationship": "related"
               }
             ]
@@ -3208,7 +3353,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "30d",
             "risk-disposition": "Review",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM05",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -3307,7 +3459,14 @@
             "remediation-sla": "30d",
             "risk-disposition": "Review",
             "score-source": "inherited",
-            "correlation-primary": "T-8"
+            "correlation-primary": "T-8",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM05",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -3564,6 +3723,11 @@
                 "taxonomy": "cwe",
                 "id": "CWE-287",
                 "relationship": "related"
+              },
+              {
+                "taxonomy": "mitre-atlas",
+                "id": "AML.T0060",
+                "relationship": "related"
               }
             ],
             "asi07_emission": true,
@@ -3813,7 +3977,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "30d",
             "risk-disposition": "Review",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM06",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {
@@ -3862,7 +4033,14 @@
             "risk-owner": "Unassigned",
             "remediation-sla": "30d",
             "risk-disposition": "Review",
-            "score-source": "inherited"
+            "score-source": "inherited",
+            "source-attribution": [
+              {
+                "taxonomy": "owasp",
+                "id": "LLM06",
+                "relationship": "primary"
+              }
+            ]
           }
         },
         {

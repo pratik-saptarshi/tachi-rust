@@ -248,14 +248,14 @@ OWASP API Security Top 10 2023 API6:2023 — Unrestricted Access to Sensitive Bu
 - Tool-call cost / budget tracking with circuit-breaker — track aggregate flow-completion budget per tenant or per agent identity; circuit-break the flow when the budget is exhausted and require human override to reopen
 - Decompose the flow into per-step authorization scopes — expose `searchInventory`, `reserveSeat`, `purchase` (and analogous step boundaries) as distinct tool capabilities so the architectural seams support per-step abuse-detection gates; reject the atomic-capability presentation that suppresses those seams
 
-## Pattern Category Disambiguation: Category 6 (LLM03 Supply Chain) vs. Category 10 (MCP-to-MCP Trust Propagation)
+## Pattern Category Disambiguation: Category 6 (LLM04 Supply Chain) vs. Category 10 (MCP-to-MCP Trust Propagation)
 
 Category 10 cites OWASP LLM04:2026 as `relationship: related` per the existing Category 6 supply-chain vocabulary. This creates a **non-overlapping by design** carve formalized in ADR-032 Decision 7:
 
 - **Category 6** fires on **upstream ingestion** of plugins / tools / MCP servers — sourcing, registration, manifest pinning, signed package distribution at **registry time**. The threat is that an attacker compromises the upstream supply chain (manifest registry, plugin marketplace, MCP server publisher) and injects malicious tool definitions before the agent's first invocation.
 - **Category 10** fires on **runtime trust propagation** between already-registered MCP servers — per-hop attestation, signed-capability handoff, transitive authority validation at **invocation time**. The threat is that an attacker compromises a trusted MCP-A intermediary (or the trust-chain logic itself) and manipulates the multi-hop relay to MCP-B during an active session.
 
-**Co-emission contract**: an architecture exhibiting BOTH MCP-A unsigned at registration (Category 6) AND MCP-A relays to MCP-B without per-hop attestation (Category 10) MUST emit BOTH findings. They are **not duplicates** and MUST NOT be merged in the threat-report's Agentic-category section. The same architecture may legitimately surface both findings describing distinct architectural gaps. Per the source_attribution contract, Category 10 cites LLM03 as `relationship: related` (optional, when cross-MCP supply-chain trust-inheritance reasoning is surfaced); Category 6 cites LLM03 as `relationship: primary`. The dual citation is by design — distinct relationship semantics over the same OWASP framework anchor.
+**Co-emission contract**: an architecture exhibiting BOTH MCP-A unsigned at registration (Category 6) AND MCP-A relays to MCP-B without per-hop attestation (Category 10) MUST emit BOTH findings. They are **not duplicates** and MUST NOT be merged in the threat-report's Agentic-category section. The same architecture may legitimately surface both findings describing distinct architectural gaps. Per the source_attribution contract, Category 10 cites LLM04 as `relationship: related` (optional, when cross-MCP supply-chain trust-inheritance reasoning is surfaced); Category 6 cites LLM04 as `relationship: primary`. The dual citation is by design — distinct relationship semantics over the same OWASP framework anchor.
 
 ## Primary Sources
 

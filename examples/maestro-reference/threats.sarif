@@ -137,7 +137,7 @@
               "fullDescription": { "text": "Threats specific to large language model components. Covers prompt injection, training data poisoning via feedback loops, model extraction, and membership inference attacks on fine-tuned clinical models." },
               "help": {
                 "text": "Review prompt sanitization, training data provenance, model output validation, membership inference defenses, and fine-tuning pipeline integrity.",
-                "markdown": "**Detection Guidance**: Review prompt sanitization, training data provenance, model output validation, and fine-tuning pipeline integrity.\n\n**References**: OWASP LLM01:2026 (Prompt Injection), OWASP LLM04:2026 (Training Data Poisoning), OWASP LLM06:2026 (Model Theft), CWE-74 (Improper Neutralization of Special Elements in Output)"
+                "markdown": "**Detection Guidance**: Review prompt sanitization, training data provenance, model output validation, and fine-tuning pipeline integrity.\n\n**References**: OWASP LLM01:2026 (Prompt Injection), OWASP LLM05:2026 (Data and Model Poisoning), OWASP LLM06:2026 (Unbounded Consumption), OWASP ML01:2023 (Input Manipulation Attack), OWASP ML02:2023 (Data Poisoning Attack), OWASP ML04:2023 (Membership Inference Attack), CWE-74 (Improper Neutralization of Special Elements in Output)"
               },
               "properties": {
                 "tags": ["security", "ai", "llm", "prompt-injection", "data-poisoning", "model-theft", "cwe"],

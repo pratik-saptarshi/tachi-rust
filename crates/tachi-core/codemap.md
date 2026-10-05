@@ -20,6 +20,12 @@ desktop, MCP, and filesystem orchestration to adapter crates.
 
 ## Data & Control Flow
 
+`maestro_coverage` defines the shared `EvaluationState` classifier and output
+agreement diagnostics. Infographics and report data carry its explicit states.
+`permissions` validates JSON and documentation consistency. `catalog_drift`
+uses the renderer's strict YAML loader and ordered framework registry to check
+catalog membership/order/scope and stage complete PDF baseline regeneration.
+
 1. A host reads workspace artifacts and invokes the public facade.
 2. Parsers convert Markdown, Mermaid, and taxonomy content into typed findings,
    scope, severity, attribution, and risk records.
@@ -32,6 +38,15 @@ desktop, MCP, and filesystem orchestration to adapter crates.
 
 - Consumed by `tachi-shell`, `tachi-desktop`, and other host adapters through
   the facade rather than private implementation modules.
-- Depends only on `serde`, `serde_json`, `sha2`, and `thiserror` at runtime,
+- Depends only on `serde`, `serde_json`, `serde_yaml_ng`, `sha2`, and `thiserror` at runtime,
   preserving the host-independent boundary.
+- `tests/report_document_contract.rs` verifies that selected-tier components,
+  remediation recommendations and available brand assets survive Typst data assembly.
+- `try_build_report_data_typst` propagates attribution/read errors to CLI, desktop,
+  MCP and regeneration callers before output publication. The legacy string builder
+  returns a Typst panic document on invalid input, never a zero-finding report.
 - Detailed source map: [src/codemap.md](src/codemap.md).
+- `examples/refresh_sarif_taxonomy.rs`: native maintenance command for companion
+  SARIF taxonomy metadata/citations, preserving finding IDs, scores and evidence.
+  Run `cargo run -p tachi-core --example refresh_sarif_taxonomy -- THREATS_SARIF COMPANION_SARIF`
+  after generating the native threat export; the current OWASP catalog supplies labels.

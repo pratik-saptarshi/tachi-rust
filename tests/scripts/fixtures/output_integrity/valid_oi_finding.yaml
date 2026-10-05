@@ -2,7 +2,7 @@
 #
 # Exercises the F-A2 source_attribution contract with two valid catalog
 # citations:
-#   1. owasp:LLM05 (primary)   — present in schemas/taxonomy/owasp.yaml
+#   1. owasp:LLM10 (primary)   — present in schemas/taxonomy/owasp.yaml
 #   2. cwe:CWE-79 (related)    — present in schemas/taxonomy/cwe.yaml
 #
 # Test surface: test_output_integrity.py::TestOutputIntegritySourceAttribution

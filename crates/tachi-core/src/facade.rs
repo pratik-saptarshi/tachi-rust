@@ -23,7 +23,7 @@ pub use crate::mmdc::{
 };
 pub use crate::parity::crate_name;
 pub use crate::parsers::parse_threats_findings;
-pub use crate::report_data::build_report_data_typst;
+pub use crate::report_data::{build_report_data_typst, try_build_report_data_typst};
 pub use crate::report_extraction::{
     build_remediation_actions, merge_delta_status, merge_source_attribution,
     parse_threat_report_md, RemediationAction, RemediationFinding, RemediationTimelineEntry,

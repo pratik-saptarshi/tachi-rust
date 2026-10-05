@@ -1,0 +1,7626 @@
+{
+  "version": 2,
+  "catalogs": [
+    {
+      "framework": "owasp",
+      "raw": [
+        {
+          "id": "A01",
+          "out_of_scope": false
+        },
+        {
+          "id": "A02",
+          "out_of_scope": false
+        },
+        {
+          "id": "A03",
+          "out_of_scope": false
+        },
+        {
+          "id": "A04",
+          "out_of_scope": false
+        },
+        {
+          "id": "A05",
+          "out_of_scope": false
+        },
+        {
+          "id": "A06",
+          "out_of_scope": false
+        },
+        {
+          "id": "A07",
+          "out_of_scope": false
+        },
+        {
+          "id": "A08",
+          "out_of_scope": false
+        },
+        {
+          "id": "A09",
+          "out_of_scope": false
+        },
+        {
+          "id": "A10",
+          "out_of_scope": false
+        },
+        {
+          "id": "API1",
+          "out_of_scope": false
+        },
+        {
+          "id": "API10",
+          "out_of_scope": false
+        },
+        {
+          "id": "API2",
+          "out_of_scope": false
+        },
+        {
+          "id": "API3",
+          "out_of_scope": false
+        },
+        {
+          "id": "API4",
+          "out_of_scope": false
+        },
+        {
+          "id": "API5",
+          "out_of_scope": false
+        },
+        {
+          "id": "API6",
+          "out_of_scope": false
+        },
+        {
+          "id": "API7",
+          "out_of_scope": false
+        },
+        {
+          "id": "API8",
+          "out_of_scope": false
+        },
+        {
+          "id": "API9",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI01",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI02",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI03",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI04",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI05",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI06",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI07",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI08",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI09",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI10",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM01",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM02",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM03",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM04",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM05",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM06",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM07",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM08",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM09",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM10",
+          "out_of_scope": false
+        },
+        {
+          "id": "M1",
+          "out_of_scope": false
+        },
+        {
+          "id": "M10",
+          "out_of_scope": false
+        },
+        {
+          "id": "M2",
+          "out_of_scope": false
+        },
+        {
+          "id": "M3",
+          "out_of_scope": false
+        },
+        {
+          "id": "M4",
+          "out_of_scope": false
+        },
+        {
+          "id": "M5",
+          "out_of_scope": false
+        },
+        {
+          "id": "M6",
+          "out_of_scope": false
+        },
+        {
+          "id": "M7",
+          "out_of_scope": false
+        },
+        {
+          "id": "M8",
+          "out_of_scope": false
+        },
+        {
+          "id": "M9",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML01",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML02",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML03",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML04",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML05",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML06",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML07",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML08",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML09",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML10",
+          "out_of_scope": false
+        }
+      ],
+      "in_scope": [
+        {
+          "id": "A01",
+          "out_of_scope": false
+        },
+        {
+          "id": "A02",
+          "out_of_scope": false
+        },
+        {
+          "id": "A03",
+          "out_of_scope": false
+        },
+        {
+          "id": "A04",
+          "out_of_scope": false
+        },
+        {
+          "id": "A05",
+          "out_of_scope": false
+        },
+        {
+          "id": "A06",
+          "out_of_scope": false
+        },
+        {
+          "id": "A07",
+          "out_of_scope": false
+        },
+        {
+          "id": "A08",
+          "out_of_scope": false
+        },
+        {
+          "id": "A09",
+          "out_of_scope": false
+        },
+        {
+          "id": "A10",
+          "out_of_scope": false
+        },
+        {
+          "id": "API1",
+          "out_of_scope": false
+        },
+        {
+          "id": "API10",
+          "out_of_scope": false
+        },
+        {
+          "id": "API2",
+          "out_of_scope": false
+        },
+        {
+          "id": "API3",
+          "out_of_scope": false
+        },
+        {
+          "id": "API4",
+          "out_of_scope": false
+        },
+        {
+          "id": "API5",
+          "out_of_scope": false
+        },
+        {
+          "id": "API6",
+          "out_of_scope": false
+        },
+        {
+          "id": "API7",
+          "out_of_scope": false
+        },
+        {
+          "id": "API8",
+          "out_of_scope": false
+        },
+        {
+          "id": "API9",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI01",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI02",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI03",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI04",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI05",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI06",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI07",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI08",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI09",
+          "out_of_scope": false
+        },
+        {
+          "id": "ASI10",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM01",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM02",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM03",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM04",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM05",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM06",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM07",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM08",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM09",
+          "out_of_scope": false
+        },
+        {
+          "id": "LLM10",
+          "out_of_scope": false
+        },
+        {
+          "id": "M1",
+          "out_of_scope": false
+        },
+        {
+          "id": "M10",
+          "out_of_scope": false
+        },
+        {
+          "id": "M2",
+          "out_of_scope": false
+        },
+        {
+          "id": "M3",
+          "out_of_scope": false
+        },
+        {
+          "id": "M4",
+          "out_of_scope": false
+        },
+        {
+          "id": "M5",
+          "out_of_scope": false
+        },
+        {
+          "id": "M6",
+          "out_of_scope": false
+        },
+        {
+          "id": "M7",
+          "out_of_scope": false
+        },
+        {
+          "id": "M8",
+          "out_of_scope": false
+        },
+        {
+          "id": "M9",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML01",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML02",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML03",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML04",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML05",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML06",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML07",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML08",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML09",
+          "out_of_scope": false
+        },
+        {
+          "id": "ML10",
+          "out_of_scope": false
+        }
+      ]
+    },
+    {
+      "framework": "mitre-attack",
+      "raw": [
+        {
+          "id": "T1001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1001.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1001.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1001.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1010",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1011",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1011.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1012",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1014",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1016",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1016.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1016.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1018",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1020",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1020.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1021.008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1025",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.009",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.010",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.011",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.012",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.013",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.014",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.015",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.016",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.017",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1027.018",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1029",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1030",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1033",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.009",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.010",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.011",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1036.012",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1037",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1039",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1040",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1041",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1046",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1047",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1048",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1048.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1048.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1048.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1049",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1052",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1052.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1053",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.015",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1057",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1059",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1068",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1069",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1069.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1069.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1069.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.009",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1070.010",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1071",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1071.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1071.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1071.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1071.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1071.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1072",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1074",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1074.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1074.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1078",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1080",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1082",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1083",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1087",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1087.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1087.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1087.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1087.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1090",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1090.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1090.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1090.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1090.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1091",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1092",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1095",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1098",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1102",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1102.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1102.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1102.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1104",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1105",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1106",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1111",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1112",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1113",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1114",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1114.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1114.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1114.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1115",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1119",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1120",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1123",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1124",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1125",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1127",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1129",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1132",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1132.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1132.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1133",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1135",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1136",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1140",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1176",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1176.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1176.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1185",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1187",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1189",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1190",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1197",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1199",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1200",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1201",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1202",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1203",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1205",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1205.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1205.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1207",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1210",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1211",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1212",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1213",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1213.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1213.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1213.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1213.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1213.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1213.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1216",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1216.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1216.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1217",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.009",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.010",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.011",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.012",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.013",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.014",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1218.015",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1219",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1219.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1219.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1219.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1220",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1221",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1222",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1222.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1222.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1480",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1480.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1480.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1482",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1484",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1484.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1484.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1485",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1485.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1486",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1489",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1490",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1491",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1491.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1491.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1495",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1496",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1496.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1496.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1496.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1496.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1497",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1497.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1497.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1497.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1498",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1498.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1498.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1499",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1499.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1499.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1499.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1499.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1505",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1518",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1518.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1518.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1525",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1526",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1528",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1529",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1530",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1531",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1534",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1535",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1537",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1538",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1539",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.015",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.016",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.017",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.018",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.015",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1550",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1550.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1550.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1550.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1550.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1552",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1553",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1553.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1553.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1553.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1553.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1553.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1553.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1554",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1560",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1560.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1560.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1560.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1561",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1561.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1561.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1562",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1562.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1563",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1563.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1563.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.007",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.008",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.009",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.010",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.011",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.012",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.013",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1564.014",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1565",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1565.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1565.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1565.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1566",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1567",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1567.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1567.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1567.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1567.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1568",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1568.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1568.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1568.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1569",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1570",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1571",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1572",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1573",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1573.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1573.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1574",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1578",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1578.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1578.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1578.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1578.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1578.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1580",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1583",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1589",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1589.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1589.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1589.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1590.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1591",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1591.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1591.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1591.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1591.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1592",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1592.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1592.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1592.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1592.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1593",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1593.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1593.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1593.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1594",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1595",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1595.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1595.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1595.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1596",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1596.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1596.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1596.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1596.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1596.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1597",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1597.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1597.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1598",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1598.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1598.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1598.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1598.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1599",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1599.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1600",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1600.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1600.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1601",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1601.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1601.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1602",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1602.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1602.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1606",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1606.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1606.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1609",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1610",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1611",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1612",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1613",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1614",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1614.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1615",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1619",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1620",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1621",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1622",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1647",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1648",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1649",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1650",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1651",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1652",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1653",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1654",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1657",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1659",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1665",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1666",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1667",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1668",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1669",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1671",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1673",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1674",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1675",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1677",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1678",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1679",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1680",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1681",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1682",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1683",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1683.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1683.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1684",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1684.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1684.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685.004",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685.005",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1685.006",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1686",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1686.001",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1686.002",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1686.003",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1687",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1688",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1689",
+          "out_of_scope": true
+        },
+        {
+          "id": "T1690",
+          "out_of_scope": true
+        }
+      ],
+      "in_scope": [
+        {
+          "id": "T1003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1003.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1037.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1040",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1047",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1053.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1055.015",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1056.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1059.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1068",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1072",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1078.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1091",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1098.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1106",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1110.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1111",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1112",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1127.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1129",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1133",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1134.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1136.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1137.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1176",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1176.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1176.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1187",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1189",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1190",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1195.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1197",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1199",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1200",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1203",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1204.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1205",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1205.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1205.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1212",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1484",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1484.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1484.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1505.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1525",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1528",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1539",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1542.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1543.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.015",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.016",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.017",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1546.018",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1547.015",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1548.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1552.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1554",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1555.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1556.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1557.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1558.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1559.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1566.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1569.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.009",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.010",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.011",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.012",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.013",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1574.014",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1583.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1584.008",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1585.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1586.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1587.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1588.007",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1606",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1606.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1606.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.002",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.003",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.004",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.005",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1608.006",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1609",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1610",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1611",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1621",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1648",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1649",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1650",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1651",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1653",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1659",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1668",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1669",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1671",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1674",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1675",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1677",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1683",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1683.001",
+          "out_of_scope": false
+        },
+        {
+          "id": "T1683.002",
+          "out_of_scope": false
+        }
+      ]
+    },
+    {
+      "framework": "mitre-atlas",
+      "raw": [
+        {
+          "id": "AML.T0000",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0001",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0002",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0003",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0004",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0005",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0007",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0010",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0011",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0012",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0013",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0014",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0015",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0016",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0018",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0019",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0020",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0024",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0025",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0029",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0031",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0034",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0035",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0037",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0040",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0042",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0043",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0048",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0051",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0054",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0057",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0058",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0059",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0060",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0061",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0062",
+          "out_of_scope": false
+        }
+      ],
+      "in_scope": [
+        {
+          "id": "AML.T0000",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0001",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0002",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0003",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0004",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0005",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0007",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0010",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0011",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0012",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0013",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0014",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0015",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0016",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0018",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0019",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0020",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0024",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0025",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0029",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0031",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0034",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0035",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0037",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0040",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0042",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0043",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0048",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0051",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0054",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0057",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0058",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0059",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0060",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0061",
+          "out_of_scope": false
+        },
+        {
+          "id": "AML.T0062",
+          "out_of_scope": false
+        }
+      ]
+    },
+    {
+      "framework": "nist-ai-rmf",
+      "raw": [
+        {
+          "id": "GOVERN 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.7",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 4.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 5.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 5.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 6.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 6.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 4.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 5.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 5.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.7",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.8",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.9",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.10",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.11",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.12",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.13",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 3.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 4.3",
+          "out_of_scope": false
+        }
+      ],
+      "in_scope": [
+        {
+          "id": "GOVERN 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 1.7",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 4.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 5.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 5.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 6.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "GOVERN 6.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 1.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 2.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MANAGE 4.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 1.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 3.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 5.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MAP 5.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 1.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 1.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 1.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.7",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.8",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.9",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.10",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.11",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.12",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 2.13",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 3.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 3.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 3.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 4.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 4.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "MEASURE 4.3",
+          "out_of_scope": false
+        }
+      ]
+    },
+    {
+      "framework": "nist-ai-600-1",
+      "raw": [
+        {
+          "id": "2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.7",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.8",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.9",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.10",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.11",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.12",
+          "out_of_scope": false
+        }
+      ],
+      "in_scope": [
+        {
+          "id": "2.1",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.2",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.3",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.4",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.5",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.6",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.7",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.8",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.9",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.10",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.11",
+          "out_of_scope": false
+        },
+        {
+          "id": "2.12",
+          "out_of_scope": false
+        }
+      ]
+    },
+    {
+      "framework": "cwe",
+      "raw": [
+        {
+          "id": "CWE-1035",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1039",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1104",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-116",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-117",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1174",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-120",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-121",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-122",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-125",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1269",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1333",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1357",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1395",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1426",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1427",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-16",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-20",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-200",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-201",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-209",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-213",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-215",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-22",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-223",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-250",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-255",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-256",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-259",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-260",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-266",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-269",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-284",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-285",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-287",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-290",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-295",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-306",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-307",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-311",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-312",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-319",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-326",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-327",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-345",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-352",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-359",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-384",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-400",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-407",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-416",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-434",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-476",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-489",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-494",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-502",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-520",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-521",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-522",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-532",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-538",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-540",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-565",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-601",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-611",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-613",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-614",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-639",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-693",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-73",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-732",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-77",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-770",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-776",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-778",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-779",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-78",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-787",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-79",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-798",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-799",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-829",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-862",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-863",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-89",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-90",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-915",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-916",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-917",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-918",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-937",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-94",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-943",
+          "out_of_scope": false
+        }
+      ],
+      "in_scope": [
+        {
+          "id": "CWE-1035",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1039",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1104",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-116",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-117",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1174",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-120",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-121",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-122",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-125",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1269",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1333",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1357",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1395",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1426",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-1427",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-16",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-20",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-200",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-201",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-209",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-213",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-215",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-22",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-223",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-250",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-255",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-256",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-259",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-260",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-266",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-269",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-284",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-285",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-287",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-290",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-295",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-306",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-307",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-311",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-312",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-319",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-326",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-327",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-345",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-352",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-359",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-384",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-400",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-407",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-416",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-434",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-476",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-489",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-494",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-502",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-520",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-521",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-522",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-532",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-538",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-540",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-565",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-601",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-611",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-613",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-614",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-639",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-693",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-73",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-732",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-77",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-770",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-776",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-778",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-779",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-78",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-787",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-79",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-798",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-799",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-829",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-862",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-863",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-89",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-90",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-915",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-916",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-917",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-918",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-937",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-94",
+          "out_of_scope": false
+        },
+        {
+          "id": "CWE-943",
+          "out_of_scope": false
+        }
+      ]
+    }
+  ],
+  "renderer": "typst 0.15.1 (9dfd3a08)",
+  "source_date_epoch": "1700000000",
+  "font_policy": "embedded-only",
+  "baselines": [
+    {
+      "path": "examples/web-app/security-report.pdf.baseline",
+      "sha256": "c24ede1db339aa8152329c702bbc6ec16a432b4ea65714cc7860a1aa8e7c5ec5"
+    },
+    {
+      "path": "examples/microservices/security-report.pdf.baseline",
+      "sha256": "bdf91e8b33ad0397bf2badceb7a9b55ea14b7a56d445c8ff3610f43aff740984"
+    },
+    {
+      "path": "examples/ascii-web-api/security-report.pdf.baseline",
+      "sha256": "11cd7763b02ba34d05b0bf69534d41eb5d24eb520b2ca64ebcb0f604d1438bf9"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/security-report.pdf.baseline",
+      "sha256": "ab46ab62856cb18ec34a9f8945762fa2040da5aa4d204965c32b7efc08eee2cd"
+    },
+    {
+      "path": "examples/free-text-microservice/security-report.pdf.baseline",
+      "sha256": "9c0f401a513ad8e2242cbfd6fb528adeaec9e5903d8d33e0b857f0ea4049bee1"
+    },
+    {
+      "path": "examples/maestro-reference/security-report.pdf.baseline",
+      "sha256": "ff73783df0dc6b8e0da4f2e628781f278cf009f013e7e89276ce7f97416f1f41"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/security-report.pdf.baseline",
+      "sha256": "5cf5c3d2305d5465b4af710d3e5101fcfb340418785540186b94cf326faf40d5"
+    }
+  ],
+  "rendering_inputs": [
+    {
+      "path": "Cargo.lock",
+      "sha256": "1456cb05b5beda8d45ccbcc8aa8fbb9553a3d069ec2913b556b272a11842edc4"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "c4bc86e848fdf4a61180ff7775c3b8b7e397589b96e6cb6556b80e0f27baa6f6"
+    },
+    {
+      "path": "brand/final/tachi-icon-dark.png",
+      "sha256": "60a864096c24a4d228df8dfe9e0d1b457d1ed230a68ff18cab024499ae18efe9"
+    },
+    {
+      "path": "brand/final/tachi-icon.png",
+      "sha256": "3434db5f3f754f9461ede3058571565586feb552323e4cdac1cb113496343d0b"
+    },
+    {
+      "path": "brand/final/tachi-logo-horizontal-dark.png",
+      "sha256": "2c635891ba82afb9ef4a12231f5df5f5434102ac909943b85379878056f65e62"
+    },
+    {
+      "path": "brand/final/tachi-logo-horizontal.png",
+      "sha256": "ec57274d20f27cf9fd88d28b581e4bce612e004ca9ec5c169d9e432d0d24929b"
+    },
+    {
+      "path": "brand/final/tachi-logo-primary-dark.png",
+      "sha256": "868956e035cad711bb16594762b7d2f20cd018ef114633c5b505294e736e4581"
+    },
+    {
+      "path": "brand/final/tachi-logo-primary.png",
+      "sha256": "ada430b9a571f98607afe43ff88435fcf35c042d2ecc92cd62769ce1ea334938"
+    },
+    {
+      "path": "crates/tachi-cli/Cargo.toml",
+      "sha256": "a2e172678c249cad5c6bcb87eb89ec0ae677c82adbf79f1384e4603e744087e5"
+    },
+    {
+      "path": "crates/tachi-cli/src/bin/catalog-drift.rs",
+      "sha256": "153aade97e7f72c8041100ddc93b09c160444c4d57e316c24215d644285c40fe"
+    },
+    {
+      "path": "crates/tachi-core/Cargo.toml",
+      "sha256": "a0ce2af962a98a6ed5c284731a5360564aa5cd7efd1e0c15a5c6e8c64e46ee46"
+    },
+    {
+      "path": "crates/tachi-core/src/aisvs.rs",
+      "sha256": "3fe326927a898c638079941662f9254608c41b1dd141546f212310c7023e4e02"
+    },
+    {
+      "path": "crates/tachi-core/src/artifacts.rs",
+      "sha256": "d471d7ef6d76e33eedab8ae925a3c9d135c13d75ddfc298becdd19ffc246ebfb"
+    },
+    {
+      "path": "crates/tachi-core/src/assets.rs",
+      "sha256": "90bc9d811f1f26ce99351628050ffab2434e3f7942b6317214fb1ea3060fd544"
+    },
+    {
+      "path": "crates/tachi-core/src/attack_chains.rs",
+      "sha256": "2522957da36264c9e962ae79eab21353c7cfbc7f43317f364b2daead4ad23940"
+    },
+    {
+      "path": "crates/tachi-core/src/attack_trees.rs",
+      "sha256": "50c2e4970fe4d950e4b15bfc6b1c7110e880b26991b02b2c35c3d19c3b0630b1"
+    },
+    {
+      "path": "crates/tachi-core/src/catalog_drift.rs",
+      "sha256": "c9e98ec4b4e069315dd258a41cd023c9a77aa881d4c09b41427dfd091be00e08"
+    },
+    {
+      "path": "crates/tachi-core/src/codemap.md",
+      "sha256": "dbfeb67b5d0a080299110e544d032b22ca52ae244d25edb9f5a5998b3f1e30f0"
+    },
+    {
+      "path": "crates/tachi-core/src/compensating_controls.rs",
+      "sha256": "811cd262b2f991eb2be36e61b9923710cf54dda62603ad076ec50241167a7c4a"
+    },
+    {
+      "path": "crates/tachi-core/src/coverage_attestation.rs",
+      "sha256": "6aca34bde10dc04faec9dcc114166270f08fb93cd5d152c53ab2601e6188dc28"
+    },
+    {
+      "path": "crates/tachi-core/src/coverage_audit.rs",
+      "sha256": "fdda8ce51f43dbfdf79451cec1bb6adc2e735d2293488e64953190e7268a3fed"
+    },
+    {
+      "path": "crates/tachi-core/src/coverage_taxonomy.rs",
+      "sha256": "5abbdba666760bdaae6ea61aa49fe058c5ad19b0f82fb10e738ef5d7ef930620"
+    },
+    {
+      "path": "crates/tachi-core/src/facade.rs",
+      "sha256": "bbfdb3185d19c0f21c11cb6823579717b62b8afd365bd9bb8596c487baddb96d"
+    },
+    {
+      "path": "crates/tachi-core/src/fixtures.rs",
+      "sha256": "4a9b0165dda2861fbc42047cf362bee2b4d55e8e12f64b851a8314c72c9be34b"
+    },
+    {
+      "path": "crates/tachi-core/src/infographic.rs",
+      "sha256": "a6e1af493a5d64b104ae600930c39dbf0be499551eea75bffac58266c4340b76"
+    },
+    {
+      "path": "crates/tachi-core/src/infographic/codemap.md",
+      "sha256": "d5f17c6aec87d1ec8a521a0ac147ad0734d1dfdbcf599f56eb0006f872b43371"
+    },
+    {
+      "path": "crates/tachi-core/src/infographic/executive_architecture.rs",
+      "sha256": "a89f63a054f81b144ca33bf74b7ed36018af8a0d8eee1bc033ec56328a122b73"
+    },
+    {
+      "path": "crates/tachi-core/src/infographic/maestro_templates.rs",
+      "sha256": "65c98f484c2268fe8e4362008eeecec65e4861685491993b477d68a8447651fa"
+    },
+    {
+      "path": "crates/tachi-core/src/infographic/payload.rs",
+      "sha256": "e93e3ed1d9e6cf48ed5a92ee8d82453e4c494f864da98cdd49c25e766dcef586"
+    },
+    {
+      "path": "crates/tachi-core/src/infographic/prompt_scaffold.rs",
+      "sha256": "19fe65c91ce3d4ec6bd772b7a2693232c57683e06610f81895399fa7c9279ee2"
+    },
+    {
+      "path": "crates/tachi-core/src/lib.rs",
+      "sha256": "29f477f9b03c0e6e1aa2a7d3e4eaa23821bb9457968c47fe193dc6e4d5683a74"
+    },
+    {
+      "path": "crates/tachi-core/src/maestro_coverage.rs",
+      "sha256": "e1a80c4914dd8335cc4f46e78a1622e0666b39cf18d735cbc4d759eb6d3c9938"
+    },
+    {
+      "path": "crates/tachi-core/src/metadata.rs",
+      "sha256": "ded1b36bf4753c33cf077850870300d9a223a2ef1351c8a3d8aa48f2d2a8c60a"
+    },
+    {
+      "path": "crates/tachi-core/src/mmdc.rs",
+      "sha256": "46ba3f7236621c296dafed1e3f73d1ad24e1421f50839af1bc1f43f798930523"
+    },
+    {
+      "path": "crates/tachi-core/src/normalization.rs",
+      "sha256": "8f6c8633c2831c40f3921e3a40a3cb4e3646c4bdc9d02de73313f9a0123f4f39"
+    },
+    {
+      "path": "crates/tachi-core/src/parity.rs",
+      "sha256": "48f3e2fbd17a66afac80a14cc6131c5b9ce2d7713139b221d03763d32f242267"
+    },
+    {
+      "path": "crates/tachi-core/src/parsers/codemap.md",
+      "sha256": "1aabd45545289720968ebb93e1c9816b62b9ea4d5129f6f6be59c6d7369a805d"
+    },
+    {
+      "path": "crates/tachi-core/src/parsers/findings.rs",
+      "sha256": "624923fd6a386141fbf6dcefc99c4c4440e8d89591b801b1469b9f1669515eb3"
+    },
+    {
+      "path": "crates/tachi-core/src/parsers/mermaid.rs",
+      "sha256": "36ca4e4d6323d770773ed2bc7af94874ef92675fb60208c7adc11ccd9866538c"
+    },
+    {
+      "path": "crates/tachi-core/src/parsers/mod.rs",
+      "sha256": "0a31754ffa84c59471822ed1f1defe25db4c6f631b0f0fdcc1860931d9c94ae4"
+    },
+    {
+      "path": "crates/tachi-core/src/parsers/scope.rs",
+      "sha256": "41864a82a5649d4412b750f57448394f94b54e5d7bcb1e3df7e1c04d583cfb2e"
+    },
+    {
+      "path": "crates/tachi-core/src/parsers/table.rs",
+      "sha256": "4eab36bcffac36f463332b536403889e308175b134250f0b0e1eb281afa81152"
+    },
+    {
+      "path": "crates/tachi-core/src/permissions.rs",
+      "sha256": "177246a8c7cd67bc77ac9ffe680368421cca7616c1a4a6f6ca1a63e527d1f6a1"
+    },
+    {
+      "path": "crates/tachi-core/src/report_data.rs",
+      "sha256": "91808f4b9788968073831a582261059049883f5d56074c1c526d53c907b05872"
+    },
+    {
+      "path": "crates/tachi-core/src/report_extraction.rs",
+      "sha256": "1426c2ab29e4716d059e21724d43f5169f439898e9da1bcc9168d78a5c07b1ec"
+    },
+    {
+      "path": "crates/tachi-core/src/risk_scores.rs",
+      "sha256": "fdf2632f39231151bab3de07d189d5ddcaa838802e356610bb39e987e4370ec3"
+    },
+    {
+      "path": "crates/tachi-core/src/sarif_common.rs",
+      "sha256": "51fa8a58de0ea2923b7971174d2f36d5bfe0251793035dcf6f51659c6ad9661a"
+    },
+    {
+      "path": "crates/tachi-core/src/threats_sarif.rs",
+      "sha256": "bcd7b708d5d4ae1289ee39ffd085a726c01268d7c446e398f50eab00f070ae91"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/architecture.md",
+      "sha256": "90773529c3f6e31666d43ba80cc259451f02324895a54f865939d515c72d3b11"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-chains.md",
+      "sha256": "78bb7e63fa349aaa264865f4c17d002090db026800bfca8d4e8469adf0d24bfe"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-chains/chain-001-attack-chain.png",
+      "sha256": "1913ee3db5e07ed83de1f8ad66366c56cbf4724447371674c9cc4fe97a67d952"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-chains/chain-002-attack-chain.png",
+      "sha256": "a68fe16c865e4c9ee3571db5029ba10e5569f00580db94eb684b0e2297b2dca3"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-chains/chain-003-attack-chain.png",
+      "sha256": "d3e62be859a95b42b19712a8f84bd7daeb2b5779ef203f547080214782edd1ee"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-chains/chain-004-attack-chain.png",
+      "sha256": "cddad484429bed472ca2b195bcbcb0380ba2735154880d12576dec2e1a60a9ac"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-chains/chain-005-attack-chain.png",
+      "sha256": "7f361a71d073f9cc744ce17bfc6255abc04bed8c3d695c8faa5f9bc03560d7bf"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/.manifest.json",
+      "sha256": "72d6f57d2a420fbf9e81d28183215cec1c3bddd542c68660e28b7de1fc19573a"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/AG-5-attack-tree.md",
+      "sha256": "1300601428b8dd251e4b142086e2d6b180a1354e1d5aeaffe3bdf928bc5c6493"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/D-5-attack-tree.md",
+      "sha256": "088f5372ed3772abfe894a2975f14e912c50b56f409683f3db4e7b34cce08552"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/E-4-attack-tree.md",
+      "sha256": "e545c479861155a29689aacf6e0ce8d0f6875fd5088c5fc407ec2f515090abb7"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/E-5-attack-tree.md",
+      "sha256": "3ebd324a960fefce8ec078cd1a344277e2937b571b39e654658885a63c99e48a"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/E-6-attack-tree.md",
+      "sha256": "5df064c27c1071f76d39320da0737da9113ca7fbe893e70026d2b91afc323d40"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/I-7-attack-tree.md",
+      "sha256": "e0f75b9a542ae8312e1b55def28189c9423d4ad6588885ea92df556bbbe50335"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/LLM-13-attack-tree.md",
+      "sha256": "26db7cd04a0439567b307f7f867f20c43a35bec10fead0910ae67528a5f39d6d"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/LLM-14-attack-tree.md",
+      "sha256": "058bbc5f1152c38fc8bca6cb7ef264b08775d92fc85fe62e7414d1b253e485fd"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/MI-1-attack-tree.md",
+      "sha256": "1fba735c6bf345e0c97be0a615927fec5d7b74d178425dd0f990047f9de36747"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/MI-2-attack-tree.md",
+      "sha256": "9648ec374fe1cce45fa3ec0ba003a77fd964039e7aad1aca75a82635874d1ab2"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/MI-3-attack-tree.md",
+      "sha256": "c0ab544ff386a0faa9a006c6e8e293ae47705deeee71968ec55b29c5e3f8fefe"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/S-5-attack-tree.md",
+      "sha256": "703906569fbc0f88e78d85d141a2acbf118426a0f08bfa88d470621ee9abc053"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/S-6-attack-tree.md",
+      "sha256": "df8abc600606396a1d00ad3df5ab79c20c04f3bf315919a9406b7b9b3718bfdb"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/S-7-attack-tree.md",
+      "sha256": "93cedab3d154a7dd42eb248909b3fd9b10ad4ae500491ac307de31acadaeeea7"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/T-8-attack-tree.md",
+      "sha256": "beb82dae2ebe61caff1e6de468f2a459f0d87a8bc3aea78576073ad096cc8078"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-1-attack-tree.md",
+      "sha256": "7c711b99b54195afc7a89e18bb337cee64bab7c6ee38f951fb68ce46ce5b51a0"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-1-attack-tree.png",
+      "sha256": "145a3d6030aa58c67cbab94c8c123dd7a75e8dbdbf70a79bb6ab176ae18dac68"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-2-attack-tree.md",
+      "sha256": "25a4ef14a0285733587dcdc45058a7625894d09d7acf5398734f603b7c30bf2d"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-3-attack-tree.md",
+      "sha256": "01ef678bb90be54fad31c4b9d8fcc7c291aebf34394a91f31ab0db88782c43c6"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-4-attack-tree.md",
+      "sha256": "6674fb94c37f0bd2cd82cede533127e13861e75ef8dab2bbc1599b03cfebf37e"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-6-attack-tree.md",
+      "sha256": "8a415a37a9d64d9e7186c0d7e6d62d1aca2c685106f7fcb1f17c72d2142956cc"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-7-attack-tree.md",
+      "sha256": "221d396a0d81a37cfc010503e5279be333861acf1645320631049d060c9565c3"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/ag-8-attack-tree.md",
+      "sha256": "b3867057caf0b007f11b37bdfe173fa8decf6e6acd7238c9ba369c7124f011d1"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-1-attack-tree.md",
+      "sha256": "a22d06c38e559411dae5dca46240e3800e1d4d83a493f29107f45f73c2c08dd7"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-10-attack-tree.md",
+      "sha256": "d00950b709d2bb0fb352614ce898995dba716e178dfba470b94947757d59b885"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-10-attack-tree.png",
+      "sha256": "61e54744b9cc6002e245b04a7ba6b2b550d1b23ad1fa68b855f070d335ca357e"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-11-attack-tree.md",
+      "sha256": "3eaed3f620fdcb2e8dd3f34d5d86b2efc4c86a9e4a79d36f2e31e1f1fc21eaf6"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-11-attack-tree.png",
+      "sha256": "caaec8bd1b04968f8efeed8890a54c2ffa4b96fe07e3205e322f1901e0c4c2ec"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-2-attack-tree.md",
+      "sha256": "b1df45d86b2c049435e7364025504a4aabcfd1497dc61f54b279c73b70723a3a"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-3-attack-tree.md",
+      "sha256": "3769ab869949b07d73e8edbcc655962daf04e54934af65870b136ec2782eee82"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-4-attack-tree.md",
+      "sha256": "294410bd9d94d11f1974c1818b846e2e2f2bf9331dc63848af05ef1685a74b32"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-7-attack-tree.md",
+      "sha256": "c3d2c1094d6bed930001d1247cf45b22c9b8d8899fe523c60e0f8789c6c8edab"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/d-9-attack-tree.md",
+      "sha256": "35966d5114ec726d2f6058a8c2cededaea5d9cc7387e7779c1a4be82d8cc02a7"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-1-attack-tree.md",
+      "sha256": "e874ea5df4bcbdee204b53d305e5d9f7fd681a9e51f010df428cba838a3bbe0c"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-1-attack-tree.png",
+      "sha256": "3f0f02d91326b4aba9bee7d07a4c646df6946fbbe67196b8c5585f8f0cea98a9"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-2-attack-tree.md",
+      "sha256": "5a0f0dbd4c8c8b9e8e3946d6838648207549c1a14a0e486fde583902e1eff389"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-2-attack-tree.png",
+      "sha256": "6b55145716d489de551b5caa7a9143e405592b0c8c258817d0de400d13ec9a3e"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-3-attack-tree.md",
+      "sha256": "22acd33b5b02af20951f199cd467d84a0eea308623d89372cf754f9af5720242"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-5-attack-tree.png",
+      "sha256": "4bb08bde084f9def9f5ba9dd58f608ee8dfa6886698f8b24c121ff0f3ee5f1ee"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/e-7-attack-tree.md",
+      "sha256": "ea6b4f5e60502050dc00743860b62c1d277e0ca024de6aed4d3b90d233052101"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-2-attack-tree.md",
+      "sha256": "a11ccd4bfc1c4b670436f02e9bd771c68e6661e93728ac351251951d9cbe398f"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-2-attack-tree.png",
+      "sha256": "e48f469c29852e8dcbd847978292e58fff25d042539a67fb837d383a393951ad"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-3-attack-tree.md",
+      "sha256": "03947f17b4d28ddf2efffccb3b79405fec795bcb33986806d7aff610c0ffe4dc"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-4-attack-tree.md",
+      "sha256": "6862f58d040f07225b6b7ad985115831070b6403b5f454b48727bd119a6d8f91"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-5-attack-tree.md",
+      "sha256": "9036d8edf24e61041083a9b1a0c5f7f68816e0c4a8dcecc3ce5cb1063f74fcc1"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-6-attack-tree.md",
+      "sha256": "003d895639fc1aaf1f359dab78a7e3d1df5578a5619e40807213a346b79cc097"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-8-attack-tree.md",
+      "sha256": "c8296b10a652c9ecc3a2914b24f57713a2a7a50475f591af256159a6e2811a71"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/i-9-attack-tree.md",
+      "sha256": "c7e9e56373fc8f7fcfc48006cf3d8506debdcfdf5708f71a4e8003bdd0ae4544"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-1-attack-tree.md",
+      "sha256": "e2ea9d1c38c5c9777a086d78ed746cbe1d423f9b5a957571ec47f368cbaed969"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-10-attack-tree.md",
+      "sha256": "05a2a30211cfaaa01646ac69c33ae0b7942786ba747a8ce298d9df13015c51c8"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-11-attack-tree.md",
+      "sha256": "f920319bd876987daca56cc71450666a42e01abe95fea9ce1441261c4e5381a8"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-12-attack-tree.md",
+      "sha256": "27612c8a3e016194209cad5a57ea58a44366d2a89d951d3934c57636d576efb4"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-15-attack-tree.md",
+      "sha256": "099e0a63f9fafe2a42de5293d05247d28526112222da066c88ff2b37d526a4a7"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-16-attack-tree.md",
+      "sha256": "5bdaf11c9252dc1778345b55c17a979db3f485e6bbee580f176e99173abf581c"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-2-attack-tree.md",
+      "sha256": "28bb35579ccc760c15fed1702be0f36b618799d16b9fbaf9aa2dd54e9b08a728"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-3-attack-tree.md",
+      "sha256": "b81e1e34a53ce438b8dece3b27449122065ecfdedf07859571a4aa9747ae31e2"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-4-attack-tree.md",
+      "sha256": "2e71908e481fc91cce08ec34a79bfe75bc5180647c9bf4a8ad49a88e9242e63c"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-5-attack-tree.md",
+      "sha256": "ce7af7b19554eac8e8ab012ef2fc92fd0df6807ce35a4c90793e63f7ea3fabbc"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-6-attack-tree.md",
+      "sha256": "06106331227f7ca8889a47c45afd5ec003d5b2c7ddaf07c04df0ec0022e13a7c"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-7-attack-tree.md",
+      "sha256": "0888f027839cad5a41e0c11d01209f57955eddb2bd1f46daeb5a6a84ea09530b"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-8-attack-tree.md",
+      "sha256": "08029a54cf88aaf127bfc089efcc2578a50a24a0e279f43266a85e42d696ed95"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/llm-9-attack-tree.md",
+      "sha256": "196e0bd424d384d7cd992b6d927b4a3c4c26189dc6f91fd795d4ea546ff3f434"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/oi-1-attack-tree.md",
+      "sha256": "e21fe48fa47bbd95b788f022ac22da622b2123fd208177c2fb6f72441baf5dab"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/oi-2-attack-tree.md",
+      "sha256": "db773b9bcff3b2c75b02ada3c2d6dd139f1289bafd26a65a8326d71597917e96"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/oi-3-attack-tree.md",
+      "sha256": "b2b7ab276c1c19a1cdfdc7475327c9741b16d75425a7ca128849a368ab5d6ef7"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/oi-4-attack-tree.md",
+      "sha256": "f98f141ce391f858102b425351319b7cffffee4a242ea51434f491665b7de4ce"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/r-3-attack-tree.md",
+      "sha256": "2e55edee02700215e6054798b4aabebb4d15e2aa34d7073b3aa14d031e375784"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/r-4-attack-tree.md",
+      "sha256": "124af854c5e9480084e2d8af32961411739aae529d5f72ab86ecd436cfcd4e75"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/r-6-attack-tree.md",
+      "sha256": "c05e909608ffe5f1d5ba4703fd6d1c4e09ec31f21514722e40b86489c7e8a1c0"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/r-7-attack-tree.md",
+      "sha256": "b7ee9a12d417004a884db1a677f92774f864d12a2d60162cd89be83f8d987cae"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/r-9-attack-tree.md",
+      "sha256": "45089944ba29a50b5b7a02d6ecf6c4879898b7c4166807c47566d99cf8bbf609"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-1-attack-tree.md",
+      "sha256": "67609d152aa8283eab0dbcab872f27ce0001bc0476acfccc0756cf89b7e02767"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-1-attack-tree.png",
+      "sha256": "4ebc86bf577e3ca46373022411693428fbaefe42692fb2f202e5087a3cccbd03"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-2-attack-tree.md",
+      "sha256": "0872c3b260dd61230b40ea3f885cae9e805c22d11409116bdd06537c87659491"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-3-attack-tree.md",
+      "sha256": "3023f89f55a0b5d6cc5a6720d40066f18b66c94c72de524961239fee9bd8fe86"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-4-attack-tree.md",
+      "sha256": "343ceadd9cb0845c88c1a13c89812c88a243ae7232f88bb3727335c56ddfb79a"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-8-attack-tree.md",
+      "sha256": "bc9a90ea4def6b33f9ba46e3330a83144cd59769ecfb8faa4339be353f0dd876"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/s-9-attack-tree.md",
+      "sha256": "4ca784ad298f9b870a704da342e6c971ce872e21943aa6fdfaa5a0ee83f05bcc"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-1-attack-tree.md",
+      "sha256": "b54facc6cf4ced1eed832949715c51f9f9f4e865c0fda8354ae7d60b54cbf9bb"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-2-attack-tree.md",
+      "sha256": "313d5d04958fbc947eff33aa97e91b230e6f039a8b3027f3140ce30229d41f90"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-2-attack-tree.png",
+      "sha256": "7f34a49db2787b84cf100ac9175c88e58b7e4836891537bdb76e30b986514b6b"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-3-attack-tree.md",
+      "sha256": "044f9dc3a721bf7f8bd5f2f8b693ec97249d1862e97d8a321515bf969b49c39f"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-4-attack-tree.md",
+      "sha256": "2dbfaa95e562503656d4adc8575d4c6cb0f727faaa76b214bc29bc6119d62886"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-5-attack-tree.md",
+      "sha256": "1d5680e7fdb62b34a56a9e6628d904463178d87208180179c2d78fc5aed184e1"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-5-attack-tree.png",
+      "sha256": "ff4bf1f935d91fa0b1994ae329a04e4150fb54e7c0fe36d0b16630b2a17e4544"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-6-attack-tree.md",
+      "sha256": "feb311977ab5699048f52a9d59224557fd928a31f6466f2cc1ef168c9745386b"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-7-attack-tree.md",
+      "sha256": "45da2d8074745ee07eae25e5e4124951d18723b2938b355730c932ed7e1365b0"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/attack-trees/t-9-attack-tree.md",
+      "sha256": "0fa21130cc2e73042b7df68ea695cdd9ddaaf03b1bd72bb0efe88aaf42081c31"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/compensating-controls.md",
+      "sha256": "47f756f010d3793a40fb4c569fd136140db3e15c9ba4477174c175eabd82b96f"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/risk-scores.md",
+      "sha256": "03604300df062127d974df76f6368a8f9dad6396ac0454eb7e8012c54e35ec84"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-baseball-card-spec.md",
+      "sha256": "89078e2d504690efb74e1434f3d3a78970928cb82a800683f70cab0c157b8557"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-baseball-card.jpg",
+      "sha256": "74eece306300b6da592eafe091a4307818adae385cc62aa88560aa72f044a7e9"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-executive-architecture-spec.md",
+      "sha256": "f95d748bfbae057070a3fcd7ab7bd66cd2aa90dce7865a4a2530c4680bf72785"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-executive-architecture.jpg",
+      "sha256": "c80100f6025d0b1c06b9912dbd0f68b622a7275665ca20f387295e35a3abce45"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-maestro-heatmap-spec.md",
+      "sha256": "ded0d183a8a4af9a382efdf60da017132140e434a4d5f9b45b9fe41f8caea774"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-maestro-heatmap.jpg",
+      "sha256": "31e655483e130160de2b8c6fc6def23dfce0e7c409ec18d0148dcaf13fda173e"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-maestro-stack-spec.md",
+      "sha256": "5e872813cb71bd9562ed4b8150c091f98e3a90060dbf51b19068127eb43e1ffd"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-maestro-stack.jpg",
+      "sha256": "824b99ea138ddf74a14de99d98e847c0bdc962067e01598101704138377b2e19"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-report.md",
+      "sha256": "1b5e25740a5a2ed14a7749fd2265a4d2b645f730d00e8a671154a1923ba0d45e"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-risk-funnel-spec.md",
+      "sha256": "17907690d79c7c458cf0dfd7e89a22696bbe0756901b433aacc2a33202023c69"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-risk-funnel.jpg",
+      "sha256": "bca02a33d6971a49235db28dfc7505d9106d48e65fbf72e76ddc9b6c9a443b67"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-system-architecture-spec.md",
+      "sha256": "ef74e6aeb2f236ceab4a7bd036fd6f7a7785ab2c6a6dd24c13c627a8c2be3def"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threat-system-architecture.jpg",
+      "sha256": "9a69a6d2100b93520305501fddb465afeff2ea27bc7fa890b6b0242e7185669b"
+    },
+    {
+      "path": "examples/agentic-app/sample-report/threats.md",
+      "sha256": "21c598596988c9503edb4f80fe2806ba1fb3e68dc7b584c1fced864d4bb14737"
+    },
+    {
+      "path": "examples/ascii-web-api/input.md",
+      "sha256": "2791c7bca71fa7e103f44b9d37c7336f1d947e9ba0e9ffb04c6be5ac728817db"
+    },
+    {
+      "path": "examples/ascii-web-api/threats.md",
+      "sha256": "fb6b4dc4fe29913b209f163b313a20517a0ded1f864f9ff6ece846e768636a39"
+    },
+    {
+      "path": "examples/free-text-microservice/input.md",
+      "sha256": "bc9aed8bb371fb2d60470a48cb685ad899c54d4db1ad936f29e18505651f2cbc"
+    },
+    {
+      "path": "examples/free-text-microservice/threats.md",
+      "sha256": "760e6598d432be4a634cac125237804d724f1b34fd9d4731ab0cfb09da11c23d"
+    },
+    {
+      "path": "examples/maestro-reference/README.md",
+      "sha256": "97910a6c4b4b07446c79a2561c87a76fb7ddbd7ccea720c33e9b9b308ccb1972"
+    },
+    {
+      "path": "examples/maestro-reference/architecture.md",
+      "sha256": "e9d00be18f07bd013abf9f69bcd0f9dfe7f1036f6c31660444d013496c23e40f"
+    },
+    {
+      "path": "examples/maestro-reference/attack-chains.md",
+      "sha256": "917b63197461f95aa4fa1c3f1780431bceef448528ca46f5ce6d92d684cfe62c"
+    },
+    {
+      "path": "examples/maestro-reference/attack-chains/chain-001-attack-chain.png",
+      "sha256": "bd3355293bddb0b9a8823004ae19bdaf0b80e130eb40de20870e8d1c386b3be7"
+    },
+    {
+      "path": "examples/maestro-reference/attack-chains/chain-002-attack-chain.png",
+      "sha256": "7c8305a487376b6e32d016191081a9780f11231b961d429c2ef07b26c33b43a0"
+    },
+    {
+      "path": "examples/maestro-reference/attack-chains/chain-003-attack-chain.png",
+      "sha256": "830ad244edef9395abb6f921499310b5f6bc78641f38522da99e93711b6c86b0"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/.manifest.json",
+      "sha256": "efb7f1ce9396905a6938476c161b76d10dab3a15fe2e83ccfacfda3189b3d631"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-1-attack-tree.md",
+      "sha256": "d949926736df9237bf967906d2cc9a2697c576019edb699361e78193bcbcfdff"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-2-attack-tree.md",
+      "sha256": "3676255d9a7fc29e352d615b249e6b95935438906aada68a399a02aa718e3b3b"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-3-attack-tree.md",
+      "sha256": "4f41e76d8b0ee25c3c834d5743117f5ffd17287431ccb3794a1c9e3596c243f5"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-4-attack-tree.md",
+      "sha256": "02aff4def764cba560b68bd9735fbe02e86eb78fb3ccd7e604c5f73957501c55"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-5-attack-tree.md",
+      "sha256": "e98560534460e98875dcc4d13019d9deca5eca4fecb31e9e4739572112dce8b3"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-6-attack-tree.md",
+      "sha256": "32b7c5fdeb82c1db033c4f1557372c29dcf43b99d6d740ba6846463508f5d5b7"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-7-attack-tree.md",
+      "sha256": "1b2660fd5068481a761c6058a48bae30d601a7e149fe623e1bf93158fba1640f"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/ag-8-attack-tree.md",
+      "sha256": "551d5b86209640bfea9360c9be3bd12fb89ff04d963b6e3106d7fec1df8014eb"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/agp-01-attack-tree.md",
+      "sha256": "416f30faf3d3697830d0cdc0ae03a1629e0026410b58817b4533cc0a59b891d7"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/agp-02-attack-tree.md",
+      "sha256": "076719dc2800144d0aa2d8984662538fac86fad653d9a14b4b75ca907fbee741"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/agp-03-attack-tree.md",
+      "sha256": "a2566f50f42e27f85477c6fabd3a896e799a023bae002b1e4341616183f1cc5e"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-1-attack-tree.md",
+      "sha256": "3e7f87207a1ded0a9de167002bac92db66fd5aee9ab92770adf7383cd4c23ece"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-1-attack-tree.png",
+      "sha256": "fcc357af96a130c3094af351ec09565ffd4d681b2e7bdd41bac8f625b5c2566d"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-10-attack-tree.md",
+      "sha256": "c0e1fe049459fd2e918ae0ca5103f8e66ec1a1ae07b707d144db33637007ed52"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-13-attack-tree.md",
+      "sha256": "dbbf5ca0c1043ebc9baea52912ce103fa7f501007b7a7e69131a99c67451a5af"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-3-attack-tree.md",
+      "sha256": "ffea3c6223feb8438d400510afef8227a545fed2cd805ee1d75de71af09ec16d"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-4-attack-tree.md",
+      "sha256": "3ba1198b0fd8f2f99efaa93a81f48d3289f9a4cf1bb90dc235e02b32fdcfb631"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-5-attack-tree.md",
+      "sha256": "9f35fadf8137d79c6f3799ea29acef908f52e34ad0563a121f3c0c3e3a3a2eab"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-7-attack-tree.md",
+      "sha256": "7e79ce367f50d85e4f1bb4d94274ed4577920e049a35e6955aa09d56d041cafe"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/d-8-attack-tree.md",
+      "sha256": "ba4ca5e3f5a005825de68a6f382de753566c943d59710ca25578d7b7217e3e7a"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-1-attack-tree.md",
+      "sha256": "81560dded9ecd3a5868a39be5536330031cd4509702f8a021b4e13e92fbc1cf6"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-1-attack-tree.png",
+      "sha256": "ba770aeb868b4a3ae531d8227615c610504f53a0cb01fda6138cafc71f683be1"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-2-attack-tree.md",
+      "sha256": "fee77cbbf41ee89795618b9e446fa5ecfa23c6ab7b712306761a2d335fd75c04"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-3-attack-tree.md",
+      "sha256": "a8cd546b1914fff909bc5fd36b02b94f303a9004ca5b432ed9e9ab2d29f96e2b"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-4-attack-tree.md",
+      "sha256": "35f7ec05a6aff008289bc9136be33a92dfb44957068011659d31702a996586de"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-5-attack-tree.md",
+      "sha256": "00580b4773e8548d447029f8613b356fe5d47fada01c7b5844f543229f559a4f"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-6-attack-tree.md",
+      "sha256": "a056926b36e87835937b248520be0ada27c048f4a5ce620179bdf5172c687877"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-7-attack-tree.md",
+      "sha256": "ac67a08357f73fd762fbbbd5b446273d30b020d024f07bce0b35dba4a560bf21"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/e-8-attack-tree.md",
+      "sha256": "59c10dbc72855c56b5701f422f757ca26fcf7b7c8485ffd40923920a97010572"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-1-attack-tree.md",
+      "sha256": "a27d9838ca931459b99349f76f695a5a5040a796d3d2542e57b9696a9a210d35"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-10-attack-tree.md",
+      "sha256": "920acc8407d1aee372e3f9f385bb9e6ac397a2f55c900432022b4b479bbbf60c"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-14-attack-tree.md",
+      "sha256": "147cf4c6b8049dbbb4ff388685a969edd77353d7a0cab1e55d839df0b4dc3033"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-15-attack-tree.md",
+      "sha256": "733e8f4b6ae733182b81d8e5930640d12d5b7a728e5ba09bc050e96637af7a7e"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-16-attack-tree.md",
+      "sha256": "5c8118bc1eb24945c7c88b036f64e3c683b2339c8d65d45f7067ecace4c310b5"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-2-attack-tree.md",
+      "sha256": "e8c08b9d7e322f568d0dae6916ecd7736c8447a385dbfce217e1005a8092fbdb"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-3-attack-tree.md",
+      "sha256": "c1ea9520dfc995a89298999fe76f262da197daed5c9dfb2525474dad6b0f8009"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-4-attack-tree.md",
+      "sha256": "d0d168142f30f22bad5c82bcce18b94317be601c0e2bf6d0cf0b6eeac9ff76a6"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-5-attack-tree.md",
+      "sha256": "f31a05dffe6ef82d9f46fffa37c7453119e1d01106c02b7224247560c7b01f2c"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-6-attack-tree.md",
+      "sha256": "d40539204bc867bd10fabdc75c7dffd42448958017b8e90ec678c60ef3ad4da6"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-7-attack-tree.md",
+      "sha256": "fb3ebc97fab97ca798a12b50b33fc9e0ec3aa6d3d507c499252bbd66c806c0da"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-8-attack-tree.md",
+      "sha256": "86998d743c63a536a98bfb2a0a021539b190f76aa05e7703cead4061ce34e191"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/i-9-attack-tree.md",
+      "sha256": "1b132ddae172f8194567960f5119a1075eddc38fb54b277b1185bb55c5d422fb"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/llm-1-attack-tree.md",
+      "sha256": "425d21657f3b0117db9d758b8b3bb126ee9c6e5ae9758b8d8a27922d446bb366"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/llm-2-attack-tree.md",
+      "sha256": "e089c9fd41119b959716a55cb2ee43d1247b953df130ee49a0e0abbe09722321"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/llm-4-attack-tree.md",
+      "sha256": "2eca0cb8019c07911494251be52b4afe0f79bbeb77b6721b32cf00bd1d64ef3a"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/llm-5-attack-tree.md",
+      "sha256": "798b4a46807f19a22212028f379ab83e16c2d5836cce69c6330daace0bd256c8"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/llm-6-attack-tree.md",
+      "sha256": "4ebd473933e019ee8d355adcfeceb77558f46a15ab09bc209fcceff751d237ce"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/r-5-attack-tree.md",
+      "sha256": "c9ceb5a6f94c14a8ccecd3eb621cbbaae870011a2368179d29e23864f80530a0"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/r-6-attack-tree.md",
+      "sha256": "58abd783982a22276380c0381e5bdaaf193121a1678a7237cac7b438618bd927"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/r-9-attack-tree.md",
+      "sha256": "1935bc78fa9c66d2a97346bbb39d8b1d3cb0b9fad9693ce2af3c4d93c123b237"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-1-attack-tree.md",
+      "sha256": "c56fa95c36b8515e71b25923ba9c5f0557d660f804679ce0c417164a3d5d5416"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-1-attack-tree.png",
+      "sha256": "e5f800029e166981203acb5b08b5e5c845fe7778ccdfae42ff56296c25f383df"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-2-attack-tree.md",
+      "sha256": "8c5a14d99e792838b025a0d5994963a9288fee356ec883017e9fa15f9376f385"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-2-attack-tree.png",
+      "sha256": "fb91e91b831966929a8e0b5a69b2228b3d6031da3f5845c5b69fa317517db730"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-3-attack-tree.md",
+      "sha256": "242ddcae583cda81f95dbb10da84bb16ae61693434fcc5f33b5fe730651cb11d"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-5-attack-tree.md",
+      "sha256": "b51c466febc72e76fd81c0196d6580e2b048cf4aab383077ba36a485110bb4e6"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-5-attack-tree.png",
+      "sha256": "7b109dec912e073efa967120289c62396a44798e6e03621666b60be11ddb94b9"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-6-attack-tree.md",
+      "sha256": "3a30e3032c8ebd2ec36b4e93f448fddbd5c2d8fefcdbba9dd1b468c49a3d64ed"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-7-attack-tree.md",
+      "sha256": "5b41419dd8f8394fa81d4d22887972e3a41a556125ac9d066784bfedc830797b"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-8-attack-tree.md",
+      "sha256": "43b4197a3cc6587845c9cfaee0b4e0880319021f0e7d2efda15c81f8bd64fe6a"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/s-9-attack-tree.md",
+      "sha256": "24358ca92bb8553157b8d57f97192ffdd41a3d2e19d71a24b1e1104e0a969501"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-1-attack-tree.md",
+      "sha256": "a14ab90dc6dad6d2736f9e955c40ba46d2086f99469f0d1c8234e2d3680a4693"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-10-attack-tree.md",
+      "sha256": "c28b000d92af4ae027138036034f70465b747164e84e73b4e0b6512207e8730d"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-11-attack-tree.md",
+      "sha256": "09a57a119d6fe84407512544239e318c8cebc269d414507854bd84404733a8be"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-12-attack-tree.md",
+      "sha256": "9f38d56fca20f7ac4c7a863a68cb25e38293e34dec30accefd8c956b30483996"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-14-attack-tree.md",
+      "sha256": "a53bd1dadb693d9cf9306ceb532660963ee52c972d4a18c144859cdb62e9ef27"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-15-attack-tree.md",
+      "sha256": "02504262f317f30c8fff613f14ca7f137031acabb8b26cfad9701d2d0895bf34"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-16-attack-tree.md",
+      "sha256": "1f6cbfb4f9bc43c1096fda00ef5b0c646a1863b866b3d4358923cec2bc23440f"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-2-attack-tree.md",
+      "sha256": "acc0d5c75db5718580572e856583388ab60f060715054f46afce3d211c0f5f8c"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-3-attack-tree.md",
+      "sha256": "24d37f88506259d3550172df7407b505a4309500ee3d6aa2d7ee655d4b22f733"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-3-attack-tree.png",
+      "sha256": "272b442b05c2e2daa08f2bea2e7c0be93e49230e39d612a8d0e52deaa6a0e49e"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-4-attack-tree.md",
+      "sha256": "5b89c416884a8afe2982451592e518b9b145cab7de02a49fcbb76a57084333ce"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-5-attack-tree.md",
+      "sha256": "ac230242c3988cc50a144798f75c501355e953443dfcf7005c23445ca2871359"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-6-attack-tree.md",
+      "sha256": "4acae2d9d4929a8f37caa3fed6f2473be73d848284fa371be70d394f5fb6f9e3"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-7-attack-tree.md",
+      "sha256": "94fa54ade3e79684992233dfc6663f55952c8796453990384cd5a57acc594349"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-8-attack-tree.md",
+      "sha256": "bb21e44931d89565d0b7d1b607dd9b24e72341174754365fdbf62aff63d029bf"
+    },
+    {
+      "path": "examples/maestro-reference/attack-trees/t-9-attack-tree.md",
+      "sha256": "c77907a7da2d8bc40da57f29aaed832f1d8a98877b15c48ce9f48e4fb0d37731"
+    },
+    {
+      "path": "examples/maestro-reference/compensating-controls.md",
+      "sha256": "57a20b15f6c8573bbfe5b6483ee88d12449b7063d437997ce9db89ef1fca729d"
+    },
+    {
+      "path": "examples/maestro-reference/risk-scores.md",
+      "sha256": "2743a4fecf0d4974d23bd73f97b330f6310d51ab332268a6a8fc950c919bfd90"
+    },
+    {
+      "path": "examples/maestro-reference/threat-baseball-card.jpg",
+      "sha256": "341bc757c7b74d32874309681f844c7a871ff39d42508ce1dc09af1162fdcd35"
+    },
+    {
+      "path": "examples/maestro-reference/threat-baseball-card.md",
+      "sha256": "a7d84649fffcff152b52be61417da5b6ce5ae3912b06fb5adf8923e190159cc8"
+    },
+    {
+      "path": "examples/maestro-reference/threat-executive-architecture.jpg",
+      "sha256": "8d0d9aca90fbc87b630bf3d789ac76466cfc689aa9d3e7db15764b766d9d63de"
+    },
+    {
+      "path": "examples/maestro-reference/threat-executive-architecture.md",
+      "sha256": "c5f4557d880a366f861082d020d3fd1b4da1209bae782a2e3a8e4f028f316d73"
+    },
+    {
+      "path": "examples/maestro-reference/threat-maestro-heatmap.jpg",
+      "sha256": "3db3634f4a45c6c9d01dc1ca9d035339785cdc66f6e75b9b5ac183f685e43170"
+    },
+    {
+      "path": "examples/maestro-reference/threat-maestro-heatmap.md",
+      "sha256": "f4510a363d4694d557ab3ae07ffdebac20ad4307b270b7f4c38e999f9bdc67ec"
+    },
+    {
+      "path": "examples/maestro-reference/threat-maestro-stack.jpg",
+      "sha256": "84ab09c0d3a680a9f610c88424e86325b252097a97dc8131846261206f6fff9a"
+    },
+    {
+      "path": "examples/maestro-reference/threat-maestro-stack.md",
+      "sha256": "1551ba1761c48405723aa8e5b183cac73cdf8c62e9f640016dc9ab2bcba2ef7e"
+    },
+    {
+      "path": "examples/maestro-reference/threat-report.md",
+      "sha256": "3b2b5d67024c3cc0f7d42e6b87cd86ce23507c16d4813f985d0189f937620a51"
+    },
+    {
+      "path": "examples/maestro-reference/threat-risk-funnel.jpg",
+      "sha256": "2ee0fb38283431d31bc547f881501cf00da79ac5596a7ce6f3ef372f70c7b9a0"
+    },
+    {
+      "path": "examples/maestro-reference/threat-risk-funnel.md",
+      "sha256": "208baa97415f33e9ac368c9b8b9de4bbd39edacaf90c2df4ce0ac05851940291"
+    },
+    {
+      "path": "examples/maestro-reference/threat-system-architecture.jpg",
+      "sha256": "2632148a5147b4caf966568ca2d752afc707b4f92bae2e74c719f5724ca09e91"
+    },
+    {
+      "path": "examples/maestro-reference/threat-system-architecture.md",
+      "sha256": "0eb191cdfdb822e039b6c9cecef8e006c3f2bd77d3a24459cd3d12d09f82bf67"
+    },
+    {
+      "path": "examples/maestro-reference/threats.md",
+      "sha256": "682b7c17abd2b3041951b95a0f44c7f97786cc1bc13a1552af2f0c912d81683f"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/ag-1-attack-tree.md",
+      "sha256": "6c99f078c698794c4ba1819dc0790f15564f77db652120bb8c04d0b706da87dc"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/ag-1-attack-tree.png",
+      "sha256": "11cb2ba366b6dcf83bd9fc80244fa91fd33760e0445f2e9229c1b2460be1582f"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/ag-2-attack-tree.md",
+      "sha256": "619fab9e44930abece4d7e1dd7dc39741a7e3bc9272252de4ca3d41218c74eb5"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/ag-2-attack-tree.png",
+      "sha256": "ea14bbf969fb12ab717e7fde69e83a0caf7f251f33d9361f5a1d1ee27b56fdf0"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/ag-3-attack-tree.md",
+      "sha256": "e83c4c4c6fbcbefd85784eb826b7ab2dd60739bc88f5e599eff8b1154af8a5f2"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/ag-3-attack-tree.png",
+      "sha256": "477e0c112a2baaa7f6bac9d92e058ccda4f64b03136e9378043784852e36c71c"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/d-1-attack-tree.md",
+      "sha256": "5359eca7ad301b8cefa6ddb4e54abc274b01c83b80a81e4c0de63130e6cdb109"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/d-1-attack-tree.png",
+      "sha256": "e88946f0e3470c77726b0f66fcb47b00ee3e7c21d444aaf99873277842e33ab1"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/e-1-attack-tree.md",
+      "sha256": "79b38031d9c6086203258c191f117368404dca6585051641dc27c256d733f74b"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/e-1-attack-tree.png",
+      "sha256": "a1752c3c19e7595ebeed6ce374607b08ad28603b2013e33c11968e9824e079c9"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/i-1-attack-tree.md",
+      "sha256": "9e4e71a3ac4c74c80a359dc8e79ad1493eb586cd4437e19fd24e60d9c9fd71d2"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/i-1-attack-tree.png",
+      "sha256": "ba6dfc6184c0510b9872c2c055ebea0bb13b05cfd6b4f681e8b9aff8fc50b6b8"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/i-2-attack-tree.md",
+      "sha256": "b517bdf00c81a77fc71dc86fa90e4769bcfdadee1e0e9a13a9ada619fcc73353"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/i-2-attack-tree.png",
+      "sha256": "77d3b3df6c8dfb3f8715034beabeb8372818f79176ce5f946822542583561cc7"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/llm-1-attack-tree.md",
+      "sha256": "a0efc5c382622e41dc67cb1e47e54b92a1878883b2cd8ddd2a7780fb1fc4f324"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/llm-1-attack-tree.png",
+      "sha256": "110b1f7baab8ea5584a054384dc7bad6923f1ede65c8e1c614061a99b50cba59"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/llm-2-attack-tree.md",
+      "sha256": "8161265a3b7d9b4848813559918b3404941f16662a630f8301021d5445e7db91"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/llm-2-attack-tree.png",
+      "sha256": "5031506a9d2015172ef38d7312266cf9c3e9bb3c3d38ed3bd53b570922e87ea5"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/llm-3-attack-tree.md",
+      "sha256": "3358362f4cb04b10dc9aad53b5603980e83eae068689229053b8a3c985cd0f02"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/llm-3-attack-tree.png",
+      "sha256": "b23a72aa2859258973fac57563d479bd9c3bc35765bcf64e97292dc294b2329c"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/s-1-attack-tree.md",
+      "sha256": "6e1b26ec79ea2c20e124f972ecc776c963109972b388d58b1d6dff756313569a"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/s-1-attack-tree.png",
+      "sha256": "ace84c4dbfae5ba1b1eb85faa478451b3f5dcf101e20cac6a690d53e76f4c4bf"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/t-2-attack-tree.md",
+      "sha256": "ab7cae4f094491ddd2a13a8c7899b316eb1ff8855698603e3aecf5116a731d54"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/attack-trees/t-2-attack-tree.png",
+      "sha256": "c22c17d6e252e948f62ad4f81fb8fa343e12e1bd91a23d50a07388c63becf227"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/input.md",
+      "sha256": "ae80e265836b5376f74a61d123e2df3132cb98e5bbd3f75c10782898e027a227"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/threat-infographic-spec.md",
+      "sha256": "ebc6630c80577f8172258c49f9d631b1ff10f3977d7299ab0194860370c6a997"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/threat-report.md",
+      "sha256": "33f836794420fe4ecffd38b603f772381ea7cc0c612a0b5fced19dc452f40a36"
+    },
+    {
+      "path": "examples/mermaid-agentic-app/threats.md",
+      "sha256": "c55372494335e6f53407f2b4426acddd747c6241b8987261debdc88950d7a0da"
+    },
+    {
+      "path": "examples/microservices/architecture.md",
+      "sha256": "62905eedc518ccf34ebc8e52fcc894a2331bdc3862ae2e9849abb2b11b99c80b"
+    },
+    {
+      "path": "examples/microservices/threats.md",
+      "sha256": "807b3f92337d7a3c905d2b85f04ea783d69f445674ddd53fb2fcb9b9e36d0571"
+    },
+    {
+      "path": "examples/web-app/architecture.md",
+      "sha256": "cce646e691cc6e1b4e4534f61c5b0e79ced930fd264154f860e2b2eba34e16fa"
+    },
+    {
+      "path": "examples/web-app/threats.md",
+      "sha256": "1946a2009d1e1a9fa02bda3b3e3d6446609a515cee8af7543e695d43722e89b1"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "c789cbbf1ce3afbcf4c9b9154c2419f3a54cfb9b54804fe37ab85e58ed5f1fae"
+    },
+    {
+      "path": "templates/tachi/security-report/README.md",
+      "sha256": "8e33f048f2e0a13417d4a44083818b1d11708e1fbbde1ac5db692627e207374f"
+    },
+    {
+      "path": "templates/tachi/security-report/attack-chain.typ",
+      "sha256": "913db71411fc3a34304c894d4cc95a1c91aaa41010e74ffb712a98e559096ef7"
+    },
+    {
+      "path": "templates/tachi/security-report/attack-path.typ",
+      "sha256": "1e5587b765a6c85950d7083f232962c7c5fe8b350ce422e2a8406c055aac904c"
+    },
+    {
+      "path": "templates/tachi/security-report/control-coverage.typ",
+      "sha256": "3ebb439b34177c11a5789e417cdb7090e9e6c7664769c34fb6246a76eff7cba7"
+    },
+    {
+      "path": "templates/tachi/security-report/cover.typ",
+      "sha256": "68907e014ee54a0317688794aba153544148ba81793575af6abb007e981ed0fc"
+    },
+    {
+      "path": "templates/tachi/security-report/coverage-attestation.typ",
+      "sha256": "cc788b8d05337c1e603da1e98cfe3114ec6304dc21ced3dd924bb12e91c8add5"
+    },
+    {
+      "path": "templates/tachi/security-report/disclaimer.typ",
+      "sha256": "0b2ed5f8832eb4cb9be1436db7e50b65513e2ee771c3fc3e8b077a54acd3513c"
+    },
+    {
+      "path": "templates/tachi/security-report/executive-summary.typ",
+      "sha256": "3fa0a496650c98021f0f1d020c35d9de2c19c7044564a934e960e00ac890a5d7"
+    },
+    {
+      "path": "templates/tachi/security-report/findings-detail.typ",
+      "sha256": "adc08d50006ce7a744732df4911f77444fb52cb5e33cb693fad4f13cda8afc23"
+    },
+    {
+      "path": "templates/tachi/security-report/full-bleed.typ",
+      "sha256": "b14504375d30321cbc2042d3c13eab1e5f0410292801122901b8f3b8e9a21fb7"
+    },
+    {
+      "path": "templates/tachi/security-report/maestro-findings.typ",
+      "sha256": "5692d2a447dc0b4f8bae20980f6e82135455b41ca7472d944b918d96c7173495"
+    },
+    {
+      "path": "templates/tachi/security-report/main.typ",
+      "sha256": "4bf770eff0fb34f4921a19de7fa7fc7540ba7c8b3f69d6e6ca87ab8ebb368c45"
+    },
+    {
+      "path": "templates/tachi/security-report/methodology.typ",
+      "sha256": "b48f376389e38093a44a21f1a41b5bf92cb81de3be908f83e4c8d4da305746ad"
+    },
+    {
+      "path": "templates/tachi/security-report/remediation-roadmap.typ",
+      "sha256": "f4d5105923533251795db5360ad43014e61845a2a19fdf14b3a4ed5224f3ceac"
+    },
+    {
+      "path": "templates/tachi/security-report/report-config.typ",
+      "sha256": "50bfa40c4bdedb646b1cb18ab445aae733c376c8e0b0f86ed2de511138590073"
+    },
+    {
+      "path": "templates/tachi/security-report/scope.typ",
+      "sha256": "2c5c328b929e286a4741b8036bca1a846e82c2202597c6c0f2935caf65107ad2"
+    },
+    {
+      "path": "templates/tachi/security-report/shared.typ",
+      "sha256": "7046170688f87955ac119e3df8d1bb31f71ddca8aa6d03ae4b2f6f990af0761e"
+    },
+    {
+      "path": "templates/tachi/security-report/theme.typ",
+      "sha256": "903ff8c055248e7066e352538de00c9493edd83a2668337bb6b4798dcf4e0350"
+    },
+    {
+      "path": "templates/tachi/security-report/toc.typ",
+      "sha256": "25e744e5878e54f6c881608379541aa063366ec880f0b3505460e330ad8854be"
+    }
+  ]
+}

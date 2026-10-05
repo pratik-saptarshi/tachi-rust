@@ -24,6 +24,7 @@ fn parse_maestro_layer_distribution_reads_table_rows() {
             layer_name: String::from("Evaluation and Observability"),
             finding_count: 4,
             highest_severity: String::from("High"),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
         }
     );
     assert_eq!(
@@ -33,6 +34,7 @@ fn parse_maestro_layer_distribution_reads_table_rows() {
             layer_name: String::from("Agent Ecosystem"),
             finding_count: 1,
             highest_severity: String::from("Critical"),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
         }
     );
 }
@@ -45,18 +47,21 @@ fn compute_most_exposed_layer_prefers_count_severity_then_layer_id() {
             layer_name: String::from("Data Safety"),
             finding_count: 5,
             highest_severity: String::from("Medium"),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
         },
         MaestroLayerDistribution {
             layer_id: String::from("L1"),
             layer_name: String::from("Foundation Model"),
             finding_count: 5,
             highest_severity: String::from("High"),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
         },
         MaestroLayerDistribution {
             layer_id: String::from("L7"),
             layer_name: String::from("Agent Ecosystem"),
             finding_count: 7,
             highest_severity: String::from("Low"),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
         },
     ];
 
@@ -96,7 +101,63 @@ fn maestro_distribution_and_exposure_handle_empty_and_malformed_rows() {
             layer_name: String::new(),
             finding_count: 1,
             highest_severity: String::from("Low"),
+            coverage_state: tachi_core::maestro_coverage::EvaluationState::Findings,
         }]),
         "L1"
     );
+}
+
+#[test]
+fn duplicate_summary_rows_preserve_positive_maestro_evidence() {
+    let rows = parse_maestro_layer_distribution(
+        r#"#### Risk by MAESTRO Layer
+
+| MAESTRO Layer | Finding Count | Highest Severity |
+| --- | --- | --- |
+| L1 — Foundation Model | 2 | High |
+| L1 — Foundation Model | 0 | Clean |
+"#,
+    );
+
+    assert_eq!(rows[0].finding_count, 2);
+    assert_eq!(rows[0].highest_severity, "High");
+    assert_eq!(
+        rows[0].coverage_state,
+        tachi_core::maestro_coverage::EvaluationState::Findings
+    );
+    assert_eq!(compute_most_exposed_layer(&rows), "L1 — Foundation Model");
+}
+
+#[test]
+fn equal_count_positive_duplicates_keep_the_highest_severity() {
+    let positive = parse_maestro_layer_distribution(
+        r#"#### Risk by MAESTRO Layer
+
+| MAESTRO Layer | Finding Count | Highest Severity |
+| --- | --- | --- |
+| L1 — Foundation Model | 2 | Low |
+| L1 — Foundation Model | 2 | Critical |
+"#,
+    );
+    assert_eq!(positive[0].finding_count, 2);
+    assert_eq!(positive[0].highest_severity, "Critical");
+}
+
+#[test]
+fn conflicting_zero_duplicates_are_order_independent_and_not_evaluated() {
+    for rows in [
+        "| L2 — Data Safety | 0 | Clean |\n| L2 — Data Safety | 0 | Not evaluated |",
+        "| L2 — Data Safety | 0 | Not evaluated |\n| L2 — Data Safety | 0 | Clean |",
+    ] {
+        let content = format!(
+            "#### Risk by MAESTRO Layer\n\n| MAESTRO Layer | Finding Count | Highest Severity |\n| --- | --- | --- |\n{rows}\n"
+        );
+        let distribution = parse_maestro_layer_distribution(&content);
+        assert_eq!(distribution[1].finding_count, 0);
+        assert_eq!(distribution[1].highest_severity, "Not evaluated");
+        assert_eq!(
+            distribution[1].coverage_state,
+            tachi_core::maestro_coverage::EvaluationState::NotEvaluated
+        );
+    }
 }

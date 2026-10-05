@@ -6,6 +6,12 @@
 
 ## Backlog Navigation
 
+- [Main-48h adversarial remediation (2026-10-04)](./remediation-roadmap-2026-10-04.md) — epic `RT-aha`; nine P2 corrections, three nonblocking P3 decisions; implementation not started.
+
+- [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
+- [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
+- [Rust-native upstream milestone delivery (2026-10-04)](./2026-10-04-upstream-milestone-delivery.md) — epic `RT-3zm`, three separately gated PR phases, including PR #42 review remediation.
+
 - Active desktop host: `crates/tachi-desktop`
 - [Beads issue mirror snapshot](../../.beads/issues.jsonl)
 - [AISVS Dependabot remediation roadmap](./2026-06-23-aisvs-dependabot-remediation-roadmap.html.md)
@@ -18,38 +24,38 @@
 
 ## Current Status Snapshot
 
-- Dependency/runtime upgrade closeout is complete. PR #41 merged to `main` at
-  `cb567d3235eee0d45081b099a3c6df7c98f12eb7`; its final PR rollup had 24
-  successful checks, no failures, and one skipped check. All required
-  post-merge workflows completed successfully.
+- Rust-native upstream implementation and protected delivery are complete.
+  Historical implementation epic `RT-5vk` and delivery epic `RT-3zm` are
+  closed. PRs #43, #44, and #42 auto-merged after required checks and review
+  remediation passed. Final delivery evidence is recorded in
+  [the upstream milestone plan](./2026-10-04-upstream-milestone-delivery.md).
 
-- PR #39 review remediation completed in merged PR #41. It covers the
-  PostgreSQL 18 volume path and PG16 migration guide, Supabase environment
-  template and profile RLS, disposable PostgreSQL migration CI, CodeQL
-  ruleset behavior, root codemap versions, and Compose command paths.
+- Dependency/runtime upgrade closeout is complete under the 2026-10-04 plan.
+  Live Beads epic `RT-bbi` and all four children are closed; delivery landed
+  through merged PR #41. The plan and dated evidence remain available as
+  historical records.
 
-- Live Beads audit on 2026-10-04: the `RT-bbi` dependency/runtime hierarchy
-  and `RT-bz6` PR #39 remediation hierarchy are closed after PR #41 merged.
-  The tracker now reports zero open issues; `.beads/issues.jsonl` was
-  regenerated after closing both hierarchies.
+- PR #39 review remediation is complete under GitHub issue #40 and Beads epic
+  `RT-bz6`; all eight children are closed and PR #41 fixes are merged. The
+  run [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486)
+  records hosted PostgreSQL migration and RLS validation.
+
+- Live Beads audit on 2026-10-04: 18 open, 0 in progress, and 0 blocked. All
+  open issues belong to the Main-48h remediation epic `RT-aha`: nine P2
+  correction cards, three nonblocking P3 decisions, four phase features,
+  delivery verification, and the epic itself. The dependency audit `RT-aha.1`
+  is closed with recorded evidence. See the
+  [remediation roadmap](./remediation-roadmap-2026-10-04.md) for current scope
+  and milestone gates.
 - `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
-  issue cards below are retained as completed execution records; future work
-  should use new issues rather than reopening completed cards without review.
-- The checked-in Beads export remains available at `../../.beads/issues.jsonl`.
-- Dependency/runtime upgrade tracker state: `RT-bbi` is the completed epic for
-  [the 2026-10-04 closeout plan](./2026-10-04-dependency-runtime-upgrade-closeout-v1.md).
-  Its children cover baseline/pin reconciliation, Rust and release gates,
-  scaffold/Prisma validation, and docs/protected delivery. The export contains
-  205 issues before the remediation hierarchy was created.
-- PR #39 remediation tracker state: GitHub issue #40 anchors completed Beads epic
-  `RT-bz6`; eight children cover PostgreSQL 18 volume migration, Supabase env
-  setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior,
-  documentation/export synchronization, root atlas Rust version accuracy, and
-  runnable scaffold Compose command paths.
-  Hosted PostgreSQL migration and RLS assertions passed in run
-  [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
-  PR #41 merged at `cb567d3`; PostgreSQL 18 migration and RLS passed in hosted
-  CI and all required post-merge workflows succeeded.
+  issue cards remain historical execution records; future work should use new
+  issues rather than reopening completed cards without review.
+- The checked-in Beads export is a dated issue snapshot at
+  `../../.beads/issues.jsonl`; live Beads is authoritative for status.
+  Export again after any tracker write and commit the synchronized snapshot.
+- Older 2026-10-04 open-count paragraphs in linked plans are historical
+  checkpoints. Use their final delivery notes and current live tracker state
+  when determining whether work remains.
 
 ## Archive Records
 
@@ -161,9 +167,9 @@
 
 - Live Beads state is authoritative for issue status; roadmap files remain
   authoritative for scope and acceptance criteria.
-- An earlier 2026-10-04 audit during closeout found five open/ready issues in
-  `RT-bbi`; this snapshot is historical. The current tracker has zero open
-  issues, and dated records must not override live Beads state.
+- The 2026-10-04 live audit reports five open/ready issues, all in `RT-bbi`.
+  Earlier open-work snapshots in dated records are historical and must not be
+  treated as current.
 - After any live tracker write, run `bd export -o .beads/issues.jsonl` and
   update this backlog snapshot in the same commit.
 

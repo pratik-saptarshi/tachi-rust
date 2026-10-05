@@ -73,6 +73,11 @@
     align(center,
       image(img-path, width: 100%, fit: "contain"),
     )
+  } else {
+    let source = str(entry.at("mermaid-code", default: ""))
+    if source != "" {
+      text(size: 7pt, raw(source, block: true, lang: "mermaid"))
+    }
   }
 
   v(0.15in)

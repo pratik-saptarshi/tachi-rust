@@ -27,6 +27,15 @@ pub fn report_data_result(target_dir: &Path, template_dir: &Path) -> ReportDataR
     }
 }
 
+pub fn try_report_data_result(
+    target_dir: &Path,
+    template_dir: &Path,
+) -> Result<ReportDataResult, String> {
+    Ok(ReportDataResult {
+        typst: tachi_core::try_build_report_data_typst(target_dir, template_dir)?,
+    })
+}
+
 pub fn cleanup_mislabeled_report_images(target_dir: &Path) {
     cleanup_report_images(target_dir);
 }
@@ -74,7 +83,8 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
         .and_then(|finding| finding.delta_status.clone());
 
     let sarif_findings = findings
-        .into_iter()
+        .iter()
+        .cloned()
         .map(|finding| ThreatSarifFinding {
             id: finding.id.clone(),
             prefix: prefix_for(&finding.id),
@@ -95,12 +105,13 @@ pub fn threats_sarif_output(input: &Path) -> Result<ThreatsSarifOutput, String> 
         })
         .collect::<Vec<_>>();
     let source_threats_uri = input.display().to_string();
-    let sarif = build_threats_sarif(
+    let mut sarif = build_threats_sarif(
         &sarif_findings,
         &component_meta,
         &source_threats_uri,
         Some(&source_threats_uri),
     );
+    tachi_core::threats_sarif::attach_source_attribution(&mut sarif, &findings);
     let sarif = to_string_pretty(&sarif)
         .map_err(|err| format!("failed to serialize threats SARIF: {err}"))?;
 

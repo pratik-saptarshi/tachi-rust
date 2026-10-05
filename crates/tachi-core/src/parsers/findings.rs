@@ -64,7 +64,12 @@ pub struct RiskScoreFinding {
 pub struct SourceAttributionRecord {
     pub taxonomy: String,
     pub id: String,
+    #[serde(default = "default_primary_relationship")]
     pub relationship: String,
+}
+
+fn default_primary_relationship() -> String {
+    String::from("primary")
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -291,6 +296,7 @@ fn parse_total_count(value: &str) -> Option<(usize, Option<usize>)> {
 }
 
 pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, String> {
+    let source_attribution_block = extract_source_attribution_block(content)?;
     let rows = parse_markdown_table(content, "## 7. Recommended Actions");
     if rows.is_empty() {
         return Ok(Vec::new());
@@ -304,7 +310,6 @@ pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, Strin
         })
         .cloned();
 
-    let source_attribution_block = extract_source_attribution_block(content)?;
     let mut findings = Vec::new();
 
     for row in rows {
@@ -314,7 +319,8 @@ pub fn parse_threats_findings(content: &str) -> Result<Vec<ThreatFinding>, Strin
         }
         let source_attribution = source_attribution_block
             .as_ref()
-            .and_then(|block| block.get(&id).cloned());
+            .and_then(|block| block.get(&id).cloned())
+            .or_else(|| explicit_owasp_reference(content, &id));
 
         let finding = ThreatFinding {
             id: id.clone(),
@@ -409,7 +415,7 @@ fn extract_source_attribution_block(
         .enumerate()
         .find_map(|(idx, line)| (line.trim() == "## 9. Source Attribution").then_some(idx))
     else {
-        return Ok(None);
+        return extract_nested_source_attribution(content);
     };
 
     let mut lines = content.lines().skip(header_idx + 1);
@@ -432,6 +438,13 @@ fn extract_source_attribution_block(
 
     if !seen_fence {
         return Ok(Some(BTreeMap::new()));
+    }
+    let _: serde_yaml::Value = serde_yaml::from_str(&body.join("\n"))
+        .map_err(|e| format!("Source Attribution: malformed YAML: {e}"))?;
+    if body.iter().any(|line| {
+        line.trim() == "source_attribution:" || line.trim().starts_with("source_attribution: ")
+    }) {
+        return parse_nested_source_attribution_yaml(&body.join("\n")).map(Some);
     }
 
     let mut result: BTreeMap<String, Vec<SourceAttributionRecord>> = BTreeMap::new();
@@ -459,6 +472,89 @@ fn extract_source_attribution_block(
     }
 
     Ok(Some(result))
+}
+
+// Current complete examples also use a named inline attribution block with
+// per-finding `source_attribution` arrays. Read that explicit evidence without
+// deriving a taxonomy category from a finding ID or description.
+fn extract_nested_source_attribution(
+    content: &str,
+) -> Result<Option<BTreeMap<String, Vec<SourceAttributionRecord>>>, String> {
+    let Some((_, section)) = content.split_once("**Source Attribution**:") else {
+        return Ok(None);
+    };
+    let Some((_, fenced)) = section.split_once("```yaml") else {
+        return Err("Source Attribution: missing YAML block".into());
+    };
+    let Some((yaml, _)) = fenced.split_once("```") else {
+        return Err("Source Attribution: unterminated YAML block".into());
+    };
+    parse_nested_source_attribution_yaml(yaml).map(Some)
+}
+
+fn parse_nested_source_attribution_yaml(
+    yaml: &str,
+) -> Result<BTreeMap<String, Vec<SourceAttributionRecord>>, String> {
+    #[derive(serde::Deserialize)]
+    struct Entry {
+        source_attribution: Vec<SourceAttributionRecord>,
+    }
+    let entries: BTreeMap<String, Entry> = serde_yaml::from_str(yaml)
+        .map_err(|e| format!("Source Attribution: malformed YAML: {e}"))?;
+    let mut result = BTreeMap::new();
+    for (id, entry) in entries {
+        if !finding_id_like(&id) {
+            return Err(format!("Source Attribution: invalid finding ID {id}"));
+        }
+        for record in &entry.source_attribution {
+            if !VALID_SOURCE_ATTRIBUTION_TAXONOMIES.contains(&record.taxonomy.as_str())
+                || !VALID_SOURCE_ATTRIBUTION_RELATIONSHIPS.contains(&record.relationship.as_str())
+                || record.id.trim().is_empty()
+            {
+                return Err(format!("{id}: invalid source attribution {record:?}"));
+            }
+        }
+        result.insert(id, entry.source_attribution);
+    }
+    Ok(result)
+}
+
+fn explicit_owasp_reference(
+    content: &str,
+    finding_id: &str,
+) -> Option<Vec<SourceAttributionRecord>> {
+    let mut column = None;
+    for line in content.lines() {
+        if !line.trim().starts_with('|') {
+            column = None;
+            continue;
+        }
+        let cells = crate::parsers::table::split_table_row(line);
+        if cells.first().is_some_and(|cell| cell == "ID") {
+            column = cells.iter().position(|cell| cell == "OWASP Reference");
+            continue;
+        }
+        if cells.first().is_none_or(|cell| cell != finding_id) {
+            continue;
+        }
+        let Some(index) = column else {
+            continue;
+        };
+        let value = cells.get(index)?;
+        let category = value.strip_prefix("OWASP ")?.strip_suffix(":2026")?;
+        if !(category.starts_with("LLM")
+            && category.len() == 5
+            && category[3..].chars().all(|c| c.is_ascii_digit()))
+        {
+            return None;
+        }
+        return Some(vec![SourceAttributionRecord {
+            taxonomy: "owasp".into(),
+            id: category.into(),
+            relationship: "primary".into(),
+        }]);
+    }
+    None
 }
 
 fn parse_empty_source_attribution_entry(line: &str) -> Option<String> {

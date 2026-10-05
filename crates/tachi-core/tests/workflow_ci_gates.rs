@@ -92,7 +92,7 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
         })
         .collect();
     for command in [
-        "cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane",
+        "cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test output_integrity_preservation --test report_data_result --test tauri_shell_scaffold --test control_plane",
         "cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary",
         "cargo test -p tachi-shell --test tauri_bridge --test template_config_load --test template_git_clone_timeout",
     ] {
@@ -293,7 +293,7 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     assert_eq!(
         workflow_matrix_values(&workflow, "shell-tests", "command"),
         vec![
-            String::from("cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test report_data_result --test tauri_shell_scaffold --test control_plane"),
+            String::from("cargo test -p tachi-shell --test command_registry --test coverage_audit --test infographic_data --test output_integrity_preservation --test report_data_result --test tauri_shell_scaffold --test control_plane"),
             String::from("cargo test -p tachi-shell --test init_adversarial --test init_constitution --test init_defaults_env --test init_manifest_paths --test init_precommit_matrix --test init_substitution --test init_timing_trace --test init_trace_summary"),
             String::from("cargo test -p tachi-shell --test tauri_bridge --test template_config_load --test template_git_clone_timeout"),
         ],
