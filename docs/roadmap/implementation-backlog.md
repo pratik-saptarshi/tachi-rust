@@ -24,11 +24,11 @@
 
 ## Current Status Snapshot
 
-- Rust-native upstream implementation is recorded under historical closed epic
-  `RT-5vk`. Protected delivery and review remediation are tracked by active
-  epic `RT-3zm`: semantic PR #43 and native reporting PR #44 are merged;
-  integration evidence PR #42 awaits its protected publication gate.
-  Implementation closure does not establish merged delivery.
+- Rust-native upstream implementation and protected delivery are complete.
+  Historical implementation epic `RT-5vk` and delivery epic `RT-3zm` are
+  closed. PRs #43, #44, and #42 auto-merged after required checks and review
+  remediation passed. Final delivery evidence is recorded in
+  [the upstream milestone plan](./2026-10-04-upstream-milestone-delivery.md).
   Earlier tracker snapshots below remain historical.
 
 - Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
