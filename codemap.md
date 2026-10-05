@@ -64,10 +64,12 @@ permissions CI, typed MAESTRO evaluation evidence, catalog fingerprints and
 transactional baseline regeneration, output-integrity identity/attribution, and
 adopter scanning. Delivery evidence is recorded in that roadmap.
 
-The prior RT-CI implementation hierarchy is closed for the delivered routing,
-setup, and aggregate timing work. The stricter route-specific performance
-comparison and success-only timing collector are tracked as open follow-up
-`RT-0sd` in [the timing evidence plan](docs/roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
+The prior RT-CI implementation hierarchy is closed for its delivered routing,
+setup, and aggregate timing scope. Follow-up `RT-0sd` tracks the route
+eligibility correction and stricter route-specific performance comparison;
+success-only collection is complete, while route classification is being
+corrected before the required ten-run/35% evidence can be gathered. See [the
+timing evidence plan](docs/roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
 
 `catalog-drift --check` validates `schemas/taxonomy/catalog-manifest.json`
 offline, using the same strict Rust YAML loader and ordered framework registry

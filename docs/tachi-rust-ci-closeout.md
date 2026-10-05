@@ -1,7 +1,7 @@
 # Tachi-Rust CI Closeout Notes
 
-**Status**: timing closeout evidence for RT-CI; ongoing monitoring remains
-operational follow-up
+**Status**: original RT-CI closeout is complete; route-specific timing evidence
+remains open under Beads `RT-0sd`
 **Purpose**: distinguish locally proven RT-CI changes, hosted governance
 evidence, and post-closeout operational monitoring
 
@@ -9,9 +9,13 @@ evidence, and post-closeout operational monitoring
 
 - Route policy manifest and route artifact contracts exist and are covered by
   workflow contract tests.
-- Passive-docs narrowing, dependency-closure routing, and the emergency full-CI
-  override are implemented in `rust-workspace.yml`.
-- Protected refs (`main`, `release/*`, and tags) are forced to full mode.
+- `scripts/ci-route-classifier.sh` is the shared source for passive-docs,
+  dependency-closure, and full-matrix decisions used by both routing workflows.
+- Direct protected-ref runs (`main`, `release/*`, and tags), active contracts,
+  shared surfaces, uncertainty, and emergency full-CI overrides remain full
+  mode. Protected refs (`main`, `release/*`, and tags) are forced to full mode.
+  This applies when they are the execution ref; a PR targeting `main` can
+  still be narrowed.
 - Shared Rust setup is centralized in `.github/actions/rust-setup/action.yml`.
 - Heavy Rust-facing workflows emit elapsed runtime summaries.
 - Phase 0 baseline inventory and local validation snapshot are recorded in
@@ -26,6 +30,23 @@ evidence, and post-closeout operational monitoring
   failure that did not reproduce in the workspace or coverage-only reruns.
 - The local gitleaks 8.30.1 scan passed with no leaks; this does not replace
   the required GitHub gitleaks workflow result.
+
+## Route classification and measurement status (2026-10-05)
+
+The route-specific timing audit found that both PR workflows treated
+`github.base_ref=main` as the protected execution ref, forcing every PR to run
+the full matrix. Their active-contract pattern also matched every `crates/`
+path before dependency-closure routing. The correction centralizes route
+classification, evaluates the actual execution ref, and exposes
+`route_mode`/`selected_packages` in the observe-only artifact. Behavioral
+regressions cover passive docs, package closure, and full-mode fallbacks.
+Passive-docs narrowing applies only to a main-target PR whose changed paths are
+limited to passive documentation; direct protected-ref runs remain full mode.
+
+The correction is tracked by Beads `RT-0sd.3`; hosted validation is required
+before treating it as live. The historical pre-router history contains no
+comparable route cohorts, so the ten-run comparison and 35% target remain open
+under `RT-0sd.2`. See the [route-specific timing plan](roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
 
 ## Route-specific timing acceptance (open follow-up)
 
