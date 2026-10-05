@@ -341,9 +341,82 @@ PR. The full Cargo Windows package check remains unverified because the
 pre-existing `tachi-shell::script_executor` `.process_group(0)` prevents the
 package from compiling for Windows.
 
-After closing A8, Beads contains 258 issues: 247 closed, 2 in progress, 6
-open, 1 blocked, and 3 deferred. A9 remains in progress until the proxy-safe
-follow-up is merged.
+PR #50 final head `f3a3df1465eec8a6322bc36d3e41db4c67df01c7` merged through
+protected auto-merge at `2026-10-05T04:47:38Z` as
+`b387794f6f7193a20cddc6b5d6b1eb715fefdfac`. The late review comment on PR
+#49 was answered as comment 4180800575 with the PR #50 link, and its thread is
+resolved. All required branch-protection contexts were terminal and
+successful at merge. The aggregate CodeQL context was neutral at merge; its
+Rust analysis subjob subsequently completed successfully at
+`2026-10-05T04:50:03Z`.
+
+The Phase 4 baseline is `main` at `b387794f6f7193a20cddc6b5d6b1eb715fefdfac`.
+PR #26 is the only open PR. It has head
+`ce7535c3129ea5c21302fddc66c211b107ea83b4`, base
+`cb567d3235eee0d45081b099a3c6df7c98f12eb7`, auto-merge enabled, and all 17
+required status contexts terminal and successful. GitHub reports merge state
+`DIRTY`, so it is not recorded as mergeable.
+
+### Phase 4 advisory contract decisions
+
+These are P3 policy decisions only; none blocks P2 delivery and none authorizes
+automatic migration, a new attestation mechanism, or broader PDF integrity
+work.
+
+- **A10 / RT-aha.5.1 — current-catalog-only taxonomy resolution.** A
+  versionless identifier resolves against the checked-in current catalog.
+  Historical edition meaning is not preserved by this finding contract;
+  callers must review source context before regenerating historical data.
+  Automatic historical ID remapping is unsupported. Revisit only if a named
+  consumer requires lossless regeneration of historical outputs; first add a
+  versioned input contract and historical fixtures.
+- **A11 / RT-aha.5.2 — same-revision builder precondition.** The compiled
+  `catalog-drift` builder and selected source root must represent the same
+  revision; maintainers use the documented `cargo run --locked` command from
+  that checkout. Arbitrary cross-revision builder/root pairings are
+  unsupported. Revisit if the repository adopts a supported remote or
+  separately distributed builder, with an explicit identity contract and
+  mismatch regression before code.
+- **A12 / RT-aha.5.3 — registered-baseline-only check scope.**
+  `catalog-drift --check` validates registered input fingerprints, renderer
+  provenance, and registered PDF baseline hashes. It does not verify every
+  published companion PDF; updating companions during regeneration is not a
+  promise of companion integrity. No current companion corruption is claimed.
+  Revisit if release policy requires every published PDF to be integrity
+  checked; then register companion hashes and add a companion-only corruption
+  test.
+
+Contract wording is in `schemas/finding.yaml` for A10 and
+`docs/feature-roadmap-2026-10-04.md` for A11/A12. No historical fixture,
+builder identity enforcement, or companion-hash implementation was added.
+
+### Final delivery closeout
+
+PR #49 final head `ca73b269c6a64f35c39ebf396fb783471e91d88a` passed all 17
+required checks and merged at `2026-10-05T04:34:44Z` as
+`70dae61e0b6c46642afb3a904e72012bdb222af9`. PR #50 final head
+`f3a3df1465eec8a6322bc36d3e41db4c67df01c7` passed all 17 required checks and
+merged at `2026-10-05T04:47:38Z` as
+`b387794f6f7193a20cddc6b5d6b1eb715fefdfac`. Both PRs have auto-merge enabled
+and completed via protected squash merge. Both review threads on PR #49 are
+resolved, including the late post-merge comment linked to PR #50.
+
+Final local receipts: the workspace suite passes 655 tests with one declared
+ignored test; the monitor suite passes 13/13 with proxy variables forced to an
+unreachable local proxy and bypass variables empty; parser, taxonomy-integrity,
+and catalog-drift integration suites pass 30 tests; `catalog-drift --check`,
+workspace Clippy, formatting, workflow action, docs-version, docs-archive, and
+supply-chain gates pass. Beads template lint reports no warnings across the
+19 roadmap issues. Supply chain loaded 1,290 advisories across 112 locked
+crates, with advisories, bans, licenses, and sources all OK. The isolated
+Windows monitor test-harness compile passes. Full Cargo Windows package
+compilation remains unverified because unrelated existing
+`tachi-shell::script_executor` calls Unix-only `process_group(0)`.
+
+Beads closed the roadmap epic and delivery task after synchronizing this
+roadmap and `.beads/issues.jsonl`. Final tracker state: 258 issues total, 255
+closed, 0 open, 0 in progress, 0 blocked, and 3 deferred. The three deferred
+items are outside this roadmap's A1–A12 worklist.
 
 ## Action-item mapping
 
