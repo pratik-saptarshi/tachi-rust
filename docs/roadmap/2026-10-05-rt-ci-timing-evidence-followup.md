@@ -1,6 +1,6 @@
 # RT-CI Route-specific Timing Evidence Follow-up — 2026-10-05
 
-Status: **Phases 0 and 1 complete; Phase 2 route eligibility fix in progress; timing acceptance remains open**.
+Status: **Phases 0, 1, and 2a complete; Phase 2b timing acceptance remains open**.
 This follow-up addresses the unresolved post-merge timing review on PR #26
 (comment `4177119281`). The original RT-CI epic and `RT-CI-006.2` remain closed
 for their recorded implementation and aggregate-sample scope; this plan tracks
@@ -22,8 +22,8 @@ that the route-specific acceptance target passed.
 |---|---|---|---|
 | 0 — Reconcile the existing review and tracker state | RT-0sd | Planning/update commits on PR #26's attached branch | PR #26 head and hosted jobs inspected; review findings fixed on that branch; Beads records and export reconciled |
 | 1 — Make timing collection success-only and reproducible | RT-0sd.1 — complete in PR #26 | PR #26, merged as `62dbed10` | Mixed success/failure behavioral regression proves failed completions do not affect sample size or medians; focused Rust contract suite and hosted required checks pass |
-| 2a — Make the planned route shapes reachable | RT-0sd.3 — in progress | Focused workflow/classifier PR | Main-target PRs can select passive-docs and dependency-closure modes; direct protected-ref events and all unsafe/unknown routes remain full; behavioral route tests pass |
-| 2b — Prove route-specific reduction | RT-0sd.2; depends on RT-0sd.1 and RT-0sd.3 | Evidence PR with raw run links and reproducible calculation | At least ten successful pre-router and ten successful post-router PR runs for each route shape; report queue and run medians separately; both route shapes meet the planned 35% reduction; otherwise leave open |
+| 2a — Make the planned route shapes reachable | RT-0sd.3 — complete | PR #54, merged as `9d5b2733420bf5511a12c9a04cb36172937cd864` | Main-target PRs can select passive-docs and dependency-closure modes; direct protected-ref events and all unsafe/unknown routes remain full; behavioral route tests and hosted required checks pass |
+| 2b — Prove route-specific reduction | RT-0sd.2 — open; prerequisite RT-0sd.3 complete | Evidence PR with raw run links and reproducible calculation | At least ten successful pre-router and ten successful post-router PR runs for each route shape; report queue and run medians separately; both route shapes meet the planned 35% reduction; otherwise leave open |
 | 3 — Synchronize delivery records | RT-0sd closeout | Final evidence/doc PR | Baseline, closeout, execution plan, codemap, backlog, live Beads, and JSONL export agree; close only after Phase 2b evidence passes |
 
 At the start of each milestone, inspect every open PR's current head, checks,
@@ -61,10 +61,11 @@ the only successful PR run before the route rollout commit
 `28757002103` for PR #14. That PR mixes workflow, manifest, active-document,
 and Rust crate changes, so it is not comparable to either target route shape.
 Valid pre-router sample counts are therefore zero for `passive-docs` and
-`dependency-closure`. Post-router narrowed-mode counts are also zero because
-the current gate routes all PRs to full mode. Beads `RT-0sd.3` tracks the
-classifier correction and blocks `RT-0sd.2`; this does not relax the original
-ten-run cohorts or 35% reduction threshold.
+`dependency-closure`. At the time of the audit, post-router narrowed-mode
+counts were also zero because the gate routed all PRs to full mode. PR #54
+corrected and merged the classifier; new route-specific samples can now be
+collected. This does not relax the original ten-run cohorts or 35% reduction
+threshold.
 
 ### Phase 1 receipt
 
@@ -112,9 +113,13 @@ present pooled totals as route-specific proof.
 - `cargo fmt --all -- --check`, `bash -n scripts/ci-route-classifier.sh`,
   `make workflow-gate docs-version-gate docs-archive-version-gate`, and
   `git diff --check` passed.
-- Hosted checks have not yet run. Keep `RT-0sd.3` in progress until its PR
-  checks and review threads are terminal. These local results do not satisfy
-  the four live timing cohorts or close `RT-0sd.2`.
+- PR #54 merged at `2026-10-05T06:44:42Z` as
+  `9d5b2733420bf5511a12c9a04cb36172937cd864` from head
+  `86638be79a36429bb5c179cf33715152fc2c65d8`. All 17 required branch
+  protection contexts passed; every reported check was terminal (23 success,
+  one neutral advisory Clippy status). No formal review or inline comments
+  remained. `RT-0sd.3` is closed. These results do not satisfy the four live
+  timing cohorts or close `RT-0sd.2`.
 
 ## Phase 3 — Delivery and closure
 

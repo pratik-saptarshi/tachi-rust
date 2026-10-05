@@ -7,7 +7,7 @@
 ## Backlog Navigation
 
 - [Main-48h adversarial remediation (2026-10-04)](./remediation-roadmap-2026-10-04.md) — epic `RT-aha`; A1–A9 merged and A10–A12 decided; final control-document sync merged in PR #51.
-- [RT-CI route-specific timing evidence follow-up (2026-10-05)](./2026-10-05-rt-ci-timing-evidence-followup.md) — epic `RT-0sd`; success-only collection is complete, route eligibility correction `RT-0sd.3` is in progress, and the ten-run/35% timing acceptance `RT-0sd.2` remains open behind it.
+- [RT-CI route-specific timing evidence follow-up (2026-10-05)](./2026-10-05-rt-ci-timing-evidence-followup.md) — epic `RT-0sd`; success-only collection and route eligibility correction `RT-0sd.3` are complete (PR #54 merged), and the ten-run/35% timing acceptance `RT-0sd.2` remains open.
 
 - [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
 - [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
