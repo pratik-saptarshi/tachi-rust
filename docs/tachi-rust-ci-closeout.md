@@ -43,10 +43,11 @@ regressions cover passive docs, package closure, and full-mode fallbacks.
 Passive-docs narrowing applies only to a main-target PR whose changed paths are
 limited to passive documentation; direct protected-ref runs remain full mode.
 
-The correction is tracked by Beads `RT-0sd.3`; hosted validation is required
-before treating it as live. The historical pre-router history contains no
-comparable route cohorts, so the ten-run comparison and 35% target remain open
-under `RT-0sd.2`. See the [route-specific timing plan](roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
+The correction merged in PR #54 as `9d5b2733420bf5511a12c9a04cb36172937cd864`
+after all required hosted contexts passed; Beads `RT-0sd.3` is closed. The
+historical pre-router history contains no comparable route cohorts, so the
+ten-run comparison and 35% target remain open under `RT-0sd.2`. See the
+[route-specific timing plan](roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
 
 ## Route-specific timing acceptance (open follow-up)
 

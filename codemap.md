@@ -67,9 +67,9 @@ adopter scanning. Delivery evidence is recorded in that roadmap.
 The prior RT-CI implementation hierarchy is closed for its delivered routing,
 setup, and aggregate timing scope. Follow-up `RT-0sd` tracks the route
 eligibility correction and stricter route-specific performance comparison;
-success-only collection is complete, while route classification is being
-corrected before the required ten-run/35% evidence can be gathered. See [the
-timing evidence plan](docs/roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
+success-only collection and route eligibility correction are complete (PR #54
+merged), while the required ten-run/35% evidence remains open under
+`RT-0sd.2`. See [the timing evidence plan](docs/roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
 
 `catalog-drift --check` validates `schemas/taxonomy/catalog-manifest.json`
 offline, using the same strict Rust YAML loader and ordered framework registry
