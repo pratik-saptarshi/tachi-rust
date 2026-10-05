@@ -1,0 +1,7 @@
+8df554e884b1e5dd24146111a965597eff5f4779 2026-10-04T14:40:56Z docs: finalize phased upstream roadmap delivery evidence (#42)
+c933cd4bb6b7a99a1e07ce56f940dbccab0d6cc4 2026-10-04T13:57:02Z feat(reporting): deliver native upstream reporting and automation milestone (#44)
+b7cdd03a3ad7625082eb84ff4bc43ba8e8295744 2026-10-04T13:32:01Z fix(taxonomy): deliver OWASP 2026 semantic milestone (#43)
+cb567d3235eee0d45081b099a3c6df7c98f12eb7 2026-10-04T09:50:42Z fix(040): address PR #39 review and closeout findings (#41)
+35be8778c3aacea179224676d42c45a6f50a33b7 2026-10-04T00:15:32Z feat: adopt upstream taxonomy parity and safe image cleanup (#38)
+ddd19ef852e99f805eed23c0062a1b932ba7f462 2026-10-03T22:52:21Z feat(taxonomy): adopt upstream framework and reporting updates (#37)
+cc2f18e1bc2afe6d8fd63f9ccc608718204847ce 2026-10-03T20:09:49Z chore(deps-dev): bump the npm_and_yarn group across 2 directories with 1 update (#35)

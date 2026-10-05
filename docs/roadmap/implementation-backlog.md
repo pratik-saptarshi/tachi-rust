@@ -6,6 +6,8 @@
 
 ## Backlog Navigation
 
+- [Main-48h adversarial remediation (2026-10-04)](./remediation-roadmap-2026-10-04.md) — epic `RT-aha`; nine P2 corrections, three nonblocking P3 decisions; implementation not started.
+
 - [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
 - [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
 - [Rust-native upstream milestone delivery (2026-10-04)](./2026-10-04-upstream-milestone-delivery.md) — epic `RT-3zm`, three separately gated PR phases, including PR #42 review remediation.
@@ -22,11 +24,11 @@
 
 ## Current Status Snapshot
 
-- Rust-native upstream implementation is recorded under historical closed epic
-  `RT-5vk`. Protected delivery and review remediation are tracked by active
-  epic `RT-3zm`: semantic PR #43 and native reporting PR #44 are merged;
-  integration evidence PR #42 awaits its protected publication gate.
-  Implementation closure does not establish merged delivery.
+- Rust-native upstream implementation and protected delivery are complete.
+  Historical implementation epic `RT-5vk` and delivery epic `RT-3zm` are
+  closed. PRs #43, #44, and #42 auto-merged after required checks and review
+  remediation passed. Final delivery evidence is recorded in
+  [the upstream milestone plan](./2026-10-04-upstream-milestone-delivery.md).
   Earlier tracker snapshots below remain historical.
 
 - Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
