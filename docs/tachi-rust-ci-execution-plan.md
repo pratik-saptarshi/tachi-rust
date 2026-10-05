@@ -2,12 +2,16 @@
 
 **Date**: 2026-07-09  
 **Source input**: `/Volumes/dev/Git-SCM/tachi-rust/docs/ci-improvement-plan.html`  
-**Status**: active execution package with remote evidence blockers
+**Status**: historical execution record; RT-CI is closed and monitoring is operational follow-up
+
 **Primary objective**: reduce wasted pull-request CI time without weakening `tachi-rust`'s existing SARIF, supply-chain, cross-platform, and contract-specific guarantees
 
 ## Repo-State Reconciliation
 
-- The source plan is currently an untracked draft on `main`.
+This section records the repository state when the plan was drafted on
+2026-07-09; it is not a description of the current branch.
+
+- The source plan was an untracked draft on `main` at plan creation.
 - The Rust toolchain modernization hierarchy (`RT-TC*`) is already closed in Beads and must not be reused as the live tracker for this work.
 - The backlog snapshot says future CI/toolchain work should open a new Beads hierarchy and keep `.beads/issues.jsonl`, the backlog snapshot, and the roadmap synchronized.
 - The current workflow surface already contains protected specialist or privileged lanes:
@@ -35,6 +39,17 @@ The current draft is directionally right about delta routing, fast-fail lanes, a
 - shadow-mode route proof,
 - dependency-closure-aware package routing,
 - and a required-check migration step before any lane is renamed or replaced.
+
+## Current Closeout Status (2026-10-04)
+
+- RT-CI and all seven children are closed in Beads; no RT-CI issues remain open.
+- The representative PR timing samples are historical, captured on 2026-07-12:
+  workspace sample size 22 (85 s median) and route-observe sample size 23
+  (14 s median), with zero queue medians.
+- Main branch protection was rechecked on 2026-10-04: strict mode is enabled
+  with 17 required contexts, including CodeQL and PostgreSQL migration/RLS.
+- New work on CI policy or timing should use a new Beads hierarchy and fresh
+  evidence rather than reopening the completed RT-CI hierarchy.
 
 ## Non-Negotiables
 
@@ -274,13 +289,18 @@ Work:
 - Extract repeated Rust setup, cache, toolchain proof, and OS package installation into a reusable composite action or reusable workflow.
 - Keep lane-specific commands local to each workflow so failure ownership remains obvious.
 - Add elapsed runtime summaries per heavy lane.
-- Capture pre-router vs post-router median duration evidence for the first ten successful PR runs per narrowed route shape.
+- Capture pre-router vs post-router median duration evidence for the first ten successful PR runs per narrowed route shape: `passive-docs` and `dependency-closure`.
+- Require at least a 35% reduction in post-router median execution time for each route shape, measured against a comparable pre-router cohort. Queue and execution durations are reported separately.
 - Delay this phase until the router has survived shadow mode and initial narrowing without route regressions.
 
 Acceptance criteria:
 
 - Shared setup is defined once and consumed by PR-facing Rust workflows.
 - Timing summaries are emitted for the heavy Rust lanes.
+- Route-specific timing acceptance passes only with ten successful pre-router
+  and ten successful post-router PR runs per route shape, plus at least 35%
+  median execution-time reduction for both `passive-docs` and
+  `dependency-closure`.
 - Failure localization is not reduced by the setup refactor.
 - Routing and setup reuse can be diagnosed independently.
 
@@ -297,16 +317,19 @@ Current local evidence:
 - Warm local comparison: `origin/main` ran the same test in `real 0.58s`,
   `user 0.08s`, `sys 0.08s` after cache warm-up, while the current branch ran
   it in `real 1.39s`, `user 0.10s`, `sys 0.08s`.
-- Live PR timing evidence has been collected for current runs, but not yet at
-  the intended 10-run sample depth.
-  - `rust-workspace.yml` (PR event): `sample_size=2`, `run_med_ms=350000`,
-    `queue_med_ms=0`, `run_range_ms=93000..607000`.
-  - `ci-route-observe.yml` (PR event): `sample_size=1`, `run_med_ms=16000`,
-    `queue_med_ms=0`, `run_range_ms=16000..16000`.
-- Remaining blocker is required-check migration validation, which still depends on
-  branch protection being enabled on `main` for protected-check verification.
+- Historical PR timing evidence, collected 2026-07-12, closed out with workspace
+  `sample_size=22`,
+  `run_med_ms=85000`, `run_range_ms=79000..101000`, and route-observe
+  `sample_size=23`, `run_med_ms=14000`, `run_range_ms=11000..17000`; both queue
+  medians are `0 ms`. These aggregate historical samples do not distinguish
+  route shape or pre-router/post-router cohorts and do not satisfy the Phase 5
+  reduction criterion. Phase 5 timing acceptance remains open under Beads
+  `RT-0sd`; see
+  [the route-specific follow-up plan](roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
+  Branch protection is enabled and the required-check migration was verified
+  against the protected `main` branch.
 
-### Phase 6 - Release Policy, Required-Check Migration, And Closeout
+### Phase 6 - Release Policy, Required-Check Migration, And Closeout (complete)
 
 Purpose: codify where delta routing applies and where the repository must always stay broad.
 
@@ -405,9 +428,10 @@ Validation:
 | `CI-05` reduce duplicated setup | Bundle after routing stability | Phase 5 |
 | `CI-06` PR concurrency cancellation | Must-fix, low-risk first slice | Phase 1 |
 
-## Final Recommendation
+## Final Recommendation (historical; rollout complete)
 
-Proceed, but as a new `RT-CI` execution package rather than an extension of `RT-TC`.
+The recommendation was to proceed as a new `RT-CI` execution package rather
+than an extension of `RT-TC`. The package and all seven children are now closed.
 
 The safest rollout order is:
 

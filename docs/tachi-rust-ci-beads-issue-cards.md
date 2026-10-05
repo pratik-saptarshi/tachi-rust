@@ -435,13 +435,13 @@
 - `User Story`: As a release owner, I want evidence that the new CI shape is materially faster and still safe.
 - `Function`: workflow summaries, rollout evidence note, backlog closeout docs
 - `Dependencies`: `RT-CI-005`
-- `Acceptance criteria`: median timing evidence is captured and compared against baseline
+- `Acceptance criteria`: representative aggregate PR timing evidence is captured and compared against baseline. This closed card records the aggregate samples only; it does not satisfy the stricter route-specific Phase 5 performance target.
 - `Validation`: workflow summary exports and evidence note
 - `Implementation owner`: DevEx maintainer
 - `Stage label`: P2.2
 - `Next test seam`: summary-format assertions if automated
 - `Priority`: 2
-- `Notes`: required for closeout, not for first pilot enablement.
+- `Notes`: required for closeout, not for first pilot enablement. The follow-up requirement for ten successful pre-router and post-router runs per route shape plus a 35% median reduction is tracked independently in `RT-0sd` and `docs/roadmap/2026-10-05-rt-ci-timing-evidence-followup.md`.
 
 ## Feature 7 - Release Policy And Closeout
 

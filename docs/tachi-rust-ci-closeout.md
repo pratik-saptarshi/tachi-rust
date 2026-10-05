@@ -1,8 +1,9 @@
 # Tachi-Rust CI Closeout Notes
 
-**Status**: draft closeout evidence for RT-CI
-**Purpose**: separate locally proven RT-CI changes from external verification
-items that still require GitHub access
+**Status**: timing closeout evidence for RT-CI; ongoing monitoring remains
+operational follow-up
+**Purpose**: distinguish locally proven RT-CI changes, hosted governance
+evidence, and post-closeout operational monitoring
 
 ## Proven Locally
 
@@ -16,8 +17,7 @@ items that still require GitHub access
 - Phase 0 baseline inventory and local validation snapshot are recorded in
   `docs/tachi-rust-ci-baseline.md`.
 - Warm local timing comparison exists for the same workflow test on
-  `origin/main` (`real 0.58s`) and the current branch (`real 1.39s`), but it
-  is not a substitute for live PR median evidence.
+  `origin/main` (`real 0.58s`) and the current branch (`real 1.39s`).
 - Beads export and issue notes are updated after each slice and can be used by
   release operators when evidence gaps remain.
 - On 2026-07-10, the full workspace test gate passed 468 tests across 111
@@ -27,32 +27,37 @@ items that still require GitHub access
 - The local gitleaks 8.30.1 scan passed with no leaks; this does not replace
   the required GitHub gitleaks workflow result.
 
-## Remaining Follow-up Verification
+## Route-specific timing acceptance (open follow-up)
 
-- Live GitHub Actions timing evidence: repeated PR-specific timing evidence for
-  pre-router vs post-router median PR
-  durations. The current mainline sample is recorded in
-  `docs/tachi-rust-ci-baseline.md`; collect PR/event-filtered samples via
-  `make rt-ci-latency-evidence` when representative PR runs exist.
-- Branch-protection verification is complete for the current migration: the
-  live API reports `main` protected with the required contexts, strict
-  up-to-date enforcement, linear history, conversation resolution, and
-  force-push/deletion protection. Continue monitoring after future policy
-  changes.
+- Live GitHub Actions timing evidence for the planned performance comparison is
+  not complete. The dated aggregate samples do not provide separate pre-router
+  and post-router cohorts for `passive-docs` and `dependency-closure`.
+- The open follow-up [RT-CI timing evidence plan](./roadmap/2026-10-05-rt-ci-timing-evidence-followup.md)
+  requires ten successful PR runs in each route/cohort combination and a
+  minimum 35% reduction in each route shape's median execution time. Queue and
+  run times remain separate, and failed or route-unknown runs are excluded.
+
+## Operational Monitoring (post-closeout)
+
+- Continue collecting representative PR-specific timing samples via
+  `make rt-ci-latency-evidence`; after the route-specific acceptance is met,
+  additional samples are operational monitoring. Current pooled samples are
+  recorded in `docs/tachi-rust-ci-baseline.md` and are not completion evidence.
+- Branch-protection verification was refreshed on 2026-10-04: `main` requires
+  17 strict status contexts, including CodeQL and the PostgreSQL migration/RLS
+  workflow. Admin enforcement and linear history are enabled; force pushes and
+  branch deletion are disabled. Recheck after future policy changes.
 - Post-push monitoring of `main` after a publish step.
 
-## Latest Remote Evidence Pull (2026-07-12)
+## Dated Remote Evidence
 
-- `make rt-ci-latency-evidence` and direct API checks were executed from this
-  branch with elevated network privileges:
-  - `branch_protection=pratik-saptarshi/tachi-rust/main: enabled`; the
-    replayable command is `gh api repos/pratik-saptarshi/tachi-rust/branches/main/protection`.
+- The representative PR timing sample below was captured on 2026-07-12:
   - `rust-workspace.yml` PR-side median evidence command (`pull_request` event):
-    `sample_size=2`, `run_med_ms=350000`, `queue_med_ms=0`,
-    `run_range_ms=93000..607000`.
+    `sample_size=22`, `run_med_ms=85000`, `queue_med_ms=0`,
+    `run_range_ms=79000..101000`.
   - `ci-route-observe.yml` PR-side evidence command (`pull_request` event):
-    `sample_size=1`, `run_med_ms=16000`, `queue_med_ms=0`,
-    `run_range_ms=16000..16000`.
+    `sample_size=23`, `run_med_ms=14000`, `queue_med_ms=0`,
+    `run_range_ms=11000..17000`.
 - Route-observe artifact evidence was downloaded from PR run
   `29091065279` (`ci route observe`); it reports:
   - `mode=observe_only`
@@ -65,11 +70,13 @@ items that still require GitHub access
 - Current mainline median collection: `rust-workspace.yml` sample size 40,
   run median 71 seconds, queue median 0 seconds; `ci-route-observe.yml` sample
   size 11, run median 14 seconds, queue median 0 seconds. Branch protection is
-  enabled and the required-check API response matches the documented contract.
+  enabled; the 2026-10-04 live response confirms 17 strict required contexts.
 
-## Publish-Readiness Guardrails Before Merge Closure
+## Historical Publish-Readiness Guardrails (satisfied)
 
-- `make publish-gate` must pass before any branch merge intended to close RT-CI.
+- These gates were required before RT-CI closure. The RT-CI epic and all seven
+  children are now closed in Beads.
+- `make publish-gate` passed before RT-CI closure.
 - Mainline remote evidence must include both:
   - stable full-mode coverage for protected refs (`main`, release refs, tags, and
     lockfile/workflow changes), and

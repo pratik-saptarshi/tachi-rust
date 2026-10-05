@@ -1,6 +1,6 @@
 # Tachi-Rust CI Baseline Snapshot
 
-**Status**: baseline reference for RT-CI Phase 0
+**Status**: baseline reference with hosted timing closeout evidence
 **Purpose**: record the pre-routing CI contract, required checks, and local
 validation snapshot so later routing changes can be compared against a stable
 reference
@@ -73,19 +73,21 @@ branch protection is now enabled on `pratik-saptarshi/tachi-rust/main` with the
 verified route, security, formatting, package, and shell checks required. The
 collector passes its governance check as well as its timing collection.
 
-- PR-side timing evidence was collected via GitHub Actions APIs in this session.
+- PR-side timing evidence was collected via GitHub Actions APIs on 2026-07-12.
   Representative command lines:
 
   ```bash
   ./scripts/rt-ci-latency-evidence.sh "rust-workspace.yml,ci-route-observe.yml" main 40 pull_request
   ```
 
-  - `rust-workspace.yml`: `sample_size=2`, `run_med_ms=350000`,
-    `queue_med_ms=0`, `run_range_ms=93000..607000`, `queue_range_ms=0..0`.
-  - `ci-route-observe.yml`: `sample_size=1`, `run_med_ms=16000`,
-    `queue_med_ms=0`, `run_range_ms=16000..16000`, `queue_range_ms=0..0`.
+  - `rust-workspace.yml`: `sample_size=22`, `run_med_ms=85000`,
+    `queue_med_ms=0`, `run_range_ms=79000..101000`, `queue_range_ms=0..0`.
+  - `ci-route-observe.yml`: `sample_size=23`, `run_med_ms=14000`,
+    `queue_med_ms=0`, `run_range_ms=11000..17000`, `queue_range_ms=0..0`.
 
-  The session did not collect a full 10-run PR representative sample yet.
+  At collection time, this was the representative PR workflow sample; the
+  latest five PR runs in that sample passed. These are dated historical
+  measurements, and historical failures remain visible in the raw sample.
 
 - Suggested GitHub median evidence command set (run once a feature branch has
   remote visibility):
@@ -108,8 +110,14 @@ collector passes its governance check as well as its timing collection.
 - Keep queue time and run time separated in notes so route narrowing impact is
   not masked by workflow scheduling delays.
 
-- live PR-run timing evidence required by the original baseline plan remains the
-  blocker for final RT-CI timing closure.
+- Live PR-run timing evidence required by the original baseline plan is not
+  complete for route-specific performance acceptance. The 2026-07-12 sample
+  sizes of 22 workspace runs and 23 route-observe runs are pooled historical
+  data; they do not separate pre-router and post-router medians for
+  `passive-docs` and `dependency-closure`. The required comparison is tracked
+  by the open `RT-0sd` follow-up plan. Do not treat these pooled totals as proof
+  of the per-route target. Once the route-specific target passes, additional
+  samples are operational monitoring, not a prerequisite for that closure.
 
 ## Route-Observe Evidence Snapshot
 
