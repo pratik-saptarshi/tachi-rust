@@ -258,24 +258,10 @@ fn render_document_data(
         "recommendation":action.recommendation, "sla":action.sla, "status":action.status,
     })).collect::<Vec<_>>());
     let report_text = fs::read_to_string(target.join("threat-report.md")).ok();
-    let image_path = |directory: &str, id: &str, suffix: &str| {
-        [id.to_string(), id.to_ascii_lowercase()]
-            .iter()
-            .flat_map(|id| {
-                ["png", "jpg", "svg"]
-                    .map(|ext| target.join(directory).join(format!("{id}-{suffix}.{ext}")))
-            })
-            .find(|path| path.is_file())
-            .map(|path| {
-                crate::assets::relative_path(template_dir, &path)
-                    .to_string_lossy()
-                    .into_owned()
-            })
-    };
     let trees = crate::attack_trees::parse_attack_trees(target, findings, report_text.as_deref());
     values["has-attack-trees"] = json!(!trees.is_empty());
     values["attack-trees"] = json!(trees.iter().map(|tree| {
-        let image = image_path("attack-trees", &tree.id, "attack-tree");
+        let image = resolve_report_image(target, template_dir, "attack-trees", &tree.id, "attack-tree");
         json!({"id":tree.id, "title":tree.title, "component":tree.component, "severity":tree.severity,
             "has-image":image.is_some(), "image-path":image.unwrap_or_default(),
             "narrative":tree.narrative, "remediation":tree.mitigation, "mermaid-code":tree.mermaid_code})
@@ -287,7 +273,7 @@ fn render_document_data(
         .collect::<Vec<_>>();
     values["has-attack-chains"] = json!(!chains.is_empty());
     values["attack-chains"] = json!(chains.iter().map(|chain| {
-        let image = image_path("attack-chains", &chain.chain_id, "attack-chain");
+        let image = resolve_report_image(target, template_dir, "attack-chains", &chain.chain_id, "attack-chain");
         json!({"id":chain.chain_id, "title":chain.title, "layers":chain.layers.join(" → "), "max-severity":chain.max_severity,
             "has-image":image.is_some(), "image-path":image.unwrap_or_default(), "narrative":chain.narrative,
             "finding-ids":chain.findings.iter().map(|f| &f.finding_id).collect::<Vec<_>>()})
@@ -314,6 +300,103 @@ fn render_document_data(
         .iter()
         .map(|(key, value)| format!("#let {key} = {}\n", typst_value(value)))
         .collect()
+}
+
+const MAX_REPORT_IMAGE_BYTES: u64 = 16 * 1024 * 1024;
+const MAX_REPORT_IMAGE_DIMENSION: u32 = 8192;
+const MAX_REPORT_IMAGE_DECODE_BYTES: u64 = 64 * 1024 * 1024;
+
+fn resolve_report_image(
+    target: &Path,
+    template_dir: &Path,
+    directory: &str,
+    id: &str,
+    suffix: &str,
+) -> Option<String> {
+    if !is_report_image_id(directory, id) {
+        return None;
+    }
+    let report_root = target.canonicalize().ok()?;
+    let template_root = template_dir.canonicalize().ok()?;
+
+    for id in [id.to_string(), id.to_ascii_lowercase()] {
+        for extension in ["png", "jpg", "svg"] {
+            let candidate = target
+                .join(directory)
+                .join(format!("{id}-{suffix}.{extension}"));
+            let Ok(resolved) = candidate.canonicalize() else {
+                continue;
+            };
+            if !resolved.starts_with(&report_root)
+                || !resolved.is_file()
+                || !is_usable_report_image(&resolved)
+            {
+                continue;
+            }
+            return Some(
+                crate::assets::relative_path(&template_root, &resolved)
+                    .to_string_lossy()
+                    .replace('\\', "/"),
+            );
+        }
+    }
+    None
+}
+
+fn is_report_image_id(directory: &str, id: &str) -> bool {
+    let Some((prefix, numeric_suffix)) = id.split_once('-') else {
+        return false;
+    };
+    if numeric_suffix.is_empty() || !numeric_suffix.bytes().all(|byte| byte.is_ascii_digit()) {
+        return false;
+    }
+
+    match directory {
+        "attack-trees" => [
+            "S", "T", "R", "I", "D", "E", "AG", "LLM", "AGP", "OI", "MI", "TE",
+        ]
+        .contains(&prefix),
+        "attack-chains" => prefix == "CHAIN",
+        _ => false,
+    }
+}
+
+fn is_usable_report_image(path: &Path) -> bool {
+    let Ok(metadata) = fs::metadata(path) else {
+        return false;
+    };
+    if metadata.len() == 0 || metadata.len() > MAX_REPORT_IMAGE_BYTES {
+        return false;
+    }
+
+    match path.extension().and_then(|extension| extension.to_str()) {
+        Some(extension) if extension.eq_ignore_ascii_case("svg") => {
+            let Ok(content) = fs::read_to_string(path) else {
+                return false;
+            };
+            roxmltree::Document::parse(&content)
+                .ok()
+                .is_some_and(|document| document.root_element().tag_name().name() == "svg")
+        }
+        Some(extension)
+            if extension.eq_ignore_ascii_case("png")
+                || extension.eq_ignore_ascii_case("jpg")
+                || extension.eq_ignore_ascii_case("jpeg") =>
+        {
+            let Ok(mut reader) =
+                image::ImageReader::open(path).and_then(|reader| reader.with_guessed_format())
+            else {
+                return false;
+            };
+            let mut limits = image::Limits::default();
+            limits.max_image_width = Some(MAX_REPORT_IMAGE_DIMENSION);
+            limits.max_image_height = Some(MAX_REPORT_IMAGE_DIMENSION);
+            limits.max_alloc = Some(MAX_REPORT_IMAGE_DECODE_BYTES);
+            reader.limits(limits);
+            reader.decode().is_ok()
+        }
+        _ => false,
+    }
 }
 
 fn has_control_assessment(
