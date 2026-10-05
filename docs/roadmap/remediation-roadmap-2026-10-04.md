@@ -157,9 +157,10 @@ The fixes now require parsed residual findings or a valid completed-empty
 assessment before Tier 1 selection, validate risk-table columns and nonempty
 finding IDs/severities through the checked report API, retain the higher
 positive MAESTRO duplicate, and default nested attribution to `primary`. GREEN
-results: `report_document_contract` 14/14, `maestro` 4/4, and `parsers` 22/22.
-`cargo test --workspace --all-targets -q` exited 0; one Gitleaks-specific test
-was skipped by its declared workflow-only contract. Workspace Clippy with
+results before PR review follow-up: `report_document_contract` 14/14,
+`maestro` 4/4, and `parsers` 22/22. `cargo test --workspace --all-targets -q`
+exited 0; one Gitleaks-specific test was skipped by its declared workflow-only
+contract. Workspace Clippy with
 `-D warnings`, `cargo fmt --all -- --check`, the documentation version/archive
 gates, workflow gate, Gitleaks scan, and `catalog-drift --check` all passed.
 
@@ -169,6 +170,23 @@ registered PDFs and the manifest were regenerated using Typst 0.15.1
 `7f9fdd9584866245de9a79e0add8f9236fae6f40a8a45e2c4771ccc14db4e0fa`. PDF
 comparisons and the offline catalog check pass. Phase 1 hosted PR checks and
 review remain open until its milestone PR is finalized.
+
+PR #47 review follow-up: the equal-count duplicate trigger was reproduced with
+`L1 | 2 | Low` followed by `L1 | 2 | Critical`; the parser selected Low before
+the fix. RED was also confirmed for `L2 | 0 | Clean` versus
+`L2 | 0 | Not evaluated` in both row orders, where one order incorrectly
+selected Clean. The reducer now chooses the more severe equal-count positive
+evidence and deterministically resolves conflicting zero-count states to
+NotEvaluated. The focused `maestro` suite passes 6/6, including both row-order
+permutations; `maestro_evaluation_states` passes 6/6, `report_document_contract`
+14/14, and `parsers` 22/22. The full workspace test run exited 0 with the
+declared workflow-only Gitleaks test skipped; workspace Clippy and the catalog
+drift check pass. The source and regenerated manifest are on PR #47's branch;
+hosted checks and review resolution remain pending.
+
+The code and regression tests are committed on PR #47 as
+`eb504feda82768c1f6344a82218dd0e74bee4e2b`
+(`fix(infographic): reconcile duplicate MAESTRO evidence`).
 
 ## Action-item mapping
 
