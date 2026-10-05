@@ -286,9 +286,9 @@ The A8 RED reproduction used the Windows test target before the guard: direct
 target. The Unix permissions import, executable fake-curl helper, and its
 subprocess test are now `cfg(unix)`; portable classifier tests remain active
 for Windows. The exact monitor test source then compiled successfully as a
-Windows test harness using `rustc --edition=2021 --crate-name
-taxonomy_link_monitor --test --target x86_64-pc-windows-msvc --emit=metadata`
-with the target's existing `serde_json` metadata.
+Windows test harness using `rustc --edition=2021 --crate-name taxonomy_link_monitor
+--test --target x86_64-pc-windows-msvc --emit=metadata` with the target's
+existing `serde_json` metadata.
 
 The full Cargo Windows command,
 `cargo check -p tachi-cli --bin taxonomy-link-monitor --tests --target
@@ -302,15 +302,24 @@ A9 RED was reproduced twice before the classifier fix: `classify(302, true)`
 returned `healthy`, and a real local curl probe exhausted redirects with curl
 exit 47, retained HTTP 302 and reported `healthy`. The regression uses an
 ephemeral `127.0.0.1` listener, redirects to itself, and stops and joins its
-server thread after the HEAD/GET probes. After the fix, the focused monitor
-suite passed 12/12, including the real curl exhaustion case and portable
-successful 2xx/3xx, HTTP-error, transport-error and HEAD-to-GET cases. The full
-workspace suite passed 654 tests with one ignored test; workspace Clippy,
-formatting, workflow action, documentation-version, archive-version, and
+server thread after the HEAD/GET probes. Automated PR review comment 4180728798
+then identified that `/dev/null` is not a valid curl output path on Windows.
+Commit `ca73b269c6a64f35c39ebf396fb783471e91d88a` selects `nul` for Windows
+and `/dev/null` elsewhere; a target-specific regression asserts the sink. The
+focused monitor suite passes 13/13, including real curl redirect exhaustion
+and successful 2xx/3xx, HTTP-error, transport-error, and HEAD-to-GET cases.
+The updated full workspace suite passes 655 tests with one ignored test; Clippy
+and formatting pass. The Windows-target test harness compiles with the Windows
+sink assertion enabled. The review reply is comment 4180752796 and its thread
+`PRRT_kwDOSs5mZs6o55gF` is resolved. Curl's [official man page](https://curl.se/docs/manpage.html#-o)
+documents `/dev/null` on Unix and `nul` on Windows.
+
+The earlier workflow action, documentation-version, archive-version, and
 supply-chain gates passed. The supply-chain run loaded 1,290 advisories and
 reported advisories, bans, licenses, and sources OK across 112 locked crates.
-No manifest or lockfile dependency changes were made. Hosted PR checks remain
-pending at this roadmap snapshot.
+No manifest or lockfile dependency changes were made. PR #49 has auto-merge
+enabled; post-review-fix hosted checks are pending, and branch protection
+requires one approving review before merge.
 
 ## Action-item mapping
 
