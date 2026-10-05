@@ -93,6 +93,71 @@ fn risk_and_raw_tiers_preserve_their_own_component_breakdowns() {
 }
 
 #[test]
+fn malformed_risk_rows_do_not_replace_findings() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    for risk_scores in [
+        "## 2. Scored Threat Table\n\n| Source | Details |\n|---|---|\n| unrelated | not a finding |\n",
+        "## 2. Scored Threat Table\n\n| ID | Component | Threat | Composite | Severity |\n|---|---|---|---|---|\n| | Risk Agent | Impersonation | 7.2 | High |\n",
+        "## 2. Scored Threat Table\n\n| ID | Component | Threat | Composite | Severity |\n|---|---|---|---|---|\n| S-1 | Risk Agent | Impersonation | 7.2 | |\n",
+    ] {
+        fixture.write("risk-scores.md", risk_scores);
+        let error = tachi_core::try_build_report_data_typst(
+            &fixture.0.join("report"),
+            &fixture.0,
+        )
+        .expect_err("invalid optional risk evidence must not produce a misleading report");
+        assert!(error.contains("risk-scores.md") && error.contains("Scored Threat Table"));
+    }
+}
+
+#[test]
+fn incomplete_controls_do_not_replace_findings() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    fixture.write(
+        "compensating-controls.md",
+        "# Compensating Controls\n\n## 3. Control Details\n\n### Authentication\n\n**Status**: Missing | **Effectiveness**: None\n",
+    );
+
+    let output = fixture.render();
+    assert_eq!(
+        binding(&output, "data-source-tier"),
+        "#let data-source-tier = 3"
+    );
+    assert_eq!(
+        binding(&output, "total-findings"),
+        "#let total-findings = 1"
+    );
+    assert!(binding(&output, "findings").contains("Raw Agent"));
+    assert_eq!(
+        binding(&output, "has-compensating-controls"),
+        "#let has-compensating-controls = false"
+    );
+}
+
+#[test]
+fn ungrouped_residual_rows_do_not_replace_findings() {
+    let fixture = Fixture::new();
+    fixture.write("threats.md", THREATS);
+    fixture.write(
+        "compensating-controls.md",
+        "# Compensating Controls\n\n## 2. Coverage Matrix\n\n| Threat ID | Component | Threat | Residual Score | Residual Severity | Control Status |\n|---|---|---|---|---|---|\n| S-1 | Controlled Agent | Impersonation | 8 | High | Missing |\n\n## 4. Recommendations\n",
+    );
+
+    let output = fixture.render();
+    assert_eq!(
+        binding(&output, "data-source-tier"),
+        "#let data-source-tier = 3"
+    );
+    assert_eq!(
+        binding(&output, "total-findings"),
+        "#let total-findings = 1"
+    );
+    assert!(binding(&output, "findings").contains("Raw Agent"));
+}
+
+#[test]
 fn timeline_only_reports_enable_the_roadmap_without_executive_narrative() {
     let fixture = Fixture::new();
     fixture.write("threats.md", THREATS);

@@ -106,3 +106,24 @@ fn maestro_distribution_and_exposure_handle_empty_and_malformed_rows() {
         "L1"
     );
 }
+
+#[test]
+fn duplicate_summary_rows_preserve_positive_maestro_evidence() {
+    let rows = parse_maestro_layer_distribution(
+        r#"#### Risk by MAESTRO Layer
+
+| MAESTRO Layer | Finding Count | Highest Severity |
+| --- | --- | --- |
+| L1 — Foundation Model | 2 | High |
+| L1 — Foundation Model | 0 | Clean |
+"#,
+    );
+
+    assert_eq!(rows[0].finding_count, 2);
+    assert_eq!(rows[0].highest_severity, "High");
+    assert_eq!(
+        rows[0].coverage_state,
+        tachi_core::maestro_coverage::EvaluationState::Findings
+    );
+    assert_eq!(compute_most_exposed_layer(&rows), "L1 — Foundation Model");
+}

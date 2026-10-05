@@ -478,6 +478,30 @@ fn parse_threats_findings_extracts_source_attribution_and_pattern() {
 }
 
 #[test]
+fn nested_source_attribution_defaults_relationship_to_primary() {
+    let markdown = r#"
+## 7. Recommended Actions
+
+| Finding ID | Component | Threat | Risk Level | Mitigation |
+| --- | --- | --- | --- | --- |
+| S-1 | API | Spoofing | High | Require signed requests |
+
+**Source Attribution**:
+```yaml
+S-1:
+  source_attribution:
+    - {taxonomy: owasp, id: A01}
+```
+"#;
+
+    let findings = parse_threats_findings(markdown).expect("nested attribution parses");
+    assert_eq!(
+        findings[0].source_attribution.as_ref().unwrap()[0].relationship,
+        "primary"
+    );
+}
+
+#[test]
 fn parse_threats_findings_preserves_absent_and_empty_source_attribution_semantics() {
     let absent = include_str!("../../../tests/scripts/fixtures/source_attribution/valid_absent.md");
     let empty =
