@@ -53,9 +53,10 @@ Beads `RT-aha`, records nine confirmed P2 corrections and three nonblocking
 P3 decisions from main at `8df554e8`. All A1–A9 corrections have been
 implemented and merged, and A10–A12 have explicit nonblocking decisions. Local
 and hosted validation receipts are recorded in the roadmap. PR #51 carries the
-final synchronization of this roadmap and the root atlas; it has auto-merge
-enabled while its required checks complete. The roadmap's initial setup
-snapshot is historical and superseded by its delivery receipts.
+final synchronization of this roadmap and the root atlas; it merged at
+`2026-10-05T05:11:32Z` as `e2231108561292f8adc49e5807c68d5cbd4c9628`. The
+roadmap's initial setup snapshot is historical and superseded by its delivery
+receipts.
 
 The active [2026-10-04 Rust-native upstream roadmap](docs/feature-roadmap-2026-10-04.md)
 is tracked by Beads `RT-5vk`. It covers OWASP semantic emission contracts,
