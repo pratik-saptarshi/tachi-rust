@@ -27,11 +27,22 @@ evidence, and post-closeout operational monitoring
 - The local gitleaks 8.30.1 scan passed with no leaks; this does not replace
   the required GitHub gitleaks workflow result.
 
+## Route-specific timing acceptance (open follow-up)
+
+- Live GitHub Actions timing evidence for the planned performance comparison is
+  not complete. The dated aggregate samples do not provide separate pre-router
+  and post-router cohorts for `passive-docs` and `dependency-closure`.
+- The open follow-up [RT-CI timing evidence plan](./roadmap/2026-10-05-rt-ci-timing-evidence-followup.md)
+  requires ten successful PR runs in each route/cohort combination and a
+  minimum 35% reduction in each route shape's median execution time. Queue and
+  run times remain separate, and failed or route-unknown runs are excluded.
+
 ## Operational Monitoring (post-closeout)
 
 - Continue collecting representative PR-specific timing samples via
-  `make rt-ci-latency-evidence` as operational monitoring; the current
-  closeout sample is recorded in `docs/tachi-rust-ci-baseline.md`.
+  `make rt-ci-latency-evidence`; after the route-specific acceptance is met,
+  additional samples are operational monitoring. Current pooled samples are
+  recorded in `docs/tachi-rust-ci-baseline.md` and are not completion evidence.
 - Branch-protection verification was refreshed on 2026-10-04: `main` requires
   17 strict status contexts, including CodeQL and the PostgreSQL migration/RLS
   workflow. Admin enforcement and linear history are enabled; force pushes and

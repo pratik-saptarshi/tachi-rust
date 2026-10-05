@@ -35,7 +35,7 @@ collect_workflow_medians() {
     "--status"
     "completed"
     "--json"
-    "databaseId,createdAt,startedAt,updatedAt,displayTitle,event,headBranch"
+    "databaseId,conclusion,createdAt,startedAt,updatedAt,displayTitle,event,headBranch"
     "--limit"
     "$LIMIT"
   )
@@ -54,8 +54,11 @@ collect_workflow_medians() {
     return 1
   fi
 
+  jq -c 'map(select(.conclusion == "success"))' "$tmp_json" > "$tmp_json.new"
+  mv "$tmp_json.new" "$tmp_json"
+
   if [ ! -s "$tmp_json" ] || [ "$(cat "$tmp_json")" = "[]" ]; then
-    echo "No completed runs found for workflow '$workflow' on branch '$BRANCH'." >&2
+    echo "No successful completed runs found for workflow '$workflow' on branch '$BRANCH'." >&2
     return 0
   fi
 

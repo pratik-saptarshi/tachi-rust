@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 // Contract inventory:
 // - Breadth gate: rust-workspace.yml keeps the full PR matrix explicit.
@@ -797,6 +798,102 @@ fn rt_ci_latency_evidence_target_is_documented_and_invocable() {
         helper.contains("updatedAt"),
         "latency evidence helper must request updatedAt-equivalent timing completion"
     );
+    assert!(
+        helper.contains("databaseId,conclusion,createdAt"),
+        "latency evidence helper must request each run's conclusion"
+    );
+    assert!(
+        helper.contains("select(.conclusion == \"success\")"),
+        "latency evidence helper must exclude unsuccessful completed runs"
+    );
+}
+
+#[test]
+fn rt_ci_latency_evidence_excludes_failed_completed_runs() {
+    let root = std::env::temp_dir().join(format!(
+        "tachi-rt-ci-latency-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("clock after epoch")
+            .as_nanos()
+    ));
+    let bin = root.join("bin");
+    fs::create_dir_all(&bin).expect("create fake gh directory");
+    let gh = bin.join("gh");
+    fs::write(
+        &gh,
+        r##"#!/bin/sh
+set -eu
+case "$1" in
+  run)
+    if [ "${FAKE_GH_ALL_FAILED:-0}" = "1" ]; then
+      cat <<'JSON'
+[{"databaseId":9,"conclusion":"failure","event":"pull_request","createdAt":"2026-07-10T00:00:00Z","startedAt":"2026-07-10T00:00:10Z","updatedAt":"2026-07-10T00:10:10Z","displayTitle":"failed run","headBranch":"main"}]
+JSON
+      exit 0
+    fi
+    cat <<'JSON'
+[
+  {"databaseId":1,"conclusion":"success","event":"pull_request","createdAt":"2026-07-10T00:00:00Z","startedAt":"2026-07-10T00:00:10Z","updatedAt":"2026-07-10T00:01:10Z","displayTitle":"success one","headBranch":"main"},
+  {"databaseId":2,"conclusion":"failure","event":"pull_request","createdAt":"2026-07-10T00:00:00Z","startedAt":"2026-07-10T00:00:10Z","updatedAt":"2026-07-10T00:10:10Z","displayTitle":"failed slow run","headBranch":"main"},
+  {"databaseId":3,"conclusion":"success","event":"pull_request","createdAt":"2026-07-10T00:00:00Z","startedAt":"2026-07-10T00:00:20Z","updatedAt":"2026-07-10T00:02:20Z","displayTitle":"success two","headBranch":"main"}
+]
+JSON
+    ;;
+  repo)
+    printf 'pratik-saptarshi/tachi-rust\n'
+    ;;
+  api)
+    printf '{"required_status_checks":{"contexts":[]}}\n'
+    ;;
+  *)
+    echo "unexpected gh command: $*" >&2
+    exit 2
+    ;;
+esac
+"##,
+    )
+    .expect("write fake gh executable");
+    let mut permissions = fs::metadata(&gh)
+        .expect("read fake gh metadata")
+        .permissions();
+    permissions.set_mode(0o755);
+    fs::set_permissions(&gh, permissions).expect("make fake gh executable");
+
+    let original_path = std::env::var_os("PATH").unwrap_or_default();
+    let path = format!("{}:{}", bin.display(), original_path.to_string_lossy());
+    let script = repo_root().join("scripts/rt-ci-latency-evidence.sh");
+    let run_collector = |all_failed: bool| {
+        Command::new("bash")
+            .arg(&script)
+            .args(["rust-workspace.yml", "main", "40", ""])
+            .env("PATH", &path)
+            .env("GH_REPO", "pratik-saptarshi/tachi-rust")
+            .env("FAKE_GH_ALL_FAILED", if all_failed { "1" } else { "0" })
+            .output()
+            .expect("run the latency collector with fake GitHub responses")
+    };
+    let output = run_collector(false);
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "collector should succeed; stdout={stdout}; stderr={stderr}"
+    );
+    assert!(stdout.contains("sample_size=2"), "stdout={stdout}");
+    assert!(stdout.contains("run_med_ms=90000"), "stdout={stdout}");
+    assert!(stdout.contains("queue_med_ms=15000"), "stdout={stdout}");
+
+    let empty = run_collector(true);
+    let empty_stderr = String::from_utf8_lossy(&empty.stderr);
+    assert!(empty.status.success(), "stderr={empty_stderr}");
+    assert!(
+        empty_stderr.contains("No successful completed runs found"),
+        "stderr={empty_stderr}"
+    );
+    fs::remove_dir_all(&root).expect("remove fake gh directory");
 }
 
 #[test]

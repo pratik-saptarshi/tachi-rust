@@ -110,9 +110,14 @@ collector passes its governance check as well as its timing collection.
 - Keep queue time and run time separated in notes so route narrowing impact is
   not masked by workflow scheduling delays.
 
-- Live PR-run timing evidence required by the original baseline plan is
-  complete, along with branch-protection verification. Future samples are
-  operational monitoring, not a prerequisite for this closure.
+- Live PR-run timing evidence required by the original baseline plan is not
+  complete for route-specific performance acceptance. The 2026-07-12 sample
+  sizes of 22 workspace runs and 23 route-observe runs are pooled historical
+  data; they do not separate pre-router and post-router medians for
+  `passive-docs` and `dependency-closure`. The required comparison is tracked
+  by the open `RT-0sd` follow-up plan. Do not treat these pooled totals as proof
+  of the per-route target. Once the route-specific target passes, additional
+  samples are operational monitoring, not a prerequisite for that closure.
 
 ## Route-Observe Evidence Snapshot
 

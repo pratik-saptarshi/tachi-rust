@@ -64,6 +64,11 @@ permissions CI, typed MAESTRO evaluation evidence, catalog fingerprints and
 transactional baseline regeneration, output-integrity identity/attribution, and
 adopter scanning. Delivery evidence is recorded in that roadmap.
 
+The prior RT-CI implementation hierarchy is closed for the delivered routing,
+setup, and aggregate timing work. The stricter route-specific performance
+comparison and success-only timing collector are tracked as open follow-up
+`RT-0sd` in [the timing evidence plan](docs/roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
+
 `catalog-drift --check` validates `schemas/taxonomy/catalog-manifest.json`
 offline, using the same strict Rust YAML loader and ordered framework registry
 as report coverage. `--regenerate-baselines --typst PATH` requires Typst

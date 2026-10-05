@@ -6,7 +6,8 @@
 
 ## Backlog Navigation
 
-- [Main-48h adversarial remediation (2026-10-04)](./remediation-roadmap-2026-10-04.md) — epic `RT-aha`; nine P2 corrections, three nonblocking P3 decisions; implementation not started.
+- [Main-48h adversarial remediation (2026-10-04)](./remediation-roadmap-2026-10-04.md) — epic `RT-aha`; A1–A9 merged and A10–A12 decided; final control-document sync merged in PR #51.
+- [RT-CI route-specific timing evidence follow-up (2026-10-05)](./2026-10-05-rt-ci-timing-evidence-followup.md) — epic `RT-0sd`; success-only timing collection and the route-specific 35% acceptance remain open.
 
 - [Rust-native upstream feature roadmap (2026-10-04)](../feature-roadmap-2026-10-04.md)
 - [Historical delivered upstream adoption (2026-10-03)](../feature-roadmap-2026-10-03-v1.md)
@@ -47,9 +48,10 @@
   is closed with recorded evidence. See the
   [remediation roadmap](./remediation-roadmap-2026-10-04.md) for current scope
   and milestone gates.
-- `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
-  issue cards remain historical execution records; future work should use new
-  issues rather than reopening completed cards without review.
+- `RT-CI`, `E2E-COV`, and `DT-GUI` implementation hierarchies are closed. Their
+  plans and issue cards remain historical execution records. New route-specific
+  timing work is tracked independently by the open `RT-0sd` epic; the closed
+  `RT-CI-006.2` record is preserved for its original aggregate-sample scope.
 - The checked-in Beads export is a dated issue snapshot at
   `../../.beads/issues.jsonl`; live Beads is authoritative for status.
   Export again after any tracker write and commit the synchronized snapshot.

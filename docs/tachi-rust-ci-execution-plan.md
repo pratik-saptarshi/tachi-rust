@@ -288,13 +288,18 @@ Work:
 - Extract repeated Rust setup, cache, toolchain proof, and OS package installation into a reusable composite action or reusable workflow.
 - Keep lane-specific commands local to each workflow so failure ownership remains obvious.
 - Add elapsed runtime summaries per heavy lane.
-- Capture pre-router vs post-router median duration evidence for the first ten successful PR runs per narrowed route shape.
+- Capture pre-router vs post-router median duration evidence for the first ten successful PR runs per narrowed route shape: `passive-docs` and `dependency-closure`.
+- Require at least a 35% reduction in post-router median execution time for each route shape, measured against a comparable pre-router cohort. Queue and execution durations are reported separately.
 - Delay this phase until the router has survived shadow mode and initial narrowing without route regressions.
 
 Acceptance criteria:
 
 - Shared setup is defined once and consumed by PR-facing Rust workflows.
 - Timing summaries are emitted for the heavy Rust lanes.
+- Route-specific timing acceptance passes only with ten successful pre-router
+  and ten successful post-router PR runs per route shape, plus at least 35%
+  median execution-time reduction for both `passive-docs` and
+  `dependency-closure`.
 - Failure localization is not reduced by the setup refactor.
 - Routing and setup reuse can be diagnosed independently.
 
@@ -315,8 +320,13 @@ Current local evidence:
   `sample_size=22`,
   `run_med_ms=85000`, `run_range_ms=79000..101000`, and route-observe
   `sample_size=23`, `run_med_ms=14000`, `run_range_ms=11000..17000`; both queue
-  medians are `0 ms`. Branch protection is enabled and the required-check
-  migration was verified against the protected `main` branch.
+  medians are `0 ms`. These aggregate historical samples do not distinguish
+  route shape or pre-router/post-router cohorts and do not satisfy the Phase 5
+  reduction criterion. Phase 5 timing acceptance remains open under Beads
+  `RT-0sd`; see
+  [the route-specific follow-up plan](roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
+  Branch protection is enabled and the required-check migration was verified
+  against the protected `main` branch.
 
 ### Phase 6 - Release Policy, Required-Check Migration, And Closeout (complete)
 
