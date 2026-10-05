@@ -302,15 +302,48 @@ A9 RED was reproduced twice before the classifier fix: `classify(302, true)`
 returned `healthy`, and a real local curl probe exhausted redirects with curl
 exit 47, retained HTTP 302 and reported `healthy`. The regression uses an
 ephemeral `127.0.0.1` listener, redirects to itself, and stops and joins its
-server thread after the HEAD/GET probes. After the fix, the focused monitor
-suite passed 12/12, including the real curl exhaustion case and portable
-successful 2xx/3xx, HTTP-error, transport-error and HEAD-to-GET cases. The full
-workspace suite passed 654 tests with one ignored test; workspace Clippy,
-formatting, workflow action, documentation-version, archive-version, and
-supply-chain gates passed. The supply-chain run loaded 1,290 advisories and
-reported advisories, bans, licenses, and sources OK across 112 locked crates.
-No manifest or lockfile dependency changes were made. Hosted PR checks remain
-pending at this roadmap snapshot.
+server thread after the HEAD/GET probes. Automated PR review comment 4180728798
+identified that `/dev/null` is not a valid curl output path on Windows.
+Commit `ca73b269c6a64f35c39ebf396fb783471e91d88a` selects `nul` for Windows
+and `/dev/null` elsewhere; a target-specific regression asserts the sink.
+The focused monitor suite passes 13/13, including real curl redirect
+exhaustion and successful 2xx/3xx, HTTP-error, transport-error, and HEAD-to-GET
+cases. The full workspace suite passed 655 tests with one ignored test;
+workspace Clippy and formatting pass. The Windows-target test harness compiles
+with the Windows sink assertion enabled. The review reply is comment
+4180752796 and thread `PRRT_kwDOSs5mZs6o55gF` is resolved. Curl's [official man
+page](https://curl.se/docs/manpage.html#-o) documents `/dev/null` on Unix and
+`nul` on Windows.
+
+Workflow action, documentation-version, archive-version, and supply-chain
+gates passed. The supply-chain run loaded 1,290 advisories and reported
+advisories, bans, licenses, and sources OK across 112 locked crates. No
+manifest or lockfile dependency changes were made. PR #49 final head
+`ca73b269c6a64f35c39ebf396fb783471e91d88a` passed all 17 required checks and
+merged by protected auto-merge at `2026-10-05T04:34:44Z` as
+`70dae61e0b6c46642afb3a904e72012bdb222af9`.
+
+### Milestone 3 post-merge proxy-isolation follow-up
+
+After PR #49 merged, automated review comment 4180765398 found that a
+configured proxy with empty `NO_PROXY` could intercept the loopback test.
+RED: with `ALL_PROXY` and `all_proxy` set to `http://127.0.0.1:9` and both
+`NO_PROXY` variants empty, the focused curl regression failed with
+`http_status == 0` instead of 302 (exit 101).
+
+Commit `92d078f63cf5340970ddbae777c74249a6c4ac65` adds `--noproxy 127.0.0.1`
+only to the test's real-curl invocation. GREEN: the same forced-proxy test
+passes; all 13 monitor tests pass with the forced proxy environment; CLI
+Clippy, formatting, diff check, and the isolated Windows test-harness compile
+pass. This review arrived after PR #49 had merged, so its fix is on the
+follow-up branch `fix/pr49-loopback-proxy` and is being delivered by a separate
+PR. The full Cargo Windows package check remains unverified because the
+pre-existing `tachi-shell::script_executor` `.process_group(0)` prevents the
+package from compiling for Windows.
+
+After closing A8, Beads contains 258 issues: 247 closed, 2 in progress, 6
+open, 1 blocked, and 3 deferred. A9 remains in progress until the proxy-safe
+follow-up is merged.
 
 ## Action-item mapping
 

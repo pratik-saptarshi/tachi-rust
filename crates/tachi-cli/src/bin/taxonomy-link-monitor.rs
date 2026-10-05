@@ -134,7 +134,17 @@ fn curl_output_sink() -> &'static OsStr {
 }
 
 fn curl_with_program(url: &str, head: bool, program: &OsStr) -> (u16, Option<String>) {
+    curl_with_program_and_args(url, head, program, &[])
+}
+
+fn curl_with_program_and_args(
+    url: &str,
+    head: bool,
+    program: &OsStr,
+    extra_args: &[&str],
+) -> (u16, Option<String>) {
     let mut command = Command::new(program);
+    command.args(extra_args);
     command.args([
         "--location",
         "--silent",
@@ -417,7 +427,9 @@ mod tests {
         });
 
         let url = format!("http://{address}/loop");
-        let result = check_url_with(&url, curl);
+        let result = check_url_with(&url, |url, head| {
+            curl_with_program_and_args(url, head, OsStr::new("curl"), &["--noproxy", "127.0.0.1"])
+        });
         stopped.store(true, Ordering::Relaxed);
         server.join().expect("join loopback server");
 
