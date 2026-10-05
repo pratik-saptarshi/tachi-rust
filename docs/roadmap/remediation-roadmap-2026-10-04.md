@@ -132,6 +132,13 @@ A10–A12 have explicit decisions.
 - Beads `RT-aha.1` closed after this evidence was committed. The exported
   snapshot contains 258 issues: 237 closed, 3 deferred, and 18 open. The open
   hierarchy remains independently actionable; the P3 cards do not block P2.
+- Phase 1 completed on PR #47 (`docs/main-48h-phase1`) and merged by protected
+  squash auto-merge at `2026-10-05T02:35:23Z` as
+  `f4b7fe1f08ce4e1abb820f159ac129c4eef55129`. All 17 required hosted checks
+  passed. The first hosted attempt had one unrelated `ci_local_runner_contract`
+  timeout-trap failure; the focused test passed locally and hosted retry attempt
+  2 passed. The A4 review thread was replied to and resolved before merge.
+  Beads Phase 1 children and feature `RT-aha.2` were closed with these receipts.
 
 ### Milestone 1 report-evidence integrity — local validation
 
@@ -156,9 +163,10 @@ remain covered by neighboring tests.
 The fixes now require parsed residual findings or a valid completed-empty
 assessment before Tier 1 selection, validate risk-table columns and nonempty
 finding IDs/severities through the checked report API, retain the higher
-positive MAESTRO duplicate, and default nested attribution to `primary`. GREEN
-results before PR review follow-up: `report_document_contract` 14/14,
-`maestro` 4/4, and `parsers` 22/22. `cargo test --workspace --all-targets -q`
+positive MAESTRO duplicate, and default nested attribution to `primary`. Final
+focused GREEN results after PR review follow-up: `report_document_contract`
+14/14, `maestro` 6/6, `maestro_evaluation_states` 6/6, and `parsers` 22/22.
+`cargo test --workspace --all-targets -q`
 exited 0; one Gitleaks-specific test was skipped by its declared workflow-only
 contract. Workspace Clippy with
 `-D warnings`, `cargo fmt --all -- --check`, the documentation version/archive
@@ -168,8 +176,13 @@ Because the infographic source is included in catalog render-input hashes, all
 registered PDFs and the manifest were regenerated using Typst 0.15.1
 (`9dfd3a08`) from the official x86_64 macOS asset whose SHA-256 was verified as
 `7f9fdd9584866245de9a79e0add8f9236fae6f40a8a45e2c4771ccc14db4e0fa`. PDF
-comparisons and the offline catalog check pass. Phase 1 hosted PR checks and
-review remain open until its milestone PR is finalized.
+comparisons and the offline catalog check pass. PR #47 merged via protected
+squash auto-merge at `2026-10-05T02:35:23Z` as
+`f4b7fe1f08ce4e1abb820f159ac129c4eef55129`; all 17 required hosted checks
+passed. The first hosted attempt had one unrelated runner timeout-trap failure;
+focused local and hosted retry attempt 2 passed. The A4 review thread was
+replied to and resolved before merge. Phase 1 Beads cards are closed with these
+receipts.
 
 PR #47 review follow-up: the equal-count duplicate trigger was reproduced with
 `L1 | 2 | Low` followed by `L1 | 2 | Critical`; the parser selected Low before
@@ -182,11 +195,69 @@ permutations; `maestro_evaluation_states` passes 6/6, `report_document_contract`
 14/14, and `parsers` 22/22. The full workspace test run exited 0 with the
 declared workflow-only Gitleaks test skipped; workspace Clippy and the catalog
 drift check pass. The source and regenerated manifest are on PR #47's branch;
-hosted checks and review resolution remain pending.
+the review thread is resolved and protected auto-merge completed.
 
 The code and regression tests are committed on PR #47 as
 `eb504feda82768c1f6344a82218dd0e74bee4e2b`
 (`fix(infographic): reconcile duplicate MAESTRO evidence`).
+
+### Milestone 2 asset safety and PDF resilience — start evidence
+
+Phase 2 started from merged main `f4b7fe1f08ce4e1abb820f159ac129c4eef55129`.
+At this boundary, PR #26 is the only open PR. Its 17 required checks pass with
+no failures; its remaining non-required check contexts are successful or
+neutral. Protected auto-merge remains enabled, while GitHub reports `DIRTY`
+against `main` (base head `cb567d3235eee0d45081b099a3c6df7c98f12eb7`). This
+unrelated conflict is recorded and remains untouched.
+
+The Phase 2 RED/GREEN regressions now cover each trigger. A1's baseline
+symlink case failed because cleanup removed the regular JPG target retained by
+the PNG symlink; after the guard, `cargo test -p tachi-core --test assets`
+passes 5/5, including independent duplicate cleanup. A5's pre-fix test selected
+the zero-byte preferred PNG despite a valid JPEG fallback. The corrected shared
+resolver decodes PNG/JPEG candidates and validates SVG candidates as bounded,
+renderable report diagrams, so empty/corrupt preferred files fall through to
+later usable formats; all-invalid candidates leave attack trees in the Mermaid
+text path and chains without an image. `report_document_contract` passes 22/22.
+Its pinned Typst 0.15.1 compilation test compiled four cases: valid preferred
+PNG, empty PNG with JPEG fallback, corrupt PNG with SVG fallback, and
+semantically invalid SVG with the no-image fallback. A6's RED
+experiment selected outside-root SVGs through both metadata and heading IDs;
+the GREEN test rejects those IDs, rejects symlink escapes, and retains a valid
+in-root S-1 image. The code uses Rust-native image decoding (`image` 0.25.10,
+PNG/JPEG features only) and XML parsing (`roxmltree` 0.21.1); no Python chain was
+introduced. Final local evidence: `cargo test --workspace --all-targets -q`
+exited 0 with one declared workflow-only Gitleaks test ignored; workspace
+Clippy with `-D warnings`, formatting, catalog drift, documentation/version/
+archive and workflow gates, Gitleaks, and `make supply-chain-gate` all passed.
+The supply-chain gate initially flagged duplicate transitive `miniz_oxide`
+patch versions; `Cargo.lock` now pins compatible `flate2` 1.1.9 so the ban
+gate passes without an exception. Hosted PR checks remain pending.
+
+The automated PR #48 review identified a second A5 gap: well-formed XML with
+zero dimensions, the wrong namespace, or invalid drawing semantics could still
+be selected. RED reproduced that selection. A full renderer was not compatible
+with the repository's Apache/MIT-only dependency policy, so the correction uses
+the Apache/MIT `svgtypes` grammar crate and a conservative Rust-native validator
+for report-diagram geometry. It checks namespace and bounded positive viewport,
+viewBox, shape dimensions, SVG path/point syntax, visibility, and nonempty
+supported drawing content; unsupported drawing elements and external image,
+use, foreignObject, or script nodes fail closed to Mermaid. Five regressions
+cover zero viewport, wrong namespace, malformed path, zero-sized shape, and a
+hidden-only shape. The pinned Typst test compiles the semantically invalid SVG
+through the no-image fallback. The focused document suite, 653-test workspace,
+Clippy, format, catalog, and supply-chain gates pass. Review remediation source
+commit: `fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee` on PR #48's branch; the review
+thread is replied to and resolved; hosted checks for the remediation head are
+pending.
+
+Phase 2 code commits on `docs/main-48h-phase2`: A1 is
+`1d8ed47b29788c8b9ce8b4901475c7a8e4aa0af6`; A5/A6 and dependency/catalog
+updates are `6501b51cef9225730458537a75092979df5a0825`; PR #48 review fix is
+`fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee`. Beads feature
+`RT-aha.3` and its three finding cards are in progress. At this export, Beads
+reports 258 total issues: 242 closed, 4 in progress, 9 open, 4 blocked, and 3
+deferred.
 
 ## Action-item mapping
 

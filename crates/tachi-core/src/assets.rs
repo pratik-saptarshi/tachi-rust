@@ -41,13 +41,22 @@ pub fn cleanup_mislabeled_images(target_dir: &Path) {
         let jpg_is_png = image_format(&jpg) == Some("png");
         let png_is_jpeg = image_format(&png) == Some("jpeg");
         let candidate = if jpg_is_png && files_are_identical(&jpg, &png) {
-            Some(jpg)
+            Some(jpg.clone())
         } else if png_is_jpeg && files_are_identical(&png, &jpg) {
-            Some(png)
+            Some(png.clone())
         } else {
             None
         };
         if let Some(path) = candidate {
+            let retained = if path == jpg { &png } else { &jpg };
+            if retained_symlink_points_to(retained, &path) {
+                eprintln!(
+                    "warning: preserving mislabeled image {} because retained sibling {} is a symlink to it",
+                    path.display(),
+                    retained.display()
+                );
+                continue;
+            }
             if let Err(err) = fs::remove_file(&path) {
                 eprintln!(
                     "warning: failed to remove duplicate mislabeled image {}: {err}",
@@ -56,6 +65,16 @@ pub fn cleanup_mislabeled_images(target_dir: &Path) {
             }
         }
     }
+}
+
+fn retained_symlink_points_to(retained: &Path, candidate: &Path) -> bool {
+    fs::symlink_metadata(retained)
+        .map(|metadata| metadata.file_type().is_symlink())
+        .unwrap_or(false)
+        && fs::canonicalize(retained)
+            .ok()
+            .zip(fs::canonicalize(candidate).ok())
+            .is_some_and(|(retained, candidate)| retained == candidate)
 }
 
 fn files_are_identical(left: &Path, right: &Path) -> bool {

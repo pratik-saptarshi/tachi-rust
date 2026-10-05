@@ -1,6 +1,7 @@
 use std::{
     fs,
     path::{Path, PathBuf},
+    process::Command,
 };
 use tachi_core::build_report_data_typst;
 
@@ -36,6 +37,326 @@ fn binding<'a>(output: &'a str, name: &str) -> &'a str {
         .find(&format!("#let {name} = "))
         .unwrap_or_else(|| panic!("missing {name}"));
     output[start..].split("\n#let ").next().unwrap().trim_end()
+}
+
+fn valid_png() -> Vec<u8> {
+    let mut bytes = std::io::Cursor::new(Vec::new());
+    image::RgbaImage::from_pixel(1, 1, image::Rgba([12, 34, 56, 255]))
+        .write_to(&mut bytes, image::ImageFormat::Png)
+        .unwrap();
+    bytes.into_inner()
+}
+
+fn valid_jpeg() -> Vec<u8> {
+    let mut bytes = std::io::Cursor::new(Vec::new());
+    image::RgbImage::from_pixel(1, 1, image::Rgb([12, 34, 56]))
+        .write_to(&mut bytes, image::ImageFormat::Jpeg)
+        .unwrap();
+    bytes.into_inner()
+}
+
+fn valid_svg() -> Vec<u8> {
+    b"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><rect width=\"1\" height=\"1\"/></svg>".to_vec()
+}
+
+fn attack_tree_markdown(id: &str) -> String {
+    format!(
+        "# Attack Tree: {id} — Example\n\n**Component**: Agent | **Risk Level**: Critical | **Finding**: {id}\n\n```mermaid\ngraph TD\n A --> B\n```\n"
+    )
+}
+
+#[test]
+fn attack_tree_images_skip_empty_and_corrupt_preferred_candidates() {
+    for (case, preferred) in [
+        ("empty", Vec::new()),
+        ("corrupt", b"not a PNG image".to_vec()),
+    ] {
+        let fixture = Fixture::new();
+        let trees = fixture.0.join("report/attack-trees");
+        fs::create_dir_all(&trees).unwrap();
+        fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+        fs::write(trees.join("S-1-attack-tree.png"), preferred).unwrap();
+        fs::write(trees.join("S-1-attack-tree.jpg"), valid_jpeg()).unwrap();
+
+        let output = fixture.render();
+        let binding = binding(&output, "attack-trees");
+        assert!(binding.contains("\"has-image\": true"), "{case}: {binding}");
+        assert!(binding.contains("S-1-attack-tree.jpg"), "{case}: {binding}");
+        assert!(
+            !binding.contains("S-1-attack-tree.png"),
+            "{case}: {binding}"
+        );
+    }
+}
+
+#[test]
+fn attack_tree_with_only_unusable_images_keeps_mermaid_fallback() {
+    let fixture = Fixture::new();
+    let trees = fixture.0.join("report/attack-trees");
+    fs::create_dir_all(&trees).unwrap();
+    fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+    fs::write(trees.join("S-1-attack-tree.png"), b"broken PNG payload").unwrap();
+    fs::write(trees.join("S-1-attack-tree.jpg"), b"broken JPEG payload").unwrap();
+    fs::write(trees.join("S-1-attack-tree.svg"), b"<svg").unwrap();
+
+    let output = fixture.render();
+    let binding = binding(&output, "attack-trees");
+    assert!(binding.contains("\"has-image\": false"), "{binding}");
+    assert!(
+        binding.contains("graph TD"),
+        "Mermaid fallback must remain: {binding}"
+    );
+}
+
+#[test]
+fn attack_chain_image_resolver_skips_empty_preferred_image() {
+    let fixture = Fixture::new();
+    let chains = fixture.0.join("report/attack-chains");
+    fs::create_dir_all(&chains).unwrap();
+    fs::write(chains.join("CHAIN-001-attack-chain.png"), []).unwrap();
+    fs::write(chains.join("CHAIN-001-attack-chain.jpg"), valid_jpeg()).unwrap();
+    fixture.write(
+        "attack-chains.md",
+        "# Cross-Layer Attack Chains\n\n## 2. Chain Details\n\n### CHAIN-001: Selected\n\n**Layers**: L1 -> L2\n**Max Severity**: High\n**Surfaced**: Yes\n",
+    );
+
+    let output = fixture.render();
+    let binding = binding(&output, "attack-chains");
+    assert!(binding.contains("\"has-image\": true"), "{binding}");
+    assert!(binding.contains("CHAIN-001-attack-chain.jpg"), "{binding}");
+}
+
+#[test]
+fn attack_tree_image_resolver_accepts_valid_svg_after_corrupt_png() {
+    let fixture = Fixture::new();
+    let trees = fixture.0.join("report/attack-trees");
+    fs::create_dir_all(&trees).unwrap();
+    fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+    fs::write(trees.join("S-1-attack-tree.png"), b"corrupt PNG").unwrap();
+    fs::write(
+        trees.join("S-1-attack-tree.svg"),
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><rect width=\"1\" height=\"1\"/></svg>",
+    )
+    .unwrap();
+
+    let output = fixture.render();
+    let binding = binding(&output, "attack-trees");
+    assert!(binding.contains("\"has-image\": true"), "{binding}");
+    assert!(binding.contains("S-1-attack-tree.svg"), "{binding}");
+}
+
+#[test]
+fn attack_tree_image_resolver_rejects_unrenderable_svg_candidates() {
+    for (case, svg) in [
+        (
+            "zero-dimensions",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0\" height=\"1\"><rect width=\"1\" height=\"1\"/></svg>",
+        ),
+        (
+            "wrong-namespace",
+            "<svg xmlns=\"urn:example:not-svg\" width=\"1\" height=\"1\"><rect width=\"1\" height=\"1\"/></svg>",
+        ),
+        (
+            "invalid-path-semantics",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><path d=\"M nonsense\"/></svg>",
+        ),
+        (
+            "zero-sized-shape",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><rect width=\"0\" height=\"1\"/></svg>",
+        ),
+        (
+            "hidden-shape",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><path style=\"display:none\" d=\"M0 0L1 1\"/></svg>",
+        ),
+    ] {
+        let fixture = Fixture::new();
+        let trees = fixture.0.join("report/attack-trees");
+        fs::create_dir_all(&trees).unwrap();
+        fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+        fs::write(trees.join("S-1-attack-tree.svg"), svg).unwrap();
+
+        let output = fixture.render();
+        let binding = binding(&output, "attack-trees");
+        assert!(
+            binding.contains("\"has-image\": false"),
+            "{case}: unrenderable SVG must not suppress the Mermaid fallback: {binding}"
+        );
+        assert!(binding.contains("graph TD"), "{case}: {binding}");
+        assert!(
+            !binding.contains("S-1-attack-tree.svg"),
+            "{case}: invalid SVG must not be selected: {binding}"
+        );
+    }
+}
+
+#[test]
+fn attack_tree_image_resolution_rejects_path_ids_and_outside_symlinks() {
+    let fixture = Fixture::new();
+    let report = fixture.0.join("report");
+    let trees = report.join("attack-trees");
+    fs::create_dir_all(&trees).unwrap();
+    fs::write(
+        trees.join("metadata.md"),
+        "# Attack Tree: Metadata ID\n\n| Field | Value |\n|---|---|\n| Finding ID | ../../outside-meta |\n| Risk Level | Critical |\n\n```mermaid\ngraph TD\n A --> B\n```\n",
+    )
+    .unwrap();
+    fs::write(
+        trees.join("heading.md"),
+        attack_tree_markdown("../../outside-heading"),
+    )
+    .unwrap();
+    fs::write(
+        fixture.0.join("outside-meta-attack-tree.svg"),
+        "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
+    )
+    .unwrap();
+    fs::write(
+        fixture.0.join("outside-heading-attack-tree.svg"),
+        "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
+    )
+    .unwrap();
+    fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+    fs::write(trees.join("S-1-attack-tree.png"), valid_png()).unwrap();
+
+    let output = fixture.render();
+    let binding = binding(&output, "attack-trees");
+    assert!(
+        binding.contains("S-1-attack-tree.png"),
+        "valid in-root ID should resolve: {binding}"
+    );
+    assert_eq!(
+        binding.matches("\"has-image\": true").count(),
+        1,
+        "unsafe IDs must not resolve: {binding}"
+    );
+    assert_eq!(
+        binding.matches("\"has-image\": false").count(),
+        2,
+        "both unsafe IDs must be omitted: {binding}"
+    );
+    assert!(
+        !binding.contains("outside-meta-attack-tree.svg"),
+        "outside metadata asset must not escape: {binding}"
+    );
+    assert!(
+        !binding.contains("outside-heading-attack-tree.svg"),
+        "outside heading asset must not escape: {binding}"
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn attack_tree_image_resolution_rejects_symlink_escape() {
+    use std::os::unix::fs::symlink;
+
+    let fixture = Fixture::new();
+    let trees = fixture.0.join("report/attack-trees");
+    fs::create_dir_all(&trees).unwrap();
+    fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+    let outside = fixture.0.join("outside.svg");
+    fs::write(&outside, "<svg xmlns=\"http://www.w3.org/2000/svg\"/>").unwrap();
+    symlink(outside, trees.join("S-1-attack-tree.svg")).unwrap();
+
+    let output = fixture.render();
+    let binding = binding(&output, "attack-trees");
+    assert!(binding.contains("\"has-image\": false"), "{binding}");
+}
+
+#[test]
+fn attack_tree_image_fallbacks_compile_with_pinned_typst() {
+    let typst = std::env::var_os("TACHI_TYPST")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            Command::new("typst")
+                .arg("--version")
+                .output()
+                .ok()
+                .filter(|output| output.status.success())
+                .map(|_| std::path::PathBuf::from("typst"))
+        });
+    let Some(typst) = typst else {
+        eprintln!("skipping Typst compilation; set TACHI_TYPST or install typst");
+        return;
+    };
+
+    let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .expect("workspace root");
+    for (case, preferred, later_candidates) in [
+        ("valid-preferred-png", valid_png(), Vec::new()),
+        (
+            "empty-preferred-jpeg-fallback",
+            Vec::new(),
+            vec![("jpg", valid_jpeg())],
+        ),
+        (
+            "corrupt-preferred-svg-fallback",
+            b"corrupt PNG".to_vec(),
+            vec![("svg", valid_svg())],
+        ),
+        (
+            "no-usable-image-invalid-svg-fallback",
+            b"corrupt PNG".to_vec(),
+            vec![
+                ("jpg", b"corrupt JPEG".to_vec()),
+                (
+                    "svg",
+                    b"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><path d=\"M nonsense\"/></svg>".to_vec(),
+                ),
+            ],
+        ),
+    ] {
+        let fixture = Fixture::new();
+        let template_dir = fixture.0.join("templates/tachi/security-report");
+        copy_dir_all(
+            &workspace.join("templates/tachi/security-report"),
+            &template_dir,
+        );
+        let trees = fixture.0.join("report/attack-trees");
+        fs::create_dir_all(&trees).unwrap();
+        fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+        fs::write(trees.join("S-1-attack-tree.png"), preferred).unwrap();
+        for (extension, bytes) in later_candidates {
+            fs::write(trees.join(format!("S-1-attack-tree.{extension}")), bytes).unwrap();
+        }
+        fixture.write(
+            "threats.md",
+            "# Threat Model: Image fallback\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation |\n|---|---|---|---|---|\n| S-1 | Agent | Example | High | Validate input |\n",
+        );
+        fs::write(template_dir.join("report-data.typ"), fixture.render()).unwrap();
+        let output_pdf = fixture.0.join(format!("{case}.pdf"));
+        let result = Command::new(&typst)
+            .arg("compile")
+            .arg(template_dir.join("main.typ"))
+            .arg(&output_pdf)
+            .arg("--root")
+            .arg(&fixture.0)
+            .current_dir(&fixture.0)
+            .output()
+            .expect("run Typst");
+        assert!(
+            result.status.success(),
+            "{case}: stdout={} stderr={}",
+            String::from_utf8_lossy(&result.stdout),
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert!(fs::metadata(output_pdf).unwrap().len() > 0);
+    }
+}
+
+fn copy_dir_all(source: &Path, destination: &Path) {
+    fs::create_dir_all(destination).unwrap();
+    for entry in fs::read_dir(source).unwrap() {
+        let entry = entry.unwrap();
+        let from = entry.path();
+        let to = destination.join(entry.file_name());
+        if entry.file_type().unwrap().is_dir() {
+            copy_dir_all(&from, &to);
+        } else {
+            fs::copy(from, to).unwrap();
+        }
+    }
 }
 
 const THREATS: &str = "# Threat Model: Review\n\n## 7. Recommended Actions\n\n| Finding ID | Component | Threat | Risk Level | Mitigation |\n|---|---|---|---|---|\n| S-1 | Raw Agent | Impersonation | High | Require signed requests |\n";

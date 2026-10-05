@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use tachi_core::facade::{detect_brand_assets, detect_images};
+use tachi_core::facade::{cleanup_mislabeled_images, detect_brand_assets, detect_images};
 
 fn unique_temp_dir(prefix: &str) -> PathBuf {
     let nanos = SystemTime::now()
@@ -93,4 +93,39 @@ fn detect_brand_assets_reports_present_files() {
         assets.logo_horizontal_path.as_deref(),
         Some("../brand/final/tachi-logo-horizontal.png")
     );
+}
+
+#[test]
+fn cleanup_removes_an_independent_duplicate_copy() {
+    let root = unique_temp_dir("tachi-assets-duplicate-cleanup");
+    let bytes = [PNG_MAGIC, b"payload"].concat();
+    let jpg = root.join("threat-risk-funnel.jpg");
+    let png = root.join("threat-risk-funnel.png");
+    write_bytes(&jpg, &bytes);
+    write_bytes(&png, &bytes);
+
+    cleanup_mislabeled_images(&root);
+
+    assert!(!jpg.exists());
+    assert_eq!(fs::read(png).unwrap(), bytes);
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[cfg(unix)]
+#[test]
+fn cleanup_preserves_candidate_bytes_referenced_by_retained_symlink() {
+    use std::os::unix::fs::symlink;
+
+    let root = unique_temp_dir("tachi-assets-symlink-cleanup");
+    let bytes = [PNG_MAGIC, b"payload"].concat();
+    let jpg = root.join("threat-risk-funnel.jpg");
+    let png = root.join("threat-risk-funnel.png");
+    write_bytes(&jpg, &bytes);
+    symlink(&jpg, &png).expect("create retained PNG symlink");
+
+    cleanup_mislabeled_images(&root);
+
+    assert!(jpg.is_file(), "the symlink target must remain present");
+    assert_eq!(fs::read(&png).unwrap(), bytes);
+    fs::remove_dir_all(root).unwrap();
 }
