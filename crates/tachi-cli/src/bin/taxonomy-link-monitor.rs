@@ -155,11 +155,14 @@ fn curl_with_program(url: &str, head: bool, program: &OsStr) -> (u16, Option<Str
 }
 
 fn classify(code: u16, failed: bool) -> &'static str {
+    if failed {
+        return "transient";
+    }
     match code {
         200..=399 => "healthy",
         401 | 403 | 429 => "needs_review",
         400..=499 => "broken",
-        _ if failed || code == 0 || code >= 500 => "transient",
+        _ if code == 0 || code >= 500 => "transient",
         _ => "transient",
     }
 }
@@ -200,8 +203,14 @@ fn now_utc() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::Arc;
 
+    #[cfg(unix)]
     fn fake_curl(contents: &str) -> PathBuf {
         let path = std::env::temp_dir().join(format!(
             "taxonomy-link-monitor-fake-curl-{}-{}",
@@ -252,7 +261,8 @@ mod tests {
         assert_eq!(classify(503, false), "transient");
         assert_eq!(classify(0, true), "transient");
         assert_eq!(classify(0, false), "transient");
-        assert_eq!(classify(204, true), "healthy");
+        assert_eq!(classify(204, true), "transient");
+        assert_eq!(classify(302, true), "transient");
     }
 
     #[test]
@@ -358,6 +368,49 @@ mod tests {
         assert_eq!(calls, [("https://example.org".to_owned(), true)]);
     }
 
+    #[test]
+    fn curl_redirect_exhaustion_with_residual_302_is_transient() {
+        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("bind loopback listener");
+        listener
+            .set_nonblocking(true)
+            .expect("nonblocking listener");
+        let address = listener.local_addr().expect("listener address");
+        let stopped = Arc::new(AtomicBool::new(false));
+        let server_stopped = Arc::clone(&stopped);
+        let server = thread::spawn(move || {
+            while !server_stopped.load(Ordering::Relaxed) {
+                match listener.accept() {
+                    Ok((mut stream, _)) => {
+                        let _ = stream.set_read_timeout(Some(Duration::from_secs(1)));
+                        let _ = stream.set_write_timeout(Some(Duration::from_secs(1)));
+                        let mut request = [0_u8; 4096];
+                        let _ = stream.read(&mut request);
+                        let response = format!(
+                            "HTTP/1.1 302 Found\r\nLocation: http://{address}/loop\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+                        );
+                        let _ = stream.write_all(response.as_bytes());
+                    }
+                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                        thread::sleep(Duration::from_millis(1));
+                    }
+                    Err(_) => break,
+                }
+            }
+        });
+
+        let url = format!("http://{address}/loop");
+        let result = check_url_with(&url, curl);
+        stopped.store(true, Ordering::Relaxed);
+        server.join().expect("join loopback server");
+
+        assert_eq!(result["http_status"], 302);
+        assert_eq!(result["status"], "transient");
+        assert!(result["error"]
+            .as_str()
+            .is_some_and(|error| !error.is_empty()));
+    }
+
+    #[cfg(unix)]
     #[test]
     fn curl_parses_http_status_and_reports_process_failures() {
         let success = fake_curl("#!/bin/sh\nprintf '204'\n");
