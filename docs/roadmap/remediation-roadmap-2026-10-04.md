@@ -1,6 +1,6 @@
 # Main-48h Adversarial Remediation Roadmap — 2026-10-04
 
-Status: **planning setup complete; remediation not started**. Epic: **RT-aha**.
+Status: **planning and baseline audit complete; code remediation not started**. Epic: **RT-aha**.
 Nine confirmed P2 corrections (A1–A9) and three separate nonblocking P3
 clarify/defer decisions (A10–A12). No closed issue is reopened or reused.
 
@@ -55,31 +55,73 @@ Python interpreter requirement or indirect application/build/codegen/test/
 baseline/docs/CI Python execution chain is acceptable. Existing native Typst,
 curl and minimal command orchestration remain within the established boundary.
 
-## Phases and dependencies
+## Key-delivery milestones and PR gates
 
-Phase 0 records the baseline, archives evidence, creates the hierarchy and starts
-the shared dependency audit **RT-aha.1**. This planning setup is complete;
-the implementation dependency audit remains open and must be refreshed whenever
-a correction proposes a dependency/tooling change.
+The open Beads hierarchy is delivered as six reviewable milestones. Each
+milestone ends in its own PR with a Conventional Commit history and evidence
+linked from this roadmap. PR #45 established the planning baseline; this
+follow-on PR delivers the Milestone 0 audit. Later milestones use separate
+branches and PRs against the latest integrated predecessor.
 
-| Phase | Feature | Children | Exit condition |
+At the start of every milestone, query all open PRs with `rtk gh` and inspect
+the current head, required-check rollup, merge state, and review threads. Fix
+failures and comments on the branch attached to the affected PR before relying
+on it as a base. Enable protected auto-merge only after required checks are
+terminal and accepted by GitHub protection, review threads are resolved,
+platform evidence is present, and GitHub reports a mergeable head. Inspect any
+NEUTRAL or SKIPPED status and its underlying jobs; do not infer acceptance.
+Never bypass protection. Recheck the PR after every follow-up commit; pending
+or failed checks block auto-merge.
+
+| Milestone | Beads | Delivery PR boundary | Exit validation |
 |---|---|---|---|
-| 1 — Report evidence integrity | RT-aha.2 | A2, A3, A4, A7 | Focused evidence/parser tests and phase checks pass |
-| 2 — Asset safety and PDF resilience | RT-aha.3 | A1, A5, A6 | Safe cleanup/containment plus pinned tree and chain PDF compilation |
-| 3 — Monitor portability and correctness | RT-aha.4 | A8, A9 | Portable tests, real loopback exhaustion and Windows test-target compilation |
-| 4 — Advisory decisions and delivery | RT-aha.5 | A10, A11, A12 | Three explicit clarify/defer decisions; delivery uses separate task RT-aha.6 |
+| 0 — Baseline and Rust-only tooling audit | RT-aha.1 | Follow-on PR after PR #45: dependency/tooling audit and synchronized tracker snapshot | Reviewed SHA and audit receipts recorded; no new Python execution path; docs and required hosted checks pass |
+| 1 — Report evidence integrity | RT-aha.2; A2, A3, A4, A7 | One PR for the four report/parser corrections | Each trigger has a pre-change RED regression, corrected GREEN behavior, valid-input regression, and focused phase checks |
+| 2 — Asset safety and PDF resilience | RT-aha.3; A1, A5, A6 | One PR for safe asset cleanup, image fallback, and report-root containment | Symlink and path-containment regressions pass; pinned Typst builds the affected tree and chain PDFs |
+| 3 — Link monitor portability and correctness | RT-aha.4; A8, A9 | One PR for platform-safe test helpers and curl transport precedence | Portable classifier and loopback exhaustion tests pass; Windows test-target compilation is evidenced |
+| 4 — Advisory contract decisions | RT-aha.5; A10, A11, A12 | Separate nonblocking decision PR, limited to contract wording or explicit deferrals | All three decisions record rationale, scope, and revisit triggers; this milestone does not block P2 delivery |
+| 5 — Integrated P2 delivery and closeout | RT-aha.6 | Final evidence PR after Milestones 1–3 are integrated | Focused and workspace suites, formatting, Clippy, docs/workflow gates, pinned Typst, Windows evidence, and terminal required hosted checks are recorded |
 
-All P2 leaf issues depend on RT-aha.1. Edit-order dependencies are
+Milestone 0 records the reviewed baseline, archives evidence, creates the
+hierarchy, and closes the dependency audit only after its receipts below are
+committed. The nine P2 leaves depend on RT-aha.1. Edit-order dependencies are
 A2 → A3 → A7 (shared report/parser surface), A1 → A5 → A6 (asset resolver),
-and A8 → A9 (monitor helpers). These reduce overlap; they do not reclassify
-independent findings. Phases are the intended delivery order, not artificial
-hard inter-phase blockers. A4 can proceed independently after the audit.
+and A8 → A9 (monitor helpers); these reduce overlap without reclassifying
+independent findings. A4 can proceed independently after the audit.
 
-Parent-child edges organize work. Each phase feature is closed only after its
-listed children and phase validation are complete. **RT-aha.6** explicitly
-depends on the audit, all nine P2 fixes, and phase features 1–3. It has **no
-dependency on phase 4 or any P3 card**. P2 delivery may close while advisories
-remain open; epic closure additionally requires those explicit decisions.
+Each phase feature closes only after all listed children and phase validation
+are complete. Milestone 5 / RT-aha.6 depends on the audit, all nine P2 fixes,
+and milestones 1–3. It has no dependency on milestone 4 or any P3 card. P2
+delivery may close while advisories remain open; the epic closes only after
+A10–A12 have explicit decisions.
+
+### Milestone 0 dependency/tooling audit evidence
+
+- Reviewed source: `8df554e884b1e5dd24146111a965597eff5f4779`; current Rust
+  environment: rustc 1.99.0 (b940084d7), Cargo 1.99.0 (5f94df478).
+- `cargo metadata --locked --format-version 1`: exit 0; 90 locked packages
+  across the five workspace members. The locked graph contains zero
+  Python/PyO3/CPython/RustPython packages.
+- `cargo tree --locked --edges normal,build,dev --prefix none`: exit 0.
+  No dependency or lockfile changes are proposed by the current nine fixes;
+  the planning PR also changes no Cargo manifest, workflow, or lockfile.
+- Existing tooling is recorded separately: `.github/workflows/tachi-mmdc-preflight.yml`
+  already sets up Python 3.14 for its renderer-absence preflight. This
+  pre-existing workflow is outside the remediation changes; no new Python
+  interpreter, indirect execution chain, action, or package is introduced.
+  Reopen the audit if an implementation changes manifests or executable CI.
+- On PR #45 head `46a5e979535be4cbf4b11847375b5a7fa5436c07`, 16 required
+  checks succeeded and the required `CodeQL` aggregate was NEUTRAL; its three
+  language analyses completed successfully. GitHub accepted that terminal state
+  and protected-auto-merged the PR at `293c1ed028ad7bb8ac32eab571b0a748cf3dbe8a`
+  on 2026-10-05 01:14 UTC, with both review threads resolved. At Milestone 0
+  start, PR #26 was the only open PR: all 24 rollups were terminal without
+  failures, all 17 required checks passed, and auto-merge was enabled. It was
+  reported DIRTY at the initial check and is outside this roadmap’s base chain.
+- Local validation: `make docs-version-gate docs-archive-version-gate
+  workflow-gate gitleaks-gate supply-chain-gate` exited 0. Cargo audit and deny
+  loaded 1,290 RustSec advisories and reported advisories, bans, licenses, and
+  sources all OK.
 
 ## Action-item mapping
 

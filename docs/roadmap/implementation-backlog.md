@@ -29,43 +29,32 @@
   closed. PRs #43, #44, and #42 auto-merged after required checks and review
   remediation passed. Final delivery evidence is recorded in
   [the upstream milestone plan](./2026-10-04-upstream-milestone-delivery.md).
-  Earlier tracker snapshots below remain historical.
 
-- Dependency/runtime upgrade closeout is active under the 2026-10-04 plan.
-  Baseline reconciliation, pin verification, and local validation are complete.
-  Separate commits and the PR are complete; all 16 required checks on PR #39
-  passed and GitHub reports it mergeable. Live PostgreSQL migration evidence
-  and merge remain open gates.
+- Dependency/runtime upgrade closeout is complete under the 2026-10-04 plan.
+  Live Beads epic `RT-bbi` and all four children are closed; delivery landed
+  through merged PR #41. The plan and dated evidence remain available as
+  historical records.
 
-- PR #39 review remediation is active under GitHub issue #40 and Beads epic
-  `RT-bz6`. The follow-up fixes the PostgreSQL 18 volume path, Supabase env
-  template, user-table RLS, live Prisma migration evidence, and pending CodeQL
-  ruleset bypass notice. PR #41 review also identified and corrected stale
-  Rust toolchain values in the root codemap. The seven-child Beads hierarchy
-  tracks all review action items.
+- PR #39 review remediation is complete under GitHub issue #40 and Beads epic
+  `RT-bz6`; all eight children are closed and PR #41 fixes are merged. The
+  run [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486)
+  records hosted PostgreSQL migration and RLS validation.
 
-- Live Beads audit on 2026-10-04: 13 open, 0 in progress, 0 blocked, and 197
-  closed issues; 5 open issues belong to the dependency/runtime closeout
-  hierarchy `RT-bbi` and children `.1` through `.4`, and 7 belong to the PR #39
-  remediation hierarchy `RT-bz6` and children `.1` through `.7`.
+- Live Beads audit on 2026-10-04: 19 open, 0 in progress, and 0 blocked. All
+  open issues belong to the Main-48h remediation epic `RT-aha`: nine P2
+  correction cards, three nonblocking P3 decisions, four phase features, the
+  dependency audit, delivery verification, and the epic itself. See the
+  [remediation roadmap](./remediation-roadmap-2026-10-04.md) for current scope
+  and milestone gates.
 - `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and
-  issue cards below are retained as completed execution records; future work
-  should use new issues rather than reopening completed cards without review.
-- The checked-in Beads export remains available at `../../.beads/issues.jsonl`.
-- Dependency/runtime upgrade tracker state: `RT-bbi` is the active epic for
-  [the 2026-10-04 closeout plan](./2026-10-04-dependency-runtime-upgrade-closeout-v1.md).
-  Its children cover baseline/pin reconciliation, Rust and release gates,
-  scaffold/Prisma validation, and docs/protected delivery. The export contains
-  205 issues before the remediation hierarchy was created.
-- PR #39 remediation tracker state: GitHub issue #40 anchors Beads epic
-  `RT-bz6`; eight children cover PostgreSQL 18 volume migration, Supabase env
-  setup, profile RLS, live PostgreSQL CI, CodeQL ruleset behavior,
-  documentation/export synchronization, root atlas Rust version accuracy, and
-  runnable scaffold Compose command paths.
-  Hosted PostgreSQL migration and RLS assertions passed in run
-  [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486).
-  PR #41 final-head checks after commit `d027adb` require a live status refresh
-  before merge readiness is reported. The refreshed export contains 214 issues.
+  issue cards remain historical execution records; future work should use new
+  issues rather than reopening completed cards without review.
+- The checked-in Beads export is a dated issue snapshot at
+  `../../.beads/issues.jsonl`; live Beads is authoritative for status.
+  Export again after any tracker write and commit the synchronized snapshot.
+- Older 2026-10-04 open-count paragraphs in linked plans are historical
+  checkpoints. Use their final delivery notes and current live tracker state
+  when determining whether work remains.
 
 ## Archive Records
 

@@ -1,10 +1,10 @@
 # Rust-native upstream roadmap: milestone delivery
 
-Date: 2026-10-04. Tracking: epic `RT-3zm`. Original implementation: epic `RT-5vk` and [PR #42](https://github.com/pratik-saptarshi/tachi-rust/pull/42). Comparison anchors remain upstream `63438d78` and fork `cb567d32`.
+Date: 2026-10-04. Tracking: completed epic `RT-3zm`. Original implementation: epic `RT-5vk` and [PR #42](https://github.com/pratik-saptarshi/tachi-rust/pull/42). Comparison anchors remain upstream `63438d78` and fork `cb567d32`.
 
-Current delivery: semantic PR #43 and reporting PR #44 are merged. PR #42 carries late review corrections plus final documentation and tracker reconciliation; its protected final checks and merge remain the publication gate. `RT-3zm.1` and `.2` are closed; `.3` and the epic remain in progress until that gate completes. The committed tracker export is a dated pre-merge snapshot.
+Current delivery is complete: semantic PR #43, reporting PR #44, and final evidence PR #42 are protected auto-merges. All three phase issues and epic `RT-3zm` are closed. PR #42 merged at `8df554e884b1e5dd24146111a965597eff5f4779` after final required checks, review resolution, and evidence reconciliation. The committed tracker export is a dated pre-merge snapshot.
 
-The six-feature implementation was initially submitted together. This delivery plan separates it into independently validated milestones. Implementation issue closure is historical evidence of code and tests; it does not prove merge readiness. Three actionable review findings on PR #42 require remediation before reporting delivery complete.
+The six-feature implementation was initially submitted together, then delivered through independently validated milestones. Three actionable review findings on PR #42 were corrected before merge; every review thread was resolved. Live Beads closure records final delivery evidence; the dated export remains a pre-merge snapshot.
 
 ## Invariants
 
@@ -17,9 +17,9 @@ The six-feature implementation was initially submitted together. This delivery p
 
 | Phase | Deliverable and acceptance | Validation | Tracking / PR |
 |---|---|---|---|
-| 1 | Contextual OWASP 2026 semantic cutover. Active instructions, fixtures and current baseline example citations agree; historical references remain historical; finding schema unchanged. | Rust semantic mutation tests, catalog resolution, historical exceptions, parser/taxonomy/SARIF regressions, formatting, documentation gates and all required hosted checks. | `RT-3zm.1`; standalone PR to be recorded after validation |
-| 2 | Native reporting and automation: shared truthful MAESTRO states, permissions check, catalog drift/regeneration, OI identity/citation preservation and adopter scanning. Correct PR #42 review findings: populate remediation actions, detect/stage brand assets, and derive component distribution from the active tier. | Focused review regressions; all seven MAESTRO states agree across outputs; malformed/valid permission cases; drift and failed regeneration rollback; mixed OI/LLM identities/CWE/citations/assets; native Gitleaks inheritance; six pinned PDF comparisons; no-interpreter CLI/regeneration; full workspace, Clippy, formatting, docs, actionlint and hosted checks. | `RT-3zm.2`; depends on phase 1; standalone PR after implementation review |
-| 3 | Final requirement-by-requirement delivery audit, canonical roadmap/codemap/evidence and Beads export reconciliation. Record actual phase PR merge states and remaining repository gates. | Refresh all open PRs, verify final main/branch freshness, native catalog/permissions checks, exact baseline hashes and rendering provenance, dependency execution-chain audit, final documentation and hosted checks. | `RT-3zm.3`; depends on phase 2; PR #42 retained as integration/evidence record |
+| 1 | Contextual OWASP 2026 semantic cutover. Active instructions, fixtures and current baseline example citations agree; historical references remain historical; finding schema unchanged. | Rust semantic mutation tests, catalog resolution, historical exceptions, parser/taxonomy/SARIF regressions, formatting, documentation gates and all required hosted checks. | `RT-3zm.1`; [PR #43](https://github.com/pratik-saptarshi/tachi-rust/pull/43) |
+| 2 | Native reporting and automation: shared truthful MAESTRO states, permissions check, catalog drift/regeneration, OI identity/citation preservation and adopter scanning. Correct PR #42 review findings: populate remediation actions, detect/stage brand assets, and derive component distribution from the active tier. | Focused review regressions; all seven MAESTRO states agree across outputs; malformed/valid permission cases; drift and failed regeneration rollback; mixed OI/LLM identities/CWE/citations/assets; native Gitleaks inheritance; six pinned PDF comparisons; no-interpreter CLI/regeneration; full workspace, Clippy, formatting, docs, actionlint and hosted checks. | `RT-3zm.2`; [PR #44](https://github.com/pratik-saptarshi/tachi-rust/pull/44) |
+| 3 | Final requirement-by-requirement delivery audit, canonical roadmap/codemap/evidence and Beads export reconciliation. Record actual phase PR merge states and remaining repository gates. | Refresh all open PRs, verify final main/branch freshness, native catalog/permissions checks, exact baseline hashes and rendering provenance, dependency execution-chain audit, final documentation and hosted checks. | `RT-3zm.3`; depends on phase 2; [PR #42](https://github.com/pratik-saptarshi/tachi-rust/pull/42) |
 
 ## Original feature acceptance retained
 
@@ -46,7 +46,7 @@ Already adopted crosswalk parity, safe image cleanup, taxonomy expansion, asset-
 
 - Phase 1: [PR #43](https://github.com/pratik-saptarshi/tachi-rust/pull/43), extracted from freshly fetched main. Review found valid-but-wrong category IDs in examples. Corrected retrieval poisoning to LLM09, training poisoning to LLM05, model extraction/theft to LLM06 per the loaded pattern catalog, and configuration leakage to LLM08 across active agents/adapters. Added parsed-YAML example checks and stale mutations; focused Rust, formatting and documentation validation passed. Hosted checks remain the phase merge gate.
 - Phase 2: independent preparation while phase 1 finishes its hosted gate. Three report review fixes are implemented with focused Rust regressions. Canonical sample review also reproduced missing nested citations and suppressed attack sections; the Rust path now preserves both. All original six PDFs plus the canonical agentic sample regenerate with pinned Typst and `PATH=/nonexistent`, including existing PDF companions; all seven byte-identical comparisons pass. Full workspace tests, Clippy, native permissions/catalog commands, Gitleaks adopter tests, actionlint and documentation gates pass. Publication to main follows phase 1 merge.
-- Phase 3: pending phase gates. PR #42 is preserved until its changes are delivered through these milestones; it must not merge the combined implementation ahead of phase completion.
+- Phase 3 preparation checkpoint (historical): PR #42 was preserved until its changes were delivered through these milestones; it did not merge the combined implementation ahead of phase completion.
 
 ## Final contract audit
 
@@ -69,3 +69,11 @@ Validation records: full workspace and Clippy passed after the MAESTRO compatibi
 Late reviews on the merged phase PRs are remediated in #42: numbered nested attribution retains OWASP/CWE records; companion ML references derive their year from the catalog; empty control assessments retain their metadata; attack-chain output includes only surfaced entries; and compact attack-tree metadata splits fields at separators. Each correction has a dedicated regression, and affected PDF baselines are regenerated with the same pinned native tool.
 
 Follow-up error-path checks require recognizable assessment evidence before selecting the control tier and propagate malformed attribution errors through CLI, desktop, MCP and baseline generation. Invalid input cannot publish a zero-finding report or overwrite an existing output. The legacy string API emits an explicit Typst panic document for invalid input; checked APIs return the original diagnostic.
+
+## Final delivery status
+
+As of 2026-10-04, all three milestones are complete: PRs #43, #44, and #42
+merged through protected auto-merge; all required final-head checks and review
+threads passed; and live Beads epic `RT-3zm` with children `.1`–`.3` is
+closed. The final integrated SHA is `8df554e884b1e5dd24146111a965597eff5f4779`.
+Earlier progress bullets above are dated checkpoints, not current open work.
