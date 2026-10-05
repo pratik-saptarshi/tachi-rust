@@ -6456,7 +6456,7 @@
     },
     {
       "path": "crates/tachi-core/src/infographic.rs",
-      "sha256": "4e1a64487acf25270556e5325c053667f214b4fb2f4e20c09b17812a73e2f63e"
+      "sha256": "a6e1af493a5d64b104ae600930c39dbf0be499551eea75bffac58266c4340b76"
     },
     {
       "path": "crates/tachi-core/src/infographic/codemap.md",
@@ -6508,7 +6508,7 @@
     },
     {
       "path": "crates/tachi-core/src/parsers/findings.rs",
-      "sha256": "708ff9ce21099e2df14f0f86a0cf244b619ceb7d21730fad1f66242da1fe462e"
+      "sha256": "624923fd6a386141fbf6dcefc99c4c4440e8d89591b801b1469b9f1669515eb3"
     },
     {
       "path": "crates/tachi-core/src/parsers/mermaid.rs",
@@ -6532,7 +6532,7 @@
     },
     {
       "path": "crates/tachi-core/src/report_data.rs",
-      "sha256": "c4fe5c237eef7c19ebefe12d0b8ec17ecaa73e9cd4a24b9c4d07268568dc2424"
+      "sha256": "227deb2683058fb503200b306419d8e848f254a1b6d57759fe14e526866f24b9"
     },
     {
       "path": "crates/tachi-core/src/report_extraction.rs",

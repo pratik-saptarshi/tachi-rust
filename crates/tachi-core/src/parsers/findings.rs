@@ -64,7 +64,12 @@ pub struct RiskScoreFinding {
 pub struct SourceAttributionRecord {
     pub taxonomy: String,
     pub id: String,
+    #[serde(default = "default_primary_relationship")]
     pub relationship: String,
+}
+
+fn default_primary_relationship() -> String {
+    String::from("primary")
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]

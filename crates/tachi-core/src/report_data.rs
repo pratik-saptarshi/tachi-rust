@@ -36,6 +36,12 @@ pub fn try_build_report_data_typst(
     let project_name = resolve_report_project_name(&threats_content, None, Some(target_dir));
     let findings = parse_threats_findings(&threats_content)
         .map_err(|error| format!("{}: {error}", input.display()))?;
+    let risk_scores_path = target_dir.join("risk-scores.md");
+    match fs::read_to_string(&risk_scores_path) {
+        Ok(content) => validate_risk_scores(&risk_scores_path, &content)?,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(format!("{}: {error}", risk_scores_path.display())),
+    }
     let images = detect_images(target_dir, template_dir);
     let has_source_attribution = compute_has_source_attribution(&findings);
     let per_finding_rows = build_per_finding_rows(&findings);
@@ -100,6 +106,33 @@ pub fn try_build_report_data_typst(
     Ok(output)
 }
 
+fn validate_risk_scores(path: &Path, content: &str) -> Result<(), String> {
+    if risk_scores_are_valid(content) {
+        return Ok(());
+    }
+    Err(format!(
+        "{}: Scored Threat Table must contain ID, Component, Threat, Composite, and Severity columns, with nonempty finding IDs and severities",
+        path.display()
+    ))
+}
+
+fn risk_scores_are_valid(content: &str) -> bool {
+    let source_rows = crate::parsers::parse_markdown_table(content, "## 2. Scored Threat Table");
+    if source_rows.is_empty() {
+        return true;
+    }
+    let required_columns = ["ID", "Component", "Threat", "Composite", "Severity"];
+    let findings = crate::parsers::parse_risk_scores_findings(content);
+    source_rows.iter().all(|row| {
+        required_columns
+            .iter()
+            .all(|column| row.contains_key(*column))
+    }) && !findings.is_empty()
+        && findings
+            .iter()
+            .all(|row| !row.id.trim().is_empty() && !row.severity.trim().is_empty())
+}
+
 // The canonical Rust report path supplies the full Tier-3 template contract.
 // Absent optional analysis is explicitly unavailable, never synthesized.
 fn render_document_data(
@@ -162,7 +195,8 @@ fn render_document_data(
     if let Ok(risk) = fs::read_to_string(target.join("risk-scores.md")) {
         {
             let rows = crate::parsers::parse_risk_scores_findings(&risk);
-            if !rows.is_empty() {
+            let valid_risk_assessment = !rows.is_empty() && risk_scores_are_valid(&risk);
+            if valid_risk_assessment {
                 values["has-risk-scores"] = json!(true);
                 values["data-source-tier"] = json!(2);
                 values["findings"] = json!(rows.iter().map(|f| json!({"id":f.id,"component":f.component,"threat":f.threat,"composite_score":f.composite_score,"severity":f.severity,"cvss":f.cvss,"exploitability":f.exploitability})).collect::<Vec<_>>());
@@ -286,11 +320,12 @@ fn has_control_assessment(
     content: &str,
     data: &crate::compensating_controls::CompensatingControlsData,
 ) -> bool {
-    if !data.findings.is_empty() || !data.controls.is_empty() || !data.coverage_matrix.is_empty() {
+    if !data.findings.is_empty() {
         return true;
     }
-    // A completed assessment may have an empty residual table. Require its
-    // canonical section and actual column contract, not just a nonblank file.
+    // A completed empty assessment may have a header-only residual table, but
+    // only under a recognized severity subsection. Inventory-only controls
+    // and populated tables the parser cannot consume are not completion proof.
     let lines: Vec<_> = content.lines().map(str::trim).collect();
     let coverage = lines
         .iter()
@@ -303,29 +338,42 @@ fn has_control_assessment(
             &lines[start + 1..end]
         })
         .unwrap_or_default();
-    let has_residual_header = coverage.windows(2).any(|pair| {
-        let line = pair[0];
-        if !line.starts_with('|') {
+    let severity_sections = [
+        "### Critical Residual Severity",
+        "### High Residual Severity",
+        "### Medium Residual Severity",
+        "### Low Residual Severity",
+    ];
+    let has_empty_residual_table = coverage.iter().enumerate().any(|(section, heading)| {
+        if !severity_sections.contains(heading) {
             return false;
         }
-        let cells: Vec<_> = line
+        let table = &coverage[section + 1..];
+        let Some(header_index) = table.iter().position(|line| line.starts_with('|')) else {
+            return false;
+        };
+        let Some(header) = table.get(header_index) else {
+            return false;
+        };
+        let Some(separator) = table.get(header_index + 1) else {
+            return false;
+        };
+        let cells: Vec<_> = header
             .split('|')
             .map(|cell| cell.trim().trim_matches('*'))
+            .filter(|cell| !cell.is_empty())
             .collect();
-        let separator: Vec<_> = pair[1]
+        let separator_cells: Vec<_> = separator
             .trim_matches('|')
             .split('|')
             .map(str::trim)
             .collect();
-        if separator.len() != cells.iter().filter(|cell| !cell.is_empty()).count()
-            || !separator.iter().all(|cell| {
+        let valid_separator = separator_cells.len() == cells.len()
+            && separator_cells.iter().all(|cell| {
                 cell.trim_matches(':').len() >= 3
                     && cell.trim_matches(':').chars().all(|c| c == '-')
-            })
-        {
-            return false;
-        }
-        [
+            });
+        let has_contract = [
             "Threat ID",
             "Component",
             "Threat",
@@ -334,9 +382,14 @@ fn has_control_assessment(
             "Control Status",
         ]
         .iter()
-        .all(|column| cells.contains(column))
+        .all(|column| cells.contains(column));
+        let has_data = table[header_index + 2..]
+            .iter()
+            .take_while(|line| line.starts_with('|'))
+            .any(|line| !line.trim().is_empty());
+        valid_separator && has_contract && !has_data
     });
-    if has_residual_header {
+    if has_empty_residual_table {
         return true;
     }
     // Explicit numeric coverage metadata, including all-zero rows, is also

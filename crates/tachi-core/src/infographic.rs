@@ -270,23 +270,39 @@ pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLay
             .map(|value| value.trim().to_string())
             .unwrap_or_default();
 
-        by_layer.insert(
-            layer_id.clone(),
-            MaestroLayerDistribution {
-                coverage_state: crate::maestro_coverage::classify_evaluation(
-                    parsed_count,
-                    row.get("Evaluation State").unwrap_or(&highest_severity),
-                ),
-                layer_id,
-                layer_name,
-                finding_count,
-                highest_severity: if finding_count == 0 && highest_severity.is_empty() {
-                    String::from("Not evaluated")
-                } else {
-                    highest_severity
-                },
+        let candidate = MaestroLayerDistribution {
+            coverage_state: crate::maestro_coverage::classify_evaluation(
+                parsed_count,
+                row.get("Evaluation State").unwrap_or(&highest_severity),
+            ),
+            layer_id: layer_id.clone(),
+            layer_name,
+            finding_count,
+            highest_severity: if finding_count == 0 && highest_severity.is_empty() {
+                String::from("Not evaluated")
+            } else {
+                highest_severity
             },
-        );
+        };
+        by_layer
+            .entry(layer_id)
+            .and_modify(|current: &mut MaestroLayerDistribution| {
+                let replace = candidate.finding_count > current.finding_count
+                    || (candidate.finding_count == current.finding_count
+                        && candidate.finding_count > 0
+                        && severity_rank(&candidate.highest_severity)
+                            > severity_rank(&current.highest_severity));
+                if replace {
+                    *current = candidate.clone();
+                } else if candidate.finding_count == 0
+                    && candidate.finding_count == current.finding_count
+                    && candidate.coverage_state != current.coverage_state
+                {
+                    current.coverage_state = crate::maestro_coverage::EvaluationState::NotEvaluated;
+                    current.highest_severity = String::from("Not evaluated");
+                }
+            })
+            .or_insert(candidate);
     }
 
     let mut result = crate::coverage_taxonomy::maestro_layer_catalog()
