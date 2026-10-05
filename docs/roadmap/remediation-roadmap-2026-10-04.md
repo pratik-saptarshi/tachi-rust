@@ -215,12 +215,13 @@ symlink case failed because cleanup removed the regular JPG target retained by
 the PNG symlink; after the guard, `cargo test -p tachi-core --test assets`
 passes 5/5, including independent duplicate cleanup. A5's pre-fix test selected
 the zero-byte preferred PNG despite a valid JPEG fallback. The corrected shared
-resolver decodes PNG/JPEG candidates and validates SVG XML, so empty/corrupt
-preferred files fall through to later usable formats; all-invalid candidates
-leave attack trees in the Mermaid text path and chains without an image.
-`report_document_contract` passes 21/21. Its pinned Typst 0.15.1 compilation
-test compiled four cases: valid preferred PNG, empty PNG with JPEG fallback,
-corrupt PNG with SVG fallback, and all-invalid no-image fallback. A6's RED
+resolver decodes PNG/JPEG candidates and validates SVG candidates as bounded,
+renderable report diagrams, so empty/corrupt preferred files fall through to
+later usable formats; all-invalid candidates leave attack trees in the Mermaid
+text path and chains without an image. `report_document_contract` passes 22/22.
+Its pinned Typst 0.15.1 compilation test compiled four cases: valid preferred
+PNG, empty PNG with JPEG fallback, corrupt PNG with SVG fallback, and
+semantically invalid SVG with the no-image fallback. A6's RED
 experiment selected outside-root SVGs through both metadata and heading IDs;
 the GREEN test rejects those IDs, rejects symlink escapes, and retains a valid
 in-root S-1 image. The code uses Rust-native image decoding (`image` 0.25.10,
@@ -233,9 +234,27 @@ The supply-chain gate initially flagged duplicate transitive `miniz_oxide`
 patch versions; `Cargo.lock` now pins compatible `flate2` 1.1.9 so the ban
 gate passes without an exception. Hosted PR checks remain pending.
 
+The automated PR #48 review identified a second A5 gap: well-formed XML with
+zero dimensions, the wrong namespace, or invalid drawing semantics could still
+be selected. RED reproduced that selection. A full renderer was not compatible
+with the repository's Apache/MIT-only dependency policy, so the correction uses
+the Apache/MIT `svgtypes` grammar crate and a conservative Rust-native validator
+for report-diagram geometry. It checks namespace and bounded positive viewport,
+viewBox, shape dimensions, SVG path/point syntax, visibility, and nonempty
+supported drawing content; unsupported drawing elements and external image,
+use, foreignObject, or script nodes fail closed to Mermaid. Five regressions
+cover zero viewport, wrong namespace, malformed path, zero-sized shape, and a
+hidden-only shape. The pinned Typst test compiles the semantically invalid SVG
+through the no-image fallback. The focused document suite, 653-test workspace,
+Clippy, format, catalog, and supply-chain gates pass. Review remediation source
+commit: `fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee` on PR #48's branch; the review
+thread is replied to and resolved; hosted checks for the remediation head are
+pending.
+
 Phase 2 code commits on `docs/main-48h-phase2`: A1 is
 `1d8ed47b29788c8b9ce8b4901475c7a8e4aa0af6`; A5/A6 and dependency/catalog
-updates are `6501b51cef9225730458537a75092979df5a0825`. Beads feature
+updates are `6501b51cef9225730458537a75092979df5a0825`; PR #48 review fix is
+`fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee`. Beads feature
 `RT-aha.3` and its three finding cards are in progress. At this export, Beads
 reports 258 total issues: 242 closed, 4 in progress, 9 open, 4 blocked, and 3
 deferred.
