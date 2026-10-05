@@ -3,6 +3,7 @@
 **Date**: 2026-07-09  
 **Source input**: `/Volumes/dev/Git-SCM/tachi-rust/docs/ci-improvement-plan.html`  
 **Status**: historical execution record; RT-CI is closed and monitoring is operational follow-up
+
 **Primary objective**: reduce wasted pull-request CI time without weakening `tachi-rust`'s existing SARIF, supply-chain, cross-platform, and contract-specific guarantees
 
 ## Repo-State Reconciliation
