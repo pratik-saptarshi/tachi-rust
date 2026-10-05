@@ -1,8 +1,10 @@
 # Main-48h Adversarial Remediation Roadmap — 2026-10-04
 
-Status: **planning and baseline audit complete; code remediation not started**. Epic: **RT-aha**.
-Nine confirmed P2 corrections (A1–A9) and three separate nonblocking P3
-clarify/defer decisions (A10–A12). No closed issue is reopened or reused.
+Status: **implementation and advisory decisions complete; final control-document
+synchronization is in PR #51**. Epic: **RT-aha**. All nine confirmed P2
+corrections (A1–A9) are implemented and merged; the three nonblocking P3
+decisions (A10–A12) are recorded below. The initial setup snapshot farther down
+is historical and is superseded by the final delivery receipts.
 
 ## Baseline and evidence
 
@@ -734,11 +736,13 @@ Priority: P2; type: task; parent: RT-aha. Blocking dependencies: RT-aha.1, RT-ah
    priorities, dependencies, decisions and completion claims match. Close P2
    delivery independently of optional advisory implementation.
 
-## Setup verification and remaining work
+## Initial setup snapshot (2026-10-04; superseded by delivery receipts)
 
-This change implements the roadmap/worklist request only. Production fixes,
-new RED/GREEN runs, full workspace checks, Windows compilation, pinned Typst
-remediation compilation and hosted delivery remain **not run / unverified**.
+The statements in this subsection describe the planning commit before
+implementation. They are retained as dated baseline evidence, not current
+status. At that time production fixes, new RED/GREEN runs, full workspace
+checks, Windows compilation, pinned Typst remediation compilation and hosted
+delivery were **not run / unverified**.
 Panel runtime claims are preserved with their original limits: A6 establishes
 outside-image selection, not executed disclosure; A8 is a source-target
 diagnosis; A5's actual compile failure covers the exercised empty tree image.
