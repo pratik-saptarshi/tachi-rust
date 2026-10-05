@@ -35,9 +35,12 @@ is historical and is superseded by the final delivery receipts.
   Relative to the reviewed commit's dated export, this also synchronizes the
   already-closed live records `RT-3zm` and `RT-3zm.3`; their closure predates
   this roadmap. No historical issue is closed by the remediation setup.
-- The local origin/main ref matches the reviewed SHA. No new network freshness
-  check was performed for this planning task; the panel's fresh-main evidence
-  belongs to its capture time. Refresh remote main and required checks at delivery.
+- At initial roadmap creation, no network freshness check had been performed;
+  the panel's fresh-main evidence belongs to its capture time. During planning
+  validation on 2026-10-04, `git fetch origin main` confirmed that origin/main
+  still matched the reviewed SHA and that the planning branch had no upstream
+  divergence. Refresh remote main and required checks again at implementation
+  delivery.
 
 ## Adoption and boundaries
 
