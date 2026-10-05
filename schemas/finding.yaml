@@ -273,7 +273,12 @@ finding:
           Non-empty; MUST resolve as a top-level id: key in
           schemas/taxonomy/{taxonomy}.yaml. Referential integrity is
           enforced by validate_source_attribution in scripts/tachi_parsers.py
-          (ADR-028 Decision 5 — invoked by orchestrator Phase 4).
+          (ADR-028 Decision 5 — invoked by orchestrator Phase 4). This
+          versionless identifier resolves against the checked-in current
+          catalog; the finding contract does not preserve historical catalog
+          editions. Callers must review source context before regenerating
+          historical findings. Automatic historical ID remapping is
+          unsupported.
       relationship:
         type: string
         enum:
