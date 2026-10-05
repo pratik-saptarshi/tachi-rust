@@ -40,10 +40,11 @@
   run [37191445486](https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37191445486)
   records hosted PostgreSQL migration and RLS validation.
 
-- Live Beads audit on 2026-10-04: 19 open, 0 in progress, and 0 blocked. All
+- Live Beads audit on 2026-10-04: 18 open, 0 in progress, and 0 blocked. All
   open issues belong to the Main-48h remediation epic `RT-aha`: nine P2
-  correction cards, three nonblocking P3 decisions, four phase features, the
-  dependency audit, delivery verification, and the epic itself. See the
+  correction cards, three nonblocking P3 decisions, four phase features,
+  delivery verification, and the epic itself. The dependency audit `RT-aha.1`
+  is closed with recorded evidence. See the
   [remediation roadmap](./remediation-roadmap-2026-10-04.md) for current scope
   and milestone gates.
 - `RT-CI`, `E2E-COV`, and `DT-GUI` hierarchies are closed. Their plans and

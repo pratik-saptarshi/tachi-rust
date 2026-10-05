@@ -122,6 +122,9 @@ A10–A12 have explicit decisions.
   workflow-gate gitleaks-gate supply-chain-gate` exited 0. Cargo audit and deny
   loaded 1,290 RustSec advisories and reported advisories, bans, licenses, and
   sources all OK.
+- Beads `RT-aha.1` closed after this evidence was committed. The exported
+  snapshot contains 258 issues: 237 closed, 3 deferred, and 18 open. The open
+  hierarchy remains independently actionable; the P3 cards do not block P2.
 
 ## Action-item mapping
 
