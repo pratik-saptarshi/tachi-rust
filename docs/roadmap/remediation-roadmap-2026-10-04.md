@@ -248,16 +248,69 @@ hidden-only shape. The pinned Typst test compiles the semantically invalid SVG
 through the no-image fallback. The focused document suite, 653-test workspace,
 Clippy, format, catalog, and supply-chain gates pass. Review remediation source
 commit: `fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee` on PR #48's branch; the review
-thread is replied to and resolved; hosted checks for the remediation head are
-pending.
+thread is replied to and resolved. PR #48's final head
+`67072440978c8b65798f1ca0071994d5ce249409` passed 16 required checks, with no
+failures and one skipped check, then protected squash-merged at
+`2026-10-05T04:04:03Z` as `324f7ea7560216e978941571bb7d13523f682355`. Beads
+`RT-aha.3.1`–`.3.3` and parent `RT-aha.3` are closed with receipts.
 
 Phase 2 code commits on `docs/main-48h-phase2`: A1 is
 `1d8ed47b29788c8b9ce8b4901475c7a8e4aa0af6`; A5/A6 and dependency/catalog
 updates are `6501b51cef9225730458537a75092979df5a0825`; PR #48 review fix is
-`fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee`. Beads feature
-`RT-aha.3` and its three finding cards are in progress. At this export, Beads
-reports 258 total issues: 242 closed, 4 in progress, 9 open, 4 blocked, and 3
-deferred.
+`fb98ba57eaf9156beb087e7c9d8ee13a7b5cb6ee`. Beads feature `RT-aha.3` and its
+three finding cards are closed with the merge and check receipts above.
+
+### Milestone 3 link-monitor portability and correctness — start evidence
+
+Phase 3 starts from PR #48 merge `324f7ea7560216e978941571bb7d13523f682355`.
+PR #26 is the only open PR at this boundary. Its head is
+`ce7535c3129ea5c21302fddc66c211b107ea83b4`, recorded base is
+`cb567d3235eee0d45081b099a3c6df7c98f12eb7`, auto-merge is enabled, and all 17
+required checks pass with no failures. GitHub returned merge state `UNKNOWN` at
+the baseline snapshot; that state is recorded without treating it as clean or
+conflicted. Phase 3 implementation stays on `docs/main-48h-phase3` and is
+isolated from the original dirty checkout.
+
+Beads at this boundary contains 258 issues: 246 closed, 0 in progress, 9 open,
+2 blocked, and 3 deferred. A8 remains a P2 correction requiring a real Windows
+test-target compile receipt; A9 remains blocked on A8 and requires a loopback
+redirect-exhaustion regression. Both preserve the monitor's public status and
+exit contracts.
+
+### Milestone 3 implementation and local validation
+
+Source commit `1782b9f36c755fe34391b7fa5bc51a9d88a67910` implements A8 and A9.
+The A8 RED reproduction used the Windows test target before the guard: direct
+`rustc --test --target x86_64-pc-windows-msvc` compilation failed because
+`std::os::unix::fs` and `Permissions::set_mode` are unavailable for that
+target. The Unix permissions import, executable fake-curl helper, and its
+subprocess test are now `cfg(unix)`; portable classifier tests remain active
+for Windows. The exact monitor test source then compiled successfully as a
+Windows test harness using `rustc --edition=2021 --crate-name
+taxonomy_link_monitor --test --target x86_64-pc-windows-msvc --emit=metadata`
+with the target's existing `serde_json` metadata.
+
+The full Cargo Windows command,
+`cargo check -p tachi-cli --bin taxonomy-link-monitor --tests --target
+x86_64-pc-windows-msvc`, remains blocked before the monitor crate by the
+pre-existing unconditional `.process_group(0)` call at
+`crates/tachi-shell/src/commands/script_executor.rs:105`. The isolated monitor
+test-harness compile passes; full package-target verification is recorded as
+unverified until that unrelated Windows production compile blocker is fixed.
+
+A9 RED was reproduced twice before the classifier fix: `classify(302, true)`
+returned `healthy`, and a real local curl probe exhausted redirects with curl
+exit 47, retained HTTP 302 and reported `healthy`. The regression uses an
+ephemeral `127.0.0.1` listener, redirects to itself, and stops and joins its
+server thread after the HEAD/GET probes. After the fix, the focused monitor
+suite passed 12/12, including the real curl exhaustion case and portable
+successful 2xx/3xx, HTTP-error, transport-error and HEAD-to-GET cases. The full
+workspace suite passed 654 tests with one ignored test; workspace Clippy,
+formatting, workflow action, documentation-version, archive-version, and
+supply-chain gates passed. The supply-chain run loaded 1,290 advisories and
+reported advisories, bans, licenses, and sources OK across 112 locked crates.
+No manifest or lockfile dependency changes were made. Hosted PR checks remain
+pending at this roadmap snapshot.
 
 ## Action-item mapping
 
