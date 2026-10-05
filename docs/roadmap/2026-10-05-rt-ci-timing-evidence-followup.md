@@ -121,6 +121,23 @@ present pooled totals as route-specific proof.
   remained. `RT-0sd.3` is closed. These results do not satisfy the four live
   timing cohorts or close `RT-0sd.2`.
 
+### Supplemental historical cohort audit (2026-10-05)
+
+The expanded history scan paired successful route-observe and workspace PR
+runs by exact final PR head SHA from the July rollout through the start of
+PR #54's classifier correction. It found 37 unique candidates with both
+successful workflow runs and a downloadable route artifact containing
+`changed_paths`. Reclassifying those paths with the corrected shared
+classifier produced `full_pr_matrix` for all 37: 33 touched active/shared
+documentation and 4 included unknown non-documentation paths. The scan
+therefore confirms zero eligible pre-correction `passive-docs` samples and
+zero eligible pre-correction `dependency-closure` samples. The latest
+post-correction PR run available, PR #55, also selected full mode because it
+touched active/shared documentation; it is not a post-router timing sample.
+The complete run links, SHAs, timestamps, and reconstructed reasons are
+recorded in [`the route cohort audit`](../reports/rt-ci-route-cohort-audit-2026-10-05.md).
+Keep all four cohorts and both thresholds unchanged; `RT-0sd.2` remains open.
+
 ## Phase 3 — Delivery and closure
 
 Synchronize the dated baseline, closeout notes, execution plan, backlog, root
