@@ -6360,7 +6360,7 @@
   "rendering_inputs": [
     {
       "path": "Cargo.lock",
-      "sha256": "80895db6f3220552c37aeb4870dc321a1389aa5e7dfd1ed872a039b4e2bb5e81"
+      "sha256": "1456cb05b5beda8d45ccbcc8aa8fbb9553a3d069ec2913b556b272a11842edc4"
     },
     {
       "path": "Cargo.toml",
@@ -6400,7 +6400,7 @@
     },
     {
       "path": "crates/tachi-core/Cargo.toml",
-      "sha256": "5d6d3b9a8d41065d3d169d7b81794b2c524fb125ab4a20c7e2c16d689f3053fa"
+      "sha256": "a0ce2af962a98a6ed5c284731a5360564aa5cd7efd1e0c15a5c6e8c64e46ee46"
     },
     {
       "path": "crates/tachi-core/src/aisvs.rs",
@@ -6532,7 +6532,7 @@
     },
     {
       "path": "crates/tachi-core/src/report_data.rs",
-      "sha256": "1e8193b8fb39826cfb7390b0815edad4bec9dc6766e89189bfd127cc6a5189d3"
+      "sha256": "91808f4b9788968073831a582261059049883f5d56074c1c526d53c907b05872"
     },
     {
       "path": "crates/tachi-core/src/report_extraction.rs",

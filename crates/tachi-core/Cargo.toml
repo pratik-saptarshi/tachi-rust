@@ -16,6 +16,7 @@ thiserror = "=2.0.21"
 serde_yaml = { package = "serde_yaml_ng", version = "=0.10.0" }
 image = { version = "=0.25.10", default-features = false, features = ["jpeg", "png"] }
 roxmltree = "=0.21.1"
+svgtypes = { version = "=0.16.1", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 proptest = "=1.11.0"

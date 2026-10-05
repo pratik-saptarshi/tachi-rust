@@ -146,6 +146,50 @@ fn attack_tree_image_resolver_accepts_valid_svg_after_corrupt_png() {
 }
 
 #[test]
+fn attack_tree_image_resolver_rejects_unrenderable_svg_candidates() {
+    for (case, svg) in [
+        (
+            "zero-dimensions",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0\" height=\"1\"><rect width=\"1\" height=\"1\"/></svg>",
+        ),
+        (
+            "wrong-namespace",
+            "<svg xmlns=\"urn:example:not-svg\" width=\"1\" height=\"1\"><rect width=\"1\" height=\"1\"/></svg>",
+        ),
+        (
+            "invalid-path-semantics",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><path d=\"M nonsense\"/></svg>",
+        ),
+        (
+            "zero-sized-shape",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><rect width=\"0\" height=\"1\"/></svg>",
+        ),
+        (
+            "hidden-shape",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><path style=\"display:none\" d=\"M0 0L1 1\"/></svg>",
+        ),
+    ] {
+        let fixture = Fixture::new();
+        let trees = fixture.0.join("report/attack-trees");
+        fs::create_dir_all(&trees).unwrap();
+        fs::write(trees.join("S-1.md"), attack_tree_markdown("S-1")).unwrap();
+        fs::write(trees.join("S-1-attack-tree.svg"), svg).unwrap();
+
+        let output = fixture.render();
+        let binding = binding(&output, "attack-trees");
+        assert!(
+            binding.contains("\"has-image\": false"),
+            "{case}: unrenderable SVG must not suppress the Mermaid fallback: {binding}"
+        );
+        assert!(binding.contains("graph TD"), "{case}: {binding}");
+        assert!(
+            !binding.contains("S-1-attack-tree.svg"),
+            "{case}: invalid SVG must not be selected: {binding}"
+        );
+    }
+}
+
+#[test]
 fn attack_tree_image_resolution_rejects_path_ids_and_outside_symlinks() {
     let fixture = Fixture::new();
     let report = fixture.0.join("report");
@@ -252,9 +296,15 @@ fn attack_tree_image_fallbacks_compile_with_pinned_typst() {
             vec![("svg", valid_svg())],
         ),
         (
-            "no-usable-image",
+            "no-usable-image-invalid-svg-fallback",
             b"corrupt PNG".to_vec(),
-            vec![("jpg", b"corrupt JPEG".to_vec()), ("svg", b"<svg".to_vec())],
+            vec![
+                ("jpg", b"corrupt JPEG".to_vec()),
+                (
+                    "svg",
+                    b"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"><path d=\"M nonsense\"/></svg>".to_vec(),
+                ),
+            ],
         ),
     ] {
         let fixture = Fixture::new();
