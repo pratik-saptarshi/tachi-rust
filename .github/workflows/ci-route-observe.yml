@@ -23,67 +23,63 @@ jobs:
 
       - name: Capture route inputs
         shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          GIT_SHA: ${{ github.sha }}
+          FORCE_FULL_CI: ${{ vars.FORCE_FULL_CI }}
         run: |
           set -euo pipefail
 
-          base_ref="${{ github.base_ref }}"
+          base_ref="${BASE_REF:-}"
           if [ -z "$base_ref" ]; then
             base_ref="main"
           fi
 
-          is_protected_ref() {
-            case "$1" in
-              main|release/*|refs/heads/main|refs/heads/release/*|refs/tags/*)
-                return 0
-                ;;
-              *)
-                return 1
-                ;;
-            esac
-          }
-
           git fetch origin "$base_ref" --depth=1
 
           changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
-          git diff --name-only "origin/${base_ref}...${{ github.sha }}" > "$changed_paths_file"
+          git diff --name-only "origin/${base_ref}...${GIT_SHA}" > "$changed_paths_file"
 
-          changed_paths_json="$(jq -R -s -c 'split("\n") | map(select(length > 0))' "$changed_paths_file")"
-          selected_lanes_json='["full-pr-matrix"]'
-          escalation_reasons_json='["observe-only route proof pending"]'
-          mode="observe_only"
-          active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/|crates/tachi-(cli|core|desktop|mcp|shell)/)'
+          route_json="$(bash "$GITHUB_WORKSPACE/scripts/ci-route-classifier.sh" \
+            "$GITHUB_EVENT_NAME" "${GITHUB_REF:-}" "$changed_paths_file" \
+            "false" "${FORCE_FULL_CI:-false}")"
+          route_mode="$(jq -r '.mode' <<<"$route_json")"
+          route_reason="$(jq -r '.reason' <<<"$route_json")"
+          selected_packages_json='[]'
+          case "$route_mode" in
+            passive_docs_only)
+              selected_lanes_json='["docs-pr-gate","specialist-guards"]'
+              ;;
+            dependency_closure)
+              selected_lanes_json='["dependency-closure"]'
+              selected_packages_json="$(jq -c '.packages' <<<"$route_json")"
+              ;;
+            *)
+              selected_lanes_json='["full-pr-matrix"]'
+              ;;
+          esac
 
-          if is_protected_ref "$base_ref"; then
-            selected_lanes_json='["full-pr-matrix"]'
-            escalation_reasons_json='["protected ref stays full mode"]'
-          elif [ -z "$(tr -d '\n' < "$changed_paths_file")" ]; then
-            selected_lanes_json='["stable-orchestrator-check"]'
-            escalation_reasons_json='["no changed paths detected"]'
-          elif grep -Eq "$active_contract_pattern" "$changed_paths_file"; then
-            selected_lanes_json='["full-pr-matrix"]'
-            escalation_reasons_json='["active docs or shared surface touched"]'
-          elif grep -Eq '^docs/' "$changed_paths_file"; then
-            selected_lanes_json='["docs-pr-gate","specialist-guards"]'
-            escalation_reasons_json='["passive docs only"]'
+          if [ "$route_mode" = "full_pr_matrix" ]; then
+            escalation_reasons_json="$(jq -cn --arg reason "$route_reason" '[ $reason ]')"
           else
-            selected_lanes_json='["full-pr-matrix"]'
-            escalation_reasons_json='["unknown non-docs paths stay full mode"]'
+            escalation_reasons_json='[]'
           fi
 
-          cat > route.json <<EOF
-          {
-            "mode": "${mode}",
-            "changed_paths": ${changed_paths_json},
-            "selected_lanes": ${selected_lanes_json},
-            "escalation_reasons": ${escalation_reasons_json},
-            "policy_version": "2026-07-09"
-          }
-          EOF
+          jq -n \
+            --argjson route "$route_json" \
+            --arg route_mode "$route_mode" \
+            --arg route_reason "$route_reason" \
+            --argjson selected_lanes "$selected_lanes_json" \
+            --argjson selected_packages "$selected_packages_json" \
+            --argjson escalation_reasons "$escalation_reasons_json" \
+            '{mode:"observe_only",route_mode:$route_mode,route_reason:$route_reason,changed_paths:$route.changed_paths,selected_lanes:$selected_lanes,selected_packages:$selected_packages,escalation_reasons:$escalation_reasons,policy_version:$route.policy_version}' \
+            > route.json
 
           cat route.json
           {
             echo "route.json"
-            echo "mode=${mode}"
+            echo "mode=observe_only"
+            echo "route_mode=${route_mode}"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload route decision artifact
@@ -99,5 +95,5 @@ jobs:
         run: |
           set -euo pipefail
           test -s route.json
-          jq -e '(.mode == "observe_only") and (.selected_lanes | length > 0) and (.policy_version | length > 0)' route.json >/dev/null
+          jq -e '(.mode == "observe_only") and (.route_mode == "full_pr_matrix" or .route_mode == "passive_docs_only" or .route_mode == "dependency_closure") and (.selected_lanes | length > 0) and (.policy_version | length > 0)' route.json >/dev/null
           echo "local act route artifact validated"

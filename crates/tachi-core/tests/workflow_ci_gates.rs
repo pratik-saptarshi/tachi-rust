@@ -190,6 +190,8 @@ fn make_targets_use_the_canonical_runner_and_keep_publish_gate_hosted_only() {
 fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     let text = workflow_text("rust-workspace.yml");
     let workflow = parse_workflow("rust-workspace.yml", &text);
+    let classifier = fs::read_to_string(repo_root().join("scripts/ci-route-classifier.sh"))
+        .expect("read shared CI route classifier");
 
     assert_workflow_uses_pinned_repo_toolchain("rust-workspace.yml", &text);
     assert!(
@@ -198,44 +200,32 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "rust-workspace workflow must expose the stable route classifier"
     );
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("active_contract_pattern")),
-        "route classifier must distinguish active contract surfaces"
+        workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-classifier.sh")),
+        "rust-workspace must invoke the shared route classifier"
     );
-    assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("passive_docs_only")),
-        "route classifier must keep passive docs narrowing explicit"
-    );
-    assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("docs-only passive paths observed")),
-        "route classifier must record passive-docs reasons"
-    );
-    assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("dependency_closure")),
-        "route classifier must emit dependency-closure mode for crate-local changes"
-    );
-    assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("selected_packages_json")),
-        "route classifier must publish the selected package closure"
-    );
-    assert!(
-        workflow_run_bodies(&workflow)
-            .any(|run| run.contains("active docs or shared surface touched")),
-        "route classifier must widen for active docs and shared surfaces"
-    );
-    assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("protected ref stays full mode")),
-        "route classifier must force full mode for protected refs"
-    );
-    assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("refs/heads/main")),
-        "route classifier must recognize the main ref as protected"
-    );
+    for required in [
+        "active_contract_pattern=",
+        "passive_docs_only",
+        "docs-only passive paths observed",
+        "dependency_closure",
+        "crate-local changes routed through dependency closure",
+        "active docs or shared surface touched",
+        "protected ref stays full mode",
+        "refs/heads/main",
+        "unknown non-docs paths stay full mode",
+        "emergency full-ci override",
+    ] {
+        assert!(
+            classifier.contains(required),
+            "shared route classifier must contain {required}"
+        );
+    }
     assert!(
         text.contains("force_full_ci"),
         "rust-workspace workflow must expose an emergency full-CI input"
     );
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("emergency full-ci override")),
+        classifier.contains("emergency full-ci override"),
         "route classifier must record the emergency full-CI override"
     );
     assert!(
@@ -243,7 +233,7 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "cargo-test matrix must consume route-selected packages"
     );
     assert!(
-        text.contains(
+        classifier.contains(
             "[\"tachi-core\",\"tachi-mcp\",\"tachi-cli\",\"tachi-shell\",\"tachi-desktop\"]"
         ),
         "route classifier must preserve the full-package baseline"
@@ -565,17 +555,19 @@ fn route_policy_manifest_records_full_mode_escalations() {
         .expect("read route policy manifest");
 
     for required in [
-        "main, release refs, tags, lockfiles, workflow files, and unknown routes force full mode",
-        "scheduled release/security/canary lanes",
-        "active docs, shared surfaces, dependency-closure changes, and release/mainline",
+        "Direct runs on `main`, release refs, and tags force full mode.",
+        "base branch alone does not force full mode.",
+        "Lockfiles, workflow files, and unknown routes force full mode.",
+        "Scheduled release/security/canary lanes",
+        "Active docs and shared surfaces force full mode.",
         "docs-only passive paths may narrow only when the active contract surface is not touched",
-        "observe-only routing must publish an explanation before any narrowing is enforced",
+        "The observe-only artifact publishes the same classification used by the enforced Rust workflow.",
         "unknown, incomplete, or parse-failed route inputs must widen to full mode",
         "Passive docs: docs-only changes that do not touch active contract surfaces.",
         "Active docs: roadmap, standards, guide, BOM",
         "Shared surfaces: `README.md`, `CHANGELOG.md`, `SECURITY.md`",
-        "Dependency closure: changed crate roots stay on full mode",
-        "Release/mainline: `main`, release refs, and tag contexts always stay on full mode.",
+        "Dependency closure: crate-local changes run the impacted crate and its",
+        "Release/mainline: direct execution on `main`, release refs, and tag contexts always stays on full mode.",
     ] {
         assert!(
             text.contains(required),
@@ -602,9 +594,9 @@ fn route_fixture_manifest_covers_common_change_shapes() {
         "aod",
         "mixed",
         "unknown-file",
-        "\"route\": \"full\"",
-        "\"route\": \"observe_only\"",
-        "\"fallback reason\"",
+        "| active-docs | full_pr_matrix |",
+        "| docs-only | passive_docs_only |",
+        "\"reason\": \"docs-only passive paths observed\"",
     ] {
         assert!(
             text.contains(required),
@@ -932,6 +924,8 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
 fn route_observe_workflow_emits_route_artifact_and_stable_check() {
     let text = workflow_text("ci-route-observe.yml");
     let workflow = parse_workflow("ci-route-observe.yml", &text);
+    let classifier = fs::read_to_string(repo_root().join("scripts/ci-route-classifier.sh"))
+        .expect("read shared CI route classifier");
     let artifact_schema =
         fs::read_to_string(repo_root().join("docs/tachi-rust-ci-route-artifact.md"))
             .expect("read route artifact manifest");
@@ -969,11 +963,10 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
             == Some("actions/upload-artifact@v7"),
         "route observe workflow must upload the route artifact"
     );
-    assert_workflow_has_run_line(&workflow, "cat > route.json <<EOF");
     assert_workflow_has_run_line(&workflow, "cat route.json");
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("changed_paths_json")),
-        "route observe workflow must capture changed paths"
+        workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-classifier.sh")),
+        "route observe workflow must consume the shared route classifier"
     );
     assert!(
         workflow_run_bodies(&workflow).any(|run| run.contains("selected_lanes_json")),
@@ -988,26 +981,30 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
         "route observe workflow must capture a policy version"
     );
     assert!(
-        workflow_run_bodies(&workflow)
-            .any(|run| run.contains("active docs or shared surface touched")),
-        "route observe workflow must distinguish active docs and shared surfaces"
+        classifier.contains("docs-only passive paths observed"),
+        "shared route classifier must keep passive docs separate"
     );
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("passive docs only")),
-        "route observe workflow must keep passive docs separate"
+        workflow_run_bodies(&workflow).any(|run| run.contains("route_mode")),
+        "route artifact must expose the classifier's selected mode"
     );
     assert!(
-        workflow_run_bodies(&workflow).any(|run| run.contains("protected ref stays full mode")),
-        "route observe workflow must keep protected refs in full-mode escalation mode"
+        classifier.contains("unknown non-docs paths stay full mode"),
+        "shared route classifier must widen unknown non-doc routes"
     );
     assert!(
-        workflow_run_bodies(&workflow)
-            .any(|run| run.contains("unknown non-docs paths stay full mode")),
-        "route observe workflow must widen unknown non-doc routes"
+        classifier.contains("active docs or shared surface touched"),
+        "shared route classifier must widen active docs and shared surfaces"
+    );
+    assert!(
+        classifier.contains("protected ref stays full mode"),
+        "shared route classifier must keep direct protected refs in full mode"
     );
 
     for required in [
         "\"mode\":",
+        "\"route_mode\":",
+        "\"selected_packages\":",
         "\"changed_paths\":",
         "\"selected_lanes\":",
         "\"escalation_reasons\":",
