@@ -287,8 +287,19 @@ pub fn parse_maestro_layer_distribution(threats_content: &str) -> Vec<MaestroLay
         by_layer
             .entry(layer_id)
             .and_modify(|current: &mut MaestroLayerDistribution| {
-                if candidate.finding_count > current.finding_count {
+                let replace = candidate.finding_count > current.finding_count
+                    || (candidate.finding_count == current.finding_count
+                        && candidate.finding_count > 0
+                        && severity_rank(&candidate.highest_severity)
+                            > severity_rank(&current.highest_severity));
+                if replace {
                     *current = candidate.clone();
+                } else if candidate.finding_count == 0
+                    && candidate.finding_count == current.finding_count
+                    && candidate.coverage_state != current.coverage_state
+                {
+                    current.coverage_state = crate::maestro_coverage::EvaluationState::NotEvaluated;
+                    current.highest_severity = String::from("Not evaluated");
                 }
             })
             .or_insert(candidate);

@@ -6456,7 +6456,7 @@
     },
     {
       "path": "crates/tachi-core/src/infographic.rs",
-      "sha256": "c153a609ff9701c7cd0ac4d9f2ac8cbd3bd7900556bb86a9e716fd0f9adb3f45"
+      "sha256": "a6e1af493a5d64b104ae600930c39dbf0be499551eea75bffac58266c4340b76"
     },
     {
       "path": "crates/tachi-core/src/infographic/codemap.md",

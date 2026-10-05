@@ -127,3 +127,37 @@ fn duplicate_summary_rows_preserve_positive_maestro_evidence() {
     );
     assert_eq!(compute_most_exposed_layer(&rows), "L1 — Foundation Model");
 }
+
+#[test]
+fn equal_count_positive_duplicates_keep_the_highest_severity() {
+    let positive = parse_maestro_layer_distribution(
+        r#"#### Risk by MAESTRO Layer
+
+| MAESTRO Layer | Finding Count | Highest Severity |
+| --- | --- | --- |
+| L1 — Foundation Model | 2 | Low |
+| L1 — Foundation Model | 2 | Critical |
+"#,
+    );
+    assert_eq!(positive[0].finding_count, 2);
+    assert_eq!(positive[0].highest_severity, "Critical");
+}
+
+#[test]
+fn conflicting_zero_duplicates_are_order_independent_and_not_evaluated() {
+    for rows in [
+        "| L2 — Data Safety | 0 | Clean |\n| L2 — Data Safety | 0 | Not evaluated |",
+        "| L2 — Data Safety | 0 | Not evaluated |\n| L2 — Data Safety | 0 | Clean |",
+    ] {
+        let content = format!(
+            "#### Risk by MAESTRO Layer\n\n| MAESTRO Layer | Finding Count | Highest Severity |\n| --- | --- | --- |\n{rows}\n"
+        );
+        let distribution = parse_maestro_layer_distribution(&content);
+        assert_eq!(distribution[1].finding_count, 0);
+        assert_eq!(distribution[1].highest_severity, "Not evaluated");
+        assert_eq!(
+            distribution[1].coverage_state,
+            tachi_core::maestro_coverage::EvaluationState::NotEvaluated
+        );
+    }
+}
