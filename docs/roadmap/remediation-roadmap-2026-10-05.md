@@ -1,8 +1,8 @@
 # RT-CI Route Remediation Roadmap — 2026-10-05
 
-Status: **Phases 0–3 are delivered; post-merge review corrections for Phase 3
-are in protected follow-up PR #62, and matched-control timing acceptance
-remains open.** Phase 1 merged in PR #58 at
+Status: **Phases 0–3 are delivered; post-merge review corrections merged in PR
+#62 (`d81f9962`), and matched-control timing acceptance remains open.** Phase 1
+merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
 of `10339cc8f586fdf0050c01bd2d4889f7709906e6`.
@@ -39,7 +39,7 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections are in PR #62: trusted provenance is a separate artifact uploaded before PR scripts and merged only by the collector/verifier; label control runs have isolated concurrency and unrelated labels skip route work. Start the ten-tree cohorts only after follow-up hosted checks pass. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
 ### Commit and PR progression
@@ -128,6 +128,11 @@ job, and `unlabeled` is not a workflow trigger. Ignored-label runs also use a
 distinct, non-required check name so a skipped job cannot report success for the
 stable required context. These corrections do not change the matched timing
 acceptance; keep `RT-0sd.2` open until its cohort gates pass.
+
+PR #62 merged as `d81f99629b77c6873be168a65ed052aedc9fcc4b` after 25 hosted
+checks passed, no checks failed, and the single skipped check remained
+nonblocking. Both PR #62 review threads were resolved. The latest recorded
+matched-pair counts remain zero for both route shapes; `RT-0sd.2` remains open.
 
 ## Validation and release gates
 
