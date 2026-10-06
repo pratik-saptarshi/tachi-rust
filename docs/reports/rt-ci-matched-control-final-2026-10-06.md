@@ -76,8 +76,12 @@ matched runs above are the only pair counted.
 ## Decision and next work
 
 The acceptance requires both route shapes to have 10 valid pairs and each
-optimized execution median to be at most 65% of its full-control execution
-median, with queue and execution separated. The current collector does not
+routed median aggregate execution work to be at most 65% of its full-control
+median. Per run, aggregate job queue is the sum of `started_at - created_at`
+across the route decision job and every selected package, shell-suite, and
+repository-contract job with trusted runner provenance. Aggregate execution
+work is the sum of `completed_at - started_at` for that same job set. Workflow
+queue and wall duration are contextual values only. The current collector does not
 separate per-job queue from execution, so the displayed ratios cannot establish
 either a pass or a threshold miss. Do not close `RT-0sd.2` or `RT-0vf.5`, and do
 not mark Phase 4 complete. Follow-up work must add per-job queue/execution
