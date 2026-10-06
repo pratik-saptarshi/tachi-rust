@@ -973,6 +973,12 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "name: route-decision",
         "if-no-files-found: error",
         "github.workflow_sha",
+        "inputs.control_tree_sha",
+        "inputs.control_pr_number",
+        "execution_tree_sha",
+        "workflow_file_revision",
+        "runner-provenance-",
+        "ImageVersion",
         "GITHUB_RUN_ATTEMPT",
         "runner_definition",
     ] {
@@ -985,7 +991,9 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "gh run list",
         "gh run download",
         "force_full_requested",
-        "workflow_sha",
+        "workflow_file_revision",
+        "execution_sha",
+        "control_tree_sha",
         "classifier_revision",
         "path_producer_revision",
         "runner_definition",
@@ -1003,10 +1011,11 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "run_attempt == 1",
         "conclusion == \"success\"",
         "$pr.tree_sha == $control.tree_sha",
-        "$pr.workflow_sha == $control.workflow_sha",
+        "$pr.workflow_file_revision == $control.workflow_file_revision",
         "$pr.classifier_revision == $control.classifier_revision",
         "$pr.path_producer_revision == $control.path_producer_revision",
-        "$pr.runner_definition == $control.runner_definition",
+        "$pr.runner_inventory",
+        "$control.runner_inventory",
         "passive-docs",
         "dependency-closure",
         "optimized_execution_median_max_ratio: 0.65",
@@ -1036,7 +1045,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
                      attempt: u64,
                      route_mode: &str,
                      tree_sha: &str,
-                     workflow_sha: &str,
+                     workflow_file_revision: &str,
                      runner_definition: &str,
                      force_full: bool,
                      eligible: bool,
@@ -1049,10 +1058,17 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "conclusion": conclusion,
             "route_mode": route_mode,
             "tree_sha": tree_sha,
-            "workflow_sha": workflow_sha,
+            "workflow_file_revision": workflow_file_revision,
             "classifier_revision": "classifier-1",
             "path_producer_revision": "path-producer-1",
             "runner_definition": runner_definition,
+            "runner_inventory": if run_id == "3" {
+                serde_json::json!({"route": runner_definition, "cargo-test-tachi-core": "ubuntu-latest/image-a"})
+            } else if run_id == "4" {
+                serde_json::json!({"route": runner_definition, "cargo-test-tachi-core": "ubuntu-latest/image-b"})
+            } else {
+                serde_json::json!({"route": runner_definition})
+            },
             "force_full_requested": force_full,
             "eligible": eligible,
             "pr_number": 42,
@@ -1072,7 +1088,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "passive_docs_only",
             "tree-a",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             false,
             true,
@@ -1086,7 +1102,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "full_pr_matrix",
             "tree-a",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             true,
             true,
@@ -1100,7 +1116,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "dependency_closure",
             "tree-b",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             false,
             true,
@@ -1114,7 +1130,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "full_pr_matrix",
             "tree-b",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             true,
             true,
@@ -1128,7 +1144,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "passive_docs_only",
             "tree-c",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             false,
             true,
@@ -1142,7 +1158,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "dependency_closure",
             "tree-d",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             false,
             true,
@@ -1156,7 +1172,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             2,
             "passive_docs_only",
             "tree-e",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             false,
             true,
@@ -1170,7 +1186,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "passive_docs_only",
             "tree-f",
-            "wf-a",
+            "blob-a",
             "ubuntu-latest",
             false,
             false,
@@ -1198,7 +1214,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             1,
             "full_pr_matrix",
             "tree-a",
-            "wf-a",
+            "blob-a",
             "macos-latest",
             true,
             true,
@@ -1218,6 +1234,34 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             true,
             1,
             9999
+        ),
+        candidate(
+            "12",
+            "pull_request",
+            "success",
+            1,
+            "dependency_closure",
+            "tree-z",
+            "blob-a",
+            "ubuntu-latest",
+            false,
+            true,
+            15,
+            700
+        ),
+        candidate(
+            "13",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-z",
+            "blob-a",
+            "ubuntu-latest",
+            true,
+            true,
+            25,
+            1000
         )
     ]);
     let input = root.join("candidates.json");
@@ -1239,7 +1283,14 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         "jq matcher failed: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("report JSON");
+    let report: serde_json::Value =
+        serde_json::from_slice(&output.stdout).unwrap_or_else(|error| {
+            panic!(
+                "report JSON: {error}; stdout={}; stderr={}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            )
+        });
     assert_eq!(report["pairs"].as_array().unwrap().len(), 2);
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
     assert_eq!(report["summary"][0]["routed_execution_median_ms"], 500);
@@ -1249,6 +1300,16 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
     );
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
     assert_eq!(report["summary"][1]["valid_pairs"], 1);
+    assert!(report["pairs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|pair| pair["tree_sha"] == "tree-z"));
+    assert!(!report["pairs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|pair| pair["tree_sha"] == "tree-b"));
     fs::remove_dir_all(&root).expect("remove fixture directory");
 }
 
@@ -1294,10 +1355,19 @@ case "$1 $2" in
   "run download")
     run_id="$3"
     dir="$7"
-    source="$FAKE_ARTIFACTS/$run_id/route.json"
-    [ -s "$source" ] || exit 1
     mkdir -p "$dir"
-    cp "$source" "$dir/route.json"
+    if [ "$4" = "--name" ]; then
+      source="$FAKE_ARTIFACTS/$run_id/route.json"
+      [ -s "$source" ] || exit 1
+      cp "$source" "$dir/route.json"
+    elif [ "$4" = "--pattern" ]; then
+      source="$FAKE_ARTIFACTS/$run_id/provenance/runner.json"
+      [ -s "$source" ] || exit 1
+      mkdir -p "$dir/runner-provenance"
+      cp "$source" "$dir/runner-provenance/runner.json"
+    else
+      exit 2
+    fi
     ;;
   api\ *)
     case "$2" in
@@ -1326,6 +1396,9 @@ esac
                        event: &str,
                        mode: &str,
                        head_sha: &str,
+                       tree_sha: &str,
+                       execution_sha: &str,
+                       control_tree_sha: &str,
                        force_full: bool,
                        pr_number: u64| {
         let dir = fixtures.join(run_id);
@@ -1339,7 +1412,12 @@ esac
                 "mode": mode,
                 "reason": "fixture route",
                 "head_sha": head_sha,
-                "workflow_sha": "workflow-1",
+                "workflow_file_revision": "workflow-blob-1",
+                "execution_workflow_file_revision": "workflow-blob-1",
+                "execution_sha": execution_sha,
+                "tree_sha": tree_sha,
+                "control_tree_sha": control_tree_sha,
+                "control_pr_number": if event == "workflow_dispatch" { 42 } else { 0 },
                 "classifier_revision": "classifier-1",
                 "path_producer_revision": "path-producer-1",
                 "runner_definition": "ubuntu-latest",
@@ -1349,12 +1427,28 @@ esac
             .expect("serialize route artifact"),
         )
         .expect("write route artifact");
+        if run_id != "1" {
+            let provenance = dir.join("provenance");
+            fs::create_dir_all(&provenance).expect("create runner provenance directory");
+            fs::write(
+                provenance.join("runner.json"),
+                serde_json::to_vec(&serde_json::json!({
+                    "job_key": "cargo-test-tachi-core",
+                    "runner_definition": if run_id == "8" { "ubuntu-latest/ubuntu24/image-b" } else { "ubuntu-latest/ubuntu24/image-a" }
+                }))
+                .expect("serialize runner provenance"),
+            )
+            .expect("write runner provenance");
+        }
     };
     write_route(
         "1",
         "pull_request",
         "passive_docs_only",
         "head-pr",
+        "tree-a",
+        "merge-pr-a",
+        "",
         false,
         101,
     );
@@ -1363,6 +1457,9 @@ esac
         "workflow_dispatch",
         "full_pr_matrix",
         "head-control",
+        "tree-a",
+        "merge-control-a",
+        "merge-control-a",
         true,
         0,
     );
@@ -1371,6 +1468,9 @@ esac
         "pull_request",
         "dependency_closure",
         "head-mismatch-pr",
+        "tree-b",
+        "merge-pr-b",
+        "",
         false,
         202,
     );
@@ -1379,6 +1479,9 @@ esac
         "workflow_dispatch",
         "full_pr_matrix",
         "head-mismatch-control",
+        "tree-c",
+        "merge-control-c",
+        "merge-control-c",
         true,
         0,
     );
@@ -1399,7 +1502,14 @@ esac
         String::from_utf8_lossy(&output.stdout),
         String::from_utf8_lossy(&output.stderr)
     );
-    let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("report JSON");
+    let report: serde_json::Value =
+        serde_json::from_slice(&output.stdout).unwrap_or_else(|error| {
+            panic!(
+                "collector report JSON: {error}; stdout={}; stderr={}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            )
+        });
     assert_eq!(report["pairs"].as_array().unwrap().len(), 1);
     assert_eq!(report["pairs"][0]["tree_sha"], "tree-a");
     assert_eq!(report["summary"][0]["valid_pairs"], 1);

@@ -32,7 +32,7 @@
     "force_full_requested": true
   },
   "collector_disposition": "unmatched",
-  "collector_reason": "no compatible opposite-event run or this tree was already counted",
+  "collector_reason": "no compatible opposite-event run; this pre-review smoke also lacks exact PR merge-ref and measured-job runner provenance required by the strengthened contract",
   "valid_pairs": {
     "passive-docs": 0,
     "dependency-closure": 0

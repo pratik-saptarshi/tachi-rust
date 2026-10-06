@@ -68,7 +68,7 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 | P3-F06 — preserve route-audit replay inputs | P3; nonblocking evidence improvement | Save candidate run IDs, PR/head and tree SHAs, changed paths, route reasons, and exact classifier revision in a compact manifest. Replay reproduces the reported 37-candidate classification or explicitly records unavailable source artifacts. Do not generalize beyond retained candidates. This advisory does not gate P2 delivery or timing acceptance unless its evidence is required by the agreed acceptance. | `RT-0vf.7` |
 | Phase 1 — path and documentation-contract routing | P2 delivery | Both P2-F01 and P2-F04 focused RED/GREEN tests and adjacent regressions pass; workflow/docs contracts pass; required hosted checks are terminal and successful. | `RT-0vf.2` |
 | Phase 2 — dependency and repository contracts | P2 delivery | P2-F02 and P2-F03 focused RED/GREEN tests pass; Cargo metadata comparison and manifest-failure regression pass; relevant workspace tests, Clippy, workflow/docs gates, and required hosted checks pass. | `RT-0vf.3` |
-| Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Each tree has a successful routed PR run and successful forced-full `workflow_dispatch` control on identical tree SHA and comparable workflow revision/runner definition. Capture run ID, PR/head, event, attempt, route decision, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-route, and mismatched-tree pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
+| Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Each successful routed PR run is paired with a successful forced-full `workflow_dispatch` run that checks out the exact PR merge ref and validates the same execution commit and tree SHA. Require identical workflow-file blob content and route classifier/path-producer revisions; compare the route runner and every measured PR job's OS, image version, and architecture against the corresponding full-control job. Capture run ID, PR/head, event, attempt, route decision, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-provenance, and mismatched-tree/workflow/runner pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
 | Phase 4 — integrated closeout | Closeout | Roadmap, review archive, raw evidence, Beads export, and integration log reconcile. Actual cohort counts and calculation are reproducible from retained inputs. Do not close timing acceptance on fewer than ten pairs per route shape or a failed threshold. | `RT-0vf.5` |
 
 ### Timing acceptance update for `RT-0sd.2`
@@ -77,10 +77,11 @@ The existing [2026-10-05 timing plan](2026-10-05-rt-ci-timing-evidence-followup.
 cohorts. Replace that criterion with matched full controls as described above;
 retain the issue, its history, and existing collector work. Require ten distinct
 identical code trees per route shape, successful routed PR and forced-full
-control runs on each tree, comparable workflow/runner definitions, explicit
-exclusion rules, queue/execution separation, and a <=65% optimized execution
-median. The 37-candidate historical audit remains sample-bounded context, not a
-substitute cohort or a performance result.
+control runs on each tree, identical workflow-file content and route classifier/
+path-producer revisions, comparable runner images for the route job and every
+measured PR job, explicit exclusion rules, queue/execution separation, and a
+<=65% optimized execution median. The 37-candidate historical audit remains
+sample-bounded context, not a substitute cohort or a performance result.
 
 `RT-0sd.2` depends on completion of the Phase 1 routing, Phase 2 repository
 coverage, and Phase 3 matched-control collector issues. It does not depend on
@@ -88,16 +89,19 @@ the P3 advisory issues. The new epic is related to `RT-0sd.2`; it does not
 replace or close it.
 
 The matched-control collector is invoked with `RT_CI_USE_RTK=true make rt-ci-matched-controls`.
-It reads completed `rust-workspace.yml` runs and their `route-decision`
-artifacts, resolves each source commit to a Git tree SHA, and emits JSON with
-eligible pairs, excluded candidates, run provenance, exact workflow,
-classifier, and path-producer revisions, and separate queue/execution medians,
-ratios, and per-shape acceptance state. To create a control for a
-stable PR head, dispatch `rust-workspace.yml` against that head's branch with
-`force_full_ci=true`; then verify the collector matched its tree SHA. The
-workflow grants only `contents: read` and consumes no PR secrets. Keep the JSON
-output with the closeout evidence. `insufficient_pairs` is an expected open
-state and leaves `RT-0sd.2` open.
+It reads completed `rust-workspace.yml` runs and their route and per-job runner
+artifacts. Each run records the commit and Git tree actually checked out. To
+create a control, dispatch `rust-workspace.yml` against the PR head branch with
+`force_full_ci=true`, `control_pr_number=<PR number>`, and
+`control_tree_sha=<the routed run's github.sha>`. The control checks out that
+PR's merge ref and fails if it no longer resolves to the expected commit.
+The collector compares the workflow-file blob ID and route script blob IDs,
+then verifies that every measured PR job has the same runner OS, image version,
+and architecture in the full control. It emits matched pairs, excluded
+candidates, run provenance, and separate queue/execution medians, ratios, and
+per-shape acceptance state. The workflow grants only `contents: read` and
+consumes no PR secrets. Keep the JSON output with the closeout evidence.
+`insufficient_pairs` is an expected open state and leaves `RT-0sd.2` open.
 
 ## Validation and release gates
 
@@ -201,6 +205,17 @@ available summary.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains
-  zero. Its route artifact, run/tree IDs, runner image, workflow and classifier
+  zero. That earlier smoke predates exact merge-ref validation and per-job runner
+  artifacts, so it is not eligible under the strengthened evidence contract.
+  Its route artifact, run/tree IDs, runner image, workflow and classifier
   revisions, and timestamps are retained in
   [`docs/reports/rt-ci-matched-control-dispatch-smoke-2026-10-06.json`](../reports/rt-ci-matched-control-dispatch-smoke-2026-10-06.json).
+  Review of PR #60 identified three evidence-validity gaps: workflow commit
+  SHAs differ across PR and dispatch events despite identical workflow content;
+  PR workflows measure the synthetic merge tree rather than the source head;
+  and measured jobs can receive different runner images. The collector now
+  compares workflow-file blob IDs, captures the actual execution tree, dispatches
+  controls against an exact PR merge ref, and records runner image/architecture
+  for every measured job. Its regressions reject an exact-tree mismatch and a
+  differing measured-job runner image; these fixes are on PR #60 for protected
+  review and auto-merge. The older smoke run remains non-pair evidence.

@@ -81,7 +81,12 @@ while IFS= read -r run_json; do
   route_attempt="$(jq -r '.run_attempt // 0' <<<"$route")"
   route_event="$(jq -r '.event // ""' <<<"$route")"
   head_sha="$(jq -r '.head_sha // ""' <<<"$route")"
-  workflow_sha="$(jq -r '.workflow_sha // ""' <<<"$route")"
+  workflow_file_revision="$(jq -r '.workflow_file_revision // ""' <<<"$route")"
+  execution_workflow_file_revision="$(jq -r '.execution_workflow_file_revision // ""' <<<"$route")"
+  execution_sha="$(jq -r '.execution_sha // ""' <<<"$route")"
+  route_tree_sha="$(jq -r '.tree_sha // ""' <<<"$route")"
+  control_tree_sha="$(jq -r '.control_tree_sha // ""' <<<"$route")"
+  control_pr_number="$(jq -r '.control_pr_number // 0' <<<"$route")"
   classifier_revision="$(jq -r '.classifier_revision // ""' <<<"$route")"
   path_producer_revision="$(jq -r '.path_producer_revision // ""' <<<"$route")"
   runner_definition="$(jq -r '.runner_definition // ""' <<<"$route")"
@@ -91,8 +96,10 @@ while IFS= read -r run_json; do
   reason=""
   if [ "$route_run_id" != "$run_id" ] || [ "$route_attempt" != "$attempt" ] || [ "$route_event" != "$event" ]; then
     reason="route artifact run provenance does not match the workflow run"
-  elif [ -z "$head_sha" ] || [ -z "$workflow_sha" ] || [ -z "$classifier_revision" ] || [ -z "$path_producer_revision" ] || [ -z "$runner_definition" ]; then
-    reason="route artifact is missing head, workflow, classifier, path-producer, or runner provenance"
+  elif [ -z "$head_sha" ] || [ -z "$workflow_file_revision" ] || [ -z "$execution_workflow_file_revision" ] || [ "$workflow_file_revision" != "$execution_workflow_file_revision" ] || [ -z "$execution_sha" ] || [ -z "$route_tree_sha" ] || [ -z "$classifier_revision" ] || [ -z "$path_producer_revision" ] || [ -z "$runner_definition" ]; then
+    reason="route artifact is missing source, execution-tree, workflow-content, classifier, path-producer, or runner provenance"
+  elif [ "$event" = "workflow_dispatch" ] && { [ "$execution_sha" != "$control_tree_sha" ] || [ "$control_pr_number" = "0" ]; }; then
+    reason="forced-full control did not execute the requested PR merge ref and exact tree SHA"
   elif [ "$event" = "pull_request" ] && [ "$route_mode" != "passive_docs_only" ] && [ "$route_mode" != "dependency_closure" ]; then
     reason="PR route is not an eligible optimized shape"
   elif [ "$event" = "workflow_dispatch" ] && { [ "$route_mode" != "full_pr_matrix" ] || [ "$forced" != "true" ]; }; then
@@ -104,8 +111,36 @@ while IFS= read -r run_json; do
     continue
   fi
 
-  if ! tree_sha="$(gh api "repos/$repo/git/commits/$head_sha" --jq .tree.sha)" || [ -z "$tree_sha" ] || [ "$tree_sha" = "null" ]; then
-    record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" '$base + {route:$route,eligible:false,rejection_reason:"code tree lookup failed"}')"
+  tree_sha="$route_tree_sha"
+  runner_inventory="$(jq -cn --arg definition "$runner_definition" '{route:$definition}')"
+  runner_dir="$run_dir/runners"
+  mkdir -p "$runner_dir"
+  if ! gh run download "$run_id" --pattern 'runner-provenance-*' --dir "$runner_dir" >/dev/null 2>&1 \
+    && { [ "$route_mode" != "passive_docs_only" ] || [ "$event" != "pull_request" ]; }; then
+    record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" '$base + {route:$route,eligible:false,rejection_reason:"measured-job runner provenance artifacts are missing or unavailable"}')"
+    continue
+  fi
+  runner_files=("")
+  while IFS= read -r runner_file; do
+    runner_files+=("$runner_file")
+  done < <(find "$runner_dir" -type f -name runner.json -print)
+  if [ "${#runner_files[@]}" -le 1 ] && { [ "$route_mode" != "passive_docs_only" ] || [ "$event" != "pull_request" ]; }; then
+    record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" '$base + {route:$route,eligible:false,rejection_reason:"measured-job runner provenance is empty"}')"
+    continue
+  fi
+  for runner_file in "${runner_files[@]}"; do
+    [ -n "$runner_file" ] || continue
+    runner_json="$(cat "$runner_file")"
+    runner_key="$(jq -r '.job_key // ""' <<<"$runner_json")"
+    runner_value="$(jq -r '.runner_definition // ""' <<<"$runner_json")"
+    if [ -z "$runner_key" ] || [ -z "$runner_value" ]; then
+      reason="measured-job runner provenance artifact is incomplete"
+      break
+    fi
+    runner_inventory="$(jq -c --arg key "$runner_key" --arg value "$runner_value" '. + {($key):$value}' <<<"$runner_inventory")"
+  done
+  if [ -n "$reason" ]; then
+    record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" --arg reason "$reason" '$base + {route:$route,eligible:false,rejection_reason:$reason}')"
     continue
   fi
 
@@ -123,7 +158,8 @@ while IFS= read -r run_json; do
     --argjson route "$route" \
     --arg tree_sha "$tree_sha" \
     --argjson durations "$durations" \
-    '{run_id:$base.run_id,run_attempt:$base.run_attempt,event:$base.event,conclusion:$base.conclusion,head_branch:$base.head_branch,created_at:$base.created_at,started_at:$base.started_at,completed_at:$base.completed_at,run_url:$base.run_url,pr_number:$route.pr_number,head_sha:$route.head_sha,tree_sha:$tree_sha,route_mode:$route.mode,route_reason:$route.reason,changed_paths:$route.changed_paths,policy_version:$route.policy_version,force_full_requested:$route.force_full_requested,workflow_sha:$route.workflow_sha,classifier_revision:$route.classifier_revision,path_producer_revision:$route.path_producer_revision,runner_definition:$route.runner_definition,queue_duration_ms:$durations.queue_duration_ms,execution_duration_ms:$durations.execution_duration_ms,eligible:true}')"
+    --argjson runner_inventory "$runner_inventory" \
+    '{run_id:$base.run_id,run_attempt:$base.run_attempt,event:$base.event,conclusion:$base.conclusion,head_branch:$base.head_branch,created_at:$base.created_at,started_at:$base.started_at,completed_at:$base.completed_at,run_url:$base.run_url,pr_number:$route.pr_number,head_sha:$route.head_sha,execution_sha:$route.execution_sha,tree_sha:$tree_sha,route_mode:$route.mode,route_reason:$route.reason,changed_paths:$route.changed_paths,policy_version:$route.policy_version,force_full_requested:$route.force_full_requested,workflow_file_revision:$route.workflow_file_revision,classifier_revision:$route.classifier_revision,path_producer_revision:$route.path_producer_revision,runner_definition:$route.runner_definition,runner_inventory:$runner_inventory,queue_duration_ms:$durations.queue_duration_ms,execution_duration_ms:$durations.execution_duration_ms,eligible:true}')"
 done < <(jq -c '.[] | select(.event == "pull_request" or .event == "workflow_dispatch")' "$runs_file")
 
 jq -n --slurpfile candidates "$candidates_file" '{candidates:$candidates[0]}' \
