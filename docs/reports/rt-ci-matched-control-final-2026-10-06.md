@@ -2,18 +2,25 @@
 
 ## Result
 
-The collector found 10 valid matched pairs for each optimized route shape across
-20 distinct code trees. `passive-docs` passes the timing threshold;
-`dependency-closure` does not. **RT-0sd.2 remains open.**
+The collector found 10 identity-matched PR/control pairs for each optimized
+route shape across 20 distinct code trees. The collector currently defines
+"execution" as workflow `startedAt` to `updatedAt`; that interval includes
+matrix jobs waiting for runners after the workflow starts. Its separate queue
+value covers only workflow creation to workflow start. These are workflow
+wall-time observations, not valid execution-only measurements under the agreed
+acceptance. **Neither shape's timing result is accepted; RT-0sd.2 remains open.**
 
-| Route shape | Pairs | Optimized execution median | Full-control execution median | Ratio | Gate |
+| Route shape | Pairs | Optimized workflow wall median | Full-control workflow wall median | Ratio | Interpretation |
 |---|---:|---:|---:|---:|---|
-| `passive-docs` | 10 | 16.5 s | 122 s | 13.5% | Pass |
-| `dependency-closure` | 10 | 257.5 s | 133 s | 193.6% | Miss; required <=65% |
+| `passive-docs` | 10 | 16.5 s | 122 s | 13.5% | Informational; includes any post-start job queue |
+| `dependency-closure` | 10 | 257.5 s | 133 s | 193.6% | Informational; includes any post-start job queue |
 
-Queue medians are reported separately: both show 0 ms. GitHub's run timestamps
-in this collection have one-second precision, so those zeros are timestamp
-resolution values and should not be interpreted as a precise queue-time result.
+Workflow queue medians are reported separately: both show 0 ms. GitHub's run
+timestamps in this collection have one-second precision, so those zeros are
+timestamp-resolution values and do not describe queueing of downstream matrix
+jobs. For example, in the valid PR #80 control, the workflow started at
+10:48:36Z while measured jobs started between 10:49:26Z and 10:52:36Z. The
+collector did not retain per-job creation, start, and completion timestamps.
 
 The raw, replayable collector output is
 [`rt-ci-matched-control-final-2026-10-06.json`](rt-ci-matched-control-final-2026-10-06.json)
@@ -64,8 +71,12 @@ matched runs above are the only pair counted.
 ## Decision and next work
 
 The acceptance requires both route shapes to have 10 valid pairs and each
-optimized execution median to be at most 65% of its full-control median.
-`dependency-closure` misses at 193.6%, so do not close `RT-0sd.2` or `RT-0vf.5`
-and do not mark Phase 4 complete. Record the timing result as a threshold miss
-and define follow-up work to reduce dependency-closure execution cost before
-collecting a new cohort. Keep the 65% threshold unchanged.
+optimized execution median to be at most 65% of its full-control execution
+median, with queue and execution separated. The current collector does not
+separate per-job queue from execution, so the displayed ratios cannot establish
+either a pass or a threshold miss. Do not close `RT-0sd.2` or `RT-0vf.5`, and do
+not mark Phase 4 complete. Follow-up work must add per-job queue/execution
+timestamps and a reproducible aggregation; use the current pairs only if the
+required source timestamps can be recovered, otherwise collect a fresh cohort.
+Only optimize dependency-closure if the corrected execution measure misses.
+Keep the 65% threshold unchanged.
