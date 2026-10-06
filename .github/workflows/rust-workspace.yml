@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   route:
-    name: route decision and stable orchestrator check
+    name: ${{ github.event.action == 'labeled' && github.event.label.name != 'ci-full-control' && 'ignored label event (non-required)' || 'route decision and stable orchestrator check' }}
     if: github.event.action != 'labeled' || github.event.label.name == 'ci-full-control'
     runs-on: ubuntu-latest
     timeout-minutes: 5

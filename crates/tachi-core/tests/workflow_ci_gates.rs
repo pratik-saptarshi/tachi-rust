@@ -196,8 +196,8 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     assert_workflow_uses_pinned_repo_toolchain("rust-workspace.yml", &text);
     assert!(
         workflow_job_name(&workflow, "route")
-            == Some("route decision and stable orchestrator check"),
-        "rust-workspace workflow must expose the stable route classifier"
+            == Some("${{ github.event.action == 'labeled' && github.event.label.name != 'ci-full-control' && 'ignored label event (non-required)' || 'route decision and stable orchestrator check' }}"),
+        "rust-workspace must retain the stable required context for ordinary/control runs and use a distinct check for ignored labels"
     );
     assert!(
         workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-classifier.sh")),
@@ -1020,6 +1020,11 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         workflow_job_field(&parsed, "route", "if"),
         Some("github.event.action != 'labeled' || github.event.label.name == 'ci-full-control'"),
         "unrelated label events must not start the route job"
+    );
+    assert_eq!(
+        workflow_job_field(&parsed, "route", "name"),
+        Some("${{ github.event.action == 'labeled' && github.event.label.name != 'ci-full-control' && 'ignored label event (non-required)' || 'route decision and stable orchestrator check' }}"),
+        "ignored label events must not emit the required stable check as a skipped success"
     );
     let route_steps = workflow_job(&parsed, "route")
         .get("steps")

@@ -122,8 +122,10 @@ route scripts; it does not merge trusted fields into the script-generated
 merge trusted provenance over route-decision fields outside PR code execution.
 Label-triggered events use separate concurrency namespaces for full controls,
 ignored labels, and ordinary CI. Only the `ci-full-control` label runs the route
-job, and `unlabeled` is not a workflow trigger. These corrections do not change
-the matched timing acceptance; keep `RT-0sd.2` open until its cohort gates pass.
+job, and `unlabeled` is not a workflow trigger. Ignored-label runs also use a
+distinct, non-required check name so a skipped job cannot report success for the
+stable required context. These corrections do not change the matched timing
+acceptance; keep `RT-0sd.2` open until its cohort gates pass.
 
 ## Validation and release gates
 
@@ -157,6 +159,7 @@ and preserve enough raw metadata to reproduce every exclusion and median.
 | PR #61 Codex comment 4192479376: token-bearing provenance ran after PR-controlled route scripts | Remove the PR API token entirely; derive PR/head provenance from the pull_request event payload before running route scripts | Phase 3 token-isolation ordering contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 Copilot comment 4192629142: post-script provenance merge can be poisoned through PR-controlled shell environment changes | Upload trusted provenance before route scripts as a separate artifact; merge it over route-decision fields only in the trusted collector and verifier | Phase 3 artifact trust boundary and collector/verifier regressions | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 Copilot comment 4192629148: label events can cancel ordinary required CI and unrelated labels can start route work | Remove the `unlabeled` trigger, skip the route job for labels other than `ci-full-control`, and isolate ordinary, control, and ignored-label concurrency groups | Phase 3 trigger/concurrency workflow contract | `RT-0vf.4`, `RT-0sd.2` |
+| PR #62 Codex comment 4192736938: skipped ignored-label job reports success for the stable required check | Give ignored-label events a distinct non-required check name, while preserving the required name for ordinary and full-control runs; retain the route-job skip and concurrency isolation | Phase 3 trigger/status-check contract | `RT-0vf.4`, `RT-0sd.2` |
 
 ## Integration summary
 
