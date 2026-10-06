@@ -45,9 +45,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 113000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 113000
     },
     {
       "run_id": "37453887594",
@@ -89,9 +89,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 127000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 127000
     },
     {
       "run_id": "37453673119",
@@ -133,9 +133,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 113000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 113000
     },
     {
       "run_id": "37453562958",
@@ -177,9 +177,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 112000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 112000
     },
     {
       "run_id": "37453560096",
@@ -221,9 +221,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 137000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 137000
     },
     {
       "run_id": "37453146019",
@@ -264,9 +264,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 140000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 140000
     },
     {
       "run_id": "37453102310",
@@ -307,9 +307,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 177000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 177000
     },
     {
       "run_id": "37453052683",
@@ -350,9 +350,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 105000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 105000
     },
     {
       "run_id": "37452818263",
@@ -394,9 +394,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 179000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 179000
     },
     {
       "run_id": "37452814466",
@@ -438,9 +438,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 129000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 129000
     },
     {
       "run_id": "37452813870",
@@ -482,9 +482,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 184000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 184000
     },
     {
       "run_id": "37452618935",
@@ -526,9 +526,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 177000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 177000
     },
     {
       "run_id": "37452369300",
@@ -569,9 +569,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 241000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 241000
     },
     {
       "run_id": "37452273841",
@@ -612,9 +612,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 302000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 302000
     },
     {
       "run_id": "37452217221",
@@ -656,9 +656,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 342000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 342000
     },
     {
       "run_id": "37452120935",
@@ -699,9 +699,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 274000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 274000
     },
     {
       "run_id": "37452020377",
@@ -742,9 +742,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 282000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 282000
     },
     {
       "run_id": "37452018994",
@@ -785,9 +785,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 360000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 360000
     },
     {
       "run_id": "37452012993",
@@ -828,9 +828,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 302000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 302000
     },
     {
       "run_id": "37451973428",
@@ -871,9 +871,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 91000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 91000
     },
     {
       "run_id": "37451786632",
@@ -914,9 +914,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 111000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 111000
     },
     {
       "run_id": "37451705845",
@@ -929,7 +929,9 @@
       "completed_at": "2026-10-06T10:44:06Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37451705845",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37451382912",
@@ -970,9 +972,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 125000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 125000
     },
     {
       "run_id": "37451236532",
@@ -1013,9 +1015,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 141000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 141000
     },
     {
       "run_id": "37451143437",
@@ -1061,7 +1063,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37451097555",
@@ -1102,9 +1106,9 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 106000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 106000
     },
     {
       "run_id": "37451045292",
@@ -1117,7 +1121,9 @@
       "completed_at": "2026-10-06T10:38:19Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37451045292",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37450963767",
@@ -1158,9 +1164,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 109000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 109000
     },
     {
       "run_id": "37450959398",
@@ -1201,9 +1207,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 119000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 119000
     },
     {
       "run_id": "37450856577",
@@ -1216,7 +1222,9 @@
       "completed_at": "2026-10-06T10:37:54Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37450856577",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37450444320",
@@ -1249,9 +1257,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 20000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 20000
     },
     {
       "run_id": "37450345736",
@@ -1292,9 +1300,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 133000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 133000
     },
     {
       "run_id": "37450291960",
@@ -1327,9 +1335,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 14000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 14000
     },
     {
       "run_id": "37450002700",
@@ -1370,9 +1378,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 115000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 115000
     },
     {
       "run_id": "37449900751",
@@ -1418,7 +1426,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37449641296",
@@ -1451,9 +1461,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 18000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 18000
     },
     {
       "run_id": "37449467333",
@@ -1494,9 +1504,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 117000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 117000
     },
     {
       "run_id": "37449424351",
@@ -1529,9 +1539,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 17000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 17000
     },
     {
       "run_id": "37449313935",
@@ -1577,7 +1587,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37448832460",
@@ -1623,7 +1635,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37448454558",
@@ -1656,9 +1670,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 16000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 16000
     },
     {
       "run_id": "37448374073",
@@ -1699,9 +1713,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 133000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 133000
     },
     {
       "run_id": "37448286013",
@@ -1747,7 +1761,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37447870314",
@@ -1780,9 +1796,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 13000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 13000
     },
     {
       "run_id": "37447282161",
@@ -1823,9 +1839,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 123000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 123000
     },
     {
       "run_id": "37446729513",
@@ -1858,9 +1874,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 13000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 13000
     },
     {
       "run_id": "37445913303",
@@ -1901,9 +1917,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 121000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 121000
     },
     {
       "run_id": "37445471174",
@@ -1936,9 +1952,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 15000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 15000
     },
     {
       "run_id": "37444927318",
@@ -1979,9 +1995,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 127000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 127000
     },
     {
       "run_id": "37444765268",
@@ -2014,9 +2030,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 23000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 23000
     },
     {
       "run_id": "37444206069",
@@ -2057,9 +2073,9 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 128000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 128000
     },
     {
       "run_id": "37443944381",
@@ -2092,9 +2108,9 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 50000,
-      "eligible": true
+      "eligible": true,
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 50000
     },
     {
       "run_id": "37443363260",
@@ -2142,7 +2158,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37443246870",
@@ -2155,7 +2173,9 @@
       "completed_at": "2026-10-06T09:30:51Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37443246870",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37443107710",
@@ -2203,7 +2223,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37441941684",
@@ -2250,7 +2272,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37440810662",
@@ -2301,7 +2325,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37440372981",
@@ -2352,7 +2378,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37439635531",
@@ -2403,7 +2431,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37436899428",
@@ -2451,7 +2481,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37436454007",
@@ -2499,7 +2531,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37433709058",
@@ -2547,7 +2581,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37432483579",
@@ -2599,7 +2635,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37431684411",
@@ -2651,7 +2689,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37430739090",
@@ -2703,7 +2743,9 @@
         "force_full_requested": false
       },
       "eligible": false,
-      "rejection_reason": "PR route is not an eligible optimized shape"
+      "rejection_reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37429290572",
@@ -2716,7 +2758,9 @@
       "completed_at": "2026-10-06T07:25:05Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37429290572",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37429020676",
@@ -2729,7 +2773,9 @@
       "completed_at": "2026-10-06T07:22:46Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37429020676",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37427986768",
@@ -2742,7 +2788,9 @@
       "completed_at": "2026-10-06T07:12:18Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37427986768",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37427761561",
@@ -2755,7 +2803,9 @@
       "completed_at": "2026-10-06T07:09:34Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37427761561",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37427406750",
@@ -2768,7 +2818,9 @@
       "completed_at": "2026-10-06T07:06:58Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37427406750",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37426852840",
@@ -2781,7 +2833,9 @@
       "completed_at": "2026-10-06T07:00:53Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37426852840",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37426425992",
@@ -2794,7 +2848,9 @@
       "completed_at": "2026-10-06T06:56:36Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37426425992",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37424951867",
@@ -2807,7 +2863,9 @@
       "completed_at": "2026-10-06T06:41:27Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37424951867",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37423176381",
@@ -2820,7 +2878,9 @@
       "completed_at": "2026-10-06T06:22:18Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37423176381",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37419572327",
@@ -2833,7 +2893,9 @@
       "completed_at": "2026-10-06T05:41:10Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37419572327",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37419548742",
@@ -2846,7 +2908,9 @@
       "completed_at": "2026-10-06T05:40:21Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37419548742",
       "eligible": false,
-      "rejection_reason": "trusted route provenance artifact is missing or unavailable"
+      "rejection_reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37418088539",
@@ -2859,7 +2923,9 @@
       "completed_at": "2026-10-06T05:22:45Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37418088539",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37417249734",
@@ -2872,7 +2938,9 @@
       "completed_at": "2026-10-06T05:12:55Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37417249734",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37417128484",
@@ -2885,7 +2953,9 @@
       "completed_at": "2026-10-06T05:11:07Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37417128484",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37396244331",
@@ -2898,7 +2968,9 @@
       "completed_at": "2026-10-06T00:54:14Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37396244331",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37395509063",
@@ -2911,7 +2983,9 @@
       "completed_at": "2026-10-06T00:46:01Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37395509063",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37394997054",
@@ -2924,7 +2998,9 @@
       "completed_at": "2026-10-06T00:39:25Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37394997054",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37394707172",
@@ -2937,7 +3013,9 @@
       "completed_at": "2026-10-06T00:36:13Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37394707172",
       "eligible": false,
-      "rejection_reason": "run conclusion is not success"
+      "rejection_reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37394580532",
@@ -2950,7 +3028,9 @@
       "completed_at": "2026-10-06T00:35:27Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37394580532",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37393540855",
@@ -2963,7 +3043,9 @@
       "completed_at": "2026-10-06T00:22:58Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37393540855",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37390965349",
@@ -2976,7 +3058,9 @@
       "completed_at": "2026-10-05T23:54:28Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37390965349",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37277182810",
@@ -2989,7 +3073,9 @@
       "completed_at": "2026-10-05T07:22:17Z",
       "run_url": "https://github.com/pratik-saptarshi/tachi-rust/actions/runs/37277182810",
       "eligible": false,
-      "rejection_reason": "route decision artifact is missing or unavailable"
+      "rejection_reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     }
   ],
   "candidate_dispositions": [
@@ -3033,11 +3119,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 113000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 113000
     },
     {
       "run_id": "37453887594",
@@ -3079,11 +3165,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 127000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 127000
     },
     {
       "run_id": "37453673119",
@@ -3125,11 +3211,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 113000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 113000
     },
     {
       "run_id": "37453562958",
@@ -3171,11 +3257,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 112000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 112000
     },
     {
       "run_id": "37453560096",
@@ -3217,11 +3303,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 137000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 137000
     },
     {
       "run_id": "37453146019",
@@ -3262,11 +3348,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 140000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 140000
     },
     {
       "run_id": "37453102310",
@@ -3307,11 +3393,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 177000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 177000
     },
     {
       "run_id": "37453052683",
@@ -3352,11 +3438,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 105000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 105000
     },
     {
       "run_id": "37452818263",
@@ -3398,11 +3484,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 179000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 179000
     },
     {
       "run_id": "37452814466",
@@ -3444,11 +3530,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 129000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 129000
     },
     {
       "run_id": "37452813870",
@@ -3490,11 +3576,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 184000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 184000
     },
     {
       "run_id": "37452618935",
@@ -3536,11 +3622,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 177000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 177000
     },
     {
       "run_id": "37452369300",
@@ -3581,11 +3667,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 241000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 241000
     },
     {
       "run_id": "37452273841",
@@ -3626,11 +3712,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 302000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 302000
     },
     {
       "run_id": "37452217221",
@@ -3672,11 +3758,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 342000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 342000
     },
     {
       "run_id": "37452120935",
@@ -3717,11 +3803,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 274000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 274000
     },
     {
       "run_id": "37452020377",
@@ -3762,11 +3848,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 282000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 282000
     },
     {
       "run_id": "37452018994",
@@ -3807,11 +3893,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 360000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 360000
     },
     {
       "run_id": "37452012993",
@@ -3852,11 +3938,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 302000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 302000
     },
     {
       "run_id": "37451973428",
@@ -3897,11 +3983,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 91000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 91000
     },
     {
       "run_id": "37451786632",
@@ -3942,11 +4028,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 111000,
       "eligible": true,
       "disposition": "unmatched",
-      "reason": "no compatible opposite-route run or this tree was already counted"
+      "reason": "no compatible opposite-route run or this tree was already counted",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 111000
     },
     {
       "run_id": "37451705845",
@@ -3961,7 +4047,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37451382912",
@@ -4002,11 +4090,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 125000,
       "eligible": true,
       "disposition": "unmatched",
-      "reason": "no compatible opposite-route run or this tree was already counted"
+      "reason": "no compatible opposite-route run or this tree was already counted",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 125000
     },
     {
       "run_id": "37451236532",
@@ -4047,11 +4135,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 141000,
       "eligible": true,
       "disposition": "unmatched",
-      "reason": "no compatible opposite-route run or this tree was already counted"
+      "reason": "no compatible opposite-route run or this tree was already counted",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 141000
     },
     {
       "run_id": "37451143437",
@@ -4099,7 +4187,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37451097555",
@@ -4140,11 +4230,11 @@
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 106000,
       "eligible": true,
       "disposition": "unmatched",
-      "reason": "no compatible opposite-route run or this tree was already counted"
+      "reason": "no compatible opposite-route run or this tree was already counted",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 106000
     },
     {
       "run_id": "37451045292",
@@ -4159,7 +4249,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37450963767",
@@ -4200,11 +4292,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 109000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 109000
     },
     {
       "run_id": "37450959398",
@@ -4245,11 +4337,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 119000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 119000
     },
     {
       "run_id": "37450856577",
@@ -4264,7 +4356,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37450444320",
@@ -4297,11 +4391,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 20000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 20000
     },
     {
       "run_id": "37450345736",
@@ -4342,11 +4436,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 133000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 133000
     },
     {
       "run_id": "37450291960",
@@ -4379,11 +4473,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 14000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 14000
     },
     {
       "run_id": "37450002700",
@@ -4424,11 +4518,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 115000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 115000
     },
     {
       "run_id": "37449900751",
@@ -4476,7 +4570,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37449641296",
@@ -4509,11 +4605,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 18000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 18000
     },
     {
       "run_id": "37449467333",
@@ -4554,11 +4650,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 117000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 117000
     },
     {
       "run_id": "37449424351",
@@ -4591,11 +4687,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 17000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 17000
     },
     {
       "run_id": "37449313935",
@@ -4643,7 +4739,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37448832460",
@@ -4691,7 +4789,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37448454558",
@@ -4724,11 +4824,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 16000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 16000
     },
     {
       "run_id": "37448374073",
@@ -4769,11 +4869,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 133000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 133000
     },
     {
       "run_id": "37448286013",
@@ -4821,7 +4921,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37447870314",
@@ -4854,11 +4956,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 13000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 13000
     },
     {
       "run_id": "37447282161",
@@ -4899,11 +5001,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 123000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 123000
     },
     {
       "run_id": "37446729513",
@@ -4936,11 +5038,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 13000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 13000
     },
     {
       "run_id": "37445913303",
@@ -4981,11 +5083,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 121000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 121000
     },
     {
       "run_id": "37445471174",
@@ -5018,11 +5120,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 15000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 15000
     },
     {
       "run_id": "37444927318",
@@ -5063,11 +5165,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 127000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 127000
     },
     {
       "run_id": "37444765268",
@@ -5100,11 +5202,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 23000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 23000
     },
     {
       "run_id": "37444206069",
@@ -5145,11 +5247,11 @@
         "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
         "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 128000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 128000
     },
     {
       "run_id": "37443944381",
@@ -5182,11 +5284,11 @@
       "runner_inventory": {
         "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
       },
-      "queue_duration_ms": 0,
-      "execution_duration_ms": 50000,
       "eligible": true,
       "disposition": "paired",
-      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"
+      "reason": "matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions",
+      "workflow_queue_duration_ms": 0,
+      "workflow_wall_duration_ms": 50000
     },
     {
       "run_id": "37443363260",
@@ -5236,7 +5338,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37443246870",
@@ -5251,7 +5355,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37443107710",
@@ -5301,7 +5407,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37441941684",
@@ -5350,7 +5458,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37440810662",
@@ -5403,7 +5513,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37440372981",
@@ -5456,7 +5568,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37439635531",
@@ -5509,7 +5623,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37436899428",
@@ -5559,7 +5675,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37436454007",
@@ -5609,7 +5727,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37433709058",
@@ -5659,7 +5779,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37432483579",
@@ -5713,7 +5835,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37431684411",
@@ -5767,7 +5891,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37430739090",
@@ -5821,7 +5947,9 @@
       "eligible": false,
       "rejection_reason": "PR route is not an eligible optimized shape",
       "disposition": "excluded",
-      "reason": "PR route is not an eligible optimized shape"
+      "reason": "PR route is not an eligible optimized shape",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37429290572",
@@ -5836,7 +5964,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37429020676",
@@ -5851,7 +5981,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37427986768",
@@ -5866,7 +5998,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37427761561",
@@ -5881,7 +6015,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37427406750",
@@ -5896,7 +6032,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37426852840",
@@ -5911,7 +6049,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37426425992",
@@ -5926,7 +6066,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37424951867",
@@ -5941,7 +6083,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37423176381",
@@ -5956,7 +6100,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37419572327",
@@ -5971,7 +6117,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37419548742",
@@ -5986,7 +6134,9 @@
       "eligible": false,
       "rejection_reason": "trusted route provenance artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "trusted route provenance artifact is missing or unavailable"
+      "reason": "trusted route provenance artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37418088539",
@@ -6001,7 +6151,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37417249734",
@@ -6016,7 +6168,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37417128484",
@@ -6031,7 +6185,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37396244331",
@@ -6046,7 +6202,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37395509063",
@@ -6061,7 +6219,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37394997054",
@@ -6076,7 +6236,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37394707172",
@@ -6091,7 +6253,9 @@
       "eligible": false,
       "rejection_reason": "run conclusion is not success",
       "disposition": "excluded",
-      "reason": "run conclusion is not success"
+      "reason": "run conclusion is not success",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37394580532",
@@ -6106,7 +6270,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37393540855",
@@ -6121,7 +6287,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37390965349",
@@ -6136,7 +6304,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     },
     {
       "run_id": "37277182810",
@@ -6151,7 +6321,9 @@
       "eligible": false,
       "rejection_reason": "route decision artifact is missing or unavailable",
       "disposition": "excluded",
-      "reason": "route decision artifact is missing or unavailable"
+      "reason": "route decision artifact is missing or unavailable",
+      "workflow_queue_duration_ms": null,
+      "workflow_wall_duration_ms": null
     }
   ],
   "pairs": [
@@ -6201,9 +6373,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 177000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 177000
       },
       "control": {
         "run_id": "37453887594",
@@ -6245,9 +6417,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 127000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 127000
       }
     },
     {
@@ -6296,9 +6468,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 140000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 140000
       },
       "control": {
         "run_id": "37453901594",
@@ -6340,9 +6512,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 113000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 113000
       }
     },
     {
@@ -6391,9 +6563,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 274000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 274000
       },
       "control": {
         "run_id": "37452814466",
@@ -6435,9 +6607,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 129000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 129000
       }
     },
     {
@@ -6486,9 +6658,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 302000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 302000
       },
       "control": {
         "run_id": "37453562958",
@@ -6530,9 +6702,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 112000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 112000
       }
     },
     {
@@ -6581,9 +6753,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 302000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 302000
       },
       "control": {
         "run_id": "37452618935",
@@ -6625,9 +6797,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 177000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 177000
       }
     },
     {
@@ -6676,9 +6848,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 282000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 282000
       },
       "control": {
         "run_id": "37452813870",
@@ -6720,9 +6892,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 184000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 184000
       }
     },
     {
@@ -6771,9 +6943,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 105000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 105000
       },
       "control": {
         "run_id": "37453673119",
@@ -6815,9 +6987,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 113000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 113000
       }
     },
     {
@@ -6866,9 +7038,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 91000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 91000
       },
       "control": {
         "run_id": "37452217221",
@@ -6910,9 +7082,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 342000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 342000
       }
     },
     {
@@ -6961,9 +7133,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 360000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 360000
       },
       "control": {
         "run_id": "37452818263",
@@ -7005,9 +7177,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 179000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 179000
       }
     },
     {
@@ -7056,9 +7228,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 241000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 241000
       },
       "control": {
         "run_id": "37453560096",
@@ -7100,9 +7272,9 @@
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "repository-contracts": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 137000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 137000
       }
     },
     {
@@ -7143,9 +7315,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 50000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 50000
       },
       "control": {
         "run_id": "37444206069",
@@ -7186,9 +7358,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 128000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 128000
       }
     },
     {
@@ -7229,9 +7401,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 14000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 14000
       },
       "control": {
         "run_id": "37450959398",
@@ -7272,9 +7444,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 119000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 119000
       }
     },
     {
@@ -7315,9 +7487,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 17000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 17000
       },
       "control": {
         "run_id": "37450002700",
@@ -7358,9 +7530,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 115000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 115000
       }
     },
     {
@@ -7401,9 +7573,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 16000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 16000
       },
       "control": {
         "run_id": "37449467333",
@@ -7444,9 +7616,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 117000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 117000
       }
     },
     {
@@ -7487,9 +7659,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 13000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 13000
       },
       "control": {
         "run_id": "37447282161",
@@ -7530,9 +7702,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 123000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 123000
       }
     },
     {
@@ -7573,9 +7745,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 13000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 13000
       },
       "control": {
         "run_id": "37448374073",
@@ -7616,9 +7788,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 133000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 133000
       }
     },
     {
@@ -7659,9 +7831,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 18000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 18000
       },
       "control": {
         "run_id": "37450345736",
@@ -7702,9 +7874,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 133000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 133000
       }
     },
     {
@@ -7745,9 +7917,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 23000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 23000
       },
       "control": {
         "run_id": "37444927318",
@@ -7788,9 +7960,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 127000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 127000
       }
     },
     {
@@ -7831,9 +8003,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 15000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 15000
       },
       "control": {
         "run_id": "37445913303",
@@ -7874,9 +8046,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 121000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 121000
       }
     },
     {
@@ -7917,9 +8089,9 @@
         "runner_inventory": {
           "route": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 20000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 20000
       },
       "control": {
         "run_id": "37450963767",
@@ -7960,9 +8132,9 @@
           "cargo-test-tachi-mcp": "ubuntu-latest/ubuntu24/20260927.320.1/X64",
           "cargo-test-tachi-cli": "ubuntu-latest/ubuntu24/20260927.320.1/X64"
         },
-        "queue_duration_ms": 0,
-        "execution_duration_ms": 109000,
-        "eligible": true
+        "eligible": true,
+        "workflow_queue_duration_ms": 0,
+        "workflow_wall_duration_ms": 109000
       }
     }
   ],
@@ -7970,22 +8142,29 @@
     {
       "route_shape": "passive-docs",
       "valid_pairs": 10,
-      "routed_queue_median_ms": 0,
-      "full_control_queue_median_ms": 0,
-      "routed_execution_median_ms": 16500,
-      "full_control_execution_median_ms": 122000,
-      "optimized_to_full_execution_ratio": 0.13524590163934427,
-      "status": "pass"
+      "status": "informational_only",
+      "routed_workflow_queue_median_ms": 0,
+      "full_control_workflow_queue_median_ms": 0,
+      "routed_workflow_wall_median_ms": 16500,
+      "full_control_workflow_wall_median_ms": 122000,
+      "optimized_to_full_workflow_wall_ratio": 0.13524590163934427,
+      "acceptance_status": "not_evaluated",
+      "interpretation": "Workflow wall-time ratio includes downstream matrix-job queueing; it cannot establish execution-only pass or miss."
     },
     {
       "route_shape": "dependency-closure",
       "valid_pairs": 10,
-      "routed_queue_median_ms": 0,
-      "full_control_queue_median_ms": 0,
-      "routed_execution_median_ms": 257500,
-      "full_control_execution_median_ms": 133000,
-      "optimized_to_full_execution_ratio": 1.9360902255639099,
-      "status": "threshold_missed"
+      "status": "informational_only",
+      "routed_workflow_queue_median_ms": 0,
+      "full_control_workflow_queue_median_ms": 0,
+      "routed_workflow_wall_median_ms": 257500,
+      "full_control_workflow_wall_median_ms": 133000,
+      "optimized_to_full_workflow_wall_ratio": 1.9360902255639099,
+      "acceptance_status": "not_evaluated",
+      "interpretation": "Workflow wall-time ratio includes downstream matrix-job queueing; it cannot establish execution-only pass or miss."
     }
-  ]
+  ],
+  "source_collector_sha256": "2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443",
+  "timing_acceptance_evaluated": false,
+  "timing_metric_interpretation": "The run-level startedAt-to-updatedAt interval is workflow wall time and includes post-start matrix-job queueing; it is not accepted execution-only evidence."
 }

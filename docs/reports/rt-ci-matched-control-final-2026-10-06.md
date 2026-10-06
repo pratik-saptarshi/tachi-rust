@@ -22,9 +22,12 @@ jobs. For example, in the valid PR #80 control, the workflow started at
 10:48:36Z while measured jobs started between 10:49:26Z and 10:52:36Z. The
 collector did not retain per-job creation, start, and completion timestamps.
 
-The raw, replayable collector output is
+The reclassified, replayable collector snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](rt-ci-matched-control-final-2026-10-06.json)
-(SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`).
+(SHA-256 `dbe6a1b53203ea495660293f1106c91b3d932b1557109c89b24d54c808bad132`).
+Its top-level status marks timing acceptance `not_evaluated` and its durations
+are named workflow queue and workflow wall time. The preserved source collector
+output has SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`.
 It contains 87 candidate workflow runs, dispositions, all 20 pair records,
 route reasons and paths, PR/head and execution SHAs, Git tree SHAs, run IDs and
 timestamps, workflow/classifier/path-producer revisions, and runner inventory.

@@ -93,7 +93,8 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 
 The final collector snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](../reports/rt-ci-matched-control-final-2026-10-06.json)
-(SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`);
+(SHA-256 `dbe6a1b53203ea495660293f1106c91b3d932b1557109c89b24d54c808bad132`;
+source collector SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`);
 the run mapping and limitations are in the
 [matched-control readout](../reports/rt-ci-matched-control-final-2026-10-06.md).
 It contains 87 candidate workflow runs and 20 valid pairs: ten `passive-docs`
