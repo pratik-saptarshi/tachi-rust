@@ -50,48 +50,6 @@ jobs:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number != 0 && format('refs/pull/{0}/merge', inputs.control_pr_number) || github.event_name == 'workflow_dispatch' && inputs.control_tree_sha != '' && inputs.control_tree_sha || github.sha }}
           persist-credentials: false
 
-      - name: Capture route mode
-        id: route
-        shell: bash
-        env:
-          FORCE_FULL_CI: ${{ vars.FORCE_FULL_CI }}
-          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci }}
-          BASE_REF: ${{ github.base_ref }}
-          GIT_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-
-          base_ref="${BASE_REF:-}"
-          if [ -z "$base_ref" ]; then
-            base_ref="main"
-          fi
-
-          changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
-          : > "$changed_paths_file"
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            git fetch origin "$base_ref" --depth=1
-            bash "$GITHUB_WORKSPACE/scripts/ci-route-changed-paths.sh" \
-              "origin/${base_ref}" "$GIT_SHA" > "$changed_paths_file"
-          fi
-
-          route_json="$(bash "$GITHUB_WORKSPACE/scripts/ci-route-classifier.sh" \
-            "$GITHUB_EVENT_NAME" "${GITHUB_REF:-}" "$changed_paths_file" \
-            "${FORCE_FULL_CI_INPUT:-false}" "${FORCE_FULL_CI:-false}")"
-          mode="$(jq -r '.mode' <<<"$route_json")"
-          reason="$(jq -r '.reason' <<<"$route_json")"
-          packages_json="$(jq -c '.packages' <<<"$route_json")"
-          repository_contracts_required="$(jq -r '.repository_contracts_required' <<<"$route_json")"
-
-          {
-            echo "mode=$mode"
-            echo "reason=$reason"
-            echo "packages_json=$packages_json"
-            echo "repository_contracts_required=$repository_contracts_required"
-          } >> "$GITHUB_OUTPUT"
-
-          printf '%s\n' "$route_json" > route.json
-          cat route.json
-
       - name: Add matched-control provenance
         id: provenance
         shell: bash
@@ -139,7 +97,7 @@ jobs:
           workflow_file_revision="$(git rev-parse "${WORKFLOW_SHA}:.github/workflows/rust-workspace.yml")"
           execution_workflow_file_revision="$(git rev-parse HEAD:.github/workflows/rust-workspace.yml)"
           execution_tree_sha="$(git rev-parse 'HEAD^{tree}')"
-          jq \
+          provenance_json="$(jq -n \
             --arg run_id "$GITHUB_RUN_ID" \
             --argjson run_attempt "$GITHUB_RUN_ATTEMPT" \
             --arg event "$GITHUB_EVENT_NAME" \
@@ -156,11 +114,67 @@ jobs:
             --arg control_pr_head_sha "$control_pr_head_sha" \
             --argjson control_pr_number "$CONTROL_PR_NUMBER" \
             --argjson force_full_requested "${FORCE_FULL_CI_INPUT:-false}" \
-            '. + {run_id:$run_id,run_attempt:$run_attempt,event:$event,head_sha:$head_sha,pr_number:$pr_number,workflow_file_revision:$workflow_file_revision,execution_workflow_file_revision:$execution_workflow_file_revision,execution_sha:$execution_sha,tree_sha:$execution_tree_sha,classifier_revision:$classifier_revision,path_producer_revision:$path_producer_revision,runner_definition:$runner_definition,control_tree_sha:$control_tree_sha,control_pr_number:$control_pr_number,control_pr_head_sha:$control_pr_head_sha,force_full_requested:$force_full_requested}' \
-            route.json > route.json.new
+            '{run_id:$run_id,run_attempt:$run_attempt,event:$event,head_sha:$head_sha,pr_number:$pr_number,workflow_file_revision:$workflow_file_revision,execution_workflow_file_revision:$execution_workflow_file_revision,execution_sha:$execution_sha,tree_sha:$execution_tree_sha,classifier_revision:$classifier_revision,path_producer_revision:$path_producer_revision,runner_definition:$runner_definition,control_tree_sha:$control_tree_sha,control_pr_number:$control_pr_number,control_pr_head_sha:$control_pr_head_sha,force_full_requested:$force_full_requested}')"
+          {
+            echo "execution_sha=$execution_sha"
+            echo "control_pr_head_sha=$control_pr_head_sha"
+            echo "provenance_json<<TACHI_PROVENANCE_EOF"
+            printf '%s\n' "$provenance_json"
+            echo "TACHI_PROVENANCE_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Capture route mode
+        id: route
+        shell: bash
+        env:
+          FORCE_FULL_CI: ${{ vars.FORCE_FULL_CI }}
+          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci }}
+          BASE_REF: ${{ github.base_ref }}
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          base_ref="${BASE_REF:-}"
+          if [ -z "$base_ref" ]; then
+            base_ref="main"
+          fi
+
+          changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
+          : > "$changed_paths_file"
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            git fetch origin "$base_ref" --depth=1
+            bash "$GITHUB_WORKSPACE/scripts/ci-route-changed-paths.sh" \
+              "origin/${base_ref}" "$GIT_SHA" > "$changed_paths_file"
+          fi
+
+          route_json="$(bash "$GITHUB_WORKSPACE/scripts/ci-route-classifier.sh" \
+            "$GITHUB_EVENT_NAME" "${GITHUB_REF:-}" "$changed_paths_file" \
+            "${FORCE_FULL_CI_INPUT:-false}" "${FORCE_FULL_CI:-false}")"
+          mode="$(jq -r '.mode' <<<"$route_json")"
+          reason="$(jq -r '.reason' <<<"$route_json")"
+          packages_json="$(jq -c '.packages' <<<"$route_json")"
+          repository_contracts_required="$(jq -r '.repository_contracts_required' <<<"$route_json")"
+
+          {
+            echo "mode=$mode"
+            echo "reason=$reason"
+            echo "packages_json=$packages_json"
+            echo "repository_contracts_required=$repository_contracts_required"
+          } >> "$GITHUB_OUTPUT"
+
+          printf '%s\n' "$route_json" > route.json
+          cat route.json
+
+      - name: Attach trusted provenance to route decision
+        shell: bash
+        env:
+          BASH_ENV: ""
+          PROVENANCE_JSON: ${{ steps.provenance.outputs.provenance_json }}
+        run: |
+          set -euo pipefail
+          jq --argjson provenance "$PROVENANCE_JSON" \
+            '. + $provenance' route.json > route.json.new
           mv route.json.new route.json
-          echo "execution_sha=$execution_sha" >> "$GITHUB_OUTPUT"
-          echo "control_pr_head_sha=$control_pr_head_sha" >> "$GITHUB_OUTPUT"
           cat route.json
 
       - name: Upload route decision artifact

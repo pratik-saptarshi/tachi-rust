@@ -144,6 +144,7 @@ and preserve enough raw metadata to reproduce every exclusion and median.
 | PR #60 Codex comment 4192299107: control drops controlled PR provenance | Capture controlled PR head at dispatch and retain PR number/head/commit in candidates and pairs | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 CodeQL alert 28: untrusted PR code could write a default-branch Rust cache | Require controls to dispatch the trusted default-branch workflow; load a setup action from `github.workflow_sha` that contains no cache action; disable checkout credential persistence; skip the unmeasured repository-contract job only for matched controls | Phase 3 control security contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 Codex comment 4192392232: control timing artifacts record dispatch SHA | Write the route-verified execution SHA and controlled PR head into timing artifacts; make the verifier bind workflow_dispatch evidence to the route artifact | Phase 3 provenance and verifier tests | `RT-0vf.4`, `RT-0sd.2` |
+| PR #61 Codex comment 4192479376: token-bearing provenance ran after PR-controlled route scripts | Capture PR provenance in the trusted workflow step before running route scripts; scope `GH_TOKEN` to that step and attach its immutable outputs afterward with no token | Phase 3 token-isolation ordering contract | `RT-0vf.4`, `RT-0sd.2` |
 
 ## Integration summary
 
@@ -242,8 +243,9 @@ available summary.
   The follow-up requires controls to dispatch the trusted default-branch
   workflow; it loads a cache-free Rust setup action from that workflow revision
   for both routed runs and controls, disables persisted checkout credentials,
-  and skips only the
-  unmeasured repository-contract job on matched controls. It writes the verified
-  execution SHA and controlled PR head into timing artifacts, and makes the
-  verifier validate control evidence against the route artifact. The earlier
-  smoke run remains non-pair evidence.
+  and skips only the unmeasured repository-contract job on matched controls.
+  Token-bearing PR provenance now runs before route scripts from the checked-out
+  tree; its outputs are attached to the route artifact afterward without a
+  token. It writes the verified execution SHA and controlled PR head into timing
+  artifacts, and makes the verifier validate control evidence against the route
+  artifact. The earlier smoke run remains non-pair evidence.

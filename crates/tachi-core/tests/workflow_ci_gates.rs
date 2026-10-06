@@ -986,6 +986,9 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "refs/heads/${DEFAULT_BRANCH}",
         "matched controls must dispatch the trusted default-branch workflow",
         "persist-credentials: false",
+        "provenance_json",
+        "Attach trusted provenance to route decision",
+        "BASH_ENV: \"\"",
         "--format=%P",
         "workflow_file_revision",
         "runner-provenance-",
@@ -1009,6 +1012,26 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
             .count(),
         3,
         "all three measured downstream jobs must use the route job's immutable SHA"
+    );
+    let parsed = parse_workflow("rust-workspace.yml", &workflow);
+    let route_steps = workflow_job(&parsed, "route")
+        .get("steps")
+        .and_then(serde_yaml::Value::as_sequence)
+        .expect("route job steps");
+    let step_index = |name: &str| {
+        route_steps
+            .iter()
+            .position(|step| step.get("name").and_then(serde_yaml::Value::as_str) == Some(name))
+            .unwrap_or_else(|| panic!("route job must contain {name}"))
+    };
+    assert!(
+        step_index("Add matched-control provenance") < step_index("Capture route mode"),
+        "the token-bearing provenance step must run before PR-controlled route scripts"
+    );
+    assert_eq!(
+        workflow.matches("GH_TOKEN:").count(),
+        1,
+        "the GitHub token must be scoped to the pre-classification provenance step"
     );
     for required in [
         "gh run list",
