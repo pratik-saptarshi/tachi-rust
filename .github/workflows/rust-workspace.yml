@@ -261,7 +261,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [route]
-    if: needs.route.outputs.repository_contracts_required == 'true'
+    if: github.event_name != 'workflow_dispatch' && needs.route.outputs.repository_contracts_required == 'true'
     env:
       CARGO_TERM_COLOR: always
     steps:
