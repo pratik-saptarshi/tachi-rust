@@ -226,6 +226,7 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         "refs/heads/main",
         "unknown non-docs paths stay full mode",
         "emergency full-ci override",
+        "repository_contract_pattern=",
     ] {
         assert!(
             classifier.contains(required),
@@ -239,6 +240,10 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     assert!(
         classifier.contains("emergency full-ci override"),
         "route classifier must record the emergency full-CI override"
+    );
+    assert!(
+        classifier.contains("repository_contracts_required"),
+        "route classifier must expose repository-wide contract selection independently"
     );
     assert!(
         text.contains("fromJson(needs.route.outputs.packages_json)"),
@@ -321,6 +326,49 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
             "rust-workspace workflow must emit stage timing evidence: {required}"
         );
     }
+}
+
+#[test]
+fn repository_contract_job_runs_independently_for_contract_inputs() {
+    let text = workflow_text("rust-workspace.yml");
+    let workflow = parse_workflow("rust-workspace.yml", &text);
+    let route_outputs = workflow_job(&workflow, "route")
+        .get("outputs")
+        .expect("route outputs");
+
+    assert_eq!(
+        route_outputs
+            .get("repository_contracts_required")
+            .and_then(serde_yaml::Value::as_str),
+        Some("${{ steps.route.outputs.repository_contracts_required }}"),
+        "route job must expose repository contract selection"
+    );
+    assert_eq!(
+        workflow_job_field(&workflow, "repository-contracts", "if"),
+        Some("needs.route.outputs.repository_contracts_required == 'true'"),
+        "repository contracts must run based on their inputs independently of package routing"
+    );
+    assert_eq!(
+        workflow_job_name(&workflow, "repository-contracts"),
+        Some("repository-wide contract tests"),
+        "compact repository contract job must have a stable check name"
+    );
+    assert_job_has_run_command(
+        &workflow,
+        "repository-contracts",
+        "cargo test -p tachi-core --test workflow_ci_gates -- --test-threads=1",
+    );
+    let job = workflow_job(&workflow, "repository-contracts");
+    assert_eq!(
+        job.get("needs")
+            .and_then(serde_yaml::Value::as_sequence)
+            .map(|needs| needs
+                .iter()
+                .filter_map(serde_yaml::Value::as_str)
+                .collect::<Vec<_>>()),
+        Some(vec!["route"]),
+        "repository contract job must consume route classification"
+    );
 }
 
 #[test]
@@ -993,6 +1041,10 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
         "route observe workflow must capture selected lanes"
     );
     assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("repository_contracts_required")),
+        "route artifact must expose whether repository-wide contracts are selected"
+    );
+    assert!(
         workflow_run_bodies(&workflow).any(|run| run.contains("escalation_reasons_json")),
         "route observe workflow must capture escalation reasons"
     );
@@ -1025,6 +1077,7 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
         "\"mode\":",
         "\"route_mode\":",
         "\"selected_packages\":",
+        "\"repository_contracts_required\":",
         "\"changed_paths\":",
         "\"selected_lanes\":",
         "\"escalation_reasons\":",

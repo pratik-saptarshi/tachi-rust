@@ -19,6 +19,8 @@ packages_json="$full_packages_json"
 changed_paths_json='[]'
 
 active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/testing/tdd-evidence\.json|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/)'
+repository_contract_pattern='^(Cargo\.toml|Cargo\.lock|rust-toolchain\.toml|deny\.toml|Makefile|\.cargo/.*|\.github/(ci-test-units\.json|actions/.*/action\.yml|workflows/.*)|crates/[^/]+/Cargo\.toml|crates/tachi-core/tests/workflow_ci_gates\.rs|scripts/ci-route-(classifier|changed-paths)\.sh)$'
+repository_contracts_required=false
 
 is_protected_ref() {
   case "$1" in
@@ -33,6 +35,9 @@ is_protected_ref() {
 
 if [ -f "$changed_paths_file" ]; then
   changed_paths_json="$(jq -R -s -c 'split("\n") | map(select(length > 0))' "$changed_paths_file")"
+fi
+if [ "$event" != "pull_request" ] || [ ! -s "$changed_paths_file" ] || grep -Eq "$repository_contract_pattern" "$changed_paths_file" || grep -vq '^docs/' "$changed_paths_file"; then
+  repository_contracts_required=true
 fi
 
 if [ "$force_full_input" = "true" ]; then
@@ -57,7 +62,7 @@ elif [ "$event" = "pull_request" ]; then
           printf '%s\n' tachi-core tachi-mcp tachi-cli tachi-shell tachi-desktop
           ;;
         tachi-shell)
-          printf '%s\n' tachi-shell tachi-cli tachi-desktop
+          printf '%s\n' tachi-shell tachi-cli tachi-mcp tachi-desktop
           ;;
         tachi-mcp)
           printf '%s\n' tachi-mcp
@@ -123,5 +128,6 @@ jq -n \
   --arg mode "$mode" \
   --arg reason "$reason" \
   --argjson packages "$packages_json" \
+  --argjson repository_contracts_required "$repository_contracts_required" \
   --argjson changed_paths "$changed_paths_json" \
-  '{mode: $mode, reason: $reason, packages: $packages, changed_paths: $changed_paths, policy_version: "2026-10-05"}'
+  '{mode: $mode, reason: $reason, packages: $packages, repository_contracts_required: $repository_contracts_required, changed_paths: $changed_paths, policy_version: "2026-10-06"}'

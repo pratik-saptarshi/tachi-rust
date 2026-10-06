@@ -15,6 +15,8 @@ observe-only CI lane
 - `selected_lanes`: the predicted lane set for the change shape
 - `selected_packages`: the package matrix selected for dependency-closure
   changes; empty for passive-doc and full-matrix routes
+- `repository_contracts_required`: whether workspace manifest, toolchain, or
+  contract-policy inputs require the compact repository-wide contract job
 - `escalation_reasons`: human-readable reasons that forced or preserved full
   mode
 - `policy_version`: the policy version used to make the route decision
@@ -38,7 +40,8 @@ The observe-only workflow job `route-observe` remains the stable orchestrator ch
   "changed_paths": ["docs/guide.md"],
   "selected_lanes": ["docs-pr-gate", "specialist-guards"],
   "selected_packages": [],
+  "repository_contracts_required": false,
   "escalation_reasons": [],
-  "policy_version": "2026-10-05"
+  "policy_version": "2026-10-06"
 }
 ```
