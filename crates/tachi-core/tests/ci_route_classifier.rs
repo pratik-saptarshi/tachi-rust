@@ -1,4 +1,5 @@
 use serde_json::Value;
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -218,6 +219,17 @@ fn renamed_crate_to_passive_docs_retains_both_endpoints_and_widens_route() {
         .as_array()
         .unwrap()
         .contains(&"tachi-shell".into()));
+    assert_eq!(
+        cross_route["packages"],
+        serde_json::json!([
+            "tachi-cli",
+            "tachi-core",
+            "tachi-desktop",
+            "tachi-mcp",
+            "tachi-shell"
+        ]),
+        "multi-crate dependency closures must deduplicate shared dependents"
+    );
 
     let docs_base = cross_head;
     fs::remove_file(repo.join("docs/reference/rename_probe.md")).expect("remove docs fixture");
@@ -266,7 +278,7 @@ fn main_target_crate_changes_select_the_complete_dependency_closure() {
     assert_eq!(route["mode"], "dependency_closure");
     assert_eq!(
         route["packages"],
-        serde_json::json!(["tachi-cli", "tachi-desktop", "tachi-shell"])
+        serde_json::json!(["tachi-cli", "tachi-desktop", "tachi-mcp", "tachi-shell"])
     );
 
     let core_route = classify(
@@ -305,6 +317,123 @@ fn main_target_crate_changes_select_the_complete_dependency_closure() {
         mixed_docs_route["packages"],
         serde_json::json!(["tachi-mcp"])
     );
+}
+
+#[test]
+fn shell_route_matches_cargo_metadata_reverse_dependency_closure() {
+    let metadata = Command::new("cargo")
+        .args(["metadata", "--no-deps", "--format-version=1"])
+        .current_dir(repo_root())
+        .output()
+        .expect("read Cargo workspace metadata");
+    assert!(
+        metadata.status.success(),
+        "cargo metadata failed: {}",
+        String::from_utf8_lossy(&metadata.stderr)
+    );
+    let metadata: Value = serde_json::from_slice(&metadata.stdout).expect("Cargo metadata JSON");
+    let packages = metadata["packages"].as_array().expect("workspace packages");
+    let workspace_names: BTreeSet<String> = packages
+        .iter()
+        .filter_map(|package| package["name"].as_str().map(str::to_owned))
+        .collect();
+    let mut expected = BTreeSet::from(["tachi-shell".to_owned()]);
+    loop {
+        let mut added = false;
+        for package in packages {
+            let Some(name) = package["name"].as_str() else {
+                continue;
+            };
+            if expected.contains(name) {
+                continue;
+            }
+            let depends_on_selected_workspace_package = package["dependencies"]
+                .as_array()
+                .expect("package dependencies")
+                .iter()
+                .filter_map(|dependency| dependency["name"].as_str())
+                .any(|dependency| {
+                    workspace_names.contains(dependency) && expected.contains(dependency)
+                });
+            if depends_on_selected_workspace_package {
+                expected.insert(name.to_owned());
+                added = true;
+            }
+        }
+        if !added {
+            break;
+        }
+    }
+
+    let temp = TestDir::new();
+    let route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/73/merge",
+        &["crates/tachi-shell/src/lib.rs"],
+        "false",
+        "false",
+    );
+    let actual: BTreeSet<String> = route["packages"]
+        .as_array()
+        .expect("routed packages")
+        .iter()
+        .filter_map(|package| package.as_str().map(str::to_owned))
+        .collect();
+    assert_eq!(actual, expected, "route closure must match Cargo metadata");
+}
+
+#[test]
+fn repository_manifest_and_policy_inputs_require_compact_contracts() {
+    let temp = TestDir::new();
+    let manifest_route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/74/merge",
+        &["crates/tachi-mcp/Cargo.toml"],
+        "false",
+        "false",
+    );
+    assert_eq!(manifest_route["mode"], "dependency_closure");
+    assert_eq!(manifest_route["packages"], serde_json::json!(["tachi-mcp"]));
+    assert_eq!(manifest_route["repository_contracts_required"], true);
+
+    let toolchain_route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/75/merge",
+        &["rust-toolchain.toml"],
+        "false",
+        "false",
+    );
+    assert_eq!(toolchain_route["repository_contracts_required"], true);
+
+    let local_source_route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/76/merge",
+        &["crates/tachi-mcp/src/lib.rs"],
+        "false",
+        "false",
+    );
+    assert_eq!(
+        local_source_route["packages"],
+        serde_json::json!(["tachi-mcp"])
+    );
+    assert_eq!(local_source_route["repository_contracts_required"], true);
+
+    let passive_docs_route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/77/merge",
+        &["docs/reference/cli-usage.md"],
+        "false",
+        "false",
+    );
+    assert_eq!(passive_docs_route["repository_contracts_required"], false);
+
+    let push_route = classify(&temp, "push", "refs/heads/main", &[], "false", "false");
+    assert_eq!(push_route["repository_contracts_required"], true);
 }
 
 #[test]

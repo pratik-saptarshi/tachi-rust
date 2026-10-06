@@ -46,6 +46,7 @@ jobs:
             "false" "${FORCE_FULL_CI:-false}")"
           route_mode="$(jq -r '.mode' <<<"$route_json")"
           route_reason="$(jq -r '.reason' <<<"$route_json")"
+          repository_contracts_required="$(jq -r '.repository_contracts_required' <<<"$route_json")"
           selected_packages_json='[]'
           case "$route_mode" in
             passive_docs_only)
@@ -72,8 +73,9 @@ jobs:
             --arg route_reason "$route_reason" \
             --argjson selected_lanes "$selected_lanes_json" \
             --argjson selected_packages "$selected_packages_json" \
+            --argjson repository_contracts_required "$repository_contracts_required" \
             --argjson escalation_reasons "$escalation_reasons_json" \
-            '{mode:"observe_only",route_mode:$route_mode,route_reason:$route_reason,changed_paths:$route.changed_paths,selected_lanes:$selected_lanes,selected_packages:$selected_packages,escalation_reasons:$escalation_reasons,policy_version:$route.policy_version}' \
+            '{mode:"observe_only",route_mode:$route_mode,route_reason:$route_reason,changed_paths:$route.changed_paths,selected_lanes:$selected_lanes,selected_packages:$selected_packages,repository_contracts_required:$repository_contracts_required,escalation_reasons:$escalation_reasons,policy_version:$route.policy_version}' \
             > route.json
 
           cat route.json

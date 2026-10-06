@@ -29,6 +29,7 @@ jobs:
       mode: ${{ steps.route.outputs.mode }}
       reason: ${{ steps.route.outputs.reason }}
       packages_json: ${{ steps.route.outputs.packages_json }}
+      repository_contracts_required: ${{ steps.route.outputs.repository_contracts_required }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -65,11 +66,13 @@ jobs:
           mode="$(jq -r '.mode' <<<"$route_json")"
           reason="$(jq -r '.reason' <<<"$route_json")"
           packages_json="$(jq -c '.packages' <<<"$route_json")"
+          repository_contracts_required="$(jq -r '.repository_contracts_required' <<<"$route_json")"
 
           {
             echo "mode=$mode"
             echo "reason=$reason"
             echo "packages_json=$packages_json"
+            echo "repository_contracts_required=$repository_contracts_required"
           } >> "$GITHUB_OUTPUT"
 
           printf '%s\n' "$route_json" > route.json
@@ -79,7 +82,7 @@ jobs:
     name: cargo test -p ${{ matrix.package }} --all-targets
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: route
+    needs: [route]
     if: needs.route.outputs.mode != 'passive_docs_only'
     strategy:
       fail-fast: false
@@ -148,6 +151,29 @@ jobs:
           name: ci-timing-package-${{ matrix.package }}
           path: .ci-timing/${{ matrix.package }}.json
           if-no-files-found: error
+
+  repository-contracts:
+    name: repository-wide contract tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [route]
+    if: needs.route.outputs.repository_contracts_required == 'true'
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Shared Rust setup
+        uses: ./.github/actions/rust-setup
+
+      - name: Install workspace test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep pkg-config
+
+      - name: Run repository-wide contracts
+        run: cargo test -p tachi-core --test workflow_ci_gates -- --test-threads=1
 
   shell-tests:
     name: cargo test -p tachi-shell (${{ matrix.suite }})

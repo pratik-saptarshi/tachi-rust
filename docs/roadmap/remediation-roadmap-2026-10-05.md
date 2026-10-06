@@ -159,6 +159,18 @@ available summary.
   for either route, and no route-specific timing medians. This supports only the
   sample-bounded historical observation; it is not the original adversarial
   panel report and does not replace matched controls.
-- Phase 1 is complete. P2-F02/P2-F03 and matched-control timing are not yet
-  implemented or accepted. The historical zero-candidate result remains
-  bounded to the retained sample and is not a timing result.
+- Phase 1 is complete. Phase 2 implementation is on
+  `fix/rt-ci-route-phase-2-closure-contracts` from refreshed `origin/main`
+  (`d523ada75b826d2fe03ecccf338e75b53e237538`, including merged PR #56).
+  Local RED reproductions recorded in Beads confirmed that the shell route
+  omitted `tachi-mcp` and manifest/toolchain changes had no repository-contract
+  route. Local GREEN and regression checks now pass: Cargo metadata
+  reverse-dependency comparison, route deduplication, compact contract
+  selection for manifests/toolchain/source changes, passive-doc exclusion,
+  active route/workflow contract tests, all 459 `tachi-core` all-target tests
+  (1 ignored), all 21 `tachi-mcp` tests, core Clippy, formatting, shell syntax,
+  workflow gate, docs version gates, and `git diff --check`. Hosted Phase 2 PR
+  checks and review are pending; its Beads remain in progress until checks are
+  terminal and successful. Matched-control timing is not yet implemented or
+  accepted. The historical zero-candidate result remains bounded to the
+  retained sample and is not a timing result.
