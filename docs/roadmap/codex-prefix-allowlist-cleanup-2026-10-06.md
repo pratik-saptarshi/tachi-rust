@@ -61,16 +61,28 @@ checksum, current entry count, executable-resolution results, and dispositions.
 ### Phase 1 — Prune and narrow (RT-fwt.2)
 
 Remove rules confirmed to reference missing executables, archived checkouts,
-expired tasks, or permissions without a current need. For each retained
-permission, use the narrowest current executable and exact command prefix.
-Review recursive deletion and install permissions separately. Do not retain a
-rule only because it appeared in an old session, and do not broaden a rule to
-make a replacement command pass.
+expired tasks, or permissions without a current need. A named owner does not
+justify retaining an entry whose executable or path is unresolved; remove it
+from the allowlist and track any replacement need separately. For each
+retained permission, use the narrowest current executable and exact command
+prefix. Review recursive deletion and install permissions separately. Do not
+retain a rule only because it appeared in an old session, and do not broaden a
+rule to make a replacement command pass.
+
+Codex's rules syntax remains the permission source. Store per-rule owner,
+purpose, last verification, and `expires_on` metadata in the adjacent local
+sidecar `/Users/neo/.codex/rules/default.rules.metadata.json`, keyed by a
+SHA-256 digest of the exact rule text. The validator must reject missing or
+unmatched sidecar records and any expiry more than 90 days after verification.
+Do not check this personal sidecar or the global rules file into the
+application repository.
 
 **PR boundary:** stage the separately reviewed change to the global Codex
-configuration and its inventory receipt. **Exit:** no entry targets a missing
-binary or inactive path without a named active owner; every retained rule has
-a verified use and is no broader than the baseline permission.
+configuration and its inventory receipt. **Exit:** every retained entry
+resolves to a live executable and active path; remove unresolved entries even
+when an owner exists. Every retained rule has a verified use, is no broader
+than the baseline permission, and has matching sidecar metadata with a
+non-expired `expires_on` no more than 90 days after verification.
 
 **Validation:** use Codex's installed rules parser or a non-executing dry run.
 Exercise intended and unrelated command strings in a safe test harness. Record
@@ -81,11 +93,14 @@ file. Never exercise destructive allowlisted commands as a test.
 
 Add a read-only validator that accepts the canonical rules path as an explicit
 input (defaulting to `/Users/neo/.codex/rules/default.rules` on the owner
-machine). It reports missing executables, stale repository paths, broad or
-unbounded prefixes, missing ownership/purpose, and entries without a recent
-verification date. It must not edit rules automatically. Add fixture cases so
-the validator can be tested in hosted CI without exposing or pretending to
-read the operator-local file.
+machine) and loads the adjacent `default.rules.metadata.json` sidecar. The
+sidecar maps each exact rule-text SHA-256 to owner, purpose, `last_verified`,
+and `expires_on`. The validator reports missing executables, stale repository
+paths, broad or unbounded prefixes, missing or unmatched metadata, missing or
+expired expiry, and expiry more than 90 days after verification. It must not
+edit either file automatically. Add fixture cases so the validator can be
+tested in hosted CI without exposing or pretending to read the operator-local
+files.
 
 Run the actual audit **monthly and whenever an allowed executable is
 installed, removed, renamed, or moved**. The operator maintenance checklist
@@ -96,7 +111,8 @@ must name the owner and include these steps:
 2. Verify the executable and repository/path literals on the owner machine.
 3. Remove entries with missing executables, archived repositories, expired
    tasks, or no current owner; narrow any rule whose scope grew.
-4. Validate the rules file without executing destructive allowlisted commands.
+4. Validate both the rules file and its hash-bound sidecar without executing
+   destructive allowlisted commands.
 5. Record the date, source checksum, rule count before and after, dispositions,
    and validation result; keep a dated backup before edits.
 
@@ -111,10 +127,11 @@ entries fail the audit; a valid exact rule passes; monthly and lifecycle
 triggers are assigned to an owner.
 
 **Validation:** hosted fixture tests cover missing executable, stale path,
-unbounded prefix, missing owner/purpose, overdue review, and valid exact rule.
-On the owner machine, run the validator against the actual global file and
-record its checksum and result. Confirm the Codex parser accepts the revised
-file and rollback from the dated backup is documented.
+unbounded prefix, missing/unmatched hash, missing owner/purpose/date/expiry,
+expired expiry, expiry beyond 90 days, and a valid exact rule. On the owner
+machine, run the validator against the actual global file and sidecar and
+record both checksums and the result. Confirm the Codex parser accepts the
+revised file and rollback from the dated backup is documented.
 
 ### Phase 3 — Integrated closeout
 
