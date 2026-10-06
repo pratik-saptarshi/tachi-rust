@@ -345,8 +345,8 @@ fn repository_contract_job_runs_independently_for_contract_inputs() {
     );
     assert_eq!(
         workflow_job_field(&workflow, "repository-contracts", "if"),
-        Some("needs.route.outputs.repository_contracts_required == 'true'"),
-        "repository contracts must run based on their inputs independently of package routing"
+        Some("(github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0) && needs.route.outputs.repository_contracts_required == 'true'"),
+        "repository contracts must run for their inputs, except matched controls that execute untrusted PR code"
     );
     assert_eq!(
         workflow_job_name(&workflow, "repository-contracts"),
