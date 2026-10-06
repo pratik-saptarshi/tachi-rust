@@ -2,7 +2,11 @@
 
 Status: **Phases 0–3 and both P3 advisories are delivered; post-merge review
 corrections merged in PR #62 (`d81f9962`), P3-F05 closed in PR #64, P3-F06
-closed in PR #65, and matched-control timing acceptance remains open.** Phase 1
+closed in PR #65. The 2026-10-06 cohort has ten identity-matched pairs per
+shape, but the collector's run-level "execution" includes downstream matrix
+job queueing. Neither shape has an accepted timing result until queue and
+execution are separated. Phase 4 remains incomplete, and `RT-0sd.2` stays
+open.** Phase 1
 merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
@@ -40,8 +44,9 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. PR #65 pins the retained audit manifest digest and closes P3-F06. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is separate and uploaded before PR scripts; artifacts with multiple JSON objects are rejected; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. PR #65 closes P3-F06. The 2026-10-06 cohort has ten identity-matched pairs per shape, but run-level duration includes downstream job queueing; timing acceptance remains unproven pending per-job queue/execution separation. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
+| **5 — Timing metric correction and follow-up** | Correct the collector's timing split tracked by `RT-0sd.4`; then determine whether dependency-closure needs cost remediation without reducing selected package or repository-contract coverage. | Separate implementation PR. Capture each measured job's creation, start, and completion timestamps; report workflow queue, per-job queue, and execution separately with a deterministic aggregation. Reprocess the existing cohort only if complete source timestamps are recoverable; otherwise collect a fresh matched cohort. Optimize dependency-closure only if the corrected execution metric misses the existing <=65% threshold. |
 
 ### Commit and PR progression
 
@@ -60,7 +65,10 @@ collector: `RT-0vf.6` delivers the verifier-boundary decision and narrowed-run
 regression; `RT-0vf.7` delivers the route-audit manifest and replay contract.
 Each milestone checks open PRs and CI at its start and gets its own PR. The
 existing Phase 4 closeout remains a separate final PR and stays blocked by
-`RT-0sd.2` until its matched-cohort acceptance passes.
+`RT-0sd.2` until its matched-cohort acceptance passes. The dependency-closure
+workflow wall-time observation has a separate follow-up milestone, `RT-0sd.4`,
+to correct timing metrics; do not lower the threshold or count the current
+cohort as a Phase 4 pass.
 
 ## Beads worklist
 
@@ -80,6 +88,35 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 | Phase 2 — dependency and repository contracts | P2 delivery | P2-F02 and P2-F03 focused RED/GREEN tests pass; Cargo metadata comparison and manifest-failure regression pass; relevant workspace tests, Clippy, workflow/docs gates, and required hosted checks pass. | `RT-0vf.3` |
 | Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Pair each successful optimized PR run with a successful full-route `pull_request` run triggered by adding `ci-full-control` to that same PR, with identical execution commit SHA and Git tree. Both runs use the immutable merge SHA supplied by the event; every measured job checks out that SHA. Require identical workflow-file blob content and route classifier/path-producer revisions; compare the route runner and every measured job's OS, image version, and architecture. Capture run ID, PR/head SHA, event, attempt, route decision, execution SHA/tree, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-provenance, and mismatched-commit/tree/workflow/runner pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
 | Phase 4 — integrated closeout | Closeout | Roadmap, review archive, raw evidence, Beads export, and integration log reconcile. Actual cohort counts and calculation are reproducible from retained inputs. Do not close timing acceptance on fewer than ten pairs per route shape or a failed threshold. | `RT-0vf.5` |
+| Phase 5 — timing metric correction and follow-up | P1; timing evidence integrity | **RED:** The current collector sets queue to workflow `createdAt`→`startedAt` and execution to workflow `startedAt`→`updatedAt`; this places matrix-job runner waits inside execution. The reported 193.6% dependency-closure ratio is workflow wall-time only and cannot establish an execution threshold miss. **GREEN:** Capture measured-job `created_at`, `started_at`, and `completed_at`; report workflow queue, per-job queue, and per-job execution separately under a documented deterministic aggregation. Reprocess current runs only if all required source timestamps can be recovered; otherwise collect ten fresh distinct successful matched trees per shape on comparable workflow/runner definitions. **Regression:** Fixtures prove post-start job wait affects queue but not execution, while job runtime affects execution; route closure and repository-contract triggering remain unchanged; invalid/incomplete job timing is excluded. Only then compare optimized execution median to the unchanged <=65% threshold; optimize dependency-closure if it still misses. | `RT-0sd.4` |
+
+### Matched-control result — 2026-10-06
+
+The final reclassified evidence snapshot is schema version 2, derived from the
+version-1 collector output identified by its source digest. Its summary is
+`informational_only` and `not_evaluated` until per-job queue/execution timing is
+collected. The snapshot is
+[`rt-ci-matched-control-final-2026-10-06.json`](../reports/rt-ci-matched-control-final-2026-10-06.json)
+(SHA-256 `a67221c0578df29ba282c87113e4620c4b0d8bd71c1f01f021844f0b744da0d2`;
+source collector SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`);
+the run mapping and limitations are in the
+[matched-control readout](../reports/rt-ci-matched-control-final-2026-10-06.md).
+It contains 87 candidate workflow runs and 20 valid pairs: ten `passive-docs`
+and ten `dependency-closure`, all on distinct PR trees with matching execution
+SHA/tree, workflow revision, runner definition, and successful attempts.
+
+| Route shape | Optimized workflow wall median | Full-control workflow wall median | Ratio | Interpretation |
+|---|---:|---:|---:|---|
+| `passive-docs` | 16,500 ms | 122,000 ms | 13.5% | Informational only |
+| `dependency-closure` | 257,500 ms | 133,000 ms | 193.6% | Informational only |
+
+Workflow queue medians are 0 ms at the one-second source timestamp resolution.
+They omit downstream job queueing. For example, the PR #80 control workflow
+started at 10:48:36Z, while measured jobs started between 10:49:26Z and
+10:52:36Z. These run-level ratios therefore do not establish either a pass or
+a threshold miss. Keep `RT-0sd.2` and `RT-0vf.5` open and Phase 4 incomplete.
+`RT-0sd.4` tracks corrected per-job queue/execution instrumentation and
+re-evaluation; optimize only if the accepted execution metric still misses.
 
 ### Timing acceptance update for `RT-0sd.2`
 
@@ -95,9 +132,10 @@ and a <=65% optimized execution median. The 37-candidate historical audit remain
 sample-bounded context, not a substitute cohort or a performance result.
 
 `RT-0sd.2` depends on completion of the Phase 1 routing, Phase 2 repository
-coverage, and Phase 3 matched-control collector issues. It does not depend on
-the P3 advisory issues. The new epic is related to `RT-0sd.2`; it does not
-replace or close it.
+coverage, Phase 3 matched-control collector issues, and the Phase 5
+dependency-closure timing remediation in `RT-0sd.4` before a passing replacement
+cohort can satisfy closeout. It does not depend on the P3 advisory issues. The
+new epic is related to `RT-0sd.2`; it does not replace or close it.
 
 The matched-control collector is invoked with `RT_CI_USE_RTK=true make rt-ci-matched-controls`.
 It reads completed `rust-workspace.yml` runs and their route and per-job runner
@@ -170,8 +208,11 @@ acceptance; keep `RT-0sd.2` open until its cohort gates pass.
 
 PR #62 merged as `d81f99629b77c6873be168a65ed052aedc9fcc4b` after 25 hosted
 checks passed, no checks failed, and the single skipped check remained
-nonblocking. Both PR #62 review threads were resolved. The latest recorded
-matched-pair counts remain zero for both route shapes; `RT-0sd.2` remains open.
+nonblocking. Both PR #62 review threads were resolved. Earlier inventories had
+zero eligible pairs. The final 2026-10-06 sample has ten identity-matched pairs
+per shape, but its workflow wall-time intervals include post-start matrix-job
+queueing. The resulting ratios are informational, not accepted pass/miss
+outcomes; `RT-0sd.2` remains open pending corrected metrics.
 
 ## Validation and release gates
 
@@ -217,6 +258,10 @@ eligibility evidence and does not represent matched timing performance.
 | PR #61 Copilot comment 4192629148: label events can cancel ordinary required CI and unrelated labels can start route work | Remove the `unlabeled` trigger, skip the route job for labels other than `ci-full-control`, and isolate ordinary, control, and ignored-label concurrency groups | Phase 3 trigger/concurrency workflow contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #62 Codex comment 4192736938: skipped ignored-label job reports success for the stable required check | Give ignored-label events a distinct non-required check name, while preserving the required name for ordinary and full-control runs; retain the route-job skip and concurrency isolation | Phase 3 trigger/status-check contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #62 Codex comment 4192802658: multiple route JSON documents can make `jq -s` merge a forged document instead of trusted provenance | Require exactly two slurped JSON objects before merging; reject malformed or multi-document route/provenance artifacts | Phase 3 collector and verifier artifact validation tests | `RT-0vf.4`, `RT-0sd.2` |
+| PR #90 Codex comment 4194686655: workflow-level execution interval includes downstream matrix job queueing | Mark current workflow wall-time ratios informational; collect per-job creation/start/completion timestamps and calculate queue/execution separately before evaluating or optimizing dependency-closure | Matched-control readout and Phase 5 acceptance | `RT-0sd.2`, `RT-0sd.4`, `RT-0vf.5` |
+| PR #90 Codex comment 4194758545: machine-readable status still exposed `pass` and `threshold_missed` | Reclassify both summary states to `informational_only` / `not_evaluated`, rename workflow wall-time fields, and pin the corrected artifact digest | Schema version 2 evidence snapshot | `RT-0sd.2` |
+| PR #90 Codex comment 4194840114: transformed evidence retained schema version 1 | Publish documented schema version 2 while retaining the source version-1 digest | Schema version 2 evidence snapshot and readout | `RT-0sd.2` |
+| PR #90 Codex comment 4194840118: roadmap still called the workflow wall-time observation a dependency-closure miss | Describe the 193.6% value as an informational workflow wall-time ratio; make optimization conditional on corrected execution measurement | Objective, Phase 5, matched-control result | `RT-0sd.2`, `RT-0sd.4` |
 
 ## Integration summary
 
@@ -253,8 +298,10 @@ available summary.
   (`RT-0vf.3` and children `.3.1`/`.3.2`) closed after PR #59. Phase 3
   collector issue `RT-0vf.4` closed after PR #62 merged and its hosted checks
   passed. This closes implementation delivery only: the refreshed read-only
-  collector baseline still has zero valid matched pairs for both route shapes,
-  so `RT-0sd.2` remains open. P3-F05 `RT-0vf.6` closed after PR #64 merged at
+  earlier collector baselines had zero eligible pairs. The final 2026-10-06
+  cohort has ten identity-matched pairs per shape but workflow wall time still
+  includes internal matrix-job queueing; `RT-0sd.2` remains open pending
+  corrected execution metrics. P3-F05 `RT-0vf.6` closed after PR #64 merged at
   `430ef76b`; its focused verifier tests and hosted workflows passed, and its
   Codex review thread was resolved. P3-F06 `RT-0vf.7` closed after PR #65
   merged at `2d3ff33d`; its replay digest fix and tamper tests passed, all nine
