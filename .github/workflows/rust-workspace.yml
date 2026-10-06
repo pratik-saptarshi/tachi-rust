@@ -157,7 +157,7 @@ jobs:
           if-no-files-found: error
 
   cargo-test:
-    name: cargo test -p ${{ matrix.package }} --all-targets
+    name: cargo test -p ${{ matrix.package }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [route]
@@ -199,7 +199,12 @@ jobs:
           mkdir -p .ci-timing
           start_ns="$(date +%s%N)"
           printf '%s\n' "$start_ns" > .ci-timing/start_ns
-          if [ "${{ matrix.package }}" = "tachi-core" ]; then
+          if [ "${{ matrix.package }}" = "tachi-shell" ]; then
+            # The shell integration targets are covered by the dedicated
+            # semantic suite matrix below. Run the library tests here to avoid
+            # executing all 18 integration binaries twice per workflow.
+            cargo test -p ${{ matrix.package }} --lib
+          elif [ "${{ matrix.package }}" = "tachi-core" ]; then
             # ci_local_runner_contract contains process-tree timing checks that
             # must not contend with sibling test binaries on the same runner.
             cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1

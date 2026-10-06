@@ -18,6 +18,88 @@ fn repo_root() -> PathBuf {
         .to_path_buf()
 }
 
+fn tachi_shell_integration_targets() -> BTreeSet<String> {
+    let metadata = Command::new("cargo")
+        .args([
+            "metadata",
+            "--offline",
+            "--no-deps",
+            "--format-version",
+            "1",
+        ])
+        .current_dir(repo_root())
+        .output()
+        .expect("cargo metadata must run for the local workspace");
+    assert!(
+        metadata.status.success(),
+        "cargo metadata failed: {}",
+        String::from_utf8_lossy(&metadata.stderr)
+    );
+    let metadata: serde_json::Value =
+        serde_json::from_slice(&metadata.stdout).expect("cargo metadata must emit JSON");
+    metadata
+        .get("packages")
+        .and_then(serde_json::Value::as_array)
+        .and_then(|packages| {
+            packages.iter().find(|package| {
+                package.get("name").and_then(serde_json::Value::as_str) == Some("tachi-shell")
+            })
+        })
+        .and_then(|package| package.get("targets"))
+        .and_then(serde_json::Value::as_array)
+        .expect("cargo metadata must include tachi-shell targets")
+        .iter()
+        .filter(|target| {
+            target
+                .get("kind")
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|kinds| kinds.iter().any(|kind| kind.as_str() == Some("test")))
+        })
+        .map(|target| {
+            target
+                .get("name")
+                .and_then(serde_json::Value::as_str)
+                .expect("every integration-test target must have a name")
+                .to_owned()
+        })
+        .collect()
+}
+
+#[test]
+fn matched_control_job_timing_maps_tachi_shell_library_job_name() {
+    let runner_inventory = r#"{"cargo-test-tachi-shell":"ubuntu-latest/image-a"}"#;
+    let run_jobs = r#"[{"name":"cargo test -p tachi-shell","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]"#;
+    let output = Command::new("jq")
+        .args([
+            "-n",
+            "--argjson",
+            "runner_inventory",
+            runner_inventory,
+            "--argjson",
+            "run_jobs",
+            run_jobs,
+            "-f",
+        ])
+        .arg(repo_root().join("scripts/rt-ci-job-timings.jq"))
+        .output()
+        .expect("jq must run the matched job timing mapper");
+    assert!(
+        output.status.success(),
+        "job timing mapper failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let mapped: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("job timing mapper must emit JSON");
+    assert_eq!(
+        mapped["job_timings"]["cargo-test-tachi-shell"]["name"],
+        "cargo test -p tachi-shell"
+    );
+    assert_eq!(
+        mapped["job_timings"]["cargo-test-tachi-shell"]["execution_ms"],
+        7_000
+    );
+}
+
 fn workflow_text(name: &str) -> String {
     fs::read_to_string(repo_root().join(".github/workflows").join(name))
         .unwrap_or_else(|err| panic!("read workflow {name}: {err}"))
@@ -77,6 +159,21 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
         .collect(),
         "manifest package units must match the hosted workspace matrix"
     );
+    let shell_package_unit = units
+        .iter()
+        .find(|unit| unit.get("package").and_then(serde_json::Value::as_str) == Some("tachi-shell"))
+        .expect("manifest must retain the tachi-shell library test unit");
+    assert_eq!(
+        shell_package_unit.get("argv").and_then(serde_json::Value::as_array),
+        Some(&vec![
+            serde_json::json!("cargo"),
+            serde_json::json!("test"),
+            serde_json::json!("-p"),
+            serde_json::json!("tachi-shell"),
+            serde_json::json!("--lib"),
+        ]),
+        "tachi-shell package unit must run library tests while integration tests run in semantic slices"
+    );
 
     let shell_commands: BTreeSet<String> = units
         .iter()
@@ -102,6 +199,40 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
             "manifest must preserve hosted shell slice: {command}"
         );
     }
+
+    let configured_shell_targets = units
+        .iter()
+        .filter(|unit| unit.get("kind").and_then(serde_json::Value::as_str) == Some("shell"))
+        .flat_map(|unit| {
+            unit.get("argv")
+                .and_then(serde_json::Value::as_array)
+                .expect("shell units need argv")
+                .windows(2)
+                .filter_map(|pair| {
+                    (pair[0].as_str() == Some("--test")).then(|| {
+                        pair[1]
+                            .as_str()
+                            .expect("test target name must be a string")
+                            .to_owned()
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+    let configured_shell_target_set = configured_shell_targets
+        .iter()
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        configured_shell_targets.len(),
+        configured_shell_target_set.len(),
+        "semantic shell units must not run an integration-test target more than once"
+    );
+    assert_eq!(
+        configured_shell_target_set,
+        tachi_shell_integration_targets(),
+        "semantic shell units must cover every tachi-shell integration-test target exactly once"
+    );
 
     for schema in [
         ".github/ci-test-units.json",
@@ -271,13 +402,19 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
     );
     assert_eq!(
         workflow_job_name(&workflow, "cargo-test"),
-        Some("cargo test -p ${{ matrix.package }} --all-targets"),
+        Some("cargo test -p ${{ matrix.package }}"),
         "cargo-test job must use a package matrix"
     );
-    assert_job_has_run_command(
-        &workflow,
-        "cargo-test",
-        "cargo test -p ${{ matrix.package }} --all-targets",
+    let cargo_test_run = workflow_run_bodies(&workflow)
+        .find(|run| {
+            run.contains("tachi-shell") && run.contains("cargo test -p ${{ matrix.package }}")
+        })
+        .expect("cargo-test matrix must run package tests");
+    assert!(
+        cargo_test_run.contains("if [ \"${{ matrix.package }}\" = \"tachi-shell\" ]; then")
+            && cargo_test_run.contains("cargo test -p ${{ matrix.package }} --lib")
+            && cargo_test_run.contains("cargo test -p ${{ matrix.package }} --all-targets"),
+        "tachi-shell must run library tests while other packages retain all-targets coverage"
     );
     assert!(
         workflow_run_bodies(&workflow).any(|command| command

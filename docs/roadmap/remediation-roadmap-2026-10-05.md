@@ -445,3 +445,28 @@ The previous 87-candidate snapshot remains preserved. Keep `RT-0sd.4`,
 `RT-0sd.2`, and `RT-0vf.5` open; investigate scheduler delay without reducing
 selected package or repository-contract coverage, then recapture ten matched
 trees per shape before evaluating closeout.
+
+### 2026-10-06 coverage-preserving shell test de-duplication
+
+Cargo metadata identifies 18 `tachi-shell` integration-test targets. The three
+dedicated semantic shell jobs already partition those targets exactly once,
+while the `tachi-shell --all-targets` package job ran the same 18 binaries a
+second time. The package job now runs `tachi-shell --lib`; the three shell jobs
+remain in place and continue to own every integration target. The local CI unit
+manifest mirrors that split. A workflow contract derives the live target set
+from `cargo metadata` and requires exact, nonduplicated coverage by the shell
+units, so a newly added integration target must be assigned to a semantic slice
+before the package-wide duplicate can be removed safely. The selected package
+matrix, repository-contract job, route classifier, and runner provenance keys
+remain unchanged. The timing mapper explicitly resolves the package's trusted
+runner key to the new library-only GitHub job name.
+
+Validation on the implementation branch: `workflow_ci_gates` passed 34/34;
+`cargo test -p tachi-shell --lib` passed 10/10; and the hosted shell-smoke,
+shell-init, and shell-integration command sets all passed. An initial broad
+serial `--tests` sweep encountered one timing-sensitive child-process timeout
+in `tauri_bridge`; that test passed in isolation and the full shell-integration
+slice then passed. No post-change hosted timing cohort exists yet, so this is a
+coverage-preserving optimization candidate, not evidence that the <=65%
+end-to-end latency gate passes. Keep `RT-0sd.4`, `RT-0sd.2`, and `RT-0vf.5`
+open and collect ten fresh interleaved matched trees per shape after merge.

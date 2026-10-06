@@ -1,6 +1,7 @@
 def expected_name($key):
   if $key == "route" then "route decision and stable orchestrator check"
   elif $key == "repository-contracts" then "repository-wide contract tests"
+  elif $key == "cargo-test-tachi-shell" then "cargo test -p tachi-shell"
   elif ($key | startswith("cargo-test-")) then
     "cargo test -p " + ($key[11:]) + " --all-targets"
   elif ($key | startswith("shell-tests-")) then
