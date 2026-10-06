@@ -99,12 +99,12 @@ while IFS= read -r run_json; do
     reason="route artifact run provenance does not match the workflow run"
   elif [ -z "$head_sha" ] || [ -z "$workflow_file_revision" ] || [ -z "$execution_workflow_file_revision" ] || [ "$workflow_file_revision" != "$execution_workflow_file_revision" ] || [ -z "$execution_sha" ] || [ -z "$route_tree_sha" ] || [ -z "$classifier_revision" ] || [ -z "$path_producer_revision" ] || [ -z "$runner_definition" ]; then
     reason="route artifact is missing source, execution-tree, workflow-content, classifier, path-producer, or runner provenance"
-  elif [ "$event" = "workflow_dispatch" ] && { [ "$execution_sha" != "$control_tree_sha" ] || [ "$control_pr_number" = "0" ] || [ -z "$control_pr_head_sha" ]; }; then
-    reason="forced-full control did not execute the requested PR merge commit with recorded PR and head provenance"
-  elif [ "$event" = "pull_request" ] && [ "$route_mode" != "passive_docs_only" ] && [ "$route_mode" != "dependency_closure" ]; then
+  elif [ "$control_pr_number" != "0" ] && { [ "$event" != "pull_request" ] || [ "$execution_sha" != "$control_tree_sha" ] || [ "$control_pr_number" != "$(jq -r '.pr_number // 0' <<<"$route")" ] || [ "$control_pr_head_sha" != "$head_sha" ] || [ -z "$control_pr_head_sha" ] || [ "$route_mode" != "full_pr_matrix" ] || [ "$forced" != "true" ]; }; then
+    reason="forced-full PR-label control did not execute its recorded PR merge commit, PR head, and full route"
+  elif [ "$event" = "workflow_dispatch" ]; then
+    reason="manual dispatches are not matched controls; use the pull_request ci-full-control label"
+  elif [ "$event" = "pull_request" ] && [ "$control_pr_number" = "0" ] && [ "$route_mode" != "passive_docs_only" ] && [ "$route_mode" != "dependency_closure" ]; then
     reason="PR route is not an eligible optimized shape"
-  elif [ "$event" = "workflow_dispatch" ] && { [ "$route_mode" != "full_pr_matrix" ] || [ "$forced" != "true" ]; }; then
-    reason="dispatch run is not an explicitly forced-full control"
   fi
 
   if [ -n "$reason" ]; then

@@ -7,12 +7,14 @@ def median($values):
     end;
 
 .candidates as $candidates
-| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "pull_request" and (.route_mode == "passive_docs_only" or .route_mode == "dependency_closure") and (.execution_sha | type == "string" and length > 0) and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $routed
-| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "workflow_dispatch" and .route_mode == "full_pr_matrix" and .force_full_requested == true and (.execution_sha | type == "string" and length > 0) and (.control_tree_sha == .execution_sha) and (.control_pr_number | type == "number" and . > 0) and (.control_pr_head_sha | type == "string" and length > 0) and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $controls
+| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "pull_request" and (.control_pr_number // 0) == 0 and (.route_mode == "passive_docs_only" or .route_mode == "dependency_closure") and (.execution_sha | type == "string" and length > 0) and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $routed
+| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "pull_request" and .route_mode == "full_pr_matrix" and .force_full_requested == true and (.execution_sha | type == "string" and length > 0) and (.control_tree_sha == .execution_sha) and (.control_pr_number | type == "number" and . > 0) and (.control_pr_head_sha | type == "string" and length > 0) and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $controls
 | [
     $routed[] as $pr
     | $controls[] as $control
     | select($pr.execution_sha == $control.execution_sha)
+    | select($pr.pr_number == $control.control_pr_number)
+    | select($pr.head_sha == $control.control_pr_head_sha)
     | select($pr.tree_sha == $control.tree_sha)
     | select($pr.workflow_file_revision == $control.workflow_file_revision)
     | select($pr.classifier_revision == $control.classifier_revision)
@@ -46,7 +48,7 @@ def median($values):
       $candidates[] as $candidate
       | if $candidate.eligible != true then $candidate + {disposition:"excluded",reason:($candidate.rejection_reason // "candidate is ineligible")}
         elif ($paired_run_ids | index($candidate.run_id)) != null then $candidate + {disposition:"paired",reason:"matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"}
-        else $candidate + {disposition:"unmatched",reason:"no compatible opposite-event run or this tree was already counted"}
+        else $candidate + {disposition:"unmatched",reason:"no compatible opposite-route run or this tree was already counted"}
         end
     ],
     pairs: $pairs,

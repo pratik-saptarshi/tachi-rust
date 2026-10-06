@@ -81,40 +81,42 @@ trap cleanup EXIT
 mkdir -p -- "$root"
 chmod 0700 "$root"
 
-if [ "$run_event" = "workflow_dispatch" ]; then
-    route_dir="$root/route-decision"
-    mkdir -p -- "$route_dir"
-    gh run download "$RUN_ID" --repo "$REPO" --name route-decision --dir "$route_dir" >/dev/null || {
-        echo "FAIL: workflow_dispatch run has no route-decision artifact" >&2
-        exit 1
-    }
-    route_files=("$route_dir"/*.json)
-    [ "${#route_files[@]}" -eq 1 ] || {
-        echo "FAIL: workflow_dispatch route-decision artifact is missing or ambiguous" >&2
-        exit 1
-    }
-    jq -e --arg run_id "$RUN_ID" --argjson attempt "$run_attempt" \
-        '.run_id == $run_id and .run_attempt == $attempt and .event == "workflow_dispatch"' \
+route_dir="$root/route-decision"
+mkdir -p -- "$route_dir"
+gh run download "$RUN_ID" --repo "$REPO" --name route-decision --dir "$route_dir" >/dev/null || {
+    echo "FAIL: run has no route-decision artifact" >&2
+    exit 1
+}
+route_files=("$route_dir"/*.json)
+[ "${#route_files[@]}" -eq 1 ] || {
+    echo "FAIL: route-decision artifact is missing or ambiguous" >&2
+    exit 1
+}
+jq -e --arg run_id "$RUN_ID" --argjson attempt "$run_attempt" --arg event "$run_event" \
+    '.run_id == $run_id and .run_attempt == $attempt and .event == $event
+     and (.execution_sha | type == "string" and length > 0)
+     and (.head_sha | type == "string" and length > 0)' \
+    "${route_files[0]}" >/dev/null || {
+    echo "FAIL: route artifact provenance does not match the workflow run" >&2
+    exit 1
+}
+expected_run_commit_sha="$(jq -r '.execution_sha' "${route_files[0]}")"
+expected_source_head_sha="$(jq -r '.head_sha' "${route_files[0]}")"
+control_pr_number="$(jq -r '.control_pr_number // 0' "${route_files[0]}")"
+if [ "$control_pr_number" != "0" ]; then
+    jq -e --arg event "$run_event" \
+        '.event == "pull_request"
+         and .mode == "full_pr_matrix"
+         and .force_full_requested == true
+         and (.execution_sha | type == "string" and length > 0)
+         and .control_tree_sha == .execution_sha
+         and (.control_pr_head_sha | type == "string" and length > 0)' \
         "${route_files[0]}" >/dev/null || {
-        echo "FAIL: workflow_dispatch route artifact provenance does not match the run" >&2
+        echo "FAIL: matched control route artifact lacks exact execution and PR-head provenance" >&2
         exit 1
     }
-    control_pr_number="$(jq -r '.control_pr_number // 0' "${route_files[0]}")"
-    if [ "$control_pr_number" != "0" ]; then
-        jq -e \
-            '.mode == "full_pr_matrix"
-             and .force_full_requested == true
-             and (.execution_sha | type == "string" and length > 0)
-             and .control_tree_sha == .execution_sha
-             and (.control_pr_head_sha | type == "string" and length > 0)' \
-            "${route_files[0]}" >/dev/null || {
-            echo "FAIL: matched control route artifact lacks exact execution and PR-head provenance" >&2
-            exit 1
-        }
-        expected_run_commit_sha="$(jq -r '.execution_sha' "${route_files[0]}")"
-        expected_source_head_sha="$(jq -r '.control_pr_head_sha' "${route_files[0]}")"
-        is_matched_control="true"
-    fi
+    expected_source_head_sha="$(jq -r '.control_pr_head_sha' "${route_files[0]}")"
+    is_matched_control="true"
 fi
 
 artifacts=(
@@ -201,15 +203,13 @@ if [ "$COMMIT" = "auto" ]; then
     COMMIT="$observed_commit"
 fi
 
-if [ "$run_event" = "push" ] || [ "$run_event" = "workflow_dispatch" ]; then
-  if [ "$COMMIT" != "$expected_run_commit_sha" ]; then
-    if [ "$is_matched_control" = "true" ]; then
-      echo "FAIL: matched-control timing artifacts do not match the verified PR merge execution SHA" >&2
-    else
-      echo "FAIL: push timing artifacts do not match the GitHub run head SHA" >&2
-    fi
-    exit 1
+if [ "$COMMIT" != "$expected_run_commit_sha" ]; then
+  if [ "$is_matched_control" = "true" ]; then
+    echo "FAIL: matched-control timing artifacts do not match the verified PR merge execution SHA" >&2
+  else
+    echo "FAIL: timing artifacts do not match the route artifact execution SHA" >&2
   fi
+    exit 1
 fi
 
 jq -n --arg repo "$REPO" --arg run_id "$RUN_ID" --arg commit "$COMMIT" --argjson verified "$verified" \

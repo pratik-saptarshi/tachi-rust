@@ -23,7 +23,7 @@ that the route-specific acceptance target passed.
 | 0 — Reconcile the existing review and tracker state | RT-0sd | Planning/update commits on PR #26's attached branch | PR #26 head and hosted jobs inspected; review findings fixed on that branch; Beads records and export reconciled |
 | 1 — Make timing collection success-only and reproducible | RT-0sd.1 — complete in PR #26 | PR #26, merged as `62dbed10` | Mixed success/failure behavioral regression proves failed completions do not affect sample size or medians; focused Rust contract suite and hosted required checks pass |
 | 2a — Make the planned route shapes reachable | RT-0sd.3 — complete | PR #54, merged as `9d5b2733420bf5511a12c9a04cb36172937cd864` | Main-target PRs can select passive-docs and dependency-closure modes; direct protected-ref events and all unsafe/unknown routes remain full; behavioral route tests and hosted required checks pass |
-| 2b — Prove route-specific reduction with matched controls | RT-0sd.2 — open; prerequisite RT-0sd.3 complete | Evidence PR with matched run IDs and reproducible calculation | For each route shape, ten distinct identical code trees each have a successful routed PR run and successful forced-full `workflow_dispatch` control on the same tree SHA and comparable workflow/runner definition. Report queue and execution medians separately; optimized execution median is at most 65% of the full-control median for both shapes; otherwise leave open |
+| 2b — Prove route-specific reduction with matched controls | RT-0sd.2 — open; prerequisite RT-0sd.3 complete | Evidence PR with matched run IDs and reproducible calculation | For each route shape, ten distinct identical code trees each have a successful optimized PR run and successful full-route `pull_request` run triggered by adding `ci-full-control` to the same PR. Match exact execution SHA/tree and comparable workflow/runner definition. Report queue and execution medians separately; optimized execution median is at most 65% of the full-control median for both shapes; otherwise leave open |
 | 3 — Synchronize delivery records | RT-0sd closeout | Final evidence/doc PR | Baseline, closeout, execution plan, codemap, backlog, live Beads, and JSONL export agree; close only after Phase 2b evidence passes |
 
 At the start of each milestone, inspect every open PR's current head, checks,
@@ -65,8 +65,9 @@ candidates for `passive-docs` and `dependency-closure`; these bounded counts do
 not establish whether a timing target passed. The acceptance was revised to
 matched controls because a historical pre-router cohort cannot be populated
 from future runs. For each optimized route shape, pair a successful routed PR
-run with a successful forced-full `workflow_dispatch` control on the same
-distinct code tree, using comparable workflow revision and runner definition.
+run with a successful full-route `pull_request` control triggered by adding the
+`ci-full-control` label to that same PR. Use the identical event merge SHA,
+workflow revision, and runner definition.
 The identical-tree controls provide a collectable full-matrix baseline without
 synthetic PRs. PR #54 corrected and merged the classifier; `RT-0sd.2` remains
 open until each shape has ten valid pairs and the optimized execution median
@@ -94,10 +95,11 @@ conditionally skipped required job as successful, so skipped package matrices
 remain compatible with the required-check contract.
 
 Collect matched pairs separately for `passive-docs` and `dependency-closure`.
-Each pair consists of a successful routed PR run and a successful forced-full
-`workflow_dispatch` control on the same exact tree SHA, with comparable
-workflow revision and runner definition. Use ten distinct PR code trees per
-shape. Identify each run by workflow run ID, PR/head, event, attempt, route
+Each pair consists of a successful optimized PR run and a successful full-route
+`pull_request` control triggered by the `ci-full-control` label on the same
+PR and exact tree SHA, with comparable workflow revision and runner definition.
+Use ten distinct PR code trees per shape. Identify each run by workflow run ID,
+PR/head, event, attempt, route
 decision, tree SHA, workflow/runner definition, and created/started/completed
 timestamps. Exclude failed, cancelled, rerun-ambiguous, missing-route,
 mismatched-tree, and otherwise incomparable pairs. Report queue and execution

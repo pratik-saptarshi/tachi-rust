@@ -59,6 +59,10 @@ if [ "$1" = "run" ] && [ "$2" = "download" ]; then
   done
   mkdir -p "$dir"
   case "$name" in
+    route-decision)
+      jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route.json"
+      exit 0
+      ;;
     ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
     ci-timing-shell-*) unit="shell-tests-${name#ci-timing-shell-}"; stage="test-slice" ;;
     *) exit 2 ;;
@@ -75,7 +79,7 @@ exit 2
     let metadata = r#"{"workflowName":"untrusted workflow","event":"pull_request","status":"completed","conclusion":"success","headBranch":"feature/test","headSha":"source-sha","attempt":1,"databaseId":123}"#;
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
     let result = Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
-        .args(["123", "auto"])
+        .args(["123", "merge-sha"])
         .env("PATH", path)
         .env("GH_REPO", "pratik-saptarshi/tachi-rust")
         .env("GH_LOG", &log)
@@ -119,6 +123,10 @@ if [ "$1" = "run" ] && [ "$2" = "download" ]; then
   done
   mkdir -p "$dir"
   case "$name" in
+    route-decision)
+      jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route.json"
+      exit 0
+      ;;
     ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
     ci-timing-shell-*) unit="shell-tests-${name#ci-timing-shell-}"; stage="test-slice" ;;
     *) exit 2 ;;
@@ -175,7 +183,7 @@ fn verifier_binds_matched_control_artifacts_to_the_route_execution_sha_and_pr_he
     let route = artifacts.join("route.json");
     fs::write(
         &route,
-        r#"{"run_id":"123","run_attempt":1,"event":"workflow_dispatch","mode":"full_pr_matrix","force_full_requested":true,"execution_sha":"merge-sha","tree_sha":"tree-sha","control_tree_sha":"merge-sha","control_pr_number":7,"control_pr_head_sha":"pr-head-sha"}"#,
+        r#"{"run_id":"123","run_attempt":1,"event":"pull_request","mode":"full_pr_matrix","force_full_requested":true,"execution_sha":"merge-sha","tree_sha":"tree-sha","control_tree_sha":"merge-sha","control_pr_number":7,"control_pr_head_sha":"pr-head-sha","head_sha":"pr-head-sha"}"#,
     )
     .expect("write route artifact");
     executable(
@@ -210,18 +218,18 @@ if [ "$1" = "run" ] && [ "$2" = "download" ]; then
     *) exit 2 ;;
   esac
   jq -n --arg unit "$unit" --arg stage "$stage" --arg source "$FAKE_ARTIFACT_SOURCE" \
-    '{schema_version:1,stage:$stage,unit:$unit,commit:"merge-sha",duration_ms:1,runner:{run_id:123,attempt:1,event:"workflow_dispatch",workflow_name:"rust workspace tests",ref:"refs/heads/main",head_sha:"merge-sha",source_head_sha:$source}}' \
+    '{schema_version:1,stage:$stage,unit:$unit,commit:"merge-sha",duration_ms:1,runner:{run_id:123,attempt:1,event:"pull_request",workflow_name:"rust workspace tests",ref:"refs/pull/7/merge",head_sha:"merge-sha",source_head_sha:$source}}' \
     > "$dir/result.json"
   exit 0
 fi
 exit 2
 "##,
     );
-    let metadata = r#"{"workflowName":"rust workspace tests","event":"workflow_dispatch","status":"completed","conclusion":"success","headBranch":"main","headSha":"default-branch-sha","attempt":1,"databaseId":123}"#;
+    let metadata = r#"{"workflowName":"rust workspace tests","event":"pull_request","status":"completed","conclusion":"success","headBranch":"route-pr","headSha":"merge-sha","attempt":1,"databaseId":123}"#;
     let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
     let verify = |source_head: &str| {
         Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
-            .args(["123", "auto"])
+            .args(["123", "merge-sha"])
             .env("PATH", &path)
             .env("GH_REPO", "pratik-saptarshi/tachi-rust")
             .env("FAKE_RUN_METADATA", metadata)

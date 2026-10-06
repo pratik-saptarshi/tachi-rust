@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
     inputs:
       force_full_ci:
@@ -12,19 +13,9 @@ on:
         required: false
         type: boolean
         default: false
-      control_tree_sha:
-        description: Exact PR merge tree commit to execute for matched timing evidence
-        required: false
-        type: string
-      control_pr_number:
-        description: PR whose current merge ref must match control_tree_sha
-        required: false
-        type: number
-        default: 0
 
 permissions:
   contents: read
-  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,6 +24,7 @@ concurrency:
 jobs:
   route:
     name: route decision and stable orchestrator check
+    if: github.event_name != 'workflow_dispatch' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -47,26 +39,25 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number != 0 && format('refs/pull/{0}/merge', inputs.control_pr_number) || github.event_name == 'workflow_dispatch' && inputs.control_tree_sha != '' && inputs.control_tree_sha || github.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Add matched-control provenance
+      - name: Capture trusted route provenance
         id: provenance
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
           SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number || 0 }}
           WORKFLOW_SHA: ${{ github.workflow_sha }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci }}
-          CONTROL_TREE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.control_tree_sha || '' }}
-          CONTROL_PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number || 0 }}
+          FORCE_FULL_CI_INPUT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci) || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control') }}
+          CONTROL_TREE_SHA: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && github.sha || '' }}
+          CONTROL_PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && github.event.pull_request.number || 0 }}
+          CONTROL_PR_HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && github.event.pull_request.head.sha || '' }}
         run: |
           set -euo pipefail
           execution_sha="$(git rev-parse HEAD)"
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CONTROL_PR_NUMBER" != "0" ] && [ "$GITHUB_REF" != "refs/heads/${DEFAULT_BRANCH}" ]; then
-            echo "matched controls must dispatch the trusted default-branch workflow" >&2
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CONTROL_PR_NUMBER" != "0" ]; then
+            echo "matched full controls must use the pull_request ci-full-control label" >&2
             exit 1
           fi
           if { [ "$CONTROL_PR_NUMBER" != "0" ] && [ -z "$CONTROL_TREE_SHA" ]; } || { [ "$CONTROL_PR_NUMBER" = "0" ] && [ -n "$CONTROL_TREE_SHA" ]; }; then
@@ -77,9 +68,8 @@ jobs:
             echo "checked out $(git rev-parse HEAD), expected control tree commit $CONTROL_TREE_SHA" >&2
             exit 1
           fi
-          control_pr_head_sha=""
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CONTROL_PR_NUMBER" != "0" ]; then
-            control_pr_head_sha="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${CONTROL_PR_NUMBER}" --jq '.head.sha')"
+          control_pr_head_sha="$CONTROL_PR_HEAD_SHA"
+          if [ "$CONTROL_PR_NUMBER" != "0" ]; then
             parents=" $(git show -s --format=%P HEAD) "
             case "$parents" in
               *" $control_pr_head_sha "*) ;;
@@ -128,7 +118,7 @@ jobs:
         shell: bash
         env:
           FORCE_FULL_CI: ${{ vars.FORCE_FULL_CI }}
-          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci }}
+          FORCE_FULL_CI_INPUT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci) || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control') }}
           BASE_REF: ${{ github.base_ref }}
           GIT_SHA: ${{ github.sha }}
         run: |
@@ -293,7 +283,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [route]
-    if: (github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0) && needs.route.outputs.repository_contracts_required == 'true'
+    if: needs.route.outputs.repository_contracts_required == 'true'
     env:
       CARGO_TERM_COLOR: always
     steps:

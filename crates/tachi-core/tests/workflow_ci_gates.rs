@@ -345,8 +345,8 @@ fn repository_contract_job_runs_independently_for_contract_inputs() {
     );
     assert_eq!(
         workflow_job_field(&workflow, "repository-contracts", "if"),
-        Some("(github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0) && needs.route.outputs.repository_contracts_required == 'true'"),
-        "repository contracts must run for their inputs, except matched controls that execute untrusted PR code"
+        Some("needs.route.outputs.repository_contracts_required == 'true'"),
+        "repository contracts must run based on their inputs independently of package routing"
     );
     assert_eq!(
         workflow_job_name(&workflow, "repository-contracts"),
@@ -971,20 +971,18 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "workflow_dispatch:",
         "force_full_ci:",
         "type: boolean",
+        "ci-full-control",
+        "github.event.action == 'labeled'",
+        "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)",
         "permissions:",
         "contents: read",
         "name: route-decision",
         "if-no-files-found: error",
         "github.workflow_sha",
-        "inputs.control_tree_sha",
-        "inputs.control_pr_number",
         "execution_tree_sha",
         "needs.route.outputs.execution_sha",
         "control_pr_head_sha",
-        "pull-requests: read",
-        "DEFAULT_BRANCH",
-        "refs/heads/${DEFAULT_BRANCH}",
-        "matched controls must dispatch the trusted default-branch workflow",
+        "matched full controls must use the pull_request ci-full-control label",
         "persist-credentials: false",
         "provenance_json",
         "Attach trusted provenance to route decision",
@@ -1001,10 +999,9 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
             "workflow must include {required}"
         );
     }
-    assert_eq!(
-        workflow.matches("refs/pull/{0}/merge").count(),
-        1,
-        "only the route job may resolve the mutable PR merge ref"
+    assert!(
+        !workflow.contains("refs/pull/{0}/merge"),
+        "the route job must use the immutable event SHA instead of resolving a mutable PR ref"
     );
     assert_eq!(
         workflow
@@ -1025,13 +1022,13 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
             .unwrap_or_else(|| panic!("route job must contain {name}"))
     };
     assert!(
-        step_index("Add matched-control provenance") < step_index("Capture route mode"),
-        "the token-bearing provenance step must run before PR-controlled route scripts"
+        step_index("Capture trusted route provenance") < step_index("Capture route mode"),
+        "trusted provenance must be captured before PR-controlled route scripts"
     );
     assert_eq!(
         workflow.matches("GH_TOKEN:").count(),
-        1,
-        "the GitHub token must be scoped to the pre-classification provenance step"
+        0,
+        "route provenance must not need a GitHub token"
     );
     for required in [
         "gh run list",
@@ -1059,6 +1056,8 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "run_attempt == 1",
         "conclusion == \"success\"",
         "$pr.execution_sha == $control.execution_sha",
+        "$pr.pr_number == $control.control_pr_number",
+        "$pr.head_sha == $control.control_pr_head_sha",
         "$pr.tree_sha == $control.tree_sha",
         "$pr.workflow_file_revision == $control.workflow_file_revision",
         "$pr.classifier_revision == $control.classifier_revision",
@@ -1112,7 +1111,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             } else {
                 format!("commit-{tree_sha}")
             },
-            "control_tree_sha": if event == "workflow_dispatch" {
+            "control_tree_sha": if force_full {
                 if run_id == "14" {
                     "different-commit".to_owned()
                 } else {
@@ -1121,8 +1120,8 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             } else {
                 String::new()
             },
-            "control_pr_number": if event == "workflow_dispatch" { 42 } else { 0 },
-            "control_pr_head_sha": if event == "workflow_dispatch" { format!("control-head-{run_id}") } else { String::new() },
+            "control_pr_number": if force_full { 42 } else { 0 },
+            "control_pr_head_sha": if force_full { format!("head-{tree_sha}") } else { String::new() },
             "workflow_file_revision": workflow_file_revision,
             "classifier_revision": "classifier-1",
             "path_producer_revision": "path-producer-1",
@@ -1137,7 +1136,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "force_full_requested": force_full,
             "eligible": eligible,
             "pr_number": 42,
-            "head_sha": format!("head-{run_id}"),
+            "head_sha": format!("head-{tree_sha}"),
             "created_at": "2026-10-06T00:00:00Z",
             "started_at": "2026-10-06T00:00:10Z",
             "completed_at": "2026-10-06T00:01:10Z",
@@ -1162,7 +1161,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "2",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1190,7 +1189,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "4",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1260,7 +1259,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "9",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1274,7 +1273,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "10",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1288,7 +1287,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "11",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1316,7 +1315,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "13",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1330,7 +1329,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "14",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1398,7 +1397,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
     assert_eq!(passive_pair["execution_sha"], "commit-tree-a");
     assert_eq!(passive_pair["control_pr_number"], 42);
     assert_eq!(passive_pair["control_tree_sha"], "commit-tree-a");
-    assert_eq!(passive_pair["control_pr_head_sha"], "control-head-2");
+    assert_eq!(passive_pair["control_pr_head_sha"], "head-tree-a");
     assert!(report["candidate_dispositions"]
         .as_array()
         .unwrap()
@@ -1423,13 +1422,13 @@ fn matched_control_collector_handles_run_api_and_artifact_fixtures() {
     fs::create_dir_all(&fixtures).expect("create artifact fixture directory");
     let runs = serde_json::json!([
         {"databaseId":1,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"route-pr","url":"https://example.test/run/1"},
-        {"databaseId":2,"attempt":1,"conclusion":"success","event":"workflow_dispatch","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"route-pr","url":"https://example.test/run/2"},
+        {"databaseId":2,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"route-pr","url":"https://example.test/run/2"},
         {"databaseId":3,"attempt":1,"conclusion":"failure","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"failed-pr","url":"https://example.test/run/3"},
         {"databaseId":4,"attempt":1,"conclusion":"cancelled","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"cancelled-pr","url":"https://example.test/run/4"},
         {"databaseId":5,"attempt":2,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"rerun-pr","url":"https://example.test/run/5"},
         {"databaseId":6,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"no-artifact-pr","url":"https://example.test/run/6"},
         {"databaseId":7,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"mismatch-pr","url":"https://example.test/run/7"},
-        {"databaseId":8,"attempt":1,"conclusion":"success","event":"workflow_dispatch","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
+        {"databaseId":8,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:02:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
     ]);
     let runs_file = root.join("runs.json");
     fs::write(&runs_file, serde_json::to_vec(&runs).unwrap()).expect("write fake run list");
@@ -1511,8 +1510,8 @@ esac
                 "execution_sha": execution_sha,
                 "tree_sha": tree_sha,
                 "control_tree_sha": control_tree_sha,
-                "control_pr_number": if event == "workflow_dispatch" { 42 } else { 0 },
-                "control_pr_head_sha": if event == "workflow_dispatch" { "head-control" } else { "" },
+                "control_pr_number": if force_full { pr_number } else { 0 },
+                "control_pr_head_sha": if force_full { head_sha } else { "" },
                 "classifier_revision": "classifier-1",
                 "path_producer_revision": "path-producer-1",
                 "runner_definition": "ubuntu-latest",
@@ -1549,14 +1548,14 @@ esac
     );
     write_route(
         "2",
-        "workflow_dispatch",
+        "pull_request",
         "full_pr_matrix",
-        "head-control",
+        "head-pr",
         "tree-a",
         "merge-control-a",
         "merge-control-a",
         true,
-        0,
+        101,
     );
     write_route(
         "7",
@@ -1571,14 +1570,14 @@ esac
     );
     write_route(
         "8",
-        "workflow_dispatch",
+        "pull_request",
         "full_pr_matrix",
-        "head-mismatch-control",
+        "head-mismatch-pr",
         "tree-c",
         "merge-control-c",
         "merge-control-c",
         true,
-        0,
+        202,
     );
 
     let original_path = std::env::var_os("PATH").unwrap_or_default();
@@ -1608,9 +1607,9 @@ esac
     assert_eq!(report["pairs"].as_array().unwrap().len(), 1);
     assert_eq!(report["pairs"][0]["tree_sha"], "tree-a");
     assert_eq!(report["pairs"][0]["execution_sha"], "merge-control-a");
-    assert_eq!(report["pairs"][0]["control_pr_number"], 42);
+    assert_eq!(report["pairs"][0]["control_pr_number"], 101);
     assert_eq!(report["pairs"][0]["control_tree_sha"], "merge-control-a");
-    assert_eq!(report["pairs"][0]["control_pr_head_sha"], "head-control");
+    assert_eq!(report["pairs"][0]["control_pr_head_sha"], "head-pr");
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
     let candidates = report["candidate_runs"].as_array().unwrap();
@@ -1634,7 +1633,7 @@ esac
         .any(|candidate| candidate["run_id"] == "7"
             && candidate["disposition"] == "unmatched"
             && candidate["reason"]
-                == "no compatible opposite-event run or this tree was already counted"));
+                == "no compatible opposite-route run or this tree was already counted"));
     fs::remove_dir_all(&root).expect("remove fake collector directory");
 }
 
