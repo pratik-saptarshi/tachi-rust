@@ -327,13 +327,18 @@ available summary.
   resulting Clippy code-scanning threads were resolved. GitHub rejected the
   auto-merge mutation as unstable, then accepted the normal protected squash
   merge after checks passed. `RT-0vf.7` is closed.
-  The most recent full collector inventory reports zero matched pairs. A
-  supplemental first-page API inventory returned 11 PR-triggered workspace
-  runs since 2026-10-05; all 11 route artifacts classify as `full_pr_matrix`,
-  so none adds an optimized route candidate. The local collector could not
-  refresh the inventory because the `rtk gh` connection to `api.github.com`
-  failed in this environment. Counts therefore remain at the last complete
-  zero-pair collector baseline for both shapes; no timing conclusion is claimed.
+  The current complete collector output is archived at
+  [`docs/reports/rt-ci-matched-control-inventory-2026-10-06.json`](../reports/rt-ci-matched-control-inventory-2026-10-06.json)
+  (SHA-256 `25daf5b1f60adca111e6e4a0723c883dd0a04e541b08b181b88d562e8627595a`).
+  It scans the latest 100 `rust-workspace.yml` runs and retains 74 PR/dispatch
+  candidates: 44 lack an available route artifact, 10 lack trusted provenance,
+  9 are unsuccessful, 1 has an ambiguous rerun attempt, and 10 have a full
+  route rather than an optimized shape. There are zero eligible route samples,
+  zero full controls, and zero matched pairs. Both route shapes remain
+  `insufficient_pairs`; queue and execution medians are null. The supplemental
+  API query also found the latest 11 PR workspace runs were full route. This
+  bounded scan does not prove the timing threshold and does not replace future
+  collection of ten distinct valid pairs per shape.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains
