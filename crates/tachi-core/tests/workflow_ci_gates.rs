@@ -66,9 +66,9 @@ fn tachi_shell_integration_targets() -> BTreeSet<String> {
 }
 
 #[test]
-fn matched_control_job_timing_maps_tachi_shell_library_job_name() {
-    let runner_inventory = r#"{"cargo-test-tachi-shell":"ubuntu-latest/image-a"}"#;
-    let run_jobs = r#"[{"name":"cargo test -p tachi-shell","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]"#;
+fn matched_control_job_timing_maps_all_package_job_names() {
+    let runner_inventory = r#"{"cargo-test-tachi-core":"ubuntu-latest/image-a","cargo-test-tachi-cli":"ubuntu-latest/image-a","cargo-test-tachi-desktop":"ubuntu-latest/image-a","cargo-test-tachi-mcp":"ubuntu-latest/image-a","cargo-test-tachi-shell":"ubuntu-latest/image-a"}"#;
+    let run_jobs = r#"[{"name":"cargo test -p tachi-core","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-cli","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-desktop","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-mcp","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-shell","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]"#;
     let output = Command::new("jq")
         .args([
             "-n",
@@ -90,14 +90,20 @@ fn matched_control_job_timing_maps_tachi_shell_library_job_name() {
     );
     let mapped: serde_json::Value =
         serde_json::from_slice(&output.stdout).expect("job timing mapper must emit JSON");
-    assert_eq!(
-        mapped["job_timings"]["cargo-test-tachi-shell"]["name"],
-        "cargo test -p tachi-shell"
-    );
-    assert_eq!(
-        mapped["job_timings"]["cargo-test-tachi-shell"]["execution_ms"],
-        7_000
-    );
+    for package in [
+        "tachi-core",
+        "tachi-cli",
+        "tachi-desktop",
+        "tachi-mcp",
+        "tachi-shell",
+    ] {
+        let job_key = format!("cargo-test-{package}");
+        assert_eq!(
+            mapped["job_timings"][&job_key]["name"],
+            format!("cargo test -p {package}")
+        );
+        assert_eq!(mapped["job_timings"][&job_key]["execution_ms"], 7_000);
+    }
 }
 
 fn workflow_text(name: &str) -> String {
@@ -1649,7 +1655,7 @@ case "$1 $2" in
           */actions/runs/11/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:10Z","started_at":"2026-10-06T00:00:05Z","completed_at":"2026-10-06T00:00:20Z"}]}' ;;
           */actions/runs/12/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"failure","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]}' ;;
           *)
-        printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-core --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:20Z","started_at":"2026-10-06T00:00:30Z","completed_at":"2026-10-06T00:00:50Z"}]}'
+        printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-core","conclusion":"success","created_at":"2026-10-06T00:00:20Z","started_at":"2026-10-06T00:00:30Z","completed_at":"2026-10-06T00:00:50Z"}]}'
             ;;
         esac
         ;;
