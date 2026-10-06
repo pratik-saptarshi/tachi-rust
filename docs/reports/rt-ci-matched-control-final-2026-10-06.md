@@ -48,10 +48,29 @@ the 40 runs in the existing 20 accepted pairs.
 | `passive-docs` | 10 | 3 s | 25.5 s | 12.5 s | 560 s |
 | `dependency-closure` | 10 | 848.5 s | 28.5 s | 513.5 s | 628 s |
 
+For dependency-closure, the per-job medians show where scheduling wait
+accumulates. Execution medians remain close to their controls:
+
+| Measured job | Routed scheduling median | Full-control scheduling median | Routed execution median | Full-control execution median |
+|---|---:|---:|---:|---:|
+| `tachi-cli` package | 67 s | 3 s | 56.5 s | 56.5 s |
+| `tachi-desktop` package | 55.5 s | 2.5 s | 63 s | 64.5 s |
+| `tachi-mcp` package | 73 s | 3 s | 52.5 s | 52.5 s |
+| `tachi-shell` package | 127 s | 3 s | 81 s | 85 s |
+| Repository contracts | 57 s | 3 s | 58.5 s | 60 s |
+| Shell init | 33 s | 3 s | 65.5 s | 67 s |
+| Shell integration | 47.5 s | 3 s | 65 s | 67 s |
+| Shell smoke | 113.5 s | 2 s | 51.5 s | 51 s |
+| Route decision | 6 s | 3 s | 10 s | 13 s |
+
 Scheduling and execution values sum individual job durations, which can overlap
 across parallel jobs and can exceed workflow wall time. They are diagnostics;
-they do not replace the end-to-end latency gate or, by themselves, prove the
-cause of the dependency-closure latency miss.
+they do not replace the end-to-end latency gate. The per-job medians suggest
+runner scheduling is a major contributor to the dependency-closure latency
+miss because job execution medians are comparable while routed start waits are
+longer. These historical runs were not interleaved, so they do not prove why
+the scheduler delays differed; the next cohort should interleave matched route
+and full-control runs to test this lead.
 
 Revalidation confirmed 10 pairs per shape; 20 distinct PR Git trees; identical
 PR/control Git tree and execution SHA within every pair; successful first

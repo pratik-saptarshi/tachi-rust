@@ -433,10 +433,15 @@ remains at 16.5 s routed versus 122 s full-control median (13.5%, pass).
 Dependency-closure remains at 257.5 s versus 133 s (193.6%, miss). Its summed
 per-job scheduling median is 848.5 s versus 28.5 s, and summed execution work
 is 513.5 s versus 628 s. These sums cover parallel jobs and are descriptive
-diagnostics only; they do not establish a root cause. The v4 diagnostic replay
-is [`docs/reports/rt-ci-matched-control-job-timings-2026-10-06.json`](../reports/rt-ci-matched-control-job-timings-2026-10-06.json),
+diagnostics only. Individual routed package and contract jobs have median
+scheduling waits of 55–73 s and shell jobs 33–127 s, while their execution
+medians are close to controls. This points to runner scheduling as a major
+contributor, but the historical runs were not interleaved and do not prove
+why the waits differed. The next matched cohort should interleave routed and
+full-control runs to test this lead. The v4 diagnostic replay is
+[`docs/reports/rt-ci-matched-control-job-timings-2026-10-06.json`](../reports/rt-ci-matched-control-job-timings-2026-10-06.json),
 SHA-256 `ece708e82214bea1ea64515b1159f1e35cf59c6a07750a74d68ac3bbcb09e8c0`.
 The previous 87-candidate snapshot remains preserved. Keep `RT-0sd.4`,
-`RT-0sd.2`, and `RT-0vf.5` open; investigate individual job records, preserve
-all selected package and repository-contract coverage, and recapture ten
-matched trees per shape after a fix before evaluating closeout.
+`RT-0sd.2`, and `RT-0vf.5` open; investigate scheduler delay without reducing
+selected package or repository-contract coverage, then recapture ten matched
+trees per shape before evaluating closeout.
