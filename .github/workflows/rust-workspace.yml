@@ -189,8 +189,8 @@ jobs:
           ref: ${{ needs.route.outputs.execution_sha }}
           persist-credentials: false
 
-      # Matched controls execute untrusted PR code in workflow_dispatch scope.
-      # Load the setup action from the workflow revision and disable its cache.
+      # This workflow executes PR code for both routed runs and matched controls.
+      # Keep caching out of this workflow so untrusted code cannot poison the default-branch cache.
       - name: Checkout trusted Rust setup action
         uses: actions/checkout@v7
         with:
@@ -199,9 +199,7 @@ jobs:
           persist-credentials: false
 
       - name: Shared Rust setup
-        uses: ./.ci-trusted/.github/actions/rust-setup
-        with:
-          use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}
+        uses: ./.ci-trusted/.github/actions/rust-setup-no-cache
 
       - name: Install workspace test tools
         run: |
@@ -299,9 +297,7 @@ jobs:
           persist-credentials: false
 
       - name: Shared Rust setup
-        uses: ./.ci-trusted/.github/actions/rust-setup
-        with:
-          use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}
+        uses: ./.ci-trusted/.github/actions/rust-setup-no-cache
 
       - name: Install workspace test tools
         run: |
@@ -356,9 +352,7 @@ jobs:
           persist-credentials: false
 
       - name: Shared Rust setup
-        uses: ./.ci-trusted/.github/actions/rust-setup
-        with:
-          use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}
+        uses: ./.ci-trusted/.github/actions/rust-setup-no-cache
 
       - name: Install workspace test tools
         run: |

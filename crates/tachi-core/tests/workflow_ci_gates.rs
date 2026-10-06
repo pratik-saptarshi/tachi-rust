@@ -1643,7 +1643,7 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
     ] {
         let text = workflow_text(workflow_name);
         let expected_path = if workflow_name == "rust-workspace.yml" {
-            "./.ci-trusted/.github/actions/rust-setup"
+            "./.ci-trusted/.github/actions/rust-setup-no-cache"
         } else {
             "./.github/actions/rust-setup"
         };
@@ -1656,11 +1656,19 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
     assert_eq!(workflow.matches("persist-credentials: false").count(), 7);
     assert_eq!(
         workflow
-            .matches("./.ci-trusted/.github/actions/rust-setup")
+            .matches("./.ci-trusted/.github/actions/rust-setup-no-cache")
             .count(),
         3
     );
-    assert_eq!(workflow.matches("use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}").count(), 3);
+    assert!(!workflow.contains("Swatinem/rust-cache"));
+    assert!(!workflow.contains("use-cache:"));
+    let no_cache_action =
+        fs::read_to_string(repo_root().join(".github/actions/rust-setup-no-cache/action.yml"))
+            .expect("read trusted no-cache Rust setup action");
+    assert!(no_cache_action.contains("Install pinned Rust toolchain"));
+    assert!(no_cache_action.contains("Print Rust toolchain proof"));
+    assert!(!no_cache_action.contains("rust-cache"));
+    assert!(!no_cache_action.contains("actions/cache"));
 }
 
 #[test]
@@ -2230,7 +2238,10 @@ fn job_uses_shared_rust_setup(steps: &[serde_yaml::Value]) -> bool {
     steps.iter().any(|step| {
         step.get("uses")
             .and_then(serde_yaml::Value::as_str)
-            .is_some_and(|uses| uses.ends_with(".github/actions/rust-setup"))
+            .is_some_and(|uses| {
+                uses.ends_with(".github/actions/rust-setup")
+                    || uses.ends_with(".github/actions/rust-setup-no-cache")
+            })
     })
 }
 
