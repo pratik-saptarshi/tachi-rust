@@ -26,6 +26,44 @@ impl Drop for TestDir {
     }
 }
 
+fn run_git(repo: &Path, args: &[&str]) -> String {
+    let output = Command::new("git")
+        .current_dir(repo)
+        .args(args)
+        .output()
+        .expect("run git command for route path fixture");
+    assert!(
+        output.status.success(),
+        "git {:?} failed: {}",
+        args,
+        String::from_utf8_lossy(&output.stderr)
+    );
+    String::from_utf8(output.stdout)
+        .expect("git output is UTF-8")
+        .trim()
+        .to_owned()
+}
+
+fn changed_paths_between(repo: &Path, base: &str, head: &str) -> Vec<String> {
+    let output = Command::new("bash")
+        .arg(repo_root().join("scripts/ci-route-changed-paths.sh"))
+        .arg(base)
+        .arg(head)
+        .current_dir(repo)
+        .output()
+        .expect("run rename-aware changed-path producer");
+    assert!(
+        output.status.success(),
+        "changed-path producer failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    String::from_utf8(output.stdout)
+        .expect("changed paths are UTF-8")
+        .lines()
+        .map(str::to_owned)
+        .collect()
+}
+
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -85,6 +123,132 @@ fn main_target_passive_docs_use_the_narrow_route() {
     assert_eq!(route["mode"], "passive_docs_only");
     assert_eq!(route["reason"], "docs-only passive paths observed");
     assert_eq!(route["changed_paths"][0], "docs/reference/cli-usage.md");
+}
+
+#[test]
+fn tdd_evidence_json_routes_to_its_active_contract() {
+    let temp = TestDir::new();
+    let route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/28/merge",
+        &["docs/testing/tdd-evidence.json"],
+        "false",
+        "false",
+    );
+
+    assert_eq!(route["mode"], "full_pr_matrix");
+    assert_eq!(route["reason"], "active docs or shared surface touched");
+}
+
+#[test]
+fn renamed_crate_to_passive_docs_retains_both_endpoints_and_widens_route() {
+    let temp = TestDir::new();
+    let repo = temp.0.join("rename-repo");
+    fs::create_dir_all(repo.join("crates/tachi-core/src")).expect("create source tree");
+    run_git(&repo, &["init", "--quiet"]);
+    run_git(&repo, &["config", "user.name", "Route Test"]);
+    run_git(
+        &repo,
+        &["config", "user.email", "route-test@example.invalid"],
+    );
+
+    let old_path = "crates/tachi-core/src/rename_probe.rs";
+    let new_path = "docs/reference/rename_probe.md";
+    fs::write(repo.join(old_path), "pub fn route_probe() {}\n").expect("write source fixture");
+    run_git(&repo, &["add", "-A"]);
+    run_git(&repo, &["commit", "--quiet", "-m", "base"]);
+    let base = run_git(&repo, &["rev-parse", "HEAD"]);
+
+    fs::create_dir_all(repo.join("docs/reference")).expect("create docs tree");
+    fs::rename(repo.join(old_path), repo.join(new_path)).expect("rename source into docs");
+    run_git(&repo, &["add", "-A"]);
+    run_git(&repo, &["commit", "--quiet", "-m", "rename"]);
+    let head = run_git(&repo, &["rev-parse", "HEAD"]);
+
+    let changed_paths = changed_paths_between(&repo, &base, &head);
+    assert!(changed_paths.iter().any(|path| path == old_path));
+    assert!(changed_paths.iter().any(|path| path == new_path));
+
+    let changed_path_refs = changed_paths.iter().map(String::as_str).collect::<Vec<_>>();
+    let route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/29/merge",
+        &changed_path_refs,
+        "false",
+        "false",
+    );
+    assert_eq!(route["mode"], "dependency_closure");
+    assert!(route["packages"]
+        .as_array()
+        .unwrap()
+        .contains(&"tachi-core".into()));
+
+    let core_path = "crates/tachi-core/src/cross_crate.rs";
+    let shell_path = "crates/tachi-shell/src/cross_crate.rs";
+    fs::create_dir_all(repo.join("crates/tachi-shell/src")).expect("create shell source tree");
+    fs::write(repo.join(core_path), "pub fn cross_crate_probe() {}\n")
+        .expect("write cross-crate source fixture");
+    run_git(&repo, &["add", "-A"]);
+    run_git(&repo, &["commit", "--quiet", "-m", "cross crate base"]);
+    let cross_base = run_git(&repo, &["rev-parse", "HEAD"]);
+    fs::rename(repo.join(core_path), repo.join(shell_path)).expect("rename source across crates");
+    run_git(&repo, &["add", "-A"]);
+    run_git(&repo, &["commit", "--quiet", "-m", "cross crate rename"]);
+    let cross_head = run_git(&repo, &["rev-parse", "HEAD"]);
+    let cross_paths = changed_paths_between(&repo, &cross_base, &cross_head);
+    assert!(cross_paths.iter().any(|path| path == core_path));
+    assert!(cross_paths.iter().any(|path| path == shell_path));
+    let cross_path_refs = cross_paths.iter().map(String::as_str).collect::<Vec<_>>();
+    let cross_route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/30/merge",
+        &cross_path_refs,
+        "false",
+        "false",
+    );
+    assert_eq!(cross_route["mode"], "dependency_closure");
+    assert!(cross_route["packages"]
+        .as_array()
+        .unwrap()
+        .contains(&"tachi-core".into()));
+    assert!(cross_route["packages"]
+        .as_array()
+        .unwrap()
+        .contains(&"tachi-shell".into()));
+
+    let docs_base = cross_head;
+    fs::remove_file(repo.join("docs/reference/rename_probe.md")).expect("remove docs fixture");
+    fs::write(
+        repo.join("docs/reference/added_probe.md"),
+        "passive prose\n",
+    )
+    .expect("write docs addition fixture");
+    run_git(&repo, &["add", "-A"]);
+    run_git(
+        &repo,
+        &["commit", "--quiet", "-m", "docs addition and deletion"],
+    );
+    let docs_head = run_git(&repo, &["rev-parse", "HEAD"]);
+    let docs_paths = changed_paths_between(&repo, &docs_base, &docs_head);
+    assert!(docs_paths
+        .iter()
+        .any(|path| path == "docs/reference/rename_probe.md"));
+    assert!(docs_paths
+        .iter()
+        .any(|path| path == "docs/reference/added_probe.md"));
+    let docs_path_refs = docs_paths.iter().map(String::as_str).collect::<Vec<_>>();
+    let docs_route = classify(
+        &temp,
+        "pull_request",
+        "refs/pull/31/merge",
+        &docs_path_refs,
+        "false",
+        "false",
+    );
+    assert_eq!(docs_route["mode"], "passive_docs_only");
 }
 
 #[test]
