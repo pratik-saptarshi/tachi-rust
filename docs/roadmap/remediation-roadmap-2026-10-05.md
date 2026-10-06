@@ -458,8 +458,9 @@ from `cargo metadata` and requires exact, nonduplicated coverage by the shell
 units, so a newly added integration target must be assigned to a semantic slice
 before the package-wide duplicate can be removed safely. The selected package
 matrix, repository-contract job, route classifier, and runner provenance keys
-remain unchanged. The timing mapper resolves all five package runner keys to
-the updated package-job display names, including the shell library job.
+remain unchanged. The package job keeps the existing required-check display
+name for all-targets; the timing mapper continues to resolve all five trusted
+package keys through those protected contexts, including the shell library job.
 
 Validation on the implementation branch: `workflow_ci_gates` passed 34/34;
 `cargo test -p tachi-shell --lib` passed 10/10; and the hosted shell-smoke,

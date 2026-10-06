@@ -157,7 +157,7 @@ jobs:
           if-no-files-found: error
 
   cargo-test:
-    name: cargo test -p ${{ matrix.package }}
+    name: cargo test -p ${{ matrix.package }} --all-targets
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [route]
