@@ -2,8 +2,9 @@
 
 This audit supplements the route-specific timing follow-up in
 [`2026-10-05-rt-ci-timing-evidence-followup.md`](../roadmap/2026-10-05-rt-ci-timing-evidence-followup.md).
-It does not satisfy or relax the required ten-run cohorts or the 35% execution
-median reduction.
+Its historical candidate count is bounded evidence and is not the timing
+acceptance. The canonical acceptance now uses matched full controls as defined
+in the follow-up and `RT-0sd.2`.
 
 ## Result
 
@@ -25,8 +26,11 @@ route-specific observations.
 The newest post-correction PR sample available at this audit was PR #55. Its
 successful route-observe artifact also reports `full_pr_matrix` because the
 change touched active/shared documentation. It is not eligible for either
-post-router cohort. At the audit point, both post-router cohorts therefore
-remain at zero as well.
+optimized route shape. At the audit point, the retained historical sample had
+no narrowed-route candidates. This does not make the agreed acceptance
+unachievable: future matched pairs use a successful routed PR run and a
+successful forced-full `workflow_dispatch` control on each identical code
+tree, for both `passive-docs` and `dependency-closure`.
 
 ## Reproduction and boundaries
 
@@ -95,9 +99,12 @@ Its head is `0e248208eb1434472bc9259a406b934403f1a434`, its route is
 
 ## Required next evidence
 
-Keep Beads `RT-0sd.2` open. Continue collecting real successful PRs after PR
-#54 for each intended route shape, and retain the route artifact, exact PR
-head, paired workspace run, conclusion, attempt, timestamps, and queue/runtime
-values. Close only after each of the four pre/post route-shape cohorts contains
-at least ten comparable successful PRs and each post-router execution median
-is at most 65% of its matching pre-router median.
+Keep Beads `RT-0sd.2` open. For each of `passive-docs` and
+`dependency-closure`, collect ten distinct code trees with a successful routed
+PR run and a successful forced-full `workflow_dispatch` control on the exact
+same tree SHA and comparable workflow/runner definition. Retain run IDs, PR and
+head, event, attempt, route decision, timestamps, queue duration, and execution
+duration. Report queue and execution medians separately. Close only if the
+optimized execution median is at most 65% of its matched full-control median
+for both route shapes; fewer than ten pairs or a missed threshold keeps
+`RT-0sd.2` open.
