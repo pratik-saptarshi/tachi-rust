@@ -198,3 +198,9 @@ available summary.
   this change, 6 were unsuccessful, and there were 0 valid pairs for either
   shape. This sample does not establish timing performance; `RT-0sd.2` remains
   open pending ten valid pairs per shape and the <=65% execution-median ratio.
+  A successful read-only forced-full dispatch (run `37419572327`) then exercised
+  provenance upload and collector ingestion. The collector classified it as an
+  unmatched control, with no compatible optimized PR run; the pair count remains
+  zero. Its route artifact, run/tree IDs, runner image, workflow and classifier
+  revisions, and timestamps are retained in
+  [`docs/reports/rt-ci-matched-control-dispatch-smoke-2026-10-06.json`](../reports/rt-ci-matched-control-dispatch-smoke-2026-10-06.json).
