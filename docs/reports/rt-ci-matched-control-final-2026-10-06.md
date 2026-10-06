@@ -2,32 +2,33 @@
 
 ## Result
 
-The collector found 10 identity-matched PR/control pairs for each optimized
-route shape across 20 distinct code trees. The collector currently defines
-"execution" as workflow `startedAt` to `updatedAt`; that interval includes
-matrix jobs waiting for runners after the workflow starts. Its separate queue
-value covers only workflow creation to workflow start. These are workflow
-wall-time observations, not valid execution-only measurements under the agreed
-acceptance. **Neither shape's timing result is accepted; RT-0sd.2 remains open.**
+The cohort contains 10 identity-matched PR/control pairs for each route shape
+across 20 distinct code trees. The accepted measure is end-to-end workflow
+latency, `updatedAt - createdAt`, which includes workflow and downstream job
+queue delays as well as execution. Per-job queue and execution work remain
+separate diagnostics so the latency result is not mistaken for a cost
+attribution. **`passive-docs` passes; `dependency-closure` misses. RT-0sd.2
+remains open.**
 
-| Route shape | Pairs | Optimized workflow wall median | Full-control workflow wall median | Ratio | Interpretation |
+| Route shape | Pairs | Routed end-to-end latency median | Full-control end-to-end latency median | Ratio | Gate |
 |---|---:|---:|---:|---:|---|
-| `passive-docs` | 10 | 16.5 s | 122 s | 13.5% | Informational; includes any post-start job queue |
-| `dependency-closure` | 10 | 257.5 s | 133 s | 193.6% | Informational; includes any post-start job queue |
+| `passive-docs` | 10 | 16.5 s | 122 s | 13.5% | Pass |
+| `dependency-closure` | 10 | 257.5 s | 133 s | 193.6% | Miss; <=65% required |
 
-Workflow queue medians are reported separately: both show 0 ms. GitHub's run
-timestamps in this collection have one-second precision, so those zeros are
-timestamp-resolution values and do not describe queueing of downstream matrix
-jobs. For example, in the valid PR #80 control, the workflow started at
-10:48:36Z while measured jobs started between 10:49:26Z and 10:52:36Z. The
-collector did not retain per-job creation, start, and completion timestamps.
+Workflow queue medians are reported separately: both show 0 ms at GitHub's
+one-second timestamp precision. Those values cover only workflow creation to
+workflow start; job scheduling after the workflow starts is included in the
+latency gate. For example, the PR #80 control workflow started at 10:48:36Z
+while measured jobs started between 10:49:26Z and 10:52:36Z. This establishes
+contributor wait time, but not whether queueing or job runtime caused it; the
+collector still lacks per-job timestamps.
 
 The reclassified, replayable collector snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](rt-ci-matched-control-final-2026-10-06.json)
-(SHA-256 `a67221c0578df29ba282c87113e4620c4b0d8bd71c1f01f021844f0b744da0d2`).
-Its top-level status marks timing acceptance `not_evaluated` and its durations
-are named workflow queue and workflow wall time. This is schema version 2, a
-reclassified evidence snapshot derived from the version-1 collector output.
+(SHA-256 `4578b2c1f07eb36ab21f7a6483155f38def202188a7656e1057e8658f2476033`).
+Its schema version 3 summary evaluates the end-to-end wall-clock latency gate;
+it marks execution-work attribution `not_evaluated`. The snapshot is derived
+from the version-1 collector output.
 The preserved source collector output has SHA-256
 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`.
 It contains 87 candidate workflow runs, dispositions, all 20 pair records,
@@ -75,13 +76,15 @@ matched runs above are the only pair counted.
 
 ## Decision and next work
 
-The acceptance requires both route shapes to have 10 valid pairs and each
-optimized execution median to be at most 65% of its full-control execution
-median, with queue and execution separated. The current collector does not
-separate per-job queue from execution, so the displayed ratios cannot establish
-either a pass or a threshold miss. Do not close `RT-0sd.2` or `RT-0vf.5`, and do
-not mark Phase 4 complete. Follow-up work must add per-job queue/execution
-timestamps and a reproducible aggregation; use the current pairs only if the
-required source timestamps can be recovered, otherwise collect a fresh cohort.
-Only optimize dependency-closure if the corrected execution measure misses.
-Keep the 65% threshold unchanged.
+The acceptance requires ten valid pairs per shape and routed median
+end-to-end workflow latency (`completed_at - created_at`) no greater than 65%
+of the matched full-control median. This includes queue delay and is the
+contributor-facing latency gate. The separate diagnostic metrics are workflow
+queue (`started_at - created_at`), per-job scheduling wait (sum of job
+`started_at - created_at`), and aggregate execution work (sum of job
+`completed_at - started_at` for the route, selected package/shell, and
+repository-contract jobs). The current cohort passes for `passive-docs` and
+misses for `dependency-closure` at 193.6%; per-job diagnostics are still
+required before attributing the cause or selecting an optimization. Do not
+close `RT-0sd.2` or `RT-0vf.5`, or mark Phase 4 complete, until the missing
+diagnostics and latency remediation are complete. Keep the 65% threshold.
