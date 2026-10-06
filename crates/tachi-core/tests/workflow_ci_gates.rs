@@ -208,13 +208,12 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
                 .and_then(serde_json::Value::as_array)
                 .expect("shell units need argv")
                 .windows(2)
-                .filter_map(|pair| {
-                    (pair[0].as_str() == Some("--test")).then(|| {
-                        pair[1]
-                            .as_str()
-                            .expect("test target name must be a string")
-                            .to_owned()
-                    })
+                .filter(|pair| pair[0].as_str() == Some("--test"))
+                .map(|pair| {
+                    pair[1]
+                        .as_str()
+                        .expect("test target name must be a string")
+                        .to_owned()
                 })
                 .collect::<Vec<_>>()
         })
