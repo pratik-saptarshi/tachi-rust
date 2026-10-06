@@ -2,7 +2,9 @@
 
 Status: **Phases 0–3 and both P3 advisories are delivered; post-merge review
 corrections merged in PR #62 (`d81f9962`), P3-F05 closed in PR #64, P3-F06
-closed in PR #65, and matched-control timing acceptance remains open.** Phase 1
+closed in PR #65. The 2026-10-06 matched cohort has ten valid pairs per shape;
+`passive-docs` passes and `dependency-closure` misses its threshold. Phase 4
+remains incomplete, and `RT-0sd.2` stays open.** Phase 1
 merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
@@ -40,8 +42,9 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. PR #65 pins the retained audit manifest digest and closes P3-F06. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. PR #65 pins the retained audit manifest digest and closes P3-F06. Hosted checks passed, and all review threads are resolved. The collector produced ten valid pairs for each shape on 2026-10-06; see the readout below. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
+| **5 — Dependency-closure cost remediation** | Diagnose the dependency-closure timing miss tracked by `RT-0sd.4`; optimize without reducing selected package or repository-contract coverage, then collect a fresh matched cohort. | Separate implementation PR after diagnosis. Preserve route closure, prove adjacent workflow contracts, and meet the existing ten-pair and <=65% execution-median gate on the new workflow revision before reconsidering Phase 4. |
 
 ### Commit and PR progression
 
@@ -60,7 +63,9 @@ collector: `RT-0vf.6` delivers the verifier-boundary decision and narrowed-run
 regression; `RT-0vf.7` delivers the route-audit manifest and replay contract.
 Each milestone checks open PRs and CI at its start and gets its own PR. The
 existing Phase 4 closeout remains a separate final PR and stays blocked by
-`RT-0sd.2` until its matched-cohort acceptance passes.
+`RT-0sd.2` until its matched-cohort acceptance passes. The observed
+dependency-closure miss has a separate follow-up milestone, `RT-0sd.4`; do not
+lower the threshold or count the current cohort as a Phase 4 pass.
 
 ## Beads worklist
 
@@ -80,6 +85,29 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 | Phase 2 — dependency and repository contracts | P2 delivery | P2-F02 and P2-F03 focused RED/GREEN tests pass; Cargo metadata comparison and manifest-failure regression pass; relevant workspace tests, Clippy, workflow/docs gates, and required hosted checks pass. | `RT-0vf.3` |
 | Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Pair each successful optimized PR run with a successful full-route `pull_request` run triggered by adding `ci-full-control` to that same PR, with identical execution commit SHA and Git tree. Both runs use the immutable merge SHA supplied by the event; every measured job checks out that SHA. Require identical workflow-file blob content and route classifier/path-producer revisions; compare the route runner and every measured job's OS, image version, and architecture. Capture run ID, PR/head SHA, event, attempt, route decision, execution SHA/tree, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-provenance, and mismatched-commit/tree/workflow/runner pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
 | Phase 4 — integrated closeout | Closeout | Roadmap, review archive, raw evidence, Beads export, and integration log reconcile. Actual cohort counts and calculation are reproducible from retained inputs. Do not close timing acceptance on fewer than ten pairs per route shape or a failed threshold. | `RT-0vf.5` |
+| Phase 5 — dependency-closure cost remediation | P1; follow-up to measured threshold miss | **RED:** Current evidence has ten pairs per shape, but dependency-closure optimized median is 257,500 ms against 133,000 ms full-control (193.6%). **GREEN:** Diagnose the dominant cost and land a reviewed optimization without dropping `tachi-cli`, `tachi-desktop`, `tachi-mcp`, `tachi-shell`, or repository-contract coverage. **Regression:** Route/workflow contracts retain package closure and contract triggering; collector excludes failed, cancelled, ambiguous, missing, or mismatched pairs. Capture ten new distinct successful pairs on comparable workflow/runner definitions; require optimized execution median <=65% of full-control, and report queue separately. | `RT-0sd.4` |
+
+### Matched-control result — 2026-10-06
+
+The final collector snapshot is
+[`rt-ci-matched-control-final-2026-10-06.json`](../reports/rt-ci-matched-control-final-2026-10-06.json)
+(SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`);
+the run mapping and limitations are in the
+[matched-control readout](../reports/rt-ci-matched-control-final-2026-10-06.md).
+It contains 87 candidate workflow runs and 20 valid pairs: ten `passive-docs`
+and ten `dependency-closure`, all on distinct PR trees with matching execution
+SHA/tree, workflow revision, runner definition, and successful attempts.
+
+| Route shape | Optimized execution median | Full-control execution median | Ratio | Result |
+|---|---:|---:|---:|---|
+| `passive-docs` | 16,500 ms | 122,000 ms | 13.5% | Pass |
+| `dependency-closure` | 257,500 ms | 133,000 ms | 193.6% | Miss; <=65% required |
+
+Queue medians are 0 ms at the one-second source timestamp resolution and are not
+precise queue measurements. The full per-run provenance and pair calculations
+remain in the raw JSON. Since dependency-closure exceeds the unchanged 65%
+limit, keep `RT-0sd.2` and `RT-0vf.5` open and Phase 4 incomplete. `RT-0sd.4`
+tracks cost diagnosis, coverage-preserving optimization, and a new cohort.
 
 ### Timing acceptance update for `RT-0sd.2`
 
@@ -95,9 +123,10 @@ and a <=65% optimized execution median. The 37-candidate historical audit remain
 sample-bounded context, not a substitute cohort or a performance result.
 
 `RT-0sd.2` depends on completion of the Phase 1 routing, Phase 2 repository
-coverage, and Phase 3 matched-control collector issues. It does not depend on
-the P3 advisory issues. The new epic is related to `RT-0sd.2`; it does not
-replace or close it.
+coverage, Phase 3 matched-control collector issues, and the Phase 5
+dependency-closure timing remediation in `RT-0sd.4` before a passing replacement
+cohort can satisfy closeout. It does not depend on the P3 advisory issues. The
+new epic is related to `RT-0sd.2`; it does not replace or close it.
 
 The matched-control collector is invoked with `RT_CI_USE_RTK=true make rt-ci-matched-controls`.
 It reads completed `rust-workspace.yml` runs and their route and per-job runner
@@ -170,8 +199,10 @@ acceptance; keep `RT-0sd.2` open until its cohort gates pass.
 
 PR #62 merged as `d81f99629b77c6873be168a65ed052aedc9fcc4b` after 25 hosted
 checks passed, no checks failed, and the single skipped check remained
-nonblocking. Both PR #62 review threads were resolved. The latest recorded
-matched-pair counts remain zero for both route shapes; `RT-0sd.2` remains open.
+nonblocking. Both PR #62 review threads were resolved. The initial
+matched-pair count was zero for both route shapes. The final
+2026-10-06 sample supersedes that status: ten pairs each, `passive-docs` passes
+and `dependency-closure` misses at 193.6%; `RT-0sd.2` remains open.
 
 ## Validation and release gates
 
