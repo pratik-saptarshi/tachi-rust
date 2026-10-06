@@ -78,6 +78,40 @@ jobs:
           printf '%s\n' "$route_json" > route.json
           cat route.json
 
+      - name: Add matched-control provenance
+        shell: bash
+        env:
+          SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number || 0 }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci }}
+        run: |
+          set -euo pipefail
+          classifier_revision="$(git rev-parse HEAD:scripts/ci-route-classifier.sh)"
+          path_producer_revision="$(git rev-parse HEAD:scripts/ci-route-changed-paths.sh)"
+          jq \
+            --arg run_id "$GITHUB_RUN_ID" \
+            --argjson run_attempt "$GITHUB_RUN_ATTEMPT" \
+            --arg event "$GITHUB_EVENT_NAME" \
+            --arg head_sha "$SOURCE_HEAD_SHA" \
+            --argjson pr_number "$PR_NUMBER" \
+            --arg workflow_sha "$WORKFLOW_SHA" \
+            --arg classifier_revision "$classifier_revision" \
+            --arg path_producer_revision "$path_producer_revision" \
+            --arg runner_definition "ubuntu-latest/${ImageOS:-unknown}/${ImageVersion:-unknown}" \
+            --argjson force_full_requested "${FORCE_FULL_CI_INPUT:-false}" \
+            '. + {run_id:$run_id,run_attempt:$run_attempt,event:$event,head_sha:$head_sha,pr_number:$pr_number,workflow_sha:$workflow_sha,classifier_revision:$classifier_revision,path_producer_revision:$path_producer_revision,runner_definition:$runner_definition,force_full_requested:$force_full_requested}' \
+            route.json > route.json.new
+          mv route.json.new route.json
+          cat route.json
+
+      - name: Upload route decision artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: route-decision
+          path: route.json
+          if-no-files-found: error
+
   cargo-test:
     name: cargo test -p ${{ matrix.package }} --all-targets
     runs-on: ubuntu-latest

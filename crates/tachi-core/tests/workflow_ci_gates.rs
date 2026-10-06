@@ -858,6 +858,14 @@ fn rt_ci_latency_evidence_target_is_documented_and_invocable() {
         helper.contains("select(.conclusion == \"success\")"),
         "latency evidence helper must exclude unsuccessful completed runs"
     );
+    assert!(
+        makefile.contains("rt-ci-matched-controls"),
+        "makefile must expose the matched-control collector"
+    );
+    assert!(
+        makefile.contains("./scripts/rt-ci-matched-controls.sh"),
+        "makefile should invoke the matched-control collector"
+    );
 }
 
 #[test]
@@ -946,6 +954,479 @@ esac
         "stderr={empty_stderr}"
     );
     fs::remove_dir_all(&root).expect("remove fake gh directory");
+}
+
+#[test]
+fn matched_control_collector_contract_captures_provenance_and_stays_read_only() {
+    let workflow = workflow_text("rust-workspace.yml");
+    let collector = fs::read_to_string(repo_root().join("scripts/rt-ci-matched-controls.sh"))
+        .expect("read matched-control collector");
+    let matcher = fs::read_to_string(repo_root().join("scripts/rt-ci-matched-controls.jq"))
+        .expect("read matched-control matcher");
+
+    for required in [
+        "workflow_dispatch:",
+        "force_full_ci:",
+        "type: boolean",
+        "permissions:",
+        "contents: read",
+        "name: route-decision",
+        "if-no-files-found: error",
+        "github.workflow_sha",
+        "GITHUB_RUN_ATTEMPT",
+        "runner_definition",
+    ] {
+        assert!(
+            workflow.contains(required),
+            "workflow must include {required}"
+        );
+    }
+    for required in [
+        "gh run list",
+        "gh run download",
+        "force_full_requested",
+        "workflow_sha",
+        "classifier_revision",
+        "path_producer_revision",
+        "runner_definition",
+        "tree_sha",
+        "fromdateiso8601",
+        "rejection_reason",
+        "rt-ci-matched-controls.jq",
+    ] {
+        assert!(
+            collector.contains(required),
+            "collector must include {required}"
+        );
+    }
+    for required in [
+        "run_attempt == 1",
+        "conclusion == \"success\"",
+        "$pr.tree_sha == $control.tree_sha",
+        "$pr.workflow_sha == $control.workflow_sha",
+        "$pr.classifier_revision == $control.classifier_revision",
+        "$pr.path_producer_revision == $control.path_producer_revision",
+        "$pr.runner_definition == $control.runner_definition",
+        "passive-docs",
+        "dependency-closure",
+        "optimized_execution_median_max_ratio: 0.65",
+    ] {
+        assert!(
+            matcher.contains(required),
+            "matcher must include {required}"
+        );
+    }
+}
+
+#[test]
+fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatches() {
+    let root = std::env::temp_dir().join(format!(
+        "tachi-rt-ci-matched-fixtures-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("clock after epoch")
+            .as_nanos()
+    ));
+    fs::create_dir_all(&root).expect("create fixture directory");
+
+    let candidate = |run_id: &str,
+                     event: &str,
+                     conclusion: &str,
+                     attempt: u64,
+                     route_mode: &str,
+                     tree_sha: &str,
+                     workflow_sha: &str,
+                     runner_definition: &str,
+                     force_full: bool,
+                     eligible: bool,
+                     queue_ms: u64,
+                     execution_ms: u64| {
+        serde_json::json!({
+            "run_id": run_id,
+            "run_attempt": attempt,
+            "event": event,
+            "conclusion": conclusion,
+            "route_mode": route_mode,
+            "tree_sha": tree_sha,
+            "workflow_sha": workflow_sha,
+            "classifier_revision": "classifier-1",
+            "path_producer_revision": "path-producer-1",
+            "runner_definition": runner_definition,
+            "force_full_requested": force_full,
+            "eligible": eligible,
+            "pr_number": 42,
+            "head_sha": format!("head-{run_id}"),
+            "created_at": "2026-10-06T00:00:00Z",
+            "started_at": "2026-10-06T00:00:10Z",
+            "completed_at": "2026-10-06T00:01:10Z",
+            "queue_duration_ms": queue_ms,
+            "execution_duration_ms": execution_ms
+        })
+    };
+    let candidates = serde_json::json!([
+        candidate(
+            "1",
+            "pull_request",
+            "success",
+            1,
+            "passive_docs_only",
+            "tree-a",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            true,
+            10,
+            500
+        ),
+        candidate(
+            "2",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-a",
+            "wf-a",
+            "ubuntu-latest",
+            true,
+            true,
+            20,
+            1000
+        ),
+        candidate(
+            "3",
+            "pull_request",
+            "success",
+            1,
+            "dependency_closure",
+            "tree-b",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            true,
+            15,
+            700
+        ),
+        candidate(
+            "4",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-b",
+            "wf-a",
+            "ubuntu-latest",
+            true,
+            true,
+            25,
+            1000
+        ),
+        candidate(
+            "5",
+            "pull_request",
+            "failure",
+            1,
+            "passive_docs_only",
+            "tree-c",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            true,
+            1,
+            9999
+        ),
+        candidate(
+            "6",
+            "pull_request",
+            "cancelled",
+            1,
+            "dependency_closure",
+            "tree-d",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            true,
+            1,
+            9999
+        ),
+        candidate(
+            "7",
+            "pull_request",
+            "success",
+            2,
+            "passive_docs_only",
+            "tree-e",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            true,
+            1,
+            9999
+        ),
+        candidate(
+            "8",
+            "pull_request",
+            "success",
+            1,
+            "passive_docs_only",
+            "tree-f",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            false,
+            1,
+            9999
+        ),
+        candidate(
+            "9",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-a",
+            "wf-other",
+            "ubuntu-latest",
+            true,
+            true,
+            1,
+            9999
+        ),
+        candidate(
+            "10",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-a",
+            "wf-a",
+            "macos-latest",
+            true,
+            true,
+            1,
+            9999
+        ),
+        candidate(
+            "11",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-g",
+            "wf-a",
+            "ubuntu-latest",
+            false,
+            true,
+            1,
+            9999
+        )
+    ]);
+    let input = root.join("candidates.json");
+    fs::write(
+        &input,
+        serde_json::to_vec(&serde_json::json!({ "candidates": candidates }))
+            .expect("serialize candidates"),
+    )
+    .expect("write candidates");
+
+    let output = Command::new("jq")
+        .arg("-f")
+        .arg(repo_root().join("scripts/rt-ci-matched-controls.jq"))
+        .arg(&input)
+        .output()
+        .expect("run matched-control fixture matcher");
+    assert!(
+        output.status.success(),
+        "jq matcher failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("report JSON");
+    assert_eq!(report["pairs"].as_array().unwrap().len(), 2);
+    assert_eq!(report["summary"][0]["valid_pairs"], 1);
+    assert_eq!(report["summary"][0]["routed_execution_median_ms"], 500);
+    assert_eq!(
+        report["summary"][0]["full_control_execution_median_ms"],
+        1000
+    );
+    assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
+    assert_eq!(report["summary"][1]["valid_pairs"], 1);
+    fs::remove_dir_all(&root).expect("remove fixture directory");
+}
+
+#[test]
+fn matched_control_collector_handles_run_api_and_artifact_fixtures() {
+    let root = std::env::temp_dir().join(format!(
+        "tachi-rt-ci-matched-collector-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("clock after epoch")
+            .as_nanos()
+    ));
+    let bin = root.join("bin");
+    let fixtures = root.join("artifacts");
+    fs::create_dir_all(&bin).expect("create fake command directory");
+    fs::create_dir_all(&fixtures).expect("create artifact fixture directory");
+    let runs = serde_json::json!([
+        {"databaseId":1,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"route-pr","url":"https://example.test/run/1"},
+        {"databaseId":2,"attempt":1,"conclusion":"success","event":"workflow_dispatch","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"route-pr","url":"https://example.test/run/2"},
+        {"databaseId":3,"attempt":1,"conclusion":"failure","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"failed-pr","url":"https://example.test/run/3"},
+        {"databaseId":4,"attempt":1,"conclusion":"cancelled","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"cancelled-pr","url":"https://example.test/run/4"},
+        {"databaseId":5,"attempt":2,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"rerun-pr","url":"https://example.test/run/5"},
+        {"databaseId":6,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"no-artifact-pr","url":"https://example.test/run/6"},
+        {"databaseId":7,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"mismatch-pr","url":"https://example.test/run/7"},
+        {"databaseId":8,"attempt":1,"conclusion":"success","event":"workflow_dispatch","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
+    ]);
+    let runs_file = root.join("runs.json");
+    fs::write(&runs_file, serde_json::to_vec(&runs).unwrap()).expect("write fake run list");
+
+    let gh = bin.join("gh");
+    fs::write(
+        &gh,
+        r##"#!/bin/sh
+set -eu
+case "$1 $2" in
+  "repo view")
+    printf 'pratik-saptarshi/tachi-rust\n'
+    ;;
+  "run list")
+    cat "$FAKE_RUNS_JSON"
+    ;;
+  "run download")
+    run_id="$3"
+    dir="$7"
+    source="$FAKE_ARTIFACTS/$run_id/route.json"
+    [ -s "$source" ] || exit 1
+    mkdir -p "$dir"
+    cp "$source" "$dir/route.json"
+    ;;
+  api\ *)
+    case "$2" in
+      */head-pr) printf 'tree-a\n' ;;
+      */head-control) printf 'tree-a\n' ;;
+      */head-mismatch-pr) printf 'tree-b\n' ;;
+      */head-mismatch-control) printf 'tree-c\n' ;;
+      *) exit 2 ;;
+    esac
+    ;;
+  *)
+    echo "unexpected gh invocation: $*" >&2
+    exit 2
+    ;;
+esac
+"##,
+    )
+    .expect("write fake gh");
+    let mut permissions = fs::metadata(&gh)
+        .expect("read fake gh metadata")
+        .permissions();
+    permissions.set_mode(0o755);
+    fs::set_permissions(&gh, permissions).expect("make fake gh executable");
+
+    let write_route = |run_id: &str,
+                       event: &str,
+                       mode: &str,
+                       head_sha: &str,
+                       force_full: bool,
+                       pr_number: u64| {
+        let dir = fixtures.join(run_id);
+        fs::create_dir_all(&dir).expect("create fake run artifact directory");
+        fs::write(
+            dir.join("route.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "run_id": run_id,
+                "run_attempt": 1,
+                "event": event,
+                "mode": mode,
+                "reason": "fixture route",
+                "head_sha": head_sha,
+                "workflow_sha": "workflow-1",
+                "classifier_revision": "classifier-1",
+                "path_producer_revision": "path-producer-1",
+                "runner_definition": "ubuntu-latest",
+                "force_full_requested": force_full,
+                "pr_number": pr_number
+            }))
+            .expect("serialize route artifact"),
+        )
+        .expect("write route artifact");
+    };
+    write_route(
+        "1",
+        "pull_request",
+        "passive_docs_only",
+        "head-pr",
+        false,
+        101,
+    );
+    write_route(
+        "2",
+        "workflow_dispatch",
+        "full_pr_matrix",
+        "head-control",
+        true,
+        0,
+    );
+    write_route(
+        "7",
+        "pull_request",
+        "dependency_closure",
+        "head-mismatch-pr",
+        false,
+        202,
+    );
+    write_route(
+        "8",
+        "workflow_dispatch",
+        "full_pr_matrix",
+        "head-mismatch-control",
+        true,
+        0,
+    );
+
+    let original_path = std::env::var_os("PATH").unwrap_or_default();
+    let path = format!("{}:{}", bin.display(), original_path.to_string_lossy());
+    let output = Command::new("bash")
+        .arg(repo_root().join("scripts/rt-ci-matched-controls.sh"))
+        .args(["rust-workspace.yml", "100"])
+        .env("PATH", path)
+        .env("FAKE_RUNS_JSON", runs_file)
+        .env("FAKE_ARTIFACTS", &fixtures)
+        .output()
+        .expect("run matched-control collector with fake GitHub responses");
+    assert!(
+        output.status.success(),
+        "collector failed: stdout={}; stderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("report JSON");
+    assert_eq!(report["pairs"].as_array().unwrap().len(), 1);
+    assert_eq!(report["pairs"][0]["tree_sha"], "tree-a");
+    assert_eq!(report["summary"][0]["valid_pairs"], 1);
+    assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
+    let candidates = report["candidate_runs"].as_array().unwrap();
+    for (run_id, expected) in [
+        ("3", "run conclusion is not success"),
+        ("4", "run conclusion is not success"),
+        ("5", "rerun attempt is ambiguous"),
+        ("6", "route decision artifact is missing or unavailable"),
+    ] {
+        assert!(
+            candidates.iter().any(|candidate| {
+                candidate["run_id"] == run_id && candidate["rejection_reason"] == expected
+            }),
+            "candidate {run_id} should be rejected as {expected}"
+        );
+    }
+    assert!(report["candidate_dispositions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|candidate| candidate["run_id"] == "7"
+            && candidate["disposition"] == "unmatched"
+            && candidate["reason"]
+                == "no compatible opposite-event run or this tree was already counted"));
+    fs::remove_dir_all(&root).expect("remove fake collector directory");
 }
 
 #[test]

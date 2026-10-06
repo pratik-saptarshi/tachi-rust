@@ -1,9 +1,10 @@
 # RT-CI Route Remediation Roadmap — 2026-10-05
 
-Status: **Phase 0 planning and Phase 1 routing are complete; Phase 2 onward and
-matched-control timing remain open.** Phase 1 merged in PR #58 at
-`c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Source baseline: adversarial review of
-`10339cc8f586fdf0050c01bd2d4889f7709906e6`.
+Status: **Phases 0–2 are complete; the Phase 3 collector is in progress, and
+matched-control timing acceptance remains open.** Phase 1 merged in PR #58 at
+`c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
+`a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
+of `10339cc8f586fdf0050c01bd2d4889f7709906e6`.
 
 > **Source note:** The original panel report file was not present in the
 > repository or available temporary directories during this integration. The
@@ -35,7 +36,7 @@ claim.
 |---|---|---|
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
-| **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | One implementation PR. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
+| **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
 | **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | One implementation/evidence PR. Collector handles success, failure, cancellation, reruns, absent route evidence, and mismatched tree SHA. Start the ten-tree cohorts only after Phases 1 and 2 and the collector are merged. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
@@ -85,6 +86,18 @@ substitute cohort or a performance result.
 coverage, and Phase 3 matched-control collector issues. It does not depend on
 the P3 advisory issues. The new epic is related to `RT-0sd.2`; it does not
 replace or close it.
+
+The matched-control collector is invoked with `RT_CI_USE_RTK=true make rt-ci-matched-controls`.
+It reads completed `rust-workspace.yml` runs and their `route-decision`
+artifacts, resolves each source commit to a Git tree SHA, and emits JSON with
+eligible pairs, excluded candidates, run provenance, exact workflow,
+classifier, and path-producer revisions, and separate queue/execution medians,
+ratios, and per-shape acceptance state. To create a control for a
+stable PR head, dispatch `rust-workspace.yml` against that head's branch with
+`force_full_ci=true`; then verify the collector matched its tree SHA. The
+workflow grants only `contents: read` and consumes no PR secrets. Keep the JSON
+output with the closeout evidence. `insufficient_pairs` is an expected open
+state and leaves `RT-0sd.2` open.
 
 ## Validation and release gates
 
@@ -142,10 +155,12 @@ available summary.
 ## Current verification and limitations
 
 - Live Beads retains `RT-0sd.2` open with the matched-control acceptance;
-  Phase 1 issue `RT-0vf.2` and children `.2.1`/`.2.2` closed after PR #58 merged.
-  Phase 2 `RT-0vf.3` is next. The issue JSONL export is regenerated during the
-  current tracker synchronization.
-- PR #57 delivered the planning baseline; PR #58 delivered Phase 1. GitHub
+  Phase 1 (`RT-0vf.2` and children `.2.1`/`.2.2`) closed after PR #58 and Phase 2
+  (`RT-0vf.3` and children `.3.1`/`.3.2`) closed after PR #59. Phase 3
+  `RT-0vf.4` is in progress. The JSONL export is synchronized in the current
+  Phase 3 branch.
+- PR #57 delivered the planning baseline; PR #58 delivered Phase 1; PR #59
+  delivered Phase 2. GitHub
   checks were inspected through `rtk gh` at the Phase 1/2 boundary. PR #56's
   checks passed, but its branch was behind after Phase 1 and was synchronized
   by merging refreshed `origin/main` into its attached worktree. Its auto-merge
@@ -159,18 +174,27 @@ available summary.
   for either route, and no route-specific timing medians. This supports only the
   sample-bounded historical observation; it is not the original adversarial
   panel report and does not replace matched controls.
-- Phase 1 is complete. Phase 2 implementation is on
-  `fix/rt-ci-route-phase-2-closure-contracts` from refreshed `origin/main`
-  (`d523ada75b826d2fe03ecccf338e75b53e237538`, including merged PR #56).
-  Local RED reproductions recorded in Beads confirmed that the shell route
-  omitted `tachi-mcp` and manifest/toolchain changes had no repository-contract
-  route. Local GREEN and regression checks now pass: Cargo metadata
-  reverse-dependency comparison, route deduplication, compact contract
-  selection for manifests/toolchain/source changes, passive-doc exclusion,
-  active route/workflow contract tests, all 459 `tachi-core` all-target tests
-  (1 ignored), all 21 `tachi-mcp` tests, core Clippy, formatting, shell syntax,
-  workflow gate, docs version gates, and `git diff --check`. Hosted Phase 2 PR
-  checks and review are pending; its Beads remain in progress until checks are
-  terminal and successful. Matched-control timing is not yet implemented or
-  accepted. The historical zero-candidate result remains bounded to the
-  retained sample and is not a timing result.
+- Phase 2 local verification passed: Cargo metadata reverse-dependency
+  comparison, route deduplication, compact contract selection for manifests,
+  toolchain and source changes, passive-doc exclusion, active route/workflow
+  contract tests, all 459 `tachi-core` all-target tests (1 ignored), all 21
+  `tachi-mcp` tests, Clippy, formatting, shell syntax, workflow/docs gates and
+  diff checks. PR #59's hosted core, MCP, CLI, shell, desktop and shell-slice
+  tests, repository-wide contracts, CodeQL Rust, workflow parse, rustfmt,
+  supply-chain, route-observe and Gitleaks checks succeeded; its protected
+  squash auto-merge completed at `a8f4930c`. `RT-0sd.2` remains open. The
+  historical zero-candidate result remains bounded to the retained sample and
+  is not a timing result.
+- Phase 3 is being implemented in `fix/rt-ci-route-phase-3-matched-control`.
+  The `rust-workspace.yml` route job now records per-run provenance and uploads
+  a route artifact for PR and dispatch events. `make rt-ci-matched-controls`
+  reports matched pairs, exclusions, and separate medians. Focused collector
+  tests cover successful pairs, failures, cancellation, reruns, missing route
+  artifacts, tree mismatch, and incompatible workflow/runner definitions; 33
+  `workflow_ci_gates` tests pass, along with the full `tachi-core` suite,
+  Clippy, workflow/docs gates, formatting, and shell syntax checks. The live
+  read-only inventory of the latest 40 workflow runs found 26 PR/dispatch
+  candidates: 20 successful runs had no route artifact because they predate
+  this change, 6 were unsuccessful, and there were 0 valid pairs for either
+  shape. This sample does not establish timing performance; `RT-0sd.2` remains
+  open pending ten valid pairs per shape and the <=65% execution-median ratio.
