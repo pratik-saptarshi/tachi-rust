@@ -3,10 +3,10 @@
 Status: **Phases 0–3 and both P3 advisories are delivered; post-merge review
 corrections merged in PR #62 (`d81f9962`), P3-F05 closed in PR #64, P3-F06
 closed in PR #65. The 2026-10-06 cohort has ten identity-matched pairs per
-shape, but the collector's run-level "execution" includes downstream matrix
-job queueing. Neither shape has an accepted timing result until queue and
-execution are separated. Phase 4 remains incomplete, and `RT-0sd.2` stays
-open.** Phase 1
+shape. Under the preserved end-to-end wall-clock gate, `passive-docs` passes
+at 13.5% of full controls and `dependency-closure` misses at 193.6%. These
+latency results include queue delays; per-job diagnostics are still needed to
+identify the cause. Phase 4 remains incomplete, and `RT-0sd.2` stays open.** Phase 1
 merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
@@ -27,15 +27,17 @@ optimized route shapes. The historical audit's zero eligible candidates is
 bounded to its retained sample and does not establish whether the timing target
 passed.
 
-The open Beads issue `RT-0sd.2` remains the sole timing acceptance tracker. Its
-method is updated to compare successful optimized PR runs against successful
-forced-full `pull_request` control runs initiated with the `ci-full-control`
-label on ten distinct, identical code trees per route shape. For both
-`passive-docs` and `dependency-closure`, the optimized
-execution median must be no more than 65% of the matched full-control execution
-median. Queue and execution medians are reported separately. Insufficient pairs
-or a missed threshold leave `RT-0sd.2` open and do not support a completion
-claim.
+The open Beads issue `RT-0sd.2` remains the sole timing acceptance tracker. It
+compares successful optimized PR runs with same-PR forced-full `pull_request`
+controls initiated by the `ci-full-control` label on ten distinct, identical
+code trees per route shape. The acceptance metric is end-to-end workflow
+latency (`completed_at - created_at`), which includes workflow and downstream
+job queue delays. For both `passive-docs` and `dependency-closure`, the routed
+median must be no more than 65% of the matched full-control median. Report
+workflow queue, per-job scheduling delay, and aggregate job execution work
+separately to explain the result. Keep `RT-0sd.2` open if either shape lacks ten
+valid pairs, misses the wall-clock threshold, or lacks complete per-job
+diagnostics.
 
 ## Delivery phases and PR boundaries
 
@@ -44,9 +46,9 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is separate and uploaded before PR scripts; artifacts with multiple JSON objects are rejected; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. PR #65 closes P3-F06. The 2026-10-06 cohort has ten identity-matched pairs per shape, but run-level duration includes downstream job queueing; timing acceptance remains unproven pending per-job queue/execution separation. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged immutable execution SHA and PR/head provenance; PR #62 hardened trusted artifact separation, JSON cardinality, and label isolation. PR #65 closes P3-F06. The 2026-10-06 cohort has ten identity-matched pairs per shape. Its end-to-end latency results are valid against the wall-clock gate; per-job queue/work diagnostics remain outstanding to attribute the dependency-closure miss. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
-| **5 — Timing metric correction and follow-up** | Correct the collector's timing split tracked by `RT-0sd.4`; then determine whether dependency-closure needs cost remediation without reducing selected package or repository-contract coverage. | Separate implementation PR. Capture each measured job's creation, start, and completion timestamps; report workflow queue, per-job queue, and execution separately with a deterministic aggregation. Reprocess the existing cohort only if complete source timestamps are recoverable; otherwise collect a fresh matched cohort. Optimize dependency-closure only if the corrected execution metric misses the existing <=65% threshold. |
+| **5 — Timing attribution and latency remediation** | Complete per-job instrumentation tracked by `RT-0sd.4`; diagnose and reduce end-to-end dependency-closure latency without reducing selected package or repository-contract coverage. | Separate implementation PR. Capture each measured job's creation/start/completion timestamps. Keep the acceptance gate on end-to-end latency (`workflow updatedAt - createdAt`); report workflow queue, per-job scheduling delay, and aggregate execution work separately. Reprocess existing pairs only if complete job timestamps are recoverable, otherwise collect a fresh matched cohort. Use the diagnostics to target the latency cause and keep the <=65% wall-clock gate unchanged. |
 
 ### Commit and PR progression
 
@@ -86,18 +88,18 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 | P3-F06 — preserve route-audit replay inputs | P3; nonblocking, delivered | PR #65 preserves all 37 candidates and the classifier snapshot; a reviewed manifest digest rejects tampered route inputs and provenance. Replay result remains bounded to the retained sample. | `RT-0vf.7` closed |
 | Phase 1 — path and documentation-contract routing | P2 delivery | Both P2-F01 and P2-F04 focused RED/GREEN tests and adjacent regressions pass; workflow/docs contracts pass; required hosted checks are terminal and successful. | `RT-0vf.2` |
 | Phase 2 — dependency and repository contracts | P2 delivery | P2-F02 and P2-F03 focused RED/GREEN tests pass; Cargo metadata comparison and manifest-failure regression pass; relevant workspace tests, Clippy, workflow/docs gates, and required hosted checks pass. | `RT-0vf.3` |
-| Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees and pair successful optimized PR runs with same-PR `ci-full-control` full-route runs on identical execution SHA/tree. Require matching workflow/classifier/path-producer revisions and comparable runner definitions. Capture run provenance plus workflow and measured-job created/started/completed timestamps. The measured set is the route decision job plus each selected package, shell-suite, and repository-contract job represented by trusted runner provenance. Per run calculate `aggregate_job_queue_ms = sum(started_at - created_at)` and `aggregate_execution_work_ms = sum(completed_at - started_at)` across that set. Report workflow queue/wall duration separately as context, never as execution. Exclude failed, cancelled, ambiguous, incomplete-timing/provenance, and mismatched pairs. Across ten distinct valid pairs per shape, require routed median aggregate execution work <=65% of full-control median. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4`, `RT-0sd.2`, and `RT-0sd.4` |
+| Phase 3 — matched controls | P2 timing acceptance | For each route shape, pair ten distinct optimized PR trees with same-PR `ci-full-control` runs on identical execution SHA/tree and matching workflow/source revisions and runner definitions. The accepted gate is median end-to-end workflow latency (`completed_at - created_at`) <=65% of full-control median; queue delay remains included in this wall-clock measure. Capture workflow and measured-job created/started/completed timestamps. Report workflow queue, per-job scheduling wait, and aggregate execution work (sum job completed-started) separately as diagnostics. Exclude failed, cancelled, ambiguous, incomplete-timing/provenance, and mismatched pairs. Keep `RT-0sd.2` open if either shape lacks ten pairs, misses the latency gate, or lacks per-job diagnostics. | `RT-0vf.4`, `RT-0sd.2`, and `RT-0sd.4` |
 | Phase 4 — integrated closeout | Closeout | Roadmap, review archive, raw evidence, Beads export, and integration log reconcile. Actual cohort counts and calculation are reproducible from retained inputs. Do not close timing acceptance on fewer than ten pairs per route shape or a failed threshold. | `RT-0vf.5` |
-| Phase 5 — timing metric correction and follow-up | P1; timing evidence integrity | **RED:** Workflow `startedAt`→`updatedAt` includes downstream job scheduling/queue delay, so current ratios cannot establish execution pass/miss. **GREEN:** For the route decision job and every trusted-provenance measured job, retain API `created_at`, `started_at`, and `completed_at`. Per run, sum job scheduling/queue as `started_at - created_at`; sum execution work as `completed_at - started_at`. Compare the median per-run execution-work sum for ten routed trees against their ten same-tree full controls. Keep workflow-level queue/wall time as contextual metrics. Reprocess current pairs only if all required timestamps exist, else gather a fresh cohort. **Regression:** Fixtures show post-start wait changes queue but not execution, longer job runtime changes execution, and missing timestamps exclude the run; routing and contract coverage stay unchanged. Only if corrected execution work exceeds <=65% should dependency-closure cost optimization begin. | `RT-0sd.4` |
+| Phase 5 — timing attribution and latency remediation | P1; performance follow-up | **RED:** The workflow wall-clock gate shows dependency-closure at 193.6% of full-control latency, while the current collector cannot attribute the gap to scheduling delay or job execution. **GREEN:** Capture timestamps for the route decision job and every trusted-provenance measured job. Keep `end_to_end_latency_ms = workflow.completed_at - workflow.created_at` as the <=65% acceptance gate; report workflow queue, per-job scheduling wait (`job.started_at - job.created_at`), and aggregate execution work (sum of `job.completed_at - job.started_at`) separately. Reprocess existing pairs only if complete source timestamps are recoverable, else gather a fresh cohort. **Regression:** Fixtures show job waits increase wall latency and scheduling metrics but not aggregate execution work; longer job runtime increases both wall latency and execution work; missing timestamps exclude the candidate; route closure and repository contracts stay unchanged. Target fixes to measured causes and preserve full coverage. | `RT-0sd.4` |
 
 ### Matched-control result — 2026-10-06
 
-The final reclassified evidence snapshot is schema version 2, derived from the
-version-1 collector output identified by its source digest. Its summary is
-`informational_only` and `not_evaluated` until per-job queue/execution timing is
-collected. The snapshot is
+The final reclassified evidence snapshot is schema version 3, derived from the
+version-1 collector output identified by its source digest. It calculates the
+end-to-end wall-clock latency gate from workflow creation through completion;
+per-job scheduling and execution-work diagnostics remain pending. The snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](../reports/rt-ci-matched-control-final-2026-10-06.json)
-(SHA-256 `a67221c0578df29ba282c87113e4620c4b0d8bd71c1f01f021844f0b744da0d2`;
+(SHA-256 `4578b2c1f07eb36ab21f7a6483155f38def202188a7656e1057e8658f2476033`;
 source collector SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`);
 the run mapping and limitations are in the
 [matched-control readout](../reports/rt-ci-matched-control-final-2026-10-06.md).
@@ -105,22 +107,24 @@ It contains 87 candidate workflow runs and 20 valid pairs: ten `passive-docs`
 and ten `dependency-closure`, all on distinct PR trees with matching execution
 SHA/tree, workflow revision, runner definition, and successful attempts.
 
-| Route shape | Optimized workflow wall median | Full-control workflow wall median | Ratio | Interpretation |
+| Route shape | Routed end-to-end latency median | Full-control end-to-end latency median | Ratio | Wall-clock gate |
 |---|---:|---:|---:|---|
-| `passive-docs` | 16,500 ms | 122,000 ms | 13.5% | Informational only |
-| `dependency-closure` | 257,500 ms | 133,000 ms | 193.6% | Informational only |
+| `passive-docs` | 16,500 ms | 122,000 ms | 13.5% | Pass |
+| `dependency-closure` | 257,500 ms | 133,000 ms | 193.6% | Miss; <=65% required |
 
-Workflow queue medians are 0 ms at the one-second source timestamp resolution.
-They omit downstream job queueing. For example, the PR #80 control workflow
-started at 10:48:36Z, while measured jobs started between 10:49:26Z and
-10:52:36Z. These run-level ratios therefore do not establish either a pass or
-a threshold miss. Keep `RT-0sd.2` and `RT-0vf.5` open and Phase 4 incomplete.
-`RT-0sd.4` tracks corrected per-job queue/execution instrumentation and
-re-evaluation; optimize only if the accepted execution metric still misses.
+The gate uses workflow `updatedAt - createdAt`, so it counts workflow queue,
+downstream scheduling, and job execution in the contributor's actual wait.
+The workflow queue medians display 0 ms at one-second timestamp resolution;
+that does not mean downstream jobs started immediately. In the PR #80 control,
+the workflow started at 10:48:36Z while measured jobs started between
+10:49:26Z and 10:52:36Z. `passive-docs` passes and `dependency-closure` misses
+the wall-clock target. Keep `RT-0sd.2` and `RT-0vf.5` open. `RT-0sd.4` tracks
+per-job queue/work attribution so remediation targets the measured latency
+cause without reducing required coverage.
 
 ### Timing acceptance update for `RT-0sd.2`
 
-The existing [2026-10-05 timing plan](2026-10-05-rt-ci-timing-evidence-followup.md) and initial issue acceptance compare pre-router with post-router cohorts. Replace that criterion with matched full controls as described above; retain the issue, its history, and existing collector work. Require ten distinct identical code trees per route shape, successful optimized PR and label-triggered full-route PR runs on each identical execution commit SHA and tree, captured controlled PR number/head SHA, identical workflow-file content and route classifier/path-producer revisions, comparable runner images, explicit exclusion rules, and complete per-job timestamps. For each run, sum `started_at - created_at` across the measured jobs as `aggregate_job_queue_ms` and `completed_at - started_at` as `aggregate_execution_work_ms`. Report workflow-level queue/wall duration as context only. Require the median routed aggregate execution work to be <=65% of the matched full-control median for both shapes. The 37-candidate historical audit remains sample-bounded context, not a substitute cohort or performance result.
+The existing [2026-10-05 timing plan](2026-10-05-rt-ci-timing-evidence-followup.md) and initial issue acceptance compare pre-router with post-router cohorts. Replace that criterion with matched full controls as described above; retain the issue, its history, and existing collector work. Require ten distinct identical code trees per route shape, successful optimized PR and same-PR label-triggered full-route runs on identical execution commit SHA/tree, matching workflow/classifier/path-producer revisions, comparable runner definitions, explicit exclusions, and complete per-job timestamps. The gate is median `workflow.updatedAt - workflow.createdAt` <=65% of the matched full-control median. Also report workflow queue (`startedAt - createdAt`), per-job scheduling wait (sum `job.started_at - job.created_at`), and aggregate execution work (sum `job.completed_at - job.started_at`) separately. Queue remains included in the latency gate; aggregate work is diagnostic only. The 37-candidate historical audit remains sample-bounded context, not a substitute cohort or performance result.
 
 `RT-0sd.2` depends on completion of the Phase 1 routing, Phase 2 repository
 coverage, Phase 3 matched-control collector issues, and the Phase 5
@@ -249,10 +253,11 @@ eligibility evidence and does not represent matched timing performance.
 | PR #61 Copilot comment 4192629148: label events can cancel ordinary required CI and unrelated labels can start route work | Remove the `unlabeled` trigger, skip the route job for labels other than `ci-full-control`, and isolate ordinary, control, and ignored-label concurrency groups | Phase 3 trigger/concurrency workflow contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #62 Codex comment 4192736938: skipped ignored-label job reports success for the stable required check | Give ignored-label events a distinct non-required check name, while preserving the required name for ordinary and full-control runs; retain the route-job skip and concurrency isolation | Phase 3 trigger/status-check contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #62 Codex comment 4192802658: multiple route JSON documents can make `jq -s` merge a forged document instead of trusted provenance | Require exactly two slurped JSON objects before merging; reject malformed or multi-document route/provenance artifacts | Phase 3 collector and verifier artifact validation tests | `RT-0vf.4`, `RT-0sd.2` |
-| PR #90 Codex comment 4194686655: workflow-level execution interval includes downstream matrix job queueing | Mark current workflow wall-time ratios informational; collect per-job creation/start/completion timestamps and calculate queue/execution separately before evaluating or optimizing dependency-closure | Matched-control readout and Phase 5 acceptance | `RT-0sd.2`, `RT-0sd.4`, `RT-0vf.5` |
-| PR #90 Codex comment 4194758545: machine-readable status still exposed `pass` and `threshold_missed` | Reclassify both summary states to `informational_only` / `not_evaluated`, rename workflow wall-time fields, and pin the corrected artifact digest | Schema version 2 evidence snapshot | `RT-0sd.2` |
-| PR #90 Codex comment 4194840114: transformed evidence retained schema version 1 | Publish documented schema version 2 while retaining the source version-1 digest | Schema version 2 evidence snapshot and readout | `RT-0sd.2` |
-| PR #90 Codex comment 4194840118: roadmap still called the workflow wall-time observation a dependency-closure miss | Describe the 193.6% value as an informational workflow wall-time ratio; make optimization conditional on corrected execution measurement | Objective, Phase 5, matched-control result | `RT-0sd.2`, `RT-0sd.4` |
+| PR #90 Codex comment 4194686655: workflow-level execution interval includes downstream matrix job queueing | Preserve the end-to-end latency gate including queue delays; report job queue and execution work separately so latency miss is not misattributed to execution cost | Schema version 3 readout and Phase 5 per-job diagnosis | `RT-0sd.2`, `RT-0sd.4`, `RT-0vf.5` |
+| PR #90 Codex comment 4194758545: machine-readable status still exposed `pass` and `threshold_missed` for an undefined execution metric | Schema v2 marked execution attribution not evaluated; schema v3 defines explicit wall-clock latency statuses and keeps execution-work status separate | Schema version 3 evidence snapshot | `RT-0sd.2` |
+| PR #90 Codex comment 4194840114: transformed evidence retained schema version 1 | Bumped the interpreted evidence to schema v2; schema v3 now adds the accepted end-to-end latency gate while preserving the version-1 source digest | Schema version 3 evidence snapshot and readout | `RT-0sd.2` |
+| PR #90 Codex comment 4194840118: roadmap called an unproven execution-cost miss | Removed execution-cost attribution; after defining the wall-clock gate, report dependency-closure as a latency miss and make remediation conditional on per-job diagnosis | Objective, Phase 5, matched-control result | `RT-0sd.2`, `RT-0sd.4` |
+| PR #91 Codex comment 4194934805: aggregate job runtime can pass while parallel PR latency worsens | Keep aggregate execution work as a diagnostic; gate on end-to-end workflow latency from created to completed, including queue, and require <=65% for both route shapes | SMART acceptance, Beads criteria, and schema version 3 evidence | `RT-0sd.2`, `RT-0sd.4`, `RT-0vf.5` |
 
 ## Integration summary
 
