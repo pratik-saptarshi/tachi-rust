@@ -414,3 +414,34 @@ available summary.
   Timing artifacts record the verified event merge SHA and controlled PR head;
   the verifier validates control evidence against the route artifact. The earlier
   dispatch smoke run remains non-pair evidence.
+
+### 2026-10-06 per-job timing collector and replay
+
+The Phase 3 follow-up adds read-only GitHub Jobs API collection for the route
+job and every selected package, shell-suite, and repository-contract job in the
+trusted runner inventory. Candidates are excluded when a measured job is
+missing, ambiguous, unsuccessful, or has incomplete or out-of-order timestamps.
+The collector emits workflow queue, end-to-end latency, per-job scheduling
+wait, and aggregate execution work; only end-to-end latency is the acceptance
+gate. Focused regressions cover successful mapping, invalid or missing job
+timestamps, failed measured jobs, and the existing failure, cancellation,
+rerun, missing-route, and mismatched-tree cases.
+
+The existing 20 matched pairs were replayed from 40 complete successful job
+records; the pair trees and identity checks remain unchanged. Passive-docs
+remains at 16.5 s routed versus 122 s full-control median (13.5%, pass).
+Dependency-closure remains at 257.5 s versus 133 s (193.6%, miss). Its summed
+per-job scheduling median is 848.5 s versus 28.5 s, and summed execution work
+is 513.5 s versus 628 s. These sums cover parallel jobs and are descriptive
+diagnostics only. Individual routed package and contract jobs have median
+scheduling waits of 55–73 s and shell jobs 33–127 s, while their execution
+medians are close to controls. This points to runner scheduling as a major
+contributor, but the historical runs were not interleaved and do not prove
+why the waits differed. The next matched cohort should interleave routed and
+full-control runs to test this lead. The v4 diagnostic replay is
+[`docs/reports/rt-ci-matched-control-job-timings-2026-10-06.json`](../reports/rt-ci-matched-control-job-timings-2026-10-06.json),
+SHA-256 `ece708e82214bea1ea64515b1159f1e35cf59c6a07750a74d68ac3bbcb09e8c0`.
+The previous 87-candidate snapshot remains preserved. Keep `RT-0sd.4`,
+`RT-0sd.2`, and `RT-0vf.5` open; investigate scheduler delay without reducing
+selected package or repository-contract coverage, then recapture ten matched
+trees per shape before evaluating closeout.
