@@ -203,6 +203,18 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-classifier.sh")),
         "rust-workspace must invoke the shared route classifier"
     );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-changed-paths.sh")),
+        "rust-workspace must use the shared rename-aware changed-path producer"
+    );
+    assert!(
+        !text.contains("git diff --name-only"),
+        "rust-workspace must not discard rename source paths"
+    );
+    assert!(
+        classifier.contains("docs/testing/tdd-evidence\\.json"),
+        "test-owned TDD evidence must widen to the active contract route"
+    );
     for required in [
         "active_contract_pattern=",
         "passive_docs_only",
@@ -967,6 +979,14 @@ fn route_observe_workflow_emits_route_artifact_and_stable_check() {
     assert!(
         workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-classifier.sh")),
         "route observe workflow must consume the shared route classifier"
+    );
+    assert!(
+        workflow_run_bodies(&workflow).any(|run| run.contains("scripts/ci-route-changed-paths.sh")),
+        "route observe workflow must use the shared rename-aware changed-path producer"
+    );
+    assert!(
+        !text.contains("git diff --name-only"),
+        "route observe workflow must not discard rename source paths"
     );
     assert!(
         workflow_run_bodies(&workflow).any(|run| run.contains("selected_lanes_json")),

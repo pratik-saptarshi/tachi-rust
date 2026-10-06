@@ -18,7 +18,7 @@ reason="non-pull_request events stay full mode"
 packages_json="$full_packages_json"
 changed_paths_json='[]'
 
-active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/)'
+active_contract_pattern='^(README\.md|CHANGELOG\.md|SECURITY\.md|docs/testing/tdd-evidence\.json|docs/(roadmap/|standards/|guides/|bill-of-materials\.html\.md|publish-readiness-checklist\.html\.md|platform-compatibility\.md|tachi-rust-ci-|ci-improvement-plan\.html)|\.github/workflows/|Cargo\.toml$|Cargo.lock$|Makefile$|\.aod/|\.claude/|adapters/)'
 
 is_protected_ref() {
   case "$1" in

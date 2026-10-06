@@ -55,7 +55,8 @@ jobs:
           : > "$changed_paths_file"
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             git fetch origin "$base_ref" --depth=1
-            git diff --name-only "origin/${base_ref}...${GIT_SHA}" > "$changed_paths_file"
+            bash "$GITHUB_WORKSPACE/scripts/ci-route-changed-paths.sh" \
+              "origin/${base_ref}" "$GIT_SHA" > "$changed_paths_file"
           fi
 
           route_json="$(bash "$GITHUB_WORKSPACE/scripts/ci-route-classifier.sh" \
