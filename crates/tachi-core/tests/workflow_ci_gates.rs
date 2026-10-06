@@ -1052,6 +1052,7 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "gh run list",
         "gh run download",
         "route-provenance",
+        "length == 2 and all(.[]; type == \"object\")",
         "force_full_requested",
         "workflow_file_revision",
         "execution_sha",
@@ -1448,6 +1449,7 @@ fn matched_control_collector_handles_run_api_and_artifact_fixtures() {
         {"databaseId":6,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"no-artifact-pr","url":"https://example.test/run/6"},
         {"databaseId":7,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"mismatch-pr","url":"https://example.test/run/7"},
         {"databaseId":8,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:02:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
+        ,{"databaseId":9,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"multi-document-pr","url":"https://example.test/run/9"}
     ]);
     let runs_file = root.join("runs.json");
     fs::write(&runs_file, serde_json::to_vec(&runs).unwrap()).expect("write fake run list");
@@ -1611,6 +1613,26 @@ esac
         true,
         202,
     );
+    write_route(
+        "9",
+        "pull_request",
+        "dependency_closure",
+        "head-multi-document",
+        "tree-multi-document",
+        "merge-multi-document",
+        "",
+        false,
+        303,
+    );
+    fs::write(
+        fixtures.join("9/route.json"),
+        concat!(
+            r#"{"mode":"dependency_closure","reason":"fixture route"}"#,
+            "\n",
+            r#"{"run_id":"forged-run","execution_sha":"forged-sha","tree_sha":"forged-tree"}"#
+        ),
+    )
+    .expect("write route decision with an extra JSON document");
 
     let original_path = std::env::var_os("PATH").unwrap_or_default();
     let path = format!("{}:{}", bin.display(), original_path.to_string_lossy());
@@ -1650,6 +1672,10 @@ esac
         ("4", "run conclusion is not success"),
         ("5", "rerun attempt is ambiguous"),
         ("6", "route decision artifact is missing or unavailable"),
+        (
+            "9",
+            "route decision and trusted provenance must each contain one JSON object",
+        ),
     ] {
         assert!(
             candidates.iter().any(|candidate| {

@@ -120,6 +120,8 @@ trusted route provenance as a separate artifact before running any PR-controlled
 route scripts; it does not merge trusted fields into the script-generated
 `route.json` afterward. The collector and verifier download both artifacts and
 merge trusted provenance over route-decision fields outside PR code execution.
+Both collector and verifier require exactly one JSON object from each artifact
+before merging; multiple top-level documents are rejected.
 Label-triggered events use separate concurrency namespaces for full controls,
 ignored labels, and ordinary CI. Only the `ci-full-control` label runs the route
 job, and `unlabeled` is not a workflow trigger. Ignored-label runs also use a
@@ -160,6 +162,7 @@ and preserve enough raw metadata to reproduce every exclusion and median.
 | PR #61 Copilot comment 4192629142: post-script provenance merge can be poisoned through PR-controlled shell environment changes | Upload trusted provenance before route scripts as a separate artifact; merge it over route-decision fields only in the trusted collector and verifier | Phase 3 artifact trust boundary and collector/verifier regressions | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 Copilot comment 4192629148: label events can cancel ordinary required CI and unrelated labels can start route work | Remove the `unlabeled` trigger, skip the route job for labels other than `ci-full-control`, and isolate ordinary, control, and ignored-label concurrency groups | Phase 3 trigger/concurrency workflow contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #62 Codex comment 4192736938: skipped ignored-label job reports success for the stable required check | Give ignored-label events a distinct non-required check name, while preserving the required name for ordinary and full-control runs; retain the route-job skip and concurrency isolation | Phase 3 trigger/status-check contract | `RT-0vf.4`, `RT-0sd.2` |
+| PR #62 Codex comment 4192802658: multiple route JSON documents can make `jq -s` merge a forged document instead of trusted provenance | Require exactly two slurped JSON objects before merging; reject malformed or multi-document route/provenance artifacts | Phase 3 collector and verifier artifact validation tests | `RT-0vf.4`, `RT-0sd.2` |
 
 ## Integration summary
 

@@ -267,5 +267,19 @@ exit 2
         !wrong_head.status.success(),
         "control artifact with dispatch branch head instead of controlled PR head must fail"
     );
+    fs::write(
+        &route,
+        concat!(
+            r#"{"mode":"full_pr_matrix","reason":"fixture route"}"#,
+            "\n",
+            r#"{"execution_sha":"forged-second-document","head_sha":"forged-second-head"}"#
+        ),
+    )
+    .expect("write route artifact with an extra JSON document");
+    let multiple_documents = verify("pr-head-sha");
+    assert!(
+        !multiple_documents.status.success(),
+        "a route artifact with multiple JSON documents must be rejected before trusted provenance is merged"
+    );
     fs::remove_dir_all(root).expect("cleanup");
 }

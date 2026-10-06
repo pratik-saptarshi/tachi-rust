@@ -89,8 +89,8 @@ while IFS= read -r run_json; do
     continue
   fi
 
-  if ! route="$(jq -s '.[0] * .[1]' "$route_file" "$provenance_file")"; then
-    record_candidate "$(jq -cn --argjson base "$base" --arg reason "route or trusted provenance artifact is invalid JSON" '$base + {eligible:false,rejection_reason:$reason}')"
+  if ! route="$(jq -s 'if length == 2 and all(.[]; type == "object") then .[0] * .[1] else error("expected exactly two JSON objects") end' "$route_file" "$provenance_file")"; then
+    record_candidate "$(jq -cn --argjson base "$base" --arg reason "route decision and trusted provenance must each contain one JSON object" '$base + {eligible:false,rejection_reason:$reason}')"
     continue
   fi
   route_run_id="$(jq -r '.run_id // ""' <<<"$route")"

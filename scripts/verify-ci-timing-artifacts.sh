@@ -103,8 +103,9 @@ provenance_files=("$provenance_dir"/*.json)
     exit 1
 }
 verified_route="$root/verified-route.json"
-jq -s '.[0] * .[1]' "${route_files[0]}" "${provenance_files[0]}" > "$verified_route" || {
-    echo "FAIL: route decision and trusted provenance are not valid JSON objects" >&2
+jq -s 'if length == 2 and all(.[]; type == "object") then .[0] * .[1] else error("expected exactly two JSON objects") end' \
+    "${route_files[0]}" "${provenance_files[0]}" > "$verified_route" || {
+    echo "FAIL: route decision and trusted provenance must each contain exactly one JSON object" >&2
     exit 1
 }
 jq -e --arg run_id "$RUN_ID" --argjson attempt "$run_attempt" --arg event "$run_event" \
