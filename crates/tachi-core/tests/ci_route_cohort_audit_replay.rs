@@ -47,41 +47,59 @@ fn retained_route_cohort_replays_with_the_recorded_classifier_revision() {
 }
 
 #[test]
-fn replay_rejects_a_manifest_route_reason_that_does_not_match_the_classifier() {
+fn replay_rejects_tampered_candidate_inputs_and_provenance() {
     let root = repo_root();
     let manifest_path =
         root.join("docs/reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json");
     let mut manifest: Value =
         serde_json::from_slice(&fs::read(&manifest_path).expect("read route audit manifest"))
             .expect("parse route audit manifest");
-    manifest["candidates"][0]["route_reason"] = Value::String("forged audit reason".into());
-
     let temp_dir = std::env::temp_dir().join(format!(
         "tachi-ci-route-audit-tamper-{}",
         std::process::id()
     ));
     fs::create_dir_all(&temp_dir).expect("create replay tamper fixture directory");
-    let tampered_manifest = temp_dir.join("manifest.json");
-    fs::write(
-        &tampered_manifest,
-        serde_json::to_vec(&manifest).expect("serialize tampered manifest"),
-    )
-    .expect("write tampered manifest");
+    let tampered_inputs: [(&str, fn(&mut Value)); 4] = [
+        ("route reason", |value: &mut Value| {
+            value["candidates"][0]["route_reason"] = Value::String("forged audit reason".into());
+        }),
+        ("changed paths", |value: &mut Value| {
+            value["candidates"][0]["changed_paths"] = serde_json::json!(["README.md"]);
+        }),
+        ("head identity", |value: &mut Value| {
+            value["candidates"][0]["head_sha"] = Value::String("0".repeat(40));
+        }),
+        ("classifier provenance", |value: &mut Value| {
+            value["source_commit"] = Value::String("0".repeat(40));
+        }),
+    ];
 
-    let output = Command::new("bash")
-        .arg(root.join("scripts/replay-rt-ci-route-cohort-audit.sh"))
-        .arg(&tampered_manifest)
-        .current_dir(&root)
-        .output()
-        .expect("run replay against mismatched route reason");
+    for (label, tamper) in tampered_inputs {
+        let mut candidate = manifest.clone();
+        tamper(&mut candidate);
+        let tampered_manifest = temp_dir.join(format!("{label}.json"));
+        fs::write(
+            &tampered_manifest,
+            serde_json::to_vec(&candidate).expect("serialize tampered manifest"),
+        )
+        .expect("write tampered manifest");
+
+        let output = Command::new("bash")
+            .arg(root.join("scripts/replay-rt-ci-route-cohort-audit.sh"))
+            .arg(&tampered_manifest)
+            .current_dir(&root)
+            .output()
+            .expect("run replay against tampered historical evidence");
+
+        assert!(
+            !output.status.success(),
+            "replay must reject tampered {label}"
+        );
+        assert!(
+            String::from_utf8_lossy(&output.stderr)
+                .contains("manifest does not match the reviewed snapshot digest"),
+            "failure should identify the reviewed-manifest digest mismatch for {label}: {output:?}"
+        );
+    }
     let _ = fs::remove_dir_all(&temp_dir);
-
-    assert!(
-        !output.status.success(),
-        "replay must reject a saved route reason that differs from classifier output"
-    );
-    assert!(
-        String::from_utf8_lossy(&output.stderr).contains("replay differs for PR #15"),
-        "failure should identify the mismatched candidate: {output:?}"
-    );
 }

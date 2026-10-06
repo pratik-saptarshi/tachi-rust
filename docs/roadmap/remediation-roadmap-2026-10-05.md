@@ -143,10 +143,14 @@ the Git tree of the PR head commit; it does not claim the historical workspace
 job checked out that tree instead of GitHub's synthetic merge commit. The
 classifier snapshot is stored with the manifest so replay works without a
 network fetch or old Git history. `scripts/replay-rt-ci-route-cohort-audit.sh`
-verifies the snapshot hash and replays each candidate offline. It reproduces
-37 `full_pr_matrix` classifications: 33 active/shared inputs and 4 unknown
-non-documentation paths. The result remains bounded to those retained
-candidates and is not a timing result.
+first verifies the manifest against a reviewed SHA-256 digest pinned in the
+script, then verifies the classifier snapshot hash and replays each candidate
+offline. This rejects altered paths, route results, run/head identities, or
+classifier provenance as changes to the retained audit input. The regression
+tamper cases cover route reason, changed paths, head identity, and classifier
+provenance. The replay reproduces 37 `full_pr_matrix` classifications: 33
+active/shared inputs and 4 unknown non-documentation paths. The result remains
+bounded to those retained candidates and is not a timing result.
 
 Post-merge review of PR #61 identified two additional integrity and workflow
 isolation requirements, tracked in follow-up PR #62. The workflow uploads
@@ -307,12 +311,14 @@ available summary.
 - The P3-F06 replay manifest at
   [`docs/reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json`](../reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json)
   now records all 37 PR/head/head-tree identities, run IDs, changed paths,
-  route reasons, artifact digests, and exact classifier commit/blob. The saved
-  classifier snapshot hash is verified and the offline replay returns 37
+  route reasons, artifact digests, and exact classifier commit/blob. A pinned
+  reviewed SHA-256 digest anchors the complete manifest before replay; the
+  saved classifier snapshot hash is also verified, and offline replay returns 37
   `full_pr_matrix` results (33 active/shared inputs, 4 unknown paths). Its Rust
-  contract test passes, as do formatting, shell syntax, workflow/docs gates,
-  JSONL validation, and diff checks. This is bounded historical route
-  eligibility evidence, not timing evidence; hosted validation remains pending.
+  contract rejects tampered route reason, changed paths, head identity, and
+  classifier provenance. The focused contract passes 2/2, as do formatting
+  and shell syntax. This is bounded historical route eligibility evidence, not
+  timing evidence. PR #65 carries the correction; hosted validation is pending.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains

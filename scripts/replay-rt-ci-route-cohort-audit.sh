@@ -3,8 +3,16 @@ set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 manifest="${1:-$repo_root/docs/reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json}"
+expected_manifest_sha256="848f2c22912050d9f28bfc622a495a3fd1ff9505acfba18c3c49b68876f74920"
 
 command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 2; }
+command -v shasum >/dev/null 2>&1 || { echo "shasum is required" >&2; exit 2; }
+
+actual_manifest_sha256="$(shasum -a 256 "$manifest" | awk '{print $1}')"
+if [ "$actual_manifest_sha256" != "$expected_manifest_sha256" ]; then
+    echo "FAIL: route-audit manifest does not match the reviewed snapshot digest" >&2
+    exit 1
+fi
 
 jq -e '
   .schema_version == 1
