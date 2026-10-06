@@ -165,8 +165,21 @@ while IFS= read -r run_json; do
     --arg created_at "$(jq -r '.createdAt' <<<"$run_json")" \
     --arg started_at "$(jq -r '.startedAt' <<<"$run_json")" \
     --arg completed_at "$(jq -r '.updatedAt' <<<"$run_json")" \
-    '($created_at|fromdateiso8601) as $created | ($started_at|fromdateiso8601) as $started | ($completed_at|fromdateiso8601) as $completed | {queue_duration_ms:(($started-$created)*1000),execution_duration_ms:(($completed-$started)*1000)}')"; then
+    '($created_at|fromdateiso8601) as $created | ($started_at|fromdateiso8601) as $started | ($completed_at|fromdateiso8601) as $completed | if $started < $created or $completed < $started then error("run timestamps are out of order") else {queue_duration_ms:(($started-$created)*1000),execution_duration_ms:(($completed-$started)*1000)} end')"; then
     record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" '$base + {route:$route,eligible:false,rejection_reason:"run timestamps are missing or invalid"}')"
+    continue
+  fi
+
+  jobs_file="$run_dir/jobs.json"
+  if ! gh api "repos/$repo/actions/runs/$run_id/jobs?per_page=100" > "$jobs_file"; then
+    record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" '$base + {route:$route,eligible:false,rejection_reason:"GitHub Jobs API data is missing or unavailable"}')"
+    continue
+  fi
+  if ! job_timing="$(jq -n \
+    --argjson runner_inventory "$runner_inventory" \
+    --argjson run_jobs "$(jq -c '.jobs' "$jobs_file")" \
+    -f "$(dirname "$0")/rt-ci-job-timings.jq")"; then
+    record_candidate "$(jq -cn --argjson base "$base" --argjson route "$route" '$base + {route:$route,eligible:false,rejection_reason:"one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps"}')"
     continue
   fi
 
@@ -175,8 +188,9 @@ while IFS= read -r run_json; do
     --argjson route "$route" \
     --arg tree_sha "$tree_sha" \
     --argjson durations "$durations" \
+    --argjson job_timing "$job_timing" \
     --argjson runner_inventory "$runner_inventory" \
-    '{run_id:$base.run_id,run_attempt:$base.run_attempt,event:$base.event,conclusion:$base.conclusion,head_branch:$base.head_branch,created_at:$base.created_at,started_at:$base.started_at,completed_at:$base.completed_at,run_url:$base.run_url,pr_number:$route.pr_number,head_sha:$route.head_sha,execution_sha:$route.execution_sha,tree_sha:$tree_sha,control_pr_number:$route.control_pr_number,control_tree_sha:$route.control_tree_sha,control_pr_head_sha:$route.control_pr_head_sha,route_mode:$route.mode,route_reason:$route.reason,changed_paths:$route.changed_paths,policy_version:$route.policy_version,force_full_requested:$route.force_full_requested,workflow_file_revision:$route.workflow_file_revision,classifier_revision:$route.classifier_revision,path_producer_revision:$route.path_producer_revision,runner_definition:$route.runner_definition,runner_inventory:$runner_inventory,queue_duration_ms:$durations.queue_duration_ms,execution_duration_ms:$durations.execution_duration_ms,eligible:true}')"
+    '{run_id:$base.run_id,run_attempt:$base.run_attempt,event:$base.event,conclusion:$base.conclusion,head_branch:$base.head_branch,created_at:$base.created_at,started_at:$base.started_at,completed_at:$base.completed_at,run_url:$base.run_url,pr_number:$route.pr_number,head_sha:$route.head_sha,execution_sha:$route.execution_sha,tree_sha:$tree_sha,control_pr_number:$route.control_pr_number,control_tree_sha:$route.control_tree_sha,control_pr_head_sha:$route.control_pr_head_sha,route_mode:$route.mode,route_reason:$route.reason,changed_paths:$route.changed_paths,policy_version:$route.policy_version,force_full_requested:$route.force_full_requested,workflow_file_revision:$route.workflow_file_revision,classifier_revision:$route.classifier_revision,path_producer_revision:$route.path_producer_revision,runner_definition:$route.runner_definition,runner_inventory:$runner_inventory,workflow_queue_ms:$durations.queue_duration_ms,end_to_end_latency_ms:((($base.completed_at|fromdateiso8601)-($base.created_at|fromdateiso8601))*1000),job_timings:$job_timing.job_timings,per_job_scheduling_ms:$job_timing.per_job_scheduling_ms,aggregate_execution_work_ms:$job_timing.aggregate_execution_work_ms,queue_duration_ms:$durations.queue_duration_ms,execution_duration_ms:$durations.execution_duration_ms,eligible:true}')"
 done < <(jq -c '.[] | select(.event == "pull_request" or .event == "workflow_dispatch")' "$runs_file")
 
 jq -n --slurpfile candidates "$candidates_file" '{candidates:$candidates[0]}' \

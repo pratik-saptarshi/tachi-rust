@@ -414,3 +414,29 @@ available summary.
   Timing artifacts record the verified event merge SHA and controlled PR head;
   the verifier validates control evidence against the route artifact. The earlier
   dispatch smoke run remains non-pair evidence.
+
+### 2026-10-06 per-job timing collector and replay
+
+The Phase 3 follow-up adds read-only GitHub Jobs API collection for the route
+job and every selected package, shell-suite, and repository-contract job in the
+trusted runner inventory. Candidates are excluded when a measured job is
+missing, ambiguous, unsuccessful, or has incomplete or out-of-order timestamps.
+The collector emits workflow queue, end-to-end latency, per-job scheduling
+wait, and aggregate execution work; only end-to-end latency is the acceptance
+gate. Focused regressions cover successful mapping, invalid or missing job
+timestamps, failed measured jobs, and the existing failure, cancellation,
+rerun, missing-route, and mismatched-tree cases.
+
+The existing 20 matched pairs were replayed from 40 complete successful job
+records; the pair trees and identity checks remain unchanged. Passive-docs
+remains at 16.5 s routed versus 122 s full-control median (13.5%, pass).
+Dependency-closure remains at 257.5 s versus 133 s (193.6%, miss). Its summed
+per-job scheduling median is 848.5 s versus 28.5 s, and summed execution work
+is 513.5 s versus 628 s. These sums cover parallel jobs and are descriptive
+diagnostics only; they do not establish a root cause. The v4 diagnostic replay
+is [`docs/reports/rt-ci-matched-control-job-timings-2026-10-06.json`](../reports/rt-ci-matched-control-job-timings-2026-10-06.json),
+SHA-256 `ece708e82214bea1ea64515b1159f1e35cf59c6a07750a74d68ac3bbcb09e8c0`.
+The previous 87-candidate snapshot remains preserved. Keep `RT-0sd.4`,
+`RT-0sd.2`, and `RT-0vf.5` open; investigate individual job records, preserve
+all selected package and repository-contract coverage, and recapture ten
+matched trees per shape after a fix before evaluating closeout.

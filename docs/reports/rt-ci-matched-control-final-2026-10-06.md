@@ -19,9 +19,9 @@ Workflow queue medians are reported separately: both show 0 ms at GitHub's
 one-second timestamp precision. Those values cover only workflow creation to
 workflow start; job scheduling after the workflow starts is included in the
 latency gate. For example, the PR #80 control workflow started at 10:48:36Z
-while measured jobs started between 10:49:26Z and 10:52:36Z. This establishes
-contributor wait time, but not whether queueing or job runtime caused it; the
-collector still lacks per-job timestamps.
+while measured jobs started between 10:49:26Z and 10:52:36Z. The collector
+replay now retains each selected job's created, started, and completed
+timestamps, so scheduling wait and execution work can be reported separately.
 
 The reclassified, replayable collector snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](rt-ci-matched-control-final-2026-10-06.json)
@@ -34,6 +34,24 @@ The preserved source collector output has SHA-256
 It contains 87 candidate workflow runs, dispositions, all 20 pair records,
 route reasons and paths, PR/head and execution SHAs, Git tree SHAs, run IDs and
 timestamps, workflow/classifier/path-producer revisions, and runner inventory.
+
+The 40 GitHub Jobs API responses for the accepted pair runs are replayed in
+[`rt-ci-matched-control-job-timings-2026-10-06.json`](rt-ci-matched-control-job-timings-2026-10-06.json)
+(schema 4, SHA-256
+`ece708e82214bea1ea64515b1159f1e35cf59c6a07750a74d68ac3bbcb09e8c0`). All
+measured jobs succeeded and had complete, ordered timestamps. The v4 artifact
+preserves the prior schema-v3 snapshot digest and scope; its candidate list is
+the 40 runs in the existing 20 accepted pairs.
+
+| Route shape | Pairs | Routed per-job scheduling median | Full-control per-job scheduling median | Routed aggregate execution work median | Full-control aggregate execution work median |
+|---|---:|---:|---:|---:|---:|
+| `passive-docs` | 10 | 3 s | 25.5 s | 12.5 s | 560 s |
+| `dependency-closure` | 10 | 848.5 s | 28.5 s | 513.5 s | 628 s |
+
+Scheduling and execution values sum individual job durations, which can overlap
+across parallel jobs and can exceed workflow wall time. They are diagnostics;
+they do not replace the end-to-end latency gate or, by themselves, prove the
+cause of the dependency-closure latency miss.
 
 Revalidation confirmed 10 pairs per shape; 20 distinct PR Git trees; identical
 PR/control Git tree and execution SHA within every pair; successful first
@@ -84,7 +102,9 @@ queue (`started_at - created_at`), per-job scheduling wait (sum of job
 `started_at - created_at`), and aggregate execution work (sum of job
 `completed_at - started_at` for the route, selected package/shell, and
 repository-contract jobs). The current cohort passes for `passive-docs` and
-misses for `dependency-closure` at 193.6%; per-job diagnostics are still
-required before attributing the cause or selecting an optimization. Do not
-close `RT-0sd.2` or `RT-0vf.5`, or mark Phase 4 complete, until the missing
-diagnostics and latency remediation are complete. Keep the 65% threshold.
+misses for `dependency-closure` at 193.6%. Per-job diagnostics are complete for
+the 20 accepted pairs, but the timing miss remains unresolved and these
+aggregate values alone do not establish its cause. Use the individual job
+records to investigate a coverage-preserving optimization, then collect a fresh
+matched cohort. Do not close `RT-0sd.2` or `RT-0vf.5`, or mark Phase 4 complete,
+until both shapes pass the end-to-end latency gate. Keep the 65% threshold.

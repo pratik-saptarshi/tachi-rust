@@ -1064,6 +1064,10 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "runner_definition",
         "tree_sha",
         "fromdateiso8601",
+        "actions/runs/$run_id/jobs?per_page=100",
+        "rt-ci-job-timings.jq",
+        "end_to_end_latency_ms",
+        "aggregate_execution_work_ms",
         "rejection_reason",
         "rt-ci-matched-controls.jq",
     ] {
@@ -1086,7 +1090,9 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "$control.runner_inventory",
         "passive-docs",
         "dependency-closure",
-        "optimized_execution_median_max_ratio: 0.65",
+        "optimized_to_full_end_to_end_latency_median_max_ratio: 0.65",
+        "per_job_scheduling_ms",
+        "aggregate_execution_work_ms",
     ] {
         assert!(
             matcher.contains(required),
@@ -1161,7 +1167,11 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "started_at": "2026-10-06T00:00:10Z",
             "completed_at": "2026-10-06T00:01:10Z",
             "queue_duration_ms": queue_ms,
-            "execution_duration_ms": execution_ms
+            "execution_duration_ms": execution_ms,
+            "workflow_queue_ms": queue_ms,
+            "end_to_end_latency_ms": execution_ms,
+            "per_job_scheduling_ms": queue_ms * 2,
+            "aggregate_execution_work_ms": execution_ms * 3
         })
     };
     let candidates = serde_json::json!([
@@ -1391,9 +1401,12 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         });
     assert_eq!(report["pairs"].as_array().unwrap().len(), 2);
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
-    assert_eq!(report["summary"][0]["routed_execution_median_ms"], 500);
     assert_eq!(
-        report["summary"][0]["full_control_execution_median_ms"],
+        report["summary"][0]["routed_end_to_end_latency_median_ms"],
+        500
+    );
+    assert_eq!(
+        report["summary"][0]["full_control_end_to_end_latency_median_ms"],
         1000
     );
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
@@ -1450,6 +1463,9 @@ fn matched_control_collector_handles_run_api_and_artifact_fixtures() {
         {"databaseId":7,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"mismatch-pr","url":"https://example.test/run/7"},
         {"databaseId":8,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:02:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
         ,{"databaseId":9,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"multi-document-pr","url":"https://example.test/run/9"}
+        ,{"databaseId":10,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"missing-job-time","url":"https://example.test/run/10"}
+        ,{"databaseId":11,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"invalid-job-time","url":"https://example.test/run/11"}
+        ,{"databaseId":12,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"failed-job","url":"https://example.test/run/12"}
     ]);
     let runs_file = root.join("runs.json");
     fs::write(&runs_file, serde_json::to_vec(&runs).unwrap()).expect("write fake run list");
@@ -1491,6 +1507,16 @@ case "$1 $2" in
     ;;
   api\ *)
     case "$2" in
+      */actions/runs/*/jobs?per_page=100)
+        case "$2" in
+          */actions/runs/10/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":null,"completed_at":"2026-10-06T00:00:10Z"}]}' ;;
+          */actions/runs/11/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:10Z","started_at":"2026-10-06T00:00:05Z","completed_at":"2026-10-06T00:00:20Z"}]}' ;;
+          */actions/runs/12/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"failure","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]}' ;;
+          *)
+        printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-core --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:20Z","started_at":"2026-10-06T00:00:30Z","completed_at":"2026-10-06T00:00:50Z"}]}'
+            ;;
+        esac
+        ;;
       */head-pr) printf 'tree-a\n' ;;
       */head-control) printf 'tree-a\n' ;;
       */head-mismatch-pr) printf 'tree-b\n' ;;
@@ -1624,6 +1650,19 @@ esac
         false,
         303,
     );
+    for run_id in ["10", "11", "12"] {
+        write_route(
+            run_id,
+            "pull_request",
+            "passive_docs_only",
+            "head-invalid-jobs",
+            "tree-invalid-jobs",
+            "merge-invalid-jobs",
+            "",
+            false,
+            404,
+        );
+    }
     fs::write(
         fixtures.join("9/route.json"),
         concat!(
@@ -1664,6 +1703,18 @@ esac
     assert_eq!(report["pairs"][0]["control_pr_number"], 101);
     assert_eq!(report["pairs"][0]["control_tree_sha"], "merge-control-a");
     assert_eq!(report["pairs"][0]["control_pr_head_sha"], "head-pr");
+    assert_eq!(report["candidate_runs"][0]["end_to_end_latency_ms"], 70_000);
+    assert_eq!(report["candidate_runs"][0]["workflow_queue_ms"], 10_000);
+    assert_eq!(report["candidate_runs"][0]["per_job_scheduling_ms"], 3_000);
+    assert_eq!(
+        report["candidate_runs"][0]["aggregate_execution_work_ms"],
+        7_000
+    );
+    assert_eq!(report["candidate_runs"][1]["per_job_scheduling_ms"], 13_000);
+    assert_eq!(
+        report["candidate_runs"][1]["aggregate_execution_work_ms"],
+        27_000
+    );
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
     let candidates = report["candidate_runs"].as_array().unwrap();
@@ -1675,6 +1726,18 @@ esac
         (
             "9",
             "route decision and trusted provenance must each contain one JSON object",
+        ),
+        (
+            "10",
+            "one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps",
+        ),
+        (
+            "11",
+            "one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps",
+        ),
+        (
+            "12",
+            "one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps",
         ),
     ] {
         assert!(

@@ -38,16 +38,18 @@ def median($values):
 | ([ $pairs[] | .pr.run_id, .control.run_id ] | unique) as $paired_run_ids
 | ["passive-docs", "dependency-closure"] as $shapes
 | {
-    schema_version: 1,
+    schema_version: 4,
     acceptance: {
       distinct_pairs_per_shape: 10,
-      optimized_execution_median_max_ratio: 0.65
+      accepted_metric: "workflow updatedAt minus createdAt",
+      optimized_to_full_end_to_end_latency_median_max_ratio: 0.65,
+      diagnostic_metrics: ["workflow_queue_ms", "per_job_scheduling_ms", "aggregate_execution_work_ms"]
     },
     candidate_runs: $candidates,
     candidate_dispositions: [
       $candidates[] as $candidate
       | if $candidate.eligible != true then $candidate + {disposition:"excluded",reason:($candidate.rejection_reason // "candidate is ineligible")}
-        elif ($paired_run_ids | index($candidate.run_id)) != null then $candidate + {disposition:"paired",reason:"matched on executed code tree, workflow file content, route revisions, and measured-job runner definitions"}
+        elif ($paired_run_ids | index($candidate.run_id)) != null then $candidate + {disposition:"paired",reason:"matched on executed code tree, workflow file content, route revisions, successful measured jobs, and runner definitions"}
         else $candidate + {disposition:"unmatched",reason:"no compatible opposite-route run or this tree was already counted"}
         end
     ],
@@ -55,19 +57,27 @@ def median($values):
     summary: [
       $shapes[] as $shape
       | [ $pairs[] | select(.route_shape == $shape) ] as $shape_pairs
-      | (median([ $shape_pairs[].pr.queue_duration_ms ])) as $pr_queue
-      | (median([ $shape_pairs[].control.queue_duration_ms ])) as $control_queue
-      | (median([ $shape_pairs[].pr.execution_duration_ms ])) as $pr_execution
-      | (median([ $shape_pairs[].control.execution_duration_ms ])) as $control_execution
-      | (if $control_execution == null or $control_execution == 0 then null else ($pr_execution / $control_execution) end) as $ratio
+      | (median([ $shape_pairs[].pr.workflow_queue_ms ])) as $pr_queue
+      | (median([ $shape_pairs[].control.workflow_queue_ms ])) as $control_queue
+      | (median([ $shape_pairs[].pr.end_to_end_latency_ms ])) as $pr_latency
+      | (median([ $shape_pairs[].control.end_to_end_latency_ms ])) as $control_latency
+      | (median([ $shape_pairs[].pr.per_job_scheduling_ms ])) as $pr_job_scheduling
+      | (median([ $shape_pairs[].control.per_job_scheduling_ms ])) as $control_job_scheduling
+      | (median([ $shape_pairs[].pr.aggregate_execution_work_ms ])) as $pr_execution_work
+      | (median([ $shape_pairs[].control.aggregate_execution_work_ms ])) as $control_execution_work
+      | (if $control_latency == null or $control_latency == 0 then null else ($pr_latency / $control_latency) end) as $ratio
       | {
           route_shape: $shape,
           valid_pairs: ($shape_pairs | length),
-          routed_queue_median_ms: $pr_queue,
-          full_control_queue_median_ms: $control_queue,
-          routed_execution_median_ms: $pr_execution,
-          full_control_execution_median_ms: $control_execution,
-          optimized_to_full_execution_ratio: $ratio,
+          routed_workflow_queue_median_ms: $pr_queue,
+          full_control_workflow_queue_median_ms: $control_queue,
+          routed_end_to_end_latency_median_ms: $pr_latency,
+          full_control_end_to_end_latency_median_ms: $control_latency,
+          optimized_to_full_end_to_end_latency_ratio: $ratio,
+          routed_per_job_scheduling_median_ms: $pr_job_scheduling,
+          full_control_per_job_scheduling_median_ms: $control_job_scheduling,
+          routed_aggregate_execution_work_median_ms: $pr_execution_work,
+          full_control_aggregate_execution_work_median_ms: $control_execution_work,
           status: (if ($shape_pairs | length) < 10 then "insufficient_pairs" elif $ratio <= 0.65 then "pass" else "threshold_missed" end)
         }
     ]
