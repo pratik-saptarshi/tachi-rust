@@ -38,7 +38,7 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. Follow-up review fixes pin every measured job to the route job's verified immutable execution SHA, require matching PR/control execution commits, and retain controlled PR/head provenance. Start the ten-tree cohorts only after follow-up hosted checks pass. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. Protected follow-up fixes pin every measured job and timing artifact to the route job's verified immutable execution SHA, require matching PR/control commits, retain controlled PR/head provenance, and prevent workflow-dispatch controls from writing default-branch caches. Start the ten-tree cohorts only after follow-up hosted checks pass. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
 ### Commit and PR progression
@@ -93,8 +93,8 @@ replace or close it.
 The matched-control collector is invoked with `RT_CI_USE_RTK=true make rt-ci-matched-controls`.
 It reads completed `rust-workspace.yml` runs and their route and per-job runner
 artifacts. Each run records the commit and Git tree actually checked out. To
-create a control, dispatch `rust-workspace.yml` against the PR head branch with
-`force_full_ci=true`, `control_pr_number=<PR number>`, and
+create a control, dispatch `rust-workspace.yml` against the trusted default
+branch (`main`), with `force_full_ci=true`, `control_pr_number=<PR number>`, and
 `control_tree_sha=<the routed run's github.sha>`. The control checks out that
 PR's merge ref and fails if it no longer resolves to the expected commit.
 The route job is the only job that resolves the mutable PR merge ref; after it
@@ -106,8 +106,13 @@ each control candidate and pair. It compares the workflow-file blob ID and
 route script blob IDs, then verifies that every measured PR job has the same
 runner OS, image version, and architecture in the full control. It emits matched pairs, excluded
 candidates, run provenance, and separate queue/execution medians, ratios, and
-per-shape acceptance state. The workflow grants only `contents: read` and
-`pull-requests: read` and consumes no PR secrets. Keep the JSON output with the closeout evidence.
+per-shape acceptance state. Timing artifacts use the route artifact's verified
+execution SHA and controlled PR head; the verifier binds dispatch evidence to
+that route artifact. Control jobs load the Rust setup action from
+`github.workflow_sha`, disable dependency caching, and do not persist checkout
+credentials while executing PR code. The workflow grants only `contents: read`
+and `pull-requests: read` and consumes no PR secrets. Keep the JSON output with
+the closeout evidence.
 `insufficient_pairs` is an expected open state and leaves `RT-0sd.2` open.
 
 ## Validation and release gates
@@ -137,6 +142,8 @@ and preserve enough raw metadata to reproduce every exclusion and median.
 | PR #60 Codex comment 4192299099: mutable merge ref re-resolved by measured jobs | Fix in protected follow-up; downstream jobs use verified immutable SHA from route output | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
 | PR #60 Codex comment 4192299102: same tree could pair different execution commits | Fix matcher and regression fixture; require exact `execution_sha` equality | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
 | PR #60 Codex comment 4192299107: control drops controlled PR provenance | Capture controlled PR head at dispatch and retain PR number/head/commit in candidates and pairs | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
+| PR #61 CodeQL alert 28: untrusted PR code could write a default-branch Rust cache | Require controls to dispatch the trusted default-branch workflow; load setup from `github.workflow_sha`; disable Rust cache and checkout credential persistence | Phase 3 control security contract | `RT-0vf.4`, `RT-0sd.2` |
+| PR #61 Codex comment 4192392232: control timing artifacts record dispatch SHA | Write the route-verified execution SHA and controlled PR head into timing artifacts; make the verifier bind workflow_dispatch evidence to the route artifact | Phase 3 provenance and verifier tests | `RT-0vf.4`, `RT-0sd.2` |
 
 ## Integration summary
 
@@ -230,4 +237,11 @@ available summary.
   jobs, missing exact execution-commit equality in the matcher, and dropped
   controlled-PR head provenance. The protected follow-up adds immutable
   downstream checkouts, exact commit matching, and captured controlled PR/head
-  fields. The earlier smoke run remains non-pair evidence.
+  fields. PR #61 review then identified default-branch cache-poisoning risk when
+  controls run PR code and timing artifacts that still named the dispatch SHA.
+  The follow-up requires controls to dispatch the trusted default-branch
+  workflow; it loads the Rust setup action from that workflow revision without
+  cache or persisted checkout credentials for controls, writes the verified
+  execution SHA and controlled PR head into timing artifacts, and makes the
+  verifier validate control evidence against the route artifact. The earlier
+  smoke run remains non-pair evidence.

@@ -6,6 +6,10 @@ inputs:
     description: Include rustfmt in the proof step.
     required: false
     default: "false"
+  use-cache:
+    description: Whether to save or restore Rust dependency caches.
+    required: false
+    default: "true"
 
 runs:
   using: composite
@@ -16,6 +20,7 @@ runs:
 
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2
+      if: inputs.use-cache == 'true'
 
     - name: Print Rust toolchain proof
       shell: bash

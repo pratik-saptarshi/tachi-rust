@@ -549,6 +549,9 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         "attempt",
         "workflow_name",
         "source_head_sha",
+        "control_pr_head_sha",
+        "expected_run_commit_sha",
+        "is_matched_control",
         "GITHUB_REF",
     ] {
         assert!(
@@ -979,6 +982,10 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "needs.route.outputs.execution_sha",
         "control_pr_head_sha",
         "pull-requests: read",
+        "DEFAULT_BRANCH",
+        "refs/heads/${DEFAULT_BRANCH}",
+        "matched controls must dispatch the trusted default-branch workflow",
+        "persist-credentials: false",
         "--format=%P",
         "workflow_file_revision",
         "runner-provenance-",
@@ -1618,6 +1625,8 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
         "Cache Rust dependencies",
         "Print Rust toolchain proof",
         "include-rustfmt-proof",
+        "use-cache",
+        "if: inputs.use-cache == 'true'",
         "rustup which rustfmt",
     ] {
         assert!(
@@ -1633,11 +1642,25 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
         "rust-supply-chain.yml",
     ] {
         let text = workflow_text(workflow_name);
+        let expected_path = if workflow_name == "rust-workspace.yml" {
+            "./.ci-trusted/.github/actions/rust-setup"
+        } else {
+            "./.github/actions/rust-setup"
+        };
         assert!(
-            text.contains("./.github/actions/rust-setup"),
-            "{workflow_name} must reuse the shared rust setup action"
+            text.contains(expected_path),
+            "{workflow_name} must reuse the shared rust setup action from {expected_path}"
         );
     }
+    let workflow = workflow_text("rust-workspace.yml");
+    assert_eq!(workflow.matches("persist-credentials: false").count(), 7);
+    assert_eq!(
+        workflow
+            .matches("./.ci-trusted/.github/actions/rust-setup")
+            .count(),
+        3
+    );
+    assert_eq!(workflow.matches("use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}").count(), 3);
 }
 
 #[test]
@@ -2205,7 +2228,9 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
 
 fn job_uses_shared_rust_setup(steps: &[serde_yaml::Value]) -> bool {
     steps.iter().any(|step| {
-        step.get("uses").and_then(serde_yaml::Value::as_str) == Some("./.github/actions/rust-setup")
+        step.get("uses")
+            .and_then(serde_yaml::Value::as_str)
+            .is_some_and(|uses| uses.ends_with(".github/actions/rust-setup"))
     })
 }
 
@@ -2217,6 +2242,8 @@ fn assert_shared_rust_setup_action() {
         "Cache Rust dependencies",
         "Print Rust toolchain proof",
         "include-rustfmt-proof",
+        "use-cache:",
+        "if: inputs.use-cache == 'true'",
     ] {
         assert!(
             action.contains(required),

@@ -54,6 +54,9 @@ run_event="$(jq -r '.event' <<<"$run_metadata")"
 run_attempt="$(jq -r '.attempt' <<<"$run_metadata")"
 run_head_sha="$(jq -r '.headSha' <<<"$run_metadata")"
 run_head_branch="$(jq -r '.headBranch' <<<"$run_metadata")"
+expected_source_head_sha="$run_head_sha"
+expected_run_commit_sha="$run_head_sha"
+is_matched_control="false"
 
 # GitHub's artifact download interface is keyed by run ID/name and does not
 # expose a selector for a specific rerun attempt. Reject reruns rather than
@@ -77,6 +80,42 @@ cleanup() {
 trap cleanup EXIT
 mkdir -p -- "$root"
 chmod 0700 "$root"
+
+if [ "$run_event" = "workflow_dispatch" ]; then
+    route_dir="$root/route-decision"
+    mkdir -p -- "$route_dir"
+    gh run download "$RUN_ID" --repo "$REPO" --name route-decision --dir "$route_dir" >/dev/null || {
+        echo "FAIL: workflow_dispatch run has no route-decision artifact" >&2
+        exit 1
+    }
+    route_files=("$route_dir"/*.json)
+    [ "${#route_files[@]}" -eq 1 ] || {
+        echo "FAIL: workflow_dispatch route-decision artifact is missing or ambiguous" >&2
+        exit 1
+    }
+    jq -e --arg run_id "$RUN_ID" --argjson attempt "$run_attempt" \
+        '.run_id == $run_id and .run_attempt == $attempt and .event == "workflow_dispatch"' \
+        "${route_files[0]}" >/dev/null || {
+        echo "FAIL: workflow_dispatch route artifact provenance does not match the run" >&2
+        exit 1
+    }
+    control_pr_number="$(jq -r '.control_pr_number // 0' "${route_files[0]}")"
+    if [ "$control_pr_number" != "0" ]; then
+        jq -e \
+            '.mode == "full_pr_matrix"
+             and .force_full_requested == true
+             and (.execution_sha | type == "string" and length > 0)
+             and .control_tree_sha == .execution_sha
+             and (.control_pr_head_sha | type == "string" and length > 0)' \
+            "${route_files[0]}" >/dev/null || {
+            echo "FAIL: matched control route artifact lacks exact execution and PR-head provenance" >&2
+            exit 1
+        }
+        expected_run_commit_sha="$(jq -r '.execution_sha' "${route_files[0]}")"
+        expected_source_head_sha="$(jq -r '.control_pr_head_sha' "${route_files[0]}")"
+        is_matched_control="true"
+    fi
+fi
 
 artifacts=(
     ci-timing-package-tachi-core
@@ -130,7 +169,7 @@ for artifact in "${artifacts[@]}"; do
         echo "FAIL: $artifact commit provenance does not match expected commit" >&2
         exit 1
     fi
-jq -e --arg commit "$artifact_commit" --arg run_id "$RUN_ID" --arg event "$run_event" --arg workflow "$EXPECTED_WORKFLOW" --arg head_sha "$run_head_sha" --arg head_branch "$run_head_branch" --arg legacy "$ALLOW_LEGACY" --arg unit "$expected_unit" --arg stage "$expected_stage" --argjson attempt "$run_attempt" '
+jq -e --arg commit "$artifact_commit" --arg run_id "$RUN_ID" --arg event "$run_event" --arg workflow "$EXPECTED_WORKFLOW" --arg head_sha "$expected_source_head_sha" --arg head_branch "$run_head_branch" --arg legacy "$ALLOW_LEGACY" --arg unit "$expected_unit" --arg stage "$expected_stage" --argjson attempt "$run_attempt" '
         type == "object"
         and .schema_version == 1
         and .commit == $commit
@@ -163,8 +202,12 @@ if [ "$COMMIT" = "auto" ]; then
 fi
 
 if [ "$run_event" = "push" ] || [ "$run_event" = "workflow_dispatch" ]; then
-  if [ "$COMMIT" != "$run_head_sha" ]; then
-    echo "FAIL: push timing artifacts do not match the GitHub run head SHA" >&2
+  if [ "$COMMIT" != "$expected_run_commit_sha" ]; then
+    if [ "$is_matched_control" = "true" ]; then
+      echo "FAIL: matched-control timing artifacts do not match the verified PR merge execution SHA" >&2
+    else
+      echo "FAIL: push timing artifacts do not match the GitHub run head SHA" >&2
+    fi
     exit 1
   fi
 fi

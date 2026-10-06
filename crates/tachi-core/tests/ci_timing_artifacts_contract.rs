@@ -164,3 +164,82 @@ exit 2
     assert!(String::from_utf8_lossy(&rerun.stderr).contains("rerun attempt"));
     fs::remove_dir_all(root).expect("cleanup");
 }
+
+#[test]
+fn verifier_binds_matched_control_artifacts_to_the_route_execution_sha_and_pr_head() {
+    let root = temp_dir("tachi-ci-timing-matched-control");
+    let bin = root.join("bin");
+    let artifacts = root.join("artifacts");
+    fs::create_dir_all(&bin).expect("create fake bin");
+    fs::create_dir_all(&artifacts).expect("create artifact fixtures");
+    let route = artifacts.join("route.json");
+    fs::write(
+        &route,
+        r#"{"run_id":"123","run_attempt":1,"event":"workflow_dispatch","mode":"full_pr_matrix","force_full_requested":true,"execution_sha":"merge-sha","tree_sha":"tree-sha","control_tree_sha":"merge-sha","control_pr_number":7,"control_pr_head_sha":"pr-head-sha"}"#,
+    )
+    .expect("write route artifact");
+    executable(
+        &bin.join("gh"),
+        r##"#!/bin/sh
+set -eu
+if [ "$1" = "repo" ] && [ "$2" = "view" ]; then
+  printf '%s\n' 'pratik-saptarshi/tachi-rust'
+  exit 0
+fi
+if [ "$1" = "run" ] && [ "$2" = "view" ]; then
+  printf '%s\n' "$FAKE_RUN_METADATA"
+  exit 0
+fi
+if [ "$1" = "run" ] && [ "$2" = "download" ]; then
+  name=""; dir=""
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --name) name="$2"; shift 2 ;;
+      --dir) dir="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  mkdir -p "$dir"
+  if [ "$name" = "route-decision" ]; then
+    cp "$FAKE_ROUTE" "$dir/route.json"
+    exit 0
+  fi
+  case "$name" in
+    ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
+    ci-timing-shell-*) unit="shell-tests-${name#ci-timing-shell-}"; stage="test-slice" ;;
+    *) exit 2 ;;
+  esac
+  jq -n --arg unit "$unit" --arg stage "$stage" --arg source "$FAKE_ARTIFACT_SOURCE" \
+    '{schema_version:1,stage:$stage,unit:$unit,commit:"merge-sha",duration_ms:1,runner:{run_id:123,attempt:1,event:"workflow_dispatch",workflow_name:"rust workspace tests",ref:"refs/heads/main",head_sha:"merge-sha",source_head_sha:$source}}' \
+    > "$dir/result.json"
+  exit 0
+fi
+exit 2
+"##,
+    );
+    let metadata = r#"{"workflowName":"rust workspace tests","event":"workflow_dispatch","status":"completed","conclusion":"success","headBranch":"main","headSha":"default-branch-sha","attempt":1,"databaseId":123}"#;
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let verify = |source_head: &str| {
+        Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
+            .args(["123", "auto"])
+            .env("PATH", &path)
+            .env("GH_REPO", "pratik-saptarshi/tachi-rust")
+            .env("FAKE_RUN_METADATA", metadata)
+            .env("FAKE_ROUTE", &route)
+            .env("FAKE_ARTIFACT_SOURCE", source_head)
+            .output()
+            .expect("run matched-control timing verifier")
+    };
+    let result = verify("pr-head-sha");
+    assert!(
+        result.status.success(),
+        "control artifacts should bind to the verified merge commit, not the dispatch branch SHA: {result:?}"
+    );
+    assert!(String::from_utf8_lossy(&result.stdout).contains("merge-sha"));
+    let wrong_head = verify("dispatch-branch-sha");
+    assert!(
+        !wrong_head.status.success(),
+        "control artifact with dispatch branch head instead of controlled PR head must fail"
+    );
+    fs::remove_dir_all(root).expect("cleanup");
+}

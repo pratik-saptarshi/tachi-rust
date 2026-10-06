@@ -41,12 +41,14 @@ jobs:
       packages_json: ${{ steps.route.outputs.packages_json }}
       repository_contracts_required: ${{ steps.route.outputs.repository_contracts_required }}
       execution_sha: ${{ steps.provenance.outputs.execution_sha }}
+      control_pr_head_sha: ${{ steps.provenance.outputs.control_pr_head_sha }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number != 0 && format('refs/pull/{0}/merge', inputs.control_pr_number) || github.event_name == 'workflow_dispatch' && inputs.control_tree_sha != '' && inputs.control_tree_sha || github.sha }}
+          persist-credentials: false
 
       - name: Capture route mode
         id: route
@@ -98,12 +100,17 @@ jobs:
           SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number || 0 }}
           WORKFLOW_SHA: ${{ github.workflow_sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           FORCE_FULL_CI_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci }}
           CONTROL_TREE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.control_tree_sha || '' }}
           CONTROL_PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number || 0 }}
         run: |
           set -euo pipefail
           execution_sha="$(git rev-parse HEAD)"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CONTROL_PR_NUMBER" != "0" ] && [ "$GITHUB_REF" != "refs/heads/${DEFAULT_BRANCH}" ]; then
+            echo "matched controls must dispatch the trusted default-branch workflow" >&2
+            exit 1
+          fi
           if { [ "$CONTROL_PR_NUMBER" != "0" ] && [ -z "$CONTROL_TREE_SHA" ]; } || { [ "$CONTROL_PR_NUMBER" = "0" ] && [ -n "$CONTROL_TREE_SHA" ]; }; then
             echo "control_pr_number and control_tree_sha must be supplied together" >&2
             exit 1
@@ -153,6 +160,7 @@ jobs:
             route.json > route.json.new
           mv route.json.new route.json
           echo "execution_sha=$execution_sha" >> "$GITHUB_OUTPUT"
+          echo "control_pr_head_sha=$control_pr_head_sha" >> "$GITHUB_OUTPUT"
           cat route.json
 
       - name: Upload route decision artifact
@@ -179,9 +187,21 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.route.outputs.execution_sha }}
+          persist-credentials: false
+
+      # Matched controls execute untrusted PR code in workflow_dispatch scope.
+      # Load the setup action from the workflow revision and disable its cache.
+      - name: Checkout trusted Rust setup action
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: .ci-trusted
+          persist-credentials: false
 
       - name: Shared Rust setup
-        uses: ./.github/actions/rust-setup
+        uses: ./.ci-trusted/.github/actions/rust-setup
+        with:
+          use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}
 
       - name: Install workspace test tools
         run: |
@@ -222,10 +242,10 @@ jobs:
             --arg stage "compile-and-test" \
             --arg unit "cargo-test-${{ matrix.package }}" \
             --arg package "${{ matrix.package }}" \
-            --arg commit "${{ github.sha }}" \
+            --arg commit "${{ needs.route.outputs.execution_sha }}" \
             --arg workflow_name "${{ github.workflow }}" \
             --arg ref "${{ github.ref }}" \
-            --arg source_head_sha "${{ github.event.pull_request.head.sha || github.sha }}" \
+            --arg source_head_sha "${{ github.event.pull_request.head.sha || needs.route.outputs.control_pr_head_sha || github.sha }}" \
             --argjson duration_ms "$duration_ms" \
             '{schema_version:1,stage:$stage,unit:$unit,package:$package,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT,workflow_name:$workflow_name,ref:$ref,head_sha:$commit,source_head_sha:$source_head_sha}}' \
             > .ci-timing/${{ matrix.package }}.json
@@ -269,9 +289,19 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.route.outputs.execution_sha }}
+          persist-credentials: false
+
+      - name: Checkout trusted Rust setup action
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: .ci-trusted
+          persist-credentials: false
 
       - name: Shared Rust setup
-        uses: ./.github/actions/rust-setup
+        uses: ./.ci-trusted/.github/actions/rust-setup
+        with:
+          use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}
 
       - name: Install workspace test tools
         run: |
@@ -316,9 +346,19 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.route.outputs.execution_sha }}
+          persist-credentials: false
+
+      - name: Checkout trusted Rust setup action
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: .ci-trusted
+          persist-credentials: false
 
       - name: Shared Rust setup
-        uses: ./.github/actions/rust-setup
+        uses: ./.ci-trusted/.github/actions/rust-setup
+        with:
+          use-cache: ${{ github.event_name != 'workflow_dispatch' || inputs.control_pr_number == 0 }}
 
       - name: Install workspace test tools
         run: |
@@ -353,10 +393,10 @@ jobs:
             --arg stage "test-slice" \
             --arg unit "shell-tests-${{ matrix.suite }}" \
             --arg suite "${{ matrix.suite }}" \
-            --arg commit "${{ github.sha }}" \
+            --arg commit "${{ needs.route.outputs.execution_sha }}" \
             --arg workflow_name "${{ github.workflow }}" \
             --arg ref "${{ github.ref }}" \
-            --arg source_head_sha "${{ github.event.pull_request.head.sha || github.sha }}" \
+            --arg source_head_sha "${{ github.event.pull_request.head.sha || needs.route.outputs.control_pr_head_sha || github.sha }}" \
             --argjson duration_ms "$duration_ms" \
             '{schema_version:1,stage:$stage,unit:$unit,suite:$suite,commit:$commit,duration_ms:$duration_ms,runner:{os:"ubuntu-latest",event:env.GITHUB_EVENT_NAME,run_id:env.GITHUB_RUN_ID,attempt:env.GITHUB_RUN_ATTEMPT,workflow_name:$workflow_name,ref:$ref,head_sha:$commit,source_head_sha:$source_head_sha}}' \
             > .ci-timing/${{ matrix.suite }}.json
