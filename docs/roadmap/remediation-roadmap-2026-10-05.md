@@ -1,7 +1,8 @@
 # RT-CI Route Remediation Roadmap — 2026-10-05
 
-Status: **Phases 0–3 are delivered; post-merge review corrections merged in PR
-#62 (`d81f9962`), and matched-control timing acceptance remains open.** Phase 1
+Status: **Phases 0–3 and both P3 advisories are delivered; post-merge review
+corrections merged in PR #62 (`d81f9962`), P3-F05 closed in PR #64, P3-F06
+closed in PR #65, and matched-control timing acceptance remains open.** Phase 1
 merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
@@ -39,7 +40,7 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. The P3-F05 verifier-boundary advisory is closed in PR #64; P3-F06 remains a separate nonblocking replay milestone. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 verifier-boundary and P3-F06 replay advisories are nonblocking and delivered in PRs #64 and #65. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. PR #65 pins the retained audit manifest digest and closes P3-F06. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
 ### Commit and PR progression
@@ -74,7 +75,7 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 | P2-F03 — route repository-wide contracts by their inputs | P2; coverage gap, Phase 2 | **RED:** An MCP manifest-only change selects MCP but skips `workflow_ci_gates`, which checks every crate manifest. **GREEN:** Compact repository-contract job runs for workspace manifests, toolchain, and contract-policy inputs independently of package routing. **Regression:** An MCP manifest violation fails the contract job; an unrelated crate change runs scoped tests plus the compact contract. | `RT-0vf.3.2` |
 | P2-F04 — route test-owned TDD evidence as active input | P2; gap, Phase 1 | **RED:** A sole `docs/testing/tdd-evidence.json` change selects passive docs and skips its test. **GREEN:** The owning JSON contract runs for this path. **Regression:** Invalid JSON and missing required evidence fail; valid passive prose stays optimized; active/shared docs stay full. | `RT-0vf.2.2` |
 | P3-F05 — define timing verifier route boundary | P3; nonblocking advisory | Document that the existing verifier validates all eight full-matrix artifacts and does not verify narrowed runs. If used for route-aware evidence, define route-derived artifact expectations. Preserve successful full-matrix verification and prove missing artifacts in a narrowed run cannot be reported as a pass. This advisory does not gate P2 delivery or timing acceptance unless needed by the agreed collector. | `RT-0vf.6` |
-| P3-F06 — preserve route-audit replay inputs | P3; nonblocking evidence improvement | Save candidate run IDs, PR/head and tree SHAs, changed paths, route reasons, and exact classifier revision in a compact manifest. Replay reproduces the reported 37-candidate classification or explicitly records unavailable source artifacts. Do not generalize beyond retained candidates. This advisory does not gate P2 delivery or timing acceptance unless its evidence is required by the agreed acceptance. | `RT-0vf.7` |
+| P3-F06 — preserve route-audit replay inputs | P3; nonblocking, delivered | PR #65 preserves all 37 candidates and the classifier snapshot; a reviewed manifest digest rejects tampered route inputs and provenance. Replay result remains bounded to the retained sample. | `RT-0vf.7` closed |
 | Phase 1 — path and documentation-contract routing | P2 delivery | Both P2-F01 and P2-F04 focused RED/GREEN tests and adjacent regressions pass; workflow/docs contracts pass; required hosted checks are terminal and successful. | `RT-0vf.2` |
 | Phase 2 — dependency and repository contracts | P2 delivery | P2-F02 and P2-F03 focused RED/GREEN tests pass; Cargo metadata comparison and manifest-failure regression pass; relevant workspace tests, Clippy, workflow/docs gates, and required hosted checks pass. | `RT-0vf.3` |
 | Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Pair each successful optimized PR run with a successful full-route `pull_request` run triggered by adding `ci-full-control` to that same PR, with identical execution commit SHA and Git tree. Both runs use the immutable merge SHA supplied by the event; every measured job checks out that SHA. Require identical workflow-file blob content and route classifier/path-producer revisions; compare the route runner and every measured job's OS, image version, and architecture. Capture run ID, PR/head SHA, event, attempt, route decision, execution SHA/tree, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-provenance, and mismatched-commit/tree/workflow/runner pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
@@ -204,7 +205,7 @@ eligibility evidence and does not represent matched timing performance.
 | P2-F03 missing repository-wide manifest contracts | Bundle as required Phase 2 implementation | Beads worklist; Phase 2 | `RT-0vf.3.2` |
 | P2-F04 test-owned TDD evidence treated as passive | Bundle as required Phase 1 implementation | Beads worklist; Phase 1 | `RT-0vf.2.2` |
 | P3-F05 verifier route scope | Implemented as full-matrix-only boundary with a narrowed-artifact rejection regression; nonblocking advisory merged in PR #64 | P3 advisory section and contract test | `RT-0vf.6` closed |
-| P3-F06 replayable audit inputs | Bundle as a nonblocking manifest and offline replay milestone; keep the 37-candidate result sample-bounded | P3 advisory section, replay manifest, classifier snapshot, and replay contract | `RT-0vf.7` |
+| P3-F06 replayable audit inputs | Delivered as a nonblocking manifest and offline replay in PR #65; keep the 37-candidate result sample-bounded | P3 advisory section, replay manifest, classifier snapshot, and replay contract | `RT-0vf.7` closed |
 | Zero eligible historical candidates | Informational, bounded to retained sample; not a defect or target result | Objective, timing contract, Phase 3 | Existing `RT-0sd.2` |
 | PR #60 Codex comment 4192299099: mutable merge ref re-resolved by measured jobs | Fix in protected follow-up; downstream jobs use verified immutable SHA from route output | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
 | PR #60 Codex comment 4192299102: same tree could pair different execution commits | Fix matcher and regression fixture; require exact `execution_sha` equality | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
@@ -255,9 +256,10 @@ available summary.
   collector baseline still has zero valid matched pairs for both route shapes,
   so `RT-0sd.2` remains open. P3-F05 `RT-0vf.6` closed after PR #64 merged at
   `430ef76b`; its focused verifier tests and hosted workflows passed, and its
-  Codex review thread was resolved. P3-F06 `RT-0vf.7` is in progress on a fresh
-  worktree from that merge; its 37-candidate replay manifest and first offline
-  replay are recorded below.
+  Codex review thread was resolved. P3-F06 `RT-0vf.7` closed after PR #65
+  merged at `2d3ff33d`; its replay digest fix and tamper tests passed, all nine
+  hosted workflows succeeded on final head `b2d70167`, and all review threads
+  were resolved.
 - PR #57 delivered the planning baseline; PR #58 delivered Phase 1; PR #59
   delivered Phase 2. GitHub
   checks were inspected through `rtk gh` at the Phase 1/2 boundary. PR #56's
@@ -319,7 +321,19 @@ available summary.
   classifier provenance. The focused contract passes 2/2, targeted Clippy
   passes with warnings denied, and formatting and shell syntax pass. This is
   bounded historical route eligibility evidence, not timing evidence. PR #65
-  carries the correction; hosted validation is pending.
+  merged at `2d3ff33d72053086160b23926a5cb6189c16732a` after nine hosted
+  workflows succeeded on final head
+  `b2d7016717c5f080fb928a1ce940114e5b607027`; Codex comment 4193406716 and both
+  resulting Clippy code-scanning threads were resolved. GitHub rejected the
+  auto-merge mutation as unstable, then accepted the normal protected squash
+  merge after checks passed. `RT-0vf.7` is closed.
+  The most recent full collector inventory reports zero matched pairs. A
+  supplemental first-page API inventory returned 11 PR-triggered workspace
+  runs since 2026-10-05; all 11 route artifacts classify as `full_pr_matrix`,
+  so none adds an optimized route candidate. The local collector could not
+  refresh the inventory because the `rtk gh` connection to `api.github.com`
+  failed in this environment. Counts therefore remain at the last complete
+  zero-pair collector baseline for both shapes; no timing conclusion is claimed.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains
