@@ -39,7 +39,7 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. The P3-F05 verifier-boundary advisory is closed in PR #64; P3-F06 remains a separate nonblocking replay milestone. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections merged in PR #62 (`d81f9962`): trusted provenance is a separate artifact uploaded before PR scripts; collector and verifier reject anything other than one JSON object per artifact; label controls have isolated concurrency; ignored labels cannot satisfy the stable required check. Hosted checks passed, and all review threads are resolved. Matched timing cohorts remain outstanding. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
 ### Commit and PR progression
@@ -133,6 +133,21 @@ and test its expected artifact set from the trusted route decision before it
 can report a narrowed run as verified. This P3 advisory is nonblocking for the
 P2 routing work and matched-control acceptance.
 
+### P3-F06 replayable route-audit inputs
+
+[`rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json`](../reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json)
+preserves all 37 retained candidates with route/workspace run IDs, PR number,
+PR head and head-tree SHAs, changed paths, reconstructed route mode/reason,
+route artifact digest, and the classifier source commit/blob. Its tree field is
+the Git tree of the PR head commit; it does not claim the historical workspace
+job checked out that tree instead of GitHub's synthetic merge commit. The
+classifier snapshot is stored with the manifest so replay works without a
+network fetch or old Git history. `scripts/replay-rt-ci-route-cohort-audit.sh`
+verifies the snapshot hash and replays each candidate offline. It reproduces
+37 `full_pr_matrix` classifications: 33 active/shared inputs and 4 unknown
+non-documentation paths. The result remains bounded to those retained
+candidates and is not a timing result.
+
 Post-merge review of PR #61 identified two additional integrity and workflow
 isolation requirements, tracked in follow-up PR #62. The workflow uploads
 trusted route provenance as a separate artifact before running any PR-controlled
@@ -171,6 +186,11 @@ negative fixture in which a dependency-closure run publishes only its selected
 package artifacts. The fixed eight-artifact verifier must reject that run. This
 proves its full-matrix boundary; it does not claim route-aware verification.
 
+For P3-F06, replay all 37 saved path sets with the pinned classifier snapshot;
+fail if the classifier hash, candidate data, mode, reason, or changed paths do
+not match. Verify the output states that the result is bounded historical
+eligibility evidence and does not represent matched timing performance.
+
 ## Panel finding traceability
 
 | Panel finding | Disposition | Plan location | Tracker |
@@ -179,8 +199,8 @@ proves its full-matrix boundary; it does not claim route-aware verification.
 | P2-F02 omitted MCP dependency closure | Bundle as required Phase 2 implementation | Beads worklist; Phase 2 | `RT-0vf.3.1` |
 | P2-F03 missing repository-wide manifest contracts | Bundle as required Phase 2 implementation | Beads worklist; Phase 2 | `RT-0vf.3.2` |
 | P2-F04 test-owned TDD evidence treated as passive | Bundle as required Phase 1 implementation | Beads worklist; Phase 1 | `RT-0vf.2.2` |
-| P3-F05 verifier route scope | Defer as nonblocking advisory with explicit decision/test contract | P3 advisory issue | `RT-0vf.6` |
-| P3-F06 replayable audit inputs | Defer as nonblocking evidence improvement | P3 advisory issue | `RT-0vf.7` |
+| P3-F05 verifier route scope | Implemented as full-matrix-only boundary with a narrowed-artifact rejection regression; nonblocking advisory merged in PR #64 | P3 advisory section and contract test | `RT-0vf.6` closed |
+| P3-F06 replayable audit inputs | Bundle as a nonblocking manifest and offline replay milestone; keep the 37-candidate result sample-bounded | P3 advisory section, replay manifest, classifier snapshot, and replay contract | `RT-0vf.7` |
 | Zero eligible historical candidates | Informational, bounded to retained sample; not a defect or target result | Objective, timing contract, Phase 3 | Existing `RT-0sd.2` |
 | PR #60 Codex comment 4192299099: mutable merge ref re-resolved by measured jobs | Fix in protected follow-up; downstream jobs use verified immutable SHA from route output | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
 | PR #60 Codex comment 4192299102: same tree could pair different execution commits | Fix matcher and regression fixture; require exact `execution_sha` equality | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
@@ -218,7 +238,7 @@ available summary.
 | P2 | Implementer | Deliver Phase 1 rename-path and TDD evidence routing with RED/GREEN regressions. | P2-F01, P2-F04 |
 | P2 | Implementer | Deliver Phase 2 MCP reverse-dependency and repository-contract routing. | P2-F02, P2-F03 |
 | P2 | Implementer | Deliver read-only matched-control collector and gather ten valid pairs per route shape. | `RT-0sd.2` |
-| P3 | Implementer/reviewer | Preserve verifier boundary and replay inputs as separately tracked advisory work. | P3-F05, P3-F06 |
+| P3 | Implementer/reviewer | Preserve and replay the route-audit inputs under the exact classifier revision; keep conclusions bounded to retained candidates. | P3-F06 |
 | P2 | Reviewer | Recheck remote PR state and terminal protections at every milestone. | Phase 0–4 |
 
 ## Current verification and limitations
@@ -229,8 +249,11 @@ available summary.
   collector issue `RT-0vf.4` closed after PR #62 merged and its hosted checks
   passed. This closes implementation delivery only: the refreshed read-only
   collector baseline still has zero valid matched pairs for both route shapes,
-  so `RT-0sd.2` remains open. The current Phase F05 branch synchronizes the
-  tracker export after this reconciliation.
+  so `RT-0sd.2` remains open. P3-F05 `RT-0vf.6` closed after PR #64 merged at
+  `430ef76b`; its focused verifier tests and hosted workflows passed, and its
+  Codex review thread was resolved. P3-F06 `RT-0vf.7` is in progress on a fresh
+  worktree from that merge; its 37-candidate replay manifest and first offline
+  replay are recorded below.
 - PR #57 delivered the planning baseline; PR #58 delivered Phase 1; PR #59
   delivered Phase 2. GitHub
   checks were inspected through `rtk gh` at the Phase 1/2 boundary. PR #56's
@@ -275,6 +298,21 @@ available summary.
   focused contract retains full-matrix success and rejects a narrowed
   dependency-closure fixture missing the matrix artifacts; local validation
   passed before the separate P3-F05 delivery PR was opened.
+  The P3-F05 milestone closed in PR #64 at `430ef76b20a9fe839a2165c8a349a348402513dd`.
+  All nine workflow runs succeeded on final PR head
+  `ab1ba2e7e7509a5240344aa4e28ad4c7ce9b8f37`; Codex comment 4193166301 was
+  corrected, replied to, and resolved. GitHub rejected the auto-merge request
+  because the PR was already `clean`; it was squash-merged through GitHub after
+  checks passed. The historical timing pair count remains zero for both shapes.
+- The P3-F06 replay manifest at
+  [`docs/reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json`](../reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json)
+  now records all 37 PR/head/head-tree identities, run IDs, changed paths,
+  route reasons, artifact digests, and exact classifier commit/blob. The saved
+  classifier snapshot hash is verified and the offline replay returns 37
+  `full_pr_matrix` results (33 active/shared inputs, 4 unknown paths). Its Rust
+  contract test passes, as do formatting, shell syntax, workflow/docs gates,
+  JSONL validation, and diff checks. This is bounded historical route
+  eligibility evidence, not timing evidence; hosted validation remains pending.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains
