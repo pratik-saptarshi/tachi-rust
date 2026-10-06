@@ -38,7 +38,8 @@ jobs:
           git fetch origin "$base_ref" --depth=1
 
           changed_paths_file="$RUNNER_TEMP/changed-paths.txt"
-          git diff --name-only "origin/${base_ref}...${GIT_SHA}" > "$changed_paths_file"
+          bash "$GITHUB_WORKSPACE/scripts/ci-route-changed-paths.sh" \
+            "origin/${base_ref}" "$GIT_SHA" > "$changed_paths_file"
 
           route_json="$(bash "$GITHUB_WORKSPACE/scripts/ci-route-classifier.sh" \
             "$GITHUB_EVENT_NAME" "${GITHUB_REF:-}" "$changed_paths_file" \
