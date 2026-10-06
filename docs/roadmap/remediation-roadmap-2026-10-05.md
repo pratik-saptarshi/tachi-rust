@@ -316,9 +316,10 @@ available summary.
   saved classifier snapshot hash is also verified, and offline replay returns 37
   `full_pr_matrix` results (33 active/shared inputs, 4 unknown paths). Its Rust
   contract rejects tampered route reason, changed paths, head identity, and
-  classifier provenance. The focused contract passes 2/2, as do formatting
-  and shell syntax. This is bounded historical route eligibility evidence, not
-  timing evidence. PR #65 carries the correction; hosted validation is pending.
+  classifier provenance. The focused contract passes 2/2, targeted Clippy
+  passes with warnings denied, and formatting and shell syntax pass. This is
+  bounded historical route eligibility evidence, not timing evidence. PR #65
+  carries the correction; hosted validation is pending.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains

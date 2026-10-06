@@ -3,6 +3,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+type ManifestTamper = fn(&mut Value);
+
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -51,7 +53,7 @@ fn replay_rejects_tampered_candidate_inputs_and_provenance() {
     let root = repo_root();
     let manifest_path =
         root.join("docs/reports/rt-ci-route-cohort-audit-replay-manifest-2026-10-05.json");
-    let mut manifest: Value =
+    let manifest: Value =
         serde_json::from_slice(&fs::read(&manifest_path).expect("read route audit manifest"))
             .expect("parse route audit manifest");
     let temp_dir = std::env::temp_dir().join(format!(
@@ -59,7 +61,7 @@ fn replay_rejects_tampered_candidate_inputs_and_provenance() {
         std::process::id()
     ));
     fs::create_dir_all(&temp_dir).expect("create replay tamper fixture directory");
-    let tampered_inputs: [(&str, fn(&mut Value)); 4] = [
+    let tampered_inputs: [(&str, ManifestTamper); 4] = [
         ("route reason", |value: &mut Value| {
             value["candidates"][0]["route_reason"] = Value::String("forged audit reason".into());
         }),
