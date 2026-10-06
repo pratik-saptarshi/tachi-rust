@@ -1,8 +1,8 @@
 # RT-CI Route Remediation Roadmap — 2026-10-05
 
 Status: **Phases 0–3 are delivered; post-merge review corrections for Phase 3
-are in a protected follow-up, and matched-control timing acceptance remains
-open.** Phase 1 merged in PR #58 at
+are in protected follow-up PR #62, and matched-control timing acceptance
+remains open.** Phase 1 merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
 of `10339cc8f586fdf0050c01bd2d4889f7709906e6`.
@@ -39,7 +39,7 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. Protected follow-up pins measured jobs and timing artifacts to the immutable event execution SHA, requires matching PR/control commits, retains PR/head provenance, and removes dependency caching from `rust-workspace.yml` for both routed and full-control runs. A `ci-full-control` label forces the `pull_request` event through the full route, keeping execution in the pull-request cache scope and avoiding token-bearing API calls. Start the ten-tree cohorts only after follow-up hosted checks pass. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. PR #61 merged the immutable execution SHA, matched commit, PR/head provenance, and cache-scope protections. Post-merge corrections are in PR #62: trusted provenance is a separate artifact uploaded before PR scripts and merged only by the collector/verifier; label control runs have isolated concurrency and unrelated labels skip route work. Start the ten-tree cohorts only after follow-up hosted checks pass. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
 ### Commit and PR progression
@@ -114,6 +114,21 @@ and consumes no PR secrets or PR API token. Keep the JSON output with
 the closeout evidence.
 `insufficient_pairs` is an expected open state and leaves `RT-0sd.2` open.
 
+Post-merge review of PR #61 identified two additional integrity and workflow
+isolation requirements, tracked in follow-up PR #62. The workflow uploads
+trusted route provenance as a separate artifact before running any PR-controlled
+route scripts; it does not merge trusted fields into the script-generated
+`route.json` afterward. The collector and verifier download both artifacts and
+merge trusted provenance over route-decision fields outside PR code execution.
+Both collector and verifier require exactly one JSON object from each artifact
+before merging; multiple top-level documents are rejected.
+Label-triggered events use separate concurrency namespaces for full controls,
+ignored labels, and ordinary CI. Only the `ci-full-control` label runs the route
+job, and `unlabeled` is not a workflow trigger. Ignored-label runs also use a
+distinct, non-required check name so a skipped job cannot report success for the
+stable required context. These corrections do not change the matched timing
+acceptance; keep `RT-0sd.2` open until its cohort gates pass.
+
 ## Validation and release gates
 
 For each P2 issue, run its current regression first (RED), make the focused fix
@@ -144,6 +159,10 @@ and preserve enough raw metadata to reproduce every exclusion and median.
 | PR #61 CodeQL alert 28: workflow_dispatch can execute untrusted code in default-branch cache scope | Run controls as label-triggered `pull_request` events, remove cache actions from the workflow, and avoid token-bearing API calls | Phase 3 control security contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 Codex comment 4192392232: control timing artifacts record dispatch SHA | Write the event's route-verified execution SHA and controlled PR head into timing artifacts; bind full-control evidence to the route artifact | Phase 3 provenance and verifier tests | `RT-0vf.4`, `RT-0sd.2` |
 | PR #61 Codex comment 4192479376: token-bearing provenance ran after PR-controlled route scripts | Remove the PR API token entirely; derive PR/head provenance from the pull_request event payload before running route scripts | Phase 3 token-isolation ordering contract | `RT-0vf.4`, `RT-0sd.2` |
+| PR #61 Copilot comment 4192629142: post-script provenance merge can be poisoned through PR-controlled shell environment changes | Upload trusted provenance before route scripts as a separate artifact; merge it over route-decision fields only in the trusted collector and verifier | Phase 3 artifact trust boundary and collector/verifier regressions | `RT-0vf.4`, `RT-0sd.2` |
+| PR #61 Copilot comment 4192629148: label events can cancel ordinary required CI and unrelated labels can start route work | Remove the `unlabeled` trigger, skip the route job for labels other than `ci-full-control`, and isolate ordinary, control, and ignored-label concurrency groups | Phase 3 trigger/concurrency workflow contract | `RT-0vf.4`, `RT-0sd.2` |
+| PR #62 Codex comment 4192736938: skipped ignored-label job reports success for the stable required check | Give ignored-label events a distinct non-required check name, while preserving the required name for ordinary and full-control runs; retain the route-job skip and concurrency isolation | Phase 3 trigger/status-check contract | `RT-0vf.4`, `RT-0sd.2` |
+| PR #62 Codex comment 4192802658: multiple route JSON documents can make `jq -s` merge a forged document instead of trusted provenance | Require exactly two slurped JSON objects before merging; reject malformed or multi-document route/provenance artifacts | Phase 3 collector and verifier artifact validation tests | `RT-0vf.4`, `RT-0sd.2` |
 
 ## Integration summary
 

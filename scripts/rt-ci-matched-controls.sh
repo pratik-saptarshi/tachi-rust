@@ -58,15 +58,28 @@ while IFS= read -r run_json; do
 
   run_id="$(jq -r '.databaseId' <<<"$run_json")"
   route_file=""
+  provenance_file=""
   if [ -z "$reason" ]; then
     run_dir="$tmp_root/$run_id"
-    mkdir -p "$run_dir"
-    if ! gh run download "$run_id" --name route-decision --dir "$run_dir" >/dev/null 2>&1; then
+    route_dir="$run_dir/route-decision"
+    provenance_dir="$run_dir/route-provenance"
+    mkdir -p "$route_dir" "$provenance_dir"
+    if ! gh run download "$run_id" --name route-decision --dir "$route_dir" >/dev/null 2>&1; then
       reason="route decision artifact is missing or unavailable"
     else
-      route_file="$(find "$run_dir" -type f -name route.json -print -quit)"
+      route_file="$(find "$route_dir" -type f -name route.json -print -quit)"
       if [ -z "$route_file" ]; then
         reason="route decision artifact has no route.json"
+      fi
+    fi
+    if [ -z "$reason" ]; then
+      if ! gh run download "$run_id" --name route-provenance --dir "$provenance_dir" >/dev/null 2>&1; then
+        reason="trusted route provenance artifact is missing or unavailable"
+      else
+        provenance_file="$(find "$provenance_dir" -type f -name route-provenance.json -print -quit)"
+        if [ -z "$provenance_file" ]; then
+          reason="trusted route provenance artifact has no route-provenance.json"
+        fi
       fi
     fi
   fi
@@ -76,7 +89,10 @@ while IFS= read -r run_json; do
     continue
   fi
 
-  route="$(cat "$route_file")"
+  if ! route="$(jq -s 'if length == 2 and all(.[]; type == "object") then .[0] * .[1] else error("expected exactly two JSON objects") end' "$route_file" "$provenance_file")"; then
+    record_candidate "$(jq -cn --argjson base "$base" --arg reason "route decision and trusted provenance must each contain one JSON object" '$base + {eligible:false,rejection_reason:$reason}')"
+    continue
+  fi
   route_run_id="$(jq -r '.run_id // ""' <<<"$route")"
   route_attempt="$(jq -r '.run_attempt // 0' <<<"$route")"
   route_event="$(jq -r '.event // ""' <<<"$route")"

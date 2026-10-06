@@ -58,9 +58,13 @@ if [ "$1" = "run" ] && [ "$2" = "download" ]; then
     esac
   done
   mkdir -p "$dir"
-  case "$name" in
+    case "$name" in
     route-decision)
-      jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route.json"
+      jq -n '{mode:"dependency_closure",reason:"fixture route"}' > "$dir/route.json"
+      exit 0
+      ;;
+    route-provenance)
+      jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route-provenance.json"
       exit 0
       ;;
     ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
@@ -127,6 +131,10 @@ if [ "$1" = "run" ] && [ "$2" = "download" ]; then
       jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route.json"
       exit 0
       ;;
+    route-provenance)
+      jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route-provenance.json"
+      exit 0
+      ;;
     ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
     ci-timing-shell-*) unit="shell-tests-${name#ci-timing-shell-}"; stage="test-slice" ;;
     *) exit 2 ;;
@@ -181,11 +189,17 @@ fn verifier_binds_matched_control_artifacts_to_the_route_execution_sha_and_pr_he
     fs::create_dir_all(&bin).expect("create fake bin");
     fs::create_dir_all(&artifacts).expect("create artifact fixtures");
     let route = artifacts.join("route.json");
+    let provenance = artifacts.join("route-provenance.json");
     fs::write(
         &route,
-        r#"{"run_id":"123","run_attempt":1,"event":"pull_request","mode":"full_pr_matrix","force_full_requested":true,"execution_sha":"merge-sha","tree_sha":"tree-sha","control_tree_sha":"merge-sha","control_pr_number":7,"control_pr_head_sha":"pr-head-sha","head_sha":"pr-head-sha"}"#,
+        r#"{"mode":"full_pr_matrix","reason":"fixture route","execution_sha":"forged-execution-sha","head_sha":"forged-head-sha"}"#,
     )
     .expect("write route artifact");
+    fs::write(
+        &provenance,
+        r#"{"run_id":"123","run_attempt":1,"event":"pull_request","force_full_requested":true,"execution_sha":"merge-sha","tree_sha":"tree-sha","control_tree_sha":"merge-sha","control_pr_number":7,"control_pr_head_sha":"pr-head-sha","head_sha":"pr-head-sha"}"#,
+    )
+    .expect("write trusted route provenance artifact");
     executable(
         &bin.join("gh"),
         r##"#!/bin/sh
@@ -211,6 +225,9 @@ if [ "$1" = "run" ] && [ "$2" = "download" ]; then
   if [ "$name" = "route-decision" ]; then
     cp "$FAKE_ROUTE" "$dir/route.json"
     exit 0
+  elif [ "$name" = "route-provenance" ]; then
+    cp "$FAKE_PROVENANCE" "$dir/route-provenance.json"
+    exit 0
   fi
   case "$name" in
     ci-timing-package-*) unit="cargo-test-${name#ci-timing-package-}"; stage="compile-and-test" ;;
@@ -234,6 +251,7 @@ exit 2
             .env("GH_REPO", "pratik-saptarshi/tachi-rust")
             .env("FAKE_RUN_METADATA", metadata)
             .env("FAKE_ROUTE", &route)
+            .env("FAKE_PROVENANCE", &provenance)
             .env("FAKE_ARTIFACT_SOURCE", source_head)
             .output()
             .expect("run matched-control timing verifier")
@@ -248,6 +266,20 @@ exit 2
     assert!(
         !wrong_head.status.success(),
         "control artifact with dispatch branch head instead of controlled PR head must fail"
+    );
+    fs::write(
+        &route,
+        concat!(
+            r#"{"mode":"full_pr_matrix","reason":"fixture route"}"#,
+            "\n",
+            r#"{"execution_sha":"forged-second-document","head_sha":"forged-second-head"}"#
+        ),
+    )
+    .expect("write route artifact with an extra JSON document");
+    let multiple_documents = verify("pr-head-sha");
+    assert!(
+        !multiple_documents.status.success(),
+        "a route artifact with multiple JSON documents must be rejected before trusted provenance is merged"
     );
     fs::remove_dir_all(root).expect("cleanup");
 }
