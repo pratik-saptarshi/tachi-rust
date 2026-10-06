@@ -16,6 +16,12 @@ the missing original should be attached if exact reviewer citations or votes
 are needed. The 37-candidate historical audit is bounded to its retained
 sample and is not evidence that the timing objective passed.
 
+The separate cohort audit is available in open PR #56 at
+[`docs/reports/rt-ci-route-cohort-audit-2026-10-05.md`](../../reports/rt-ci-route-cohort-audit-2026-10-05.md).
+It reconstructs 37 historical candidates as full-matrix routes, leaving zero
+eligible samples for either target route and producing no timing medians. This
+supports the bounded historical note only; it is not the missing panel report.
+
 ## Findings
 
 | ID | Priority | Finding | Disposition |

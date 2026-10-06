@@ -1,7 +1,8 @@
 # RT-CI Route Remediation Roadmap — 2026-10-05
 
-Status: **Planning baseline created; P2 implementation, matched-control timing,
-and closeout remain open.** Source baseline: adversarial review of
+Status: **Phase 0 planning and Phase 1 routing are complete; Phase 2 onward and
+matched-control timing remain open.** Phase 1 merged in PR #58 at
+`c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Source baseline: adversarial review of
 `10339cc8f586fdf0050c01bd2d4889f7709906e6`.
 
 > **Source note:** The original panel report file was not present in the
@@ -32,8 +33,8 @@ claim.
 
 | Phase | Scope and tracker | Delivery boundary and exit gate |
 |---|---|---|
-| **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Planning PR from the current `origin/main` baseline, with `docs(ci): add route-remediation roadmap`. Before selecting a PR base, inspect open PR heads, checks, reviews, and mergeability through `rtk gh`. At planning time GitHub API access failed (`api.github.com` unreachable); recheck before opening a PR. |
-| **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | One implementation PR. Both rename endpoints participate in route classification. A change to the TDD evidence JSON runs its contract test; valid passive prose remains optimized and active/shared docs remain full. |
+| **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
+| **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | One implementation PR. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
 | **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | One implementation/evidence PR. Collector handles success, failure, cancellation, reruns, absent route evidence, and mismatched tree SHA. Start the ten-tree cohorts only after Phases 1 and 2 and the collector are merged. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
@@ -140,17 +141,24 @@ available summary.
 
 ## Current verification and limitations
 
-- Live Beads showed `RT-0sd` and `RT-0sd.2` open; `RT-0sd.2` acceptance still
-  described pre-/post-router samples before this roadmap's requested update.
-- Local `main` matched its configured `origin/main` tracking status at the
-  current checkout. GitHub open-PR inspection was attempted through `rtk gh`
-  but failed because `api.github.com` was unreachable. Remote freshness and
-  open PR state must be rechecked before Phase 0 PR creation.
+- Live Beads retains `RT-0sd.2` open with the matched-control acceptance;
+  Phase 1 issue `RT-0vf.2` and children `.2.1`/`.2.2` closed after PR #58 merged.
+  Phase 2 `RT-0vf.3` is next. The issue JSONL export is regenerated during the
+  current tracker synchronization.
+- PR #57 delivered the planning baseline; PR #58 delivered Phase 1. GitHub
+  checks were inspected through `rtk gh` at the Phase 1/2 boundary. PR #56's
+  checks passed, but its branch was behind after Phase 1 and was synchronized
+  by merging refreshed `origin/main` into its attached worktree. Its auto-merge
+  request remains protected by normal review and branch rules.
 - The worktree contains the unrelated pre-existing untracked
   `.beads.gate.lock`; preserve it.
-- Existing `RT-0sd.2` notes reference
-  `docs/reports/rt-ci-route-cohort-audit-2026-10-05.md`, but that file is
-  absent in this checkout. The 37-candidate result is therefore carried here
-  only as a bounded report from the provided summary, without raw replay inputs.
-- This roadmap establishes planning and tracker contracts. No P2 implementation
-  or timing acceptance is claimed complete here.
+- At planning time, the referenced cohort-audit report was absent from the
+  current checkout. Open PR #56 now carries
+  [`docs/reports/rt-ci-route-cohort-audit-2026-10-05.md`](../reports/rt-ci-route-cohort-audit-2026-10-05.md).
+  It records 37 reconstructed candidates, zero eligible historical candidates
+  for either route, and no route-specific timing medians. This supports only the
+  sample-bounded historical observation; it is not the original adversarial
+  panel report and does not replace matched controls.
+- Phase 1 is complete. P2-F02/P2-F03 and matched-control timing are not yet
+  implemented or accepted. The historical zero-candidate result remains
+  bounded to the retained sample and is not a timing result.
