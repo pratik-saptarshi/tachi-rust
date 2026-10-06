@@ -1,6 +1,6 @@
 # Agentic-Oriented-Development-Kit - Common Commands
 
-.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate codeql-maintenance-gate codeql-upstream-release-check verify-ci-timing-artifacts act-smoke act-smoke-run docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence
+.PHONY: help init check update spec plan tasks analyze review-spec review-plan test test-route coverage-audit llvm-cov llvm-cov-nightly-branch workflow-gate codeql-maintenance-gate codeql-upstream-release-check verify-ci-timing-artifacts act-smoke act-smoke-run docs-version-gate docs-archive-version-gate scaffold-dependency-gate supply-chain-gate gitleaks-gate feature-combination-canary coverage-tool-proof release-gate fuzz-mutation-gate publish-gate rt-ci-latency-evidence rt-ci-matched-controls
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -159,3 +159,6 @@ publish-gate: ## Run end-to-end publish-readiness gates locally
 
 rt-ci-latency-evidence: ## Run queue-vs-run median evidence collection for workflow gate and route-observe lanes
 	@./scripts/rt-ci-latency-evidence.sh "rust-workspace.yml,ci-route-observe.yml" "main" 40
+
+rt-ci-matched-controls: ## Collect read-only RT-CI route/full-control matched pairs as JSON
+	@./scripts/rt-ci-matched-controls.sh "rust-workspace.yml" "$${RT_CI_RUN_LIMIT:-100}"

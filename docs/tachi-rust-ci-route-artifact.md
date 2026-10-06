@@ -26,6 +26,17 @@ full-mode reason. Pull requests to `main` are classified by changed paths; a
 protected base branch alone does not force full mode. The artifact and enforced
 workflow use the same classifier.
 
+The `rust-workspace.yml` route job uploads its own `route-decision` artifact
+for every event. Alongside classifier fields, it records `run_id`,
+`run_attempt`, `event`, PR number, source `head_sha`, `workflow_sha`, exact
+`classifier_revision` and `path_producer_revision` blob IDs,
+`runner_definition` (including the hosted image version), and
+`force_full_requested`. The read-only matched-control collector joins those
+fields with workflow timestamps and the Git tree SHA resolved from `head_sha`.
+A valid control must be a successful
+`workflow_dispatch` run with `force_full_requested: true` and
+`route_mode: full_pr_matrix`.
+
 ## Stable Check
 
 The observe-only workflow job `route-observe` remains the stable orchestrator check until specialist routing becomes enforcement.
