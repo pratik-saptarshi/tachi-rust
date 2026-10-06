@@ -537,6 +537,7 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
     let timing_script_text = fs::read_to_string(&timing_script).expect("read timing verifier");
     for required in [
         "gh run download",
+        "route-provenance",
         "ci-timing-package-tachi-core",
         "ci-timing-shell-shell-integration",
         "expected_artifacts:8",
@@ -970,6 +971,8 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
     for required in [
         "ci-full-control",
         "github.event.action == 'labeled'",
+        "format('ignored-label-{0}'",
+        "github.event.action != 'labeled' || github.event.label.name == 'ci-full-control'",
         "permissions:",
         "contents: read",
         "name: route-decision",
@@ -979,9 +982,8 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "needs.route.outputs.execution_sha",
         "control_pr_head_sha",
         "persist-credentials: false",
-        "provenance_json",
-        "Attach trusted provenance to route decision",
-        "BASH_ENV: \"\"",
+        "route-provenance",
+        "Upload trusted route provenance",
         "--format=%P",
         "workflow_file_revision",
         "runner-provenance-",
@@ -1006,6 +1008,19 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "all three measured downstream jobs must use the route job's immutable SHA"
     );
     let parsed = parse_workflow("rust-workspace.yml", &workflow);
+    let concurrency_group = parsed
+        .get("concurrency")
+        .and_then(|concurrency| concurrency.get("group"))
+        .and_then(serde_yaml::Value::as_str)
+        .expect("workflow concurrency group");
+    assert!(concurrency_group.contains("full-control"));
+    assert!(concurrency_group.contains("ignored-label-{0}"));
+    assert!(!workflow.contains("unlabeled"));
+    assert_eq!(
+        workflow_job_field(&parsed, "route", "if"),
+        Some("github.event.action != 'labeled' || github.event.label.name == 'ci-full-control'"),
+        "unrelated label events must not start the route job"
+    );
     let route_steps = workflow_job(&parsed, "route")
         .get("steps")
         .and_then(serde_yaml::Value::as_sequence)
@@ -1017,9 +1032,12 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
             .unwrap_or_else(|| panic!("route job must contain {name}"))
     };
     assert!(
-        step_index("Capture trusted route provenance") < step_index("Capture route mode"),
-        "trusted provenance must be captured before PR-controlled route scripts"
+        step_index("Capture trusted route provenance")
+            < step_index("Upload trusted route provenance")
     );
+    assert!(step_index("Upload trusted route provenance") < step_index("Capture route mode"));
+    assert!(step_index("Capture route mode") < step_index("Upload route decision artifact"));
+    assert!(!workflow.contains("Attach trusted provenance to route decision"));
     assert_eq!(
         workflow.matches("GH_TOKEN:").count(),
         0,
@@ -1028,6 +1046,7 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
     for required in [
         "gh run list",
         "gh run download",
+        "route-provenance",
         "force_full_requested",
         "workflow_file_revision",
         "execution_sha",
@@ -1445,9 +1464,15 @@ case "$1 $2" in
     dir="$7"
     mkdir -p "$dir"
     if [ "$4" = "--name" ]; then
-      source="$FAKE_ARTIFACTS/$run_id/route.json"
+      if [ "$5" = "route-decision" ]; then
+        source="$FAKE_ARTIFACTS/$run_id/route.json"
+      elif [ "$5" = "route-provenance" ]; then
+        source="$FAKE_ARTIFACTS/$run_id/route-provenance.json"
+      else
+        exit 2
+      fi
       [ -s "$source" ] || exit 1
-      cp "$source" "$dir/route.json"
+      cp "$source" "$dir/$(basename "$source")"
     elif [ "$4" = "--pattern" ]; then
       source="$FAKE_ARTIFACTS/$run_id/provenance/runner.json"
       [ -s "$source" ] || exit 1
@@ -1494,11 +1519,18 @@ esac
         fs::write(
             dir.join("route.json"),
             serde_json::to_vec(&serde_json::json!({
+                "mode": mode,
+                "reason": "fixture route"
+            }))
+            .expect("serialize route artifact"),
+        )
+        .expect("write route artifact");
+        fs::write(
+            dir.join("route-provenance.json"),
+            serde_json::to_vec(&serde_json::json!({
                 "run_id": run_id,
                 "run_attempt": 1,
                 "event": event,
-                "mode": mode,
-                "reason": "fixture route",
                 "head_sha": head_sha,
                 "workflow_file_revision": "workflow-blob-1",
                 "execution_workflow_file_revision": "workflow-blob-1",
@@ -1513,9 +1545,9 @@ esac
                 "force_full_requested": force_full,
                 "pr_number": pr_number
             }))
-            .expect("serialize route artifact"),
+            .expect("serialize trusted route provenance"),
         )
-        .expect("write route artifact");
+        .expect("write trusted route provenance");
         if run_id != "1" {
             let provenance = dir.join("provenance");
             fs::create_dir_all(&provenance).expect("create runner provenance directory");

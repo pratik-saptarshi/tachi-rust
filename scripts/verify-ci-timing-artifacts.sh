@@ -82,9 +82,14 @@ mkdir -p -- "$root"
 chmod 0700 "$root"
 
 route_dir="$root/route-decision"
-mkdir -p -- "$route_dir"
+provenance_dir="$root/route-provenance"
+mkdir -p -- "$route_dir" "$provenance_dir"
 gh run download "$RUN_ID" --repo "$REPO" --name route-decision --dir "$route_dir" >/dev/null || {
     echo "FAIL: run has no route-decision artifact" >&2
+    exit 1
+}
+gh run download "$RUN_ID" --repo "$REPO" --name route-provenance --dir "$provenance_dir" >/dev/null || {
+    echo "FAIL: run has no trusted route-provenance artifact" >&2
     exit 1
 }
 route_files=("$route_dir"/*.json)
@@ -92,17 +97,27 @@ route_files=("$route_dir"/*.json)
     echo "FAIL: route-decision artifact is missing or ambiguous" >&2
     exit 1
 }
+provenance_files=("$provenance_dir"/*.json)
+[ "${#provenance_files[@]}" -eq 1 ] || {
+    echo "FAIL: trusted route-provenance artifact is missing or ambiguous" >&2
+    exit 1
+}
+verified_route="$root/verified-route.json"
+jq -s '.[0] * .[1]' "${route_files[0]}" "${provenance_files[0]}" > "$verified_route" || {
+    echo "FAIL: route decision and trusted provenance are not valid JSON objects" >&2
+    exit 1
+}
 jq -e --arg run_id "$RUN_ID" --argjson attempt "$run_attempt" --arg event "$run_event" \
     '.run_id == $run_id and .run_attempt == $attempt and .event == $event
      and (.execution_sha | type == "string" and length > 0)
      and (.head_sha | type == "string" and length > 0)' \
-    "${route_files[0]}" >/dev/null || {
+    "$verified_route" >/dev/null || {
     echo "FAIL: route artifact provenance does not match the workflow run" >&2
     exit 1
 }
-expected_run_commit_sha="$(jq -r '.execution_sha' "${route_files[0]}")"
-expected_source_head_sha="$(jq -r '.head_sha' "${route_files[0]}")"
-control_pr_number="$(jq -r '.control_pr_number // 0' "${route_files[0]}")"
+expected_run_commit_sha="$(jq -r '.execution_sha' "$verified_route")"
+expected_source_head_sha="$(jq -r '.head_sha' "$verified_route")"
+control_pr_number="$(jq -r '.control_pr_number // 0' "$verified_route")"
 if [ "$control_pr_number" != "0" ]; then
     jq -e --arg event "$run_event" \
         '.event == "pull_request"
@@ -111,11 +126,11 @@ if [ "$control_pr_number" != "0" ]; then
          and (.execution_sha | type == "string" and length > 0)
          and .control_tree_sha == .execution_sha
          and (.control_pr_head_sha | type == "string" and length > 0)' \
-        "${route_files[0]}" >/dev/null || {
+        "$verified_route" >/dev/null || {
         echo "FAIL: matched control route artifact lacks exact execution and PR-head provenance" >&2
         exit 1
     }
-    expected_source_head_sha="$(jq -r '.control_pr_head_sha' "${route_files[0]}")"
+    expected_source_head_sha="$(jq -r '.control_pr_head_sha' "$verified_route")"
     is_matched_control="true"
 fi
 

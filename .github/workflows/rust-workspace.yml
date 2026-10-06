@@ -5,18 +5,19 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened, labeled]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && 'full-control' || github.event.action == 'labeled' && format('ignored-label-{0}', github.event.label.name) || 'standard' }}
   cancel-in-progress: true
 
 jobs:
   route:
     name: route decision and stable orchestrator check
+    if: github.event.action != 'labeled' || github.event.label.name == 'ci-full-control'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -93,13 +94,18 @@ jobs:
             --argjson control_pr_number "$CONTROL_PR_NUMBER" \
             --argjson force_full_requested "${FORCE_FULL_CI_INPUT:-false}" \
             '{run_id:$run_id,run_attempt:$run_attempt,event:$event,head_sha:$head_sha,pr_number:$pr_number,workflow_file_revision:$workflow_file_revision,execution_workflow_file_revision:$execution_workflow_file_revision,execution_sha:$execution_sha,tree_sha:$execution_tree_sha,classifier_revision:$classifier_revision,path_producer_revision:$path_producer_revision,runner_definition:$runner_definition,control_tree_sha:$control_tree_sha,control_pr_number:$control_pr_number,control_pr_head_sha:$control_pr_head_sha,force_full_requested:$force_full_requested}')"
+          printf '%s\n' "$provenance_json" > route-provenance.json
           {
             echo "execution_sha=$execution_sha"
             echo "control_pr_head_sha=$control_pr_head_sha"
-            echo "provenance_json<<TACHI_PROVENANCE_EOF"
-            printf '%s\n' "$provenance_json"
-            echo "TACHI_PROVENANCE_EOF"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Upload trusted route provenance
+        uses: actions/upload-artifact@v7
+        with:
+          name: route-provenance
+          path: route-provenance.json
+          if-no-files-found: error
 
       - name: Capture route mode
         id: route
@@ -141,18 +147,6 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           printf '%s\n' "$route_json" > route.json
-          cat route.json
-
-      - name: Attach trusted provenance to route decision
-        shell: bash
-        env:
-          BASH_ENV: ""
-          PROVENANCE_JSON: ${{ steps.provenance.outputs.provenance_json }}
-        run: |
-          set -euo pipefail
-          jq --argjson provenance "$PROVENANCE_JSON" \
-            '. + $provenance' route.json > route.json.new
-          mv route.json.new route.json
           cat route.json
 
       - name: Upload route decision artifact
