@@ -182,6 +182,74 @@ exit 2
 }
 
 #[test]
+fn verifier_rejects_narrowed_run_missing_full_matrix_artifacts() {
+    let root = temp_dir("tachi-ci-timing-narrowed");
+    let bin = root.join("bin");
+    fs::create_dir(&bin).expect("create fake bin");
+    executable(
+        &bin.join("gh"),
+        r##"#!/bin/sh
+set -eu
+if [ "$1" = "run" ] && [ "$2" = "view" ]; then
+  printf '%s\n' "$FAKE_RUN_METADATA"
+  exit 0
+fi
+if [ "$1" = "run" ] && [ "$2" = "download" ]; then
+  name=""; dir=""
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --name) name="$2"; shift 2 ;;
+      --dir) dir="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  mkdir -p "$dir"
+  case "$name" in
+    route-decision)
+      jq -n '{mode:"dependency_closure",reason:"narrowed fixture"}' > "$dir/route.json"
+      exit 0
+      ;;
+    route-provenance)
+      jq -n '{run_id:"123",run_attempt:1,event:"pull_request",execution_sha:"merge-sha",head_sha:"source-sha",control_pr_number:0}' > "$dir/route-provenance.json"
+      exit 0
+      ;;
+    ci-timing-package-tachi-core|ci-timing-package-tachi-mcp)
+      unit="cargo-test-${name#ci-timing-package-}"
+      jq -n --arg unit "$unit" '{schema_version:1,stage:"compile-and-test",unit:$unit,commit:"merge-sha",duration_ms:1,runner:{run_id:123,attempt:1,event:"pull_request",workflow_name:"rust workspace tests",ref:"refs/pull/7/merge",head_sha:"merge-sha",source_head_sha:"source-sha"}}' > "$dir/result.json"
+      exit 0
+      ;;
+    *)
+      echo "artifact not found for narrowed route: $name" >&2
+      exit 1
+      ;;
+  esac
+fi
+exit 2
+"##,
+    );
+
+    let metadata = r#"{"workflowName":"rust workspace tests","event":"pull_request","status":"completed","conclusion":"success","headBranch":"feature/test","headSha":"source-sha","attempt":1,"databaseId":123}"#;
+    let path = format!("{}:{}", bin.display(), env::var("PATH").unwrap_or_default());
+    let result = Command::new(repo_root().join("scripts/verify-ci-timing-artifacts.sh"))
+        .args(["123", "merge-sha"])
+        .env("PATH", path)
+        .env("GH_REPO", "pratik-saptarshi/tachi-rust")
+        .env("FAKE_RUN_METADATA", metadata)
+        .output()
+        .expect("run timing verifier against narrowed artifacts");
+
+    assert!(
+        !result.status.success(),
+        "a narrowed run with only route-selected package artifacts must not pass the full-matrix verifier"
+    );
+    assert!(
+        String::from_utf8_lossy(&result.stderr).contains("artifact not found for narrowed route"),
+        "the verifier should fail on the first absent full-matrix artifact: {result:?}"
+    );
+    fs::remove_dir_all(root).expect("cleanup");
+}
+
+#[test]
 fn verifier_binds_matched_control_artifacts_to_the_route_execution_sha_and_pr_head() {
     let root = temp_dir("tachi-ci-timing-matched-control");
     let bin = root.join("bin");

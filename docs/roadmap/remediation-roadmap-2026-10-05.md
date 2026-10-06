@@ -54,6 +54,13 @@ and successful, review threads are resolved, and GitHub reports the PR
 mergeable. Never bypass protection. If the remote cannot be refreshed, stop
 before choosing or publishing a PR base and record that limit.
 
+The two nonblocking P3 advisories are separate review milestones after the
+collector: `RT-0vf.6` delivers the verifier-boundary decision and narrowed-run
+regression; `RT-0vf.7` delivers the route-audit manifest and replay contract.
+Each milestone checks open PRs and CI at its start and gets its own PR. The
+existing Phase 4 closeout remains a separate final PR and stays blocked by
+`RT-0sd.2` until its matched-cohort acceptance passes.
+
 ## Beads worklist
 
 The new epic and all phase/finding issues use generated IDs. IDs below are
@@ -114,6 +121,18 @@ and consumes no PR secrets or PR API token. Keep the JSON output with
 the closeout evidence.
 `insufficient_pairs` is an expected open state and leaves `RT-0sd.2` open.
 
+### P3-F05 verifier boundary
+
+`scripts/verify-ci-timing-artifacts.sh` is a full-matrix timing verifier. It
+requires all eight package and shell timing artifacts, in addition to trusted
+route and provenance artifacts, for every accepted run. A narrowed route that
+does not produce the complete matrix therefore fails closed; the script does
+not derive expected artifacts from the selected route and must not be used to
+verify narrowed-run completeness. A future route-aware verifier must define
+and test its expected artifact set from the trusted route decision before it
+can report a narrowed run as verified. This P3 advisory is nonblocking for the
+P2 routing work and matched-control acceptance.
+
 Post-merge review of PR #61 identified two additional integrity and workflow
 isolation requirements, tracked in follow-up PR #62. The workflow uploads
 trusted route provenance as a separate artifact before running any PR-controlled
@@ -146,6 +165,11 @@ The forced-full control workflow must use read-only permissions and receive no
 PR secrets. Exercise collector handling for success, failure, cancellation,
 reruns, missing route data, and tree mismatch. Pairing must be deterministic
 and preserve enough raw metadata to reproduce every exclusion and median.
+
+For P3-F05, retain the successful full-matrix verifier fixture and add a
+negative fixture in which a dependency-closure run publishes only its selected
+package artifacts. The fixed eight-artifact verifier must reject that run. This
+proves its full-matrix boundary; it does not claim route-aware verification.
 
 ## Panel finding traceability
 
@@ -202,8 +226,11 @@ available summary.
 - Live Beads retains `RT-0sd.2` open with the matched-control acceptance;
   Phase 1 (`RT-0vf.2` and children `.2.1`/`.2.2`) closed after PR #58 and Phase 2
   (`RT-0vf.3` and children `.3.1`/`.3.2`) closed after PR #59. Phase 3
-  `RT-0vf.4` is in progress. The JSONL export is synchronized in the current
-  Phase 3 branch.
+  collector issue `RT-0vf.4` closed after PR #62 merged and its hosted checks
+  passed. This closes implementation delivery only: the refreshed read-only
+  collector baseline still has zero valid matched pairs for both route shapes,
+  so `RT-0sd.2` remains open. The current Phase F05 branch synchronizes the
+  tracker export after this reconciliation.
 - PR #57 delivered the planning baseline; PR #58 delivered Phase 1; PR #59
   delivered Phase 2. GitHub
   checks were inspected through `rtk gh` at the Phase 1/2 boundary. PR #56's
@@ -243,6 +270,11 @@ available summary.
   this change, 6 were unsuccessful, and there were 0 valid pairs for either
   shape. This sample does not establish timing performance; `RT-0sd.2` remains
   open pending ten valid pairs per shape and the <=65% execution-median ratio.
+  P3-F05 documents that `scripts/verify-ci-timing-artifacts.sh` verifies the
+  full eight-artifact matrix and cannot verify narrowed-run completeness. The
+  focused contract retains full-matrix success and rejects a narrowed
+  dependency-closure fixture missing the matrix artifacts; local validation
+  passed before the separate P3-F05 delivery PR was opened.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains
