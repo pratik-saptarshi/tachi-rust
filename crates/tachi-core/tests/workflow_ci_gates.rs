@@ -234,8 +234,8 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         );
     }
     assert!(
-        text.contains("force_full_ci"),
-        "rust-workspace workflow must expose an emergency full-CI input"
+        text.contains("ci-full-control") && text.contains("vars.FORCE_FULL_CI"),
+        "rust-workspace workflow must expose the label control and repository emergency override"
     );
     assert!(
         classifier.contains("emergency full-ci override"),
@@ -968,12 +968,8 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         .expect("read matched-control matcher");
 
     for required in [
-        "workflow_dispatch:",
-        "force_full_ci:",
-        "type: boolean",
         "ci-full-control",
         "github.event.action == 'labeled'",
-        "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)",
         "permissions:",
         "contents: read",
         "name: route-decision",
@@ -982,7 +978,6 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "execution_tree_sha",
         "needs.route.outputs.execution_sha",
         "control_pr_head_sha",
-        "matched full controls must use the pull_request ci-full-control label",
         "persist-credentials: false",
         "provenance_json",
         "Attach trusted provenance to route decision",

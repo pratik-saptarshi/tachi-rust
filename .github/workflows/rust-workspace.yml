@@ -6,13 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
     types: [opened, synchronize, reopened, labeled, unlabeled]
-  workflow_dispatch:
-    inputs:
-      force_full_ci:
-        description: Force full CI regardless of route prediction
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -24,7 +17,6 @@ concurrency:
 jobs:
   route:
     name: route decision and stable orchestrator check
-    if: github.event_name != 'workflow_dispatch' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -49,17 +41,13 @@ jobs:
           SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number || 0 }}
           WORKFLOW_SHA: ${{ github.workflow_sha }}
-          FORCE_FULL_CI_INPUT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci) || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control') }}
+          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' }}
           CONTROL_TREE_SHA: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && github.sha || '' }}
           CONTROL_PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && github.event.pull_request.number || 0 }}
           CONTROL_PR_HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' && github.event.pull_request.head.sha || '' }}
         run: |
           set -euo pipefail
           execution_sha="$(git rev-parse HEAD)"
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CONTROL_PR_NUMBER" != "0" ]; then
-            echo "matched full controls must use the pull_request ci-full-control label" >&2
-            exit 1
-          fi
           if { [ "$CONTROL_PR_NUMBER" != "0" ] && [ -z "$CONTROL_TREE_SHA" ]; } || { [ "$CONTROL_PR_NUMBER" = "0" ] && [ -n "$CONTROL_TREE_SHA" ]; }; then
             echo "control_pr_number and control_tree_sha must be supplied together" >&2
             exit 1
@@ -118,7 +106,7 @@ jobs:
         shell: bash
         env:
           FORCE_FULL_CI: ${{ vars.FORCE_FULL_CI }}
-          FORCE_FULL_CI_INPUT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.force_full_ci) || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control') }}
+          FORCE_FULL_CI_INPUT: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ci-full-control' }}
           BASE_REF: ${{ github.base_ref }}
           GIT_SHA: ${{ github.sha }}
         run: |
