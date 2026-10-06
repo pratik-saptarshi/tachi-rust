@@ -65,9 +65,10 @@ collector: `RT-0vf.6` delivers the verifier-boundary decision and narrowed-run
 regression; `RT-0vf.7` delivers the route-audit manifest and replay contract.
 Each milestone checks open PRs and CI at its start and gets its own PR. The
 existing Phase 4 closeout remains a separate final PR and stays blocked by
-`RT-0sd.2` until its matched-cohort acceptance passes. The observed
-dependency-closure miss has a separate follow-up milestone, `RT-0sd.4`; do not
-lower the threshold or count the current cohort as a Phase 4 pass.
+`RT-0sd.2` until its matched-cohort acceptance passes. The dependency-closure
+workflow wall-time observation has a separate follow-up milestone, `RT-0sd.4`,
+to correct timing metrics; do not lower the threshold or count the current
+cohort as a Phase 4 pass.
 
 ## Beads worklist
 
@@ -91,9 +92,12 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 
 ### Matched-control result — 2026-10-06
 
-The final collector snapshot is
+The final reclassified evidence snapshot is schema version 2, derived from the
+version-1 collector output identified by its source digest. Its summary is
+`informational_only` and `not_evaluated` until per-job queue/execution timing is
+collected. The snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](../reports/rt-ci-matched-control-final-2026-10-06.json)
-(SHA-256 `dbe6a1b53203ea495660293f1106c91b3d932b1557109c89b24d54c808bad132`;
+(SHA-256 `a67221c0578df29ba282c87113e4620c4b0d8bd71c1f01f021844f0b744da0d2`;
 source collector SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`);
 the run mapping and limitations are in the
 [matched-control readout](../reports/rt-ci-matched-control-final-2026-10-06.md).
@@ -255,6 +259,9 @@ eligibility evidence and does not represent matched timing performance.
 | PR #62 Codex comment 4192736938: skipped ignored-label job reports success for the stable required check | Give ignored-label events a distinct non-required check name, while preserving the required name for ordinary and full-control runs; retain the route-job skip and concurrency isolation | Phase 3 trigger/status-check contract | `RT-0vf.4`, `RT-0sd.2` |
 | PR #62 Codex comment 4192802658: multiple route JSON documents can make `jq -s` merge a forged document instead of trusted provenance | Require exactly two slurped JSON objects before merging; reject malformed or multi-document route/provenance artifacts | Phase 3 collector and verifier artifact validation tests | `RT-0vf.4`, `RT-0sd.2` |
 | PR #90 Codex comment 4194686655: workflow-level execution interval includes downstream matrix job queueing | Mark current workflow wall-time ratios informational; collect per-job creation/start/completion timestamps and calculate queue/execution separately before evaluating or optimizing dependency-closure | Matched-control readout and Phase 5 acceptance | `RT-0sd.2`, `RT-0sd.4`, `RT-0vf.5` |
+| PR #90 Codex comment 4194758545: machine-readable status still exposed `pass` and `threshold_missed` | Reclassify both summary states to `informational_only` / `not_evaluated`, rename workflow wall-time fields, and pin the corrected artifact digest | Schema version 2 evidence snapshot | `RT-0sd.2` |
+| PR #90 Codex comment 4194840114: transformed evidence retained schema version 1 | Publish documented schema version 2 while retaining the source version-1 digest | Schema version 2 evidence snapshot and readout | `RT-0sd.2` |
+| PR #90 Codex comment 4194840118: roadmap still called the workflow wall-time observation a dependency-closure miss | Describe the 193.6% value as an informational workflow wall-time ratio; make optimization conditional on corrected execution measurement | Objective, Phase 5, matched-control result | `RT-0sd.2`, `RT-0sd.4` |
 
 ## Integration summary
 

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "acceptance": {
     "distinct_pairs_per_shape": 10,
     "optimized_execution_median_max_ratio": 0.65
@@ -8166,5 +8166,10 @@
   ],
   "source_collector_sha256": "2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443",
   "timing_acceptance_evaluated": false,
-  "timing_metric_interpretation": "The run-level startedAt-to-updatedAt interval is workflow wall time and includes post-start matrix-job queueing; it is not accepted execution-only evidence."
+  "timing_metric_interpretation": "The run-level startedAt-to-updatedAt interval is workflow wall time and includes post-start matrix-job queueing; it is not accepted execution-only evidence.",
+  "schema_notes": [
+    "Version 2 is a reclassified evidence snapshot, derived from the version-1 collector output identified by source_collector_sha256.",
+    "Run-level queue and duration fields are renamed as workflow queue and workflow wall time; these values include downstream matrix-job queueing.",
+    "Summary status is informational_only and acceptance_status is not_evaluated until per-job queue and execution are measured."
+  ]
 }

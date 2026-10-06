@@ -24,10 +24,12 @@ collector did not retain per-job creation, start, and completion timestamps.
 
 The reclassified, replayable collector snapshot is
 [`rt-ci-matched-control-final-2026-10-06.json`](rt-ci-matched-control-final-2026-10-06.json)
-(SHA-256 `dbe6a1b53203ea495660293f1106c91b3d932b1557109c89b24d54c808bad132`).
+(SHA-256 `a67221c0578df29ba282c87113e4620c4b0d8bd71c1f01f021844f0b744da0d2`).
 Its top-level status marks timing acceptance `not_evaluated` and its durations
-are named workflow queue and workflow wall time. The preserved source collector
-output has SHA-256 `2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`.
+are named workflow queue and workflow wall time. This is schema version 2, a
+reclassified evidence snapshot derived from the version-1 collector output.
+The preserved source collector output has SHA-256
+`2a98c3cf359fc94f06a9b4460832cf29cdf266297fbc7e72f3a1283ca22a3443`.
 It contains 87 candidate workflow runs, dispositions, all 20 pair records,
 route reasons and paths, PR/head and execution SHAs, Git tree SHAs, run IDs and
 timestamps, workflow/classifier/path-producer revisions, and runner inventory.
