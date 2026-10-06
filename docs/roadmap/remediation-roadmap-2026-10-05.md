@@ -339,6 +339,11 @@ available summary.
   API query also found the latest 11 PR workspace runs were full route. This
   bounded scan does not prove the timing threshold and does not replace future
   collection of ten distinct valid pairs per shape.
+  The first inventory PR attempt (#67) was closed without merge after GitHub
+  reported its branch update had bypassed a no-force-push rule. No main-branch
+  content was changed by that attempt. The evidence commit was reapplied to a
+  fresh branch with an ordinary push for PR #68; only the replacement PR can
+  deliver this snapshot.
   A successful read-only forced-full dispatch (run `37419572327`) then exercised
   provenance upload and collector ingestion. The collector classified it as an
   unmatched control, with no compatible optimized PR run; the pair count remains
