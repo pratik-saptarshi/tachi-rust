@@ -234,8 +234,8 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         );
     }
     assert!(
-        text.contains("force_full_ci"),
-        "rust-workspace workflow must expose an emergency full-CI input"
+        text.contains("ci-full-control") && text.contains("vars.FORCE_FULL_CI"),
+        "rust-workspace workflow must expose the label control and repository emergency override"
     );
     assert!(
         classifier.contains("emergency full-ci override"),
@@ -549,6 +549,9 @@ fn codeql_v4_maintenance_contract_is_explicit_and_fail_closed() {
         "attempt",
         "workflow_name",
         "source_head_sha",
+        "control_pr_head_sha",
+        "expected_run_commit_sha",
+        "is_matched_control",
         "GITHUB_REF",
     ] {
         assert!(
@@ -965,17 +968,21 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         .expect("read matched-control matcher");
 
     for required in [
-        "workflow_dispatch:",
-        "force_full_ci:",
-        "type: boolean",
+        "ci-full-control",
+        "github.event.action == 'labeled'",
         "permissions:",
         "contents: read",
         "name: route-decision",
         "if-no-files-found: error",
         "github.workflow_sha",
-        "inputs.control_tree_sha",
-        "inputs.control_pr_number",
         "execution_tree_sha",
+        "needs.route.outputs.execution_sha",
+        "control_pr_head_sha",
+        "persist-credentials: false",
+        "provenance_json",
+        "Attach trusted provenance to route decision",
+        "BASH_ENV: \"\"",
+        "--format=%P",
         "workflow_file_revision",
         "runner-provenance-",
         "ImageVersion",
@@ -987,6 +994,37 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
             "workflow must include {required}"
         );
     }
+    assert!(
+        !workflow.contains("refs/pull/{0}/merge"),
+        "the route job must use the immutable event SHA instead of resolving a mutable PR ref"
+    );
+    assert_eq!(
+        workflow
+            .matches("ref: ${{ needs.route.outputs.execution_sha }}")
+            .count(),
+        3,
+        "all three measured downstream jobs must use the route job's immutable SHA"
+    );
+    let parsed = parse_workflow("rust-workspace.yml", &workflow);
+    let route_steps = workflow_job(&parsed, "route")
+        .get("steps")
+        .and_then(serde_yaml::Value::as_sequence)
+        .expect("route job steps");
+    let step_index = |name: &str| {
+        route_steps
+            .iter()
+            .position(|step| step.get("name").and_then(serde_yaml::Value::as_str) == Some(name))
+            .unwrap_or_else(|| panic!("route job must contain {name}"))
+    };
+    assert!(
+        step_index("Capture trusted route provenance") < step_index("Capture route mode"),
+        "trusted provenance must be captured before PR-controlled route scripts"
+    );
+    assert_eq!(
+        workflow.matches("GH_TOKEN:").count(),
+        0,
+        "route provenance must not need a GitHub token"
+    );
     for required in [
         "gh run list",
         "gh run download",
@@ -994,6 +1032,8 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "workflow_file_revision",
         "execution_sha",
         "control_tree_sha",
+        "control_pr_number",
+        "control_pr_head_sha",
         "classifier_revision",
         "path_producer_revision",
         "runner_definition",
@@ -1010,6 +1050,9 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
     for required in [
         "run_attempt == 1",
         "conclusion == \"success\"",
+        "$pr.execution_sha == $control.execution_sha",
+        "$pr.pr_number == $control.control_pr_number",
+        "$pr.head_sha == $control.control_pr_head_sha",
         "$pr.tree_sha == $control.tree_sha",
         "$pr.workflow_file_revision == $control.workflow_file_revision",
         "$pr.classifier_revision == $control.classifier_revision",
@@ -1058,6 +1101,22 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "conclusion": conclusion,
             "route_mode": route_mode,
             "tree_sha": tree_sha,
+            "execution_sha": if run_id == "14" {
+                "different-commit".to_owned()
+            } else {
+                format!("commit-{tree_sha}")
+            },
+            "control_tree_sha": if force_full {
+                if run_id == "14" {
+                    "different-commit".to_owned()
+                } else {
+                    format!("commit-{tree_sha}")
+                }
+            } else {
+                String::new()
+            },
+            "control_pr_number": if force_full { 42 } else { 0 },
+            "control_pr_head_sha": if force_full { format!("head-{tree_sha}") } else { String::new() },
             "workflow_file_revision": workflow_file_revision,
             "classifier_revision": "classifier-1",
             "path_producer_revision": "path-producer-1",
@@ -1072,7 +1131,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "force_full_requested": force_full,
             "eligible": eligible,
             "pr_number": 42,
-            "head_sha": format!("head-{run_id}"),
+            "head_sha": format!("head-{tree_sha}"),
             "created_at": "2026-10-06T00:00:00Z",
             "started_at": "2026-10-06T00:00:10Z",
             "completed_at": "2026-10-06T00:01:10Z",
@@ -1097,7 +1156,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "2",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1125,7 +1184,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "4",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1195,7 +1254,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "9",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1209,7 +1268,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "10",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1223,7 +1282,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "11",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1251,7 +1310,7 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         ),
         candidate(
             "13",
-            "workflow_dispatch",
+            "pull_request",
             "success",
             1,
             "full_pr_matrix",
@@ -1261,6 +1320,20 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             true,
             true,
             25,
+            1000
+        ),
+        candidate(
+            "14",
+            "pull_request",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-a",
+            "blob-a",
+            "ubuntu-latest",
+            true,
+            true,
+            20,
             1000
         )
     ]);
@@ -1310,6 +1383,21 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         .unwrap()
         .iter()
         .any(|pair| pair["tree_sha"] == "tree-b"));
+    let passive_pair = report["pairs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|pair| pair["tree_sha"] == "tree-a")
+        .expect("matched passive-docs pair");
+    assert_eq!(passive_pair["execution_sha"], "commit-tree-a");
+    assert_eq!(passive_pair["control_pr_number"], 42);
+    assert_eq!(passive_pair["control_tree_sha"], "commit-tree-a");
+    assert_eq!(passive_pair["control_pr_head_sha"], "head-tree-a");
+    assert!(report["candidate_dispositions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|candidate| candidate["run_id"] == "14" && candidate["disposition"] == "unmatched"));
     fs::remove_dir_all(&root).expect("remove fixture directory");
 }
 
@@ -1329,13 +1417,13 @@ fn matched_control_collector_handles_run_api_and_artifact_fixtures() {
     fs::create_dir_all(&fixtures).expect("create artifact fixture directory");
     let runs = serde_json::json!([
         {"databaseId":1,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"route-pr","url":"https://example.test/run/1"},
-        {"databaseId":2,"attempt":1,"conclusion":"success","event":"workflow_dispatch","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"route-pr","url":"https://example.test/run/2"},
+        {"databaseId":2,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"route-pr","url":"https://example.test/run/2"},
         {"databaseId":3,"attempt":1,"conclusion":"failure","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"failed-pr","url":"https://example.test/run/3"},
         {"databaseId":4,"attempt":1,"conclusion":"cancelled","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"cancelled-pr","url":"https://example.test/run/4"},
         {"databaseId":5,"attempt":2,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:09:10Z","headBranch":"rerun-pr","url":"https://example.test/run/5"},
         {"databaseId":6,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"no-artifact-pr","url":"https://example.test/run/6"},
         {"databaseId":7,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"mismatch-pr","url":"https://example.test/run/7"},
-        {"databaseId":8,"attempt":1,"conclusion":"success","event":"workflow_dispatch","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
+        {"databaseId":8,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:02:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
     ]);
     let runs_file = root.join("runs.json");
     fs::write(&runs_file, serde_json::to_vec(&runs).unwrap()).expect("write fake run list");
@@ -1417,7 +1505,8 @@ esac
                 "execution_sha": execution_sha,
                 "tree_sha": tree_sha,
                 "control_tree_sha": control_tree_sha,
-                "control_pr_number": if event == "workflow_dispatch" { 42 } else { 0 },
+                "control_pr_number": if force_full { pr_number } else { 0 },
+                "control_pr_head_sha": if force_full { head_sha } else { "" },
                 "classifier_revision": "classifier-1",
                 "path_producer_revision": "path-producer-1",
                 "runner_definition": "ubuntu-latest",
@@ -1447,21 +1536,21 @@ esac
         "passive_docs_only",
         "head-pr",
         "tree-a",
-        "merge-pr-a",
+        "merge-control-a",
         "",
         false,
         101,
     );
     write_route(
         "2",
-        "workflow_dispatch",
+        "pull_request",
         "full_pr_matrix",
-        "head-control",
+        "head-pr",
         "tree-a",
         "merge-control-a",
         "merge-control-a",
         true,
-        0,
+        101,
     );
     write_route(
         "7",
@@ -1476,14 +1565,14 @@ esac
     );
     write_route(
         "8",
-        "workflow_dispatch",
+        "pull_request",
         "full_pr_matrix",
-        "head-mismatch-control",
+        "head-mismatch-pr",
         "tree-c",
         "merge-control-c",
         "merge-control-c",
         true,
-        0,
+        202,
     );
 
     let original_path = std::env::var_os("PATH").unwrap_or_default();
@@ -1512,6 +1601,10 @@ esac
         });
     assert_eq!(report["pairs"].as_array().unwrap().len(), 1);
     assert_eq!(report["pairs"][0]["tree_sha"], "tree-a");
+    assert_eq!(report["pairs"][0]["execution_sha"], "merge-control-a");
+    assert_eq!(report["pairs"][0]["control_pr_number"], 101);
+    assert_eq!(report["pairs"][0]["control_tree_sha"], "merge-control-a");
+    assert_eq!(report["pairs"][0]["control_pr_head_sha"], "head-pr");
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
     let candidates = report["candidate_runs"].as_array().unwrap();
@@ -1535,7 +1628,7 @@ esac
         .any(|candidate| candidate["run_id"] == "7"
             && candidate["disposition"] == "unmatched"
             && candidate["reason"]
-                == "no compatible opposite-event run or this tree was already counted"));
+                == "no compatible opposite-route run or this tree was already counted"));
     fs::remove_dir_all(&root).expect("remove fake collector directory");
 }
 
@@ -1549,6 +1642,8 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
         "Cache Rust dependencies",
         "Print Rust toolchain proof",
         "include-rustfmt-proof",
+        "use-cache",
+        "if: inputs.use-cache == 'true'",
         "rustup which rustfmt",
     ] {
         assert!(
@@ -1564,11 +1659,33 @@ fn shared_rust_setup_action_is_reused_across_rust_workflows() {
         "rust-supply-chain.yml",
     ] {
         let text = workflow_text(workflow_name);
+        let expected_path = if workflow_name == "rust-workspace.yml" {
+            "./.ci-trusted/.github/actions/rust-setup-no-cache"
+        } else {
+            "./.github/actions/rust-setup"
+        };
         assert!(
-            text.contains("./.github/actions/rust-setup"),
-            "{workflow_name} must reuse the shared rust setup action"
+            text.contains(expected_path),
+            "{workflow_name} must reuse the shared rust setup action from {expected_path}"
         );
     }
+    let workflow = workflow_text("rust-workspace.yml");
+    assert_eq!(workflow.matches("persist-credentials: false").count(), 7);
+    assert_eq!(
+        workflow
+            .matches("./.ci-trusted/.github/actions/rust-setup-no-cache")
+            .count(),
+        3
+    );
+    assert!(!workflow.contains("Swatinem/rust-cache"));
+    assert!(!workflow.contains("use-cache:"));
+    let no_cache_action =
+        fs::read_to_string(repo_root().join(".github/actions/rust-setup-no-cache/action.yml"))
+            .expect("read trusted no-cache Rust setup action");
+    assert!(no_cache_action.contains("Install pinned Rust toolchain"));
+    assert!(no_cache_action.contains("Print Rust toolchain proof"));
+    assert!(!no_cache_action.contains("rust-cache"));
+    assert!(!no_cache_action.contains("actions/cache"));
 }
 
 #[test]
@@ -2136,7 +2253,12 @@ fn assert_workflow_uses_pinned_repo_toolchain(name: &str, text: &str) {
 
 fn job_uses_shared_rust_setup(steps: &[serde_yaml::Value]) -> bool {
     steps.iter().any(|step| {
-        step.get("uses").and_then(serde_yaml::Value::as_str) == Some("./.github/actions/rust-setup")
+        step.get("uses")
+            .and_then(serde_yaml::Value::as_str)
+            .is_some_and(|uses| {
+                uses.ends_with(".github/actions/rust-setup")
+                    || uses.ends_with(".github/actions/rust-setup-no-cache")
+            })
     })
 }
 
@@ -2148,6 +2270,8 @@ fn assert_shared_rust_setup_action() {
         "Cache Rust dependencies",
         "Print Rust toolchain proof",
         "include-rustfmt-proof",
+        "use-cache:",
+        "if: inputs.use-cache == 'true'",
     ] {
         assert!(
             action.contains(required),
