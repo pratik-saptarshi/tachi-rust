@@ -976,6 +976,10 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "inputs.control_tree_sha",
         "inputs.control_pr_number",
         "execution_tree_sha",
+        "needs.route.outputs.execution_sha",
+        "control_pr_head_sha",
+        "pull-requests: read",
+        "--format=%P",
         "workflow_file_revision",
         "runner-provenance-",
         "ImageVersion",
@@ -987,6 +991,18 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
             "workflow must include {required}"
         );
     }
+    assert_eq!(
+        workflow.matches("refs/pull/{0}/merge").count(),
+        1,
+        "only the route job may resolve the mutable PR merge ref"
+    );
+    assert_eq!(
+        workflow
+            .matches("ref: ${{ needs.route.outputs.execution_sha }}")
+            .count(),
+        3,
+        "all three measured downstream jobs must use the route job's immutable SHA"
+    );
     for required in [
         "gh run list",
         "gh run download",
@@ -994,6 +1010,8 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "workflow_file_revision",
         "execution_sha",
         "control_tree_sha",
+        "control_pr_number",
+        "control_pr_head_sha",
         "classifier_revision",
         "path_producer_revision",
         "runner_definition",
@@ -1010,6 +1028,7 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
     for required in [
         "run_attempt == 1",
         "conclusion == \"success\"",
+        "$pr.execution_sha == $control.execution_sha",
         "$pr.tree_sha == $control.tree_sha",
         "$pr.workflow_file_revision == $control.workflow_file_revision",
         "$pr.classifier_revision == $control.classifier_revision",
@@ -1058,6 +1077,22 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "conclusion": conclusion,
             "route_mode": route_mode,
             "tree_sha": tree_sha,
+            "execution_sha": if run_id == "14" {
+                "different-commit".to_owned()
+            } else {
+                format!("commit-{tree_sha}")
+            },
+            "control_tree_sha": if event == "workflow_dispatch" {
+                if run_id == "14" {
+                    "different-commit".to_owned()
+                } else {
+                    format!("commit-{tree_sha}")
+                }
+            } else {
+                String::new()
+            },
+            "control_pr_number": if event == "workflow_dispatch" { 42 } else { 0 },
+            "control_pr_head_sha": if event == "workflow_dispatch" { format!("control-head-{run_id}") } else { String::new() },
             "workflow_file_revision": workflow_file_revision,
             "classifier_revision": "classifier-1",
             "path_producer_revision": "path-producer-1",
@@ -1262,6 +1297,20 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             true,
             25,
             1000
+        ),
+        candidate(
+            "14",
+            "workflow_dispatch",
+            "success",
+            1,
+            "full_pr_matrix",
+            "tree-a",
+            "blob-a",
+            "ubuntu-latest",
+            true,
+            true,
+            20,
+            1000
         )
     ]);
     let input = root.join("candidates.json");
@@ -1310,6 +1359,21 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         .unwrap()
         .iter()
         .any(|pair| pair["tree_sha"] == "tree-b"));
+    let passive_pair = report["pairs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|pair| pair["tree_sha"] == "tree-a")
+        .expect("matched passive-docs pair");
+    assert_eq!(passive_pair["execution_sha"], "commit-tree-a");
+    assert_eq!(passive_pair["control_pr_number"], 42);
+    assert_eq!(passive_pair["control_tree_sha"], "commit-tree-a");
+    assert_eq!(passive_pair["control_pr_head_sha"], "control-head-2");
+    assert!(report["candidate_dispositions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|candidate| candidate["run_id"] == "14" && candidate["disposition"] == "unmatched"));
     fs::remove_dir_all(&root).expect("remove fixture directory");
 }
 
@@ -1418,6 +1482,7 @@ esac
                 "tree_sha": tree_sha,
                 "control_tree_sha": control_tree_sha,
                 "control_pr_number": if event == "workflow_dispatch" { 42 } else { 0 },
+                "control_pr_head_sha": if event == "workflow_dispatch" { "head-control" } else { "" },
                 "classifier_revision": "classifier-1",
                 "path_producer_revision": "path-producer-1",
                 "runner_definition": "ubuntu-latest",
@@ -1447,7 +1512,7 @@ esac
         "passive_docs_only",
         "head-pr",
         "tree-a",
-        "merge-pr-a",
+        "merge-control-a",
         "",
         false,
         101,
@@ -1512,6 +1577,10 @@ esac
         });
     assert_eq!(report["pairs"].as_array().unwrap().len(), 1);
     assert_eq!(report["pairs"][0]["tree_sha"], "tree-a");
+    assert_eq!(report["pairs"][0]["execution_sha"], "merge-control-a");
+    assert_eq!(report["pairs"][0]["control_pr_number"], 42);
+    assert_eq!(report["pairs"][0]["control_tree_sha"], "merge-control-a");
+    assert_eq!(report["pairs"][0]["control_pr_head_sha"], "head-control");
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
     let candidates = report["candidate_runs"].as_array().unwrap();

@@ -24,6 +24,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,6 +40,7 @@ jobs:
       reason: ${{ steps.route.outputs.reason }}
       packages_json: ${{ steps.route.outputs.packages_json }}
       repository_contracts_required: ${{ steps.route.outputs.repository_contracts_required }}
+      execution_sha: ${{ steps.provenance.outputs.execution_sha }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -89,8 +91,10 @@ jobs:
           cat route.json
 
       - name: Add matched-control provenance
+        id: provenance
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number || 0 }}
           WORKFLOW_SHA: ${{ github.workflow_sha }}
@@ -99,9 +103,26 @@ jobs:
           CONTROL_PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number || 0 }}
         run: |
           set -euo pipefail
-          if [ -n "$CONTROL_TREE_SHA" ] && [ "$(git rev-parse HEAD)" != "$CONTROL_TREE_SHA" ]; then
+          execution_sha="$(git rev-parse HEAD)"
+          if { [ "$CONTROL_PR_NUMBER" != "0" ] && [ -z "$CONTROL_TREE_SHA" ]; } || { [ "$CONTROL_PR_NUMBER" = "0" ] && [ -n "$CONTROL_TREE_SHA" ]; }; then
+            echo "control_pr_number and control_tree_sha must be supplied together" >&2
+            exit 1
+          fi
+          if [ -n "$CONTROL_TREE_SHA" ] && [ "$execution_sha" != "$CONTROL_TREE_SHA" ]; then
             echo "checked out $(git rev-parse HEAD), expected control tree commit $CONTROL_TREE_SHA" >&2
             exit 1
+          fi
+          control_pr_head_sha=""
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CONTROL_PR_NUMBER" != "0" ]; then
+            control_pr_head_sha="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${CONTROL_PR_NUMBER}" --jq '.head.sha')"
+            parents=" $(git show -s --format=%P HEAD) "
+            case "$parents" in
+              *" $control_pr_head_sha "*) ;;
+              *)
+                echo "control PR head $control_pr_head_sha is not a parent of executed merge commit $execution_sha" >&2
+                exit 1
+                ;;
+            esac
           fi
           classifier_revision="$(git rev-parse HEAD:scripts/ci-route-classifier.sh)"
           path_producer_revision="$(git rev-parse HEAD:scripts/ci-route-changed-paths.sh)"
@@ -119,17 +140,19 @@ jobs:
             --argjson pr_number "$PR_NUMBER" \
             --arg workflow_file_revision "$workflow_file_revision" \
             --arg execution_workflow_file_revision "$execution_workflow_file_revision" \
-            --arg execution_sha "$(git rev-parse HEAD)" \
+            --arg execution_sha "$execution_sha" \
             --arg execution_tree_sha "$execution_tree_sha" \
             --arg classifier_revision "$classifier_revision" \
             --arg path_producer_revision "$path_producer_revision" \
             --arg runner_definition "ubuntu-latest/${ImageOS:-unknown}/${ImageVersion:-unknown}/${RUNNER_ARCH:-unknown}" \
             --arg control_tree_sha "$CONTROL_TREE_SHA" \
+            --arg control_pr_head_sha "$control_pr_head_sha" \
             --argjson control_pr_number "$CONTROL_PR_NUMBER" \
             --argjson force_full_requested "${FORCE_FULL_CI_INPUT:-false}" \
-            '. + {run_id:$run_id,run_attempt:$run_attempt,event:$event,head_sha:$head_sha,pr_number:$pr_number,workflow_file_revision:$workflow_file_revision,execution_workflow_file_revision:$execution_workflow_file_revision,execution_sha:$execution_sha,tree_sha:$execution_tree_sha,classifier_revision:$classifier_revision,path_producer_revision:$path_producer_revision,runner_definition:$runner_definition,control_tree_sha:$control_tree_sha,control_pr_number:$control_pr_number,force_full_requested:$force_full_requested}' \
+            '. + {run_id:$run_id,run_attempt:$run_attempt,event:$event,head_sha:$head_sha,pr_number:$pr_number,workflow_file_revision:$workflow_file_revision,execution_workflow_file_revision:$execution_workflow_file_revision,execution_sha:$execution_sha,tree_sha:$execution_tree_sha,classifier_revision:$classifier_revision,path_producer_revision:$path_producer_revision,runner_definition:$runner_definition,control_tree_sha:$control_tree_sha,control_pr_number:$control_pr_number,control_pr_head_sha:$control_pr_head_sha,force_full_requested:$force_full_requested}' \
             route.json > route.json.new
           mv route.json.new route.json
+          echo "execution_sha=$execution_sha" >> "$GITHUB_OUTPUT"
           cat route.json
 
       - name: Upload route decision artifact
@@ -155,7 +178,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number != 0 && format('refs/pull/{0}/merge', inputs.control_pr_number) || github.event_name == 'workflow_dispatch' && inputs.control_tree_sha != '' && inputs.control_tree_sha || github.sha }}
+          ref: ${{ needs.route.outputs.execution_sha }}
 
       - name: Shared Rust setup
         uses: ./.github/actions/rust-setup
@@ -245,7 +268,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number != 0 && format('refs/pull/{0}/merge', inputs.control_pr_number) || github.event_name == 'workflow_dispatch' && inputs.control_tree_sha != '' && inputs.control_tree_sha || github.sha }}
+          ref: ${{ needs.route.outputs.execution_sha }}
 
       - name: Shared Rust setup
         uses: ./.github/actions/rust-setup
@@ -292,7 +315,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.control_pr_number != 0 && format('refs/pull/{0}/merge', inputs.control_pr_number) || github.event_name == 'workflow_dispatch' && inputs.control_tree_sha != '' && inputs.control_tree_sha || github.sha }}
+          ref: ${{ needs.route.outputs.execution_sha }}
 
       - name: Shared Rust setup
         uses: ./.github/actions/rust-setup

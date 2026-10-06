@@ -1,7 +1,8 @@
 # RT-CI Route Remediation Roadmap — 2026-10-05
 
-Status: **Phases 0–2 are complete; the Phase 3 collector is in progress, and
-matched-control timing acceptance remains open.** Phase 1 merged in PR #58 at
+Status: **Phases 0–3 are delivered; post-merge review corrections for Phase 3
+are in a protected follow-up, and matched-control timing acceptance remains
+open.** Phase 1 merged in PR #58 at
 `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`; Phase 2 merged in PR #59 at
 `a8f4930caeede037ffdd58b32a1f160f481cd461`. Source baseline: adversarial review
 of `10339cc8f586fdf0050c01bd2d4889f7709906e6`.
@@ -37,7 +38,7 @@ claim.
 | **0 — Baseline, evidence, tracker contract** | Create the fresh remediation epic and phase/finding issues; update `RT-0sd.2`; archive the panel summary; publish this roadmap and the integration-log record. | Completed in planning PR #57 (`777bdb5`), merged at `ddd74f0a97197771a8eb0b70f6a4ec9aff828d9f`. Open PR #56 holds the separate route cohort audit and is being synchronized to the merged base. |
 | **1 — Path and documentation-contract routing** | P2-F01: preserve rename source and destination paths. P2-F04: treat `docs/testing/tdd-evidence.json` as active input to its owning contract. | Completed in PR #58 (`c71c08b`), merged at `c9460aa8550e4bfb064e7dcdfcc322b30f4032e8`. Both rename endpoints participate in route classification; TDD evidence changes execute their owner contract. Focused and all-targets Rust tests, workflow/docs gates, formatting, shell syntax, and terminal hosted checks passed. |
 | **2 — Dependency closure and repository contracts** | P2-F02: include `tachi-mcp` in shell reverse-dependency tests. P2-F03: run compact repository-wide manifest/toolchain/policy contracts independently of package routing. | Completed in PR #59, merged at `a8f4930c`. Shell changes include all reverse Cargo dependencies, including MCP. Repository contract inputs trigger the compact contract job regardless of package route. |
-| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | One implementation/evidence PR. Collector handles success, failure, cancellation, reruns, absent route evidence, and mismatched tree SHA. Start the ten-tree cohorts only after Phases 1 and 2 and the collector are merged. |
+| **3 — Matched timing controls** | Implement a read-only collector and matched-run contract under `RT-0sd.2`. P3-F05 and P3-F06 remain separately tracked and nonblocking. | Initial collector merged in PR #60. Follow-up review fixes pin every measured job to the route job's verified immutable execution SHA, require matching PR/control execution commits, and retain controlled PR/head provenance. Start the ten-tree cohorts only after follow-up hosted checks pass. |
 | **4 — Integrated validation and closeout** | Reconcile the roadmap, panel archive, Beads records/export, integration log, and raw matched-run evidence. | Closeout PR only after the timing acceptance passes and all records agree. Report actual valid pair counts per shape. If either shape has fewer than ten valid pairs or misses the threshold, record the gap and keep `RT-0sd.2` open. |
 
 ### Commit and PR progression
@@ -68,7 +69,7 @@ filled after creation and mirrored in `.beads/issues.jsonl`.
 | P3-F06 — preserve route-audit replay inputs | P3; nonblocking evidence improvement | Save candidate run IDs, PR/head and tree SHAs, changed paths, route reasons, and exact classifier revision in a compact manifest. Replay reproduces the reported 37-candidate classification or explicitly records unavailable source artifacts. Do not generalize beyond retained candidates. This advisory does not gate P2 delivery or timing acceptance unless its evidence is required by the agreed acceptance. | `RT-0vf.7` |
 | Phase 1 — path and documentation-contract routing | P2 delivery | Both P2-F01 and P2-F04 focused RED/GREEN tests and adjacent regressions pass; workflow/docs contracts pass; required hosted checks are terminal and successful. | `RT-0vf.2` |
 | Phase 2 — dependency and repository contracts | P2 delivery | P2-F02 and P2-F03 focused RED/GREEN tests pass; Cargo metadata comparison and manifest-failure regression pass; relevant workspace tests, Clippy, workflow/docs gates, and required hosted checks pass. | `RT-0vf.3` |
-| Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Each successful routed PR run is paired with a successful forced-full `workflow_dispatch` run that checks out the exact PR merge ref and validates the same execution commit and tree SHA. Require identical workflow-file blob content and route classifier/path-producer revisions; compare the route runner and every measured PR job's OS, image version, and architecture against the corresponding full-control job. Capture run ID, PR/head, event, attempt, route decision, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-provenance, and mismatched-tree/workflow/runner pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
+| Phase 3 — matched controls | P2 timing acceptance | For each route shape, collect ten distinct PR code trees. Each successful routed PR run is paired with a successful forced-full `workflow_dispatch` run on the exact same execution commit SHA and Git tree. The route job alone resolves the mutable PR merge ref, verifies the requested commit and controlled PR head, then publishes the verified execution SHA; every measured downstream job checks out that immutable SHA. Require identical workflow-file blob content and route classifier/path-producer revisions; compare the route runner and every measured PR job's OS, image version, and architecture against the corresponding full-control job. Capture run ID, controlled PR number/head SHA, event, attempt, route decision, execution SHA/tree, created/started/completed timestamps, queue duration, and execution duration. Exclude failed, cancelled, rerun-ambiguous, missing-provenance, and mismatched-commit/tree/workflow/runner pairs. Report queue and execution medians separately; optimized execution median is <=65% of full-control median for each shape. Otherwise keep `RT-0sd.2` open. | `RT-0vf.4` and `RT-0sd.2` |
 | Phase 4 — integrated closeout | Closeout | Roadmap, review archive, raw evidence, Beads export, and integration log reconcile. Actual cohort counts and calculation are reproducible from retained inputs. Do not close timing acceptance on fewer than ten pairs per route shape or a failed threshold. | `RT-0vf.5` |
 
 ### Timing acceptance update for `RT-0sd.2`
@@ -77,10 +78,11 @@ The existing [2026-10-05 timing plan](2026-10-05-rt-ci-timing-evidence-followup.
 cohorts. Replace that criterion with matched full controls as described above;
 retain the issue, its history, and existing collector work. Require ten distinct
 identical code trees per route shape, successful routed PR and forced-full
-control runs on each tree, identical workflow-file content and route classifier/
-path-producer revisions, comparable runner images for the route job and every
-measured PR job, explicit exclusion rules, queue/execution separation, and a
-<=65% optimized execution median. The 37-candidate historical audit remains
+control runs on each identical execution commit SHA and tree, captured
+controlled PR number/head SHA, identical workflow-file content and route
+classifier/path-producer revisions, comparable runner images for the route job
+and every measured PR job, explicit exclusion rules, queue/execution separation,
+and a <=65% optimized execution median. The 37-candidate historical audit remains
 sample-bounded context, not a substitute cohort or a performance result.
 
 `RT-0sd.2` depends on completion of the Phase 1 routing, Phase 2 repository
@@ -95,12 +97,17 @@ create a control, dispatch `rust-workspace.yml` against the PR head branch with
 `force_full_ci=true`, `control_pr_number=<PR number>`, and
 `control_tree_sha=<the routed run's github.sha>`. The control checks out that
 PR's merge ref and fails if it no longer resolves to the expected commit.
-The collector compares the workflow-file blob ID and route script blob IDs,
-then verifies that every measured PR job has the same runner OS, image version,
-and architecture in the full control. It emits matched pairs, excluded
+The route job is the only job that resolves the mutable PR merge ref; after it
+verifies the requested merge commit and records the controlled PR head SHA, all
+measured downstream jobs check out the route job's immutable execution SHA. The
+collector requires the PR and control execution commit SHAs and Git trees to
+match, and retains the controlled PR number, head SHA, and requested commit in
+each control candidate and pair. It compares the workflow-file blob ID and
+route script blob IDs, then verifies that every measured PR job has the same
+runner OS, image version, and architecture in the full control. It emits matched pairs, excluded
 candidates, run provenance, and separate queue/execution medians, ratios, and
 per-shape acceptance state. The workflow grants only `contents: read` and
-consumes no PR secrets. Keep the JSON output with the closeout evidence.
+`pull-requests: read` and consumes no PR secrets. Keep the JSON output with the closeout evidence.
 `insufficient_pairs` is an expected open state and leaves `RT-0sd.2` open.
 
 ## Validation and release gates
@@ -127,6 +134,9 @@ and preserve enough raw metadata to reproduce every exclusion and median.
 | P3-F05 verifier route scope | Defer as nonblocking advisory with explicit decision/test contract | P3 advisory issue | `RT-0vf.6` |
 | P3-F06 replayable audit inputs | Defer as nonblocking evidence improvement | P3 advisory issue | `RT-0vf.7` |
 | Zero eligible historical candidates | Informational, bounded to retained sample; not a defect or target result | Objective, timing contract, Phase 3 | Existing `RT-0sd.2` |
+| PR #60 Codex comment 4192299099: mutable merge ref re-resolved by measured jobs | Fix in protected follow-up; downstream jobs use verified immutable SHA from route output | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
+| PR #60 Codex comment 4192299102: same tree could pair different execution commits | Fix matcher and regression fixture; require exact `execution_sha` equality | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
+| PR #60 Codex comment 4192299107: control drops controlled PR provenance | Capture controlled PR head at dispatch and retain PR number/head/commit in candidates and pairs | Phase 3 timing contract and review closeout | `RT-0vf.4`, `RT-0sd.2` |
 
 ## Integration summary
 
@@ -210,12 +220,14 @@ available summary.
   Its route artifact, run/tree IDs, runner image, workflow and classifier
   revisions, and timestamps are retained in
   [`docs/reports/rt-ci-matched-control-dispatch-smoke-2026-10-06.json`](../reports/rt-ci-matched-control-dispatch-smoke-2026-10-06.json).
-  Review of PR #60 identified three evidence-validity gaps: workflow commit
-  SHAs differ across PR and dispatch events despite identical workflow content;
-  PR workflows measure the synthetic merge tree rather than the source head;
-  and measured jobs can receive different runner images. The collector now
-  compares workflow-file blob IDs, captures the actual execution tree, dispatches
-  controls against an exact PR merge ref, and records runner image/architecture
-  for every measured job. Its regressions reject an exact-tree mismatch and a
-  differing measured-job runner image; these fixes are on PR #60 for protected
-  review and auto-merge. The older smoke run remains non-pair evidence.
+  Review of PR #60 identified three initial evidence-validity gaps: workflow
+  commit SHAs differ across PR and dispatch events despite identical workflow
+  content; dispatch controls must target the actual PR merge commit; and
+  measured jobs can receive different runner images. PR #60 merged with fixes
+  for workflow-content comparison, actual execution-tree capture, exact PR merge
+  ref validation, and per-job runner provenance. Three additional Codex comments
+  posted immediately after merge exposed mutable-ref re-resolution by downstream
+  jobs, missing exact execution-commit equality in the matcher, and dropped
+  controlled-PR head provenance. The protected follow-up adds immutable
+  downstream checkouts, exact commit matching, and captured controlled PR/head
+  fields. The earlier smoke run remains non-pair evidence.

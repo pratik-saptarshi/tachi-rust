@@ -7,11 +7,12 @@ def median($values):
     end;
 
 .candidates as $candidates
-| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "pull_request" and (.route_mode == "passive_docs_only" or .route_mode == "dependency_closure") and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $routed
-| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "workflow_dispatch" and .route_mode == "full_pr_matrix" and .force_full_requested == true and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $controls
+| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "pull_request" and (.route_mode == "passive_docs_only" or .route_mode == "dependency_closure") and (.execution_sha | type == "string" and length > 0) and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $routed
+| [ $candidates[] | select(.eligible == true and .conclusion == "success" and .run_attempt == 1 and .event == "workflow_dispatch" and .route_mode == "full_pr_matrix" and .force_full_requested == true and (.execution_sha | type == "string" and length > 0) and (.control_tree_sha == .execution_sha) and (.control_pr_number | type == "number" and . > 0) and (.control_pr_head_sha | type == "string" and length > 0) and (.tree_sha | type == "string" and length > 0) and (.workflow_file_revision | type == "string" and length > 0) and (.classifier_revision | type == "string" and length > 0) and (.path_producer_revision | type == "string" and length > 0) and (.runner_inventory | type == "object" and length > 0)) ] as $controls
 | [
     $routed[] as $pr
     | $controls[] as $control
+    | select($pr.execution_sha == $control.execution_sha)
     | select($pr.tree_sha == $control.tree_sha)
     | select($pr.workflow_file_revision == $control.workflow_file_revision)
     | select($pr.classifier_revision == $control.classifier_revision)
@@ -20,6 +21,10 @@ def median($values):
     | {
         route_shape: (if $pr.route_mode == "passive_docs_only" then "passive-docs" else "dependency-closure" end),
         tree_sha: $pr.tree_sha,
+        execution_sha: $pr.execution_sha,
+        control_pr_number: $control.control_pr_number,
+        control_tree_sha: $control.control_tree_sha,
+        control_pr_head_sha: $control.control_pr_head_sha,
         pr: $pr,
         control: $control
       }

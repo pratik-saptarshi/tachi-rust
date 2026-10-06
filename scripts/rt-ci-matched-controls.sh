@@ -87,6 +87,7 @@ while IFS= read -r run_json; do
   route_tree_sha="$(jq -r '.tree_sha // ""' <<<"$route")"
   control_tree_sha="$(jq -r '.control_tree_sha // ""' <<<"$route")"
   control_pr_number="$(jq -r '.control_pr_number // 0' <<<"$route")"
+  control_pr_head_sha="$(jq -r '.control_pr_head_sha // ""' <<<"$route")"
   classifier_revision="$(jq -r '.classifier_revision // ""' <<<"$route")"
   path_producer_revision="$(jq -r '.path_producer_revision // ""' <<<"$route")"
   runner_definition="$(jq -r '.runner_definition // ""' <<<"$route")"
@@ -98,8 +99,8 @@ while IFS= read -r run_json; do
     reason="route artifact run provenance does not match the workflow run"
   elif [ -z "$head_sha" ] || [ -z "$workflow_file_revision" ] || [ -z "$execution_workflow_file_revision" ] || [ "$workflow_file_revision" != "$execution_workflow_file_revision" ] || [ -z "$execution_sha" ] || [ -z "$route_tree_sha" ] || [ -z "$classifier_revision" ] || [ -z "$path_producer_revision" ] || [ -z "$runner_definition" ]; then
     reason="route artifact is missing source, execution-tree, workflow-content, classifier, path-producer, or runner provenance"
-  elif [ "$event" = "workflow_dispatch" ] && { [ "$execution_sha" != "$control_tree_sha" ] || [ "$control_pr_number" = "0" ]; }; then
-    reason="forced-full control did not execute the requested PR merge ref and exact tree SHA"
+  elif [ "$event" = "workflow_dispatch" ] && { [ "$execution_sha" != "$control_tree_sha" ] || [ "$control_pr_number" = "0" ] || [ -z "$control_pr_head_sha" ]; }; then
+    reason="forced-full control did not execute the requested PR merge commit with recorded PR and head provenance"
   elif [ "$event" = "pull_request" ] && [ "$route_mode" != "passive_docs_only" ] && [ "$route_mode" != "dependency_closure" ]; then
     reason="PR route is not an eligible optimized shape"
   elif [ "$event" = "workflow_dispatch" ] && { [ "$route_mode" != "full_pr_matrix" ] || [ "$forced" != "true" ]; }; then
@@ -159,7 +160,7 @@ while IFS= read -r run_json; do
     --arg tree_sha "$tree_sha" \
     --argjson durations "$durations" \
     --argjson runner_inventory "$runner_inventory" \
-    '{run_id:$base.run_id,run_attempt:$base.run_attempt,event:$base.event,conclusion:$base.conclusion,head_branch:$base.head_branch,created_at:$base.created_at,started_at:$base.started_at,completed_at:$base.completed_at,run_url:$base.run_url,pr_number:$route.pr_number,head_sha:$route.head_sha,execution_sha:$route.execution_sha,tree_sha:$tree_sha,route_mode:$route.mode,route_reason:$route.reason,changed_paths:$route.changed_paths,policy_version:$route.policy_version,force_full_requested:$route.force_full_requested,workflow_file_revision:$route.workflow_file_revision,classifier_revision:$route.classifier_revision,path_producer_revision:$route.path_producer_revision,runner_definition:$route.runner_definition,runner_inventory:$runner_inventory,queue_duration_ms:$durations.queue_duration_ms,execution_duration_ms:$durations.execution_duration_ms,eligible:true}')"
+    '{run_id:$base.run_id,run_attempt:$base.run_attempt,event:$base.event,conclusion:$base.conclusion,head_branch:$base.head_branch,created_at:$base.created_at,started_at:$base.started_at,completed_at:$base.completed_at,run_url:$base.run_url,pr_number:$route.pr_number,head_sha:$route.head_sha,execution_sha:$route.execution_sha,tree_sha:$tree_sha,control_pr_number:$route.control_pr_number,control_tree_sha:$route.control_tree_sha,control_pr_head_sha:$route.control_pr_head_sha,route_mode:$route.mode,route_reason:$route.reason,changed_paths:$route.changed_paths,policy_version:$route.policy_version,force_full_requested:$route.force_full_requested,workflow_file_revision:$route.workflow_file_revision,classifier_revision:$route.classifier_revision,path_producer_revision:$route.path_producer_revision,runner_definition:$route.runner_definition,runner_inventory:$runner_inventory,queue_duration_ms:$durations.queue_duration_ms,execution_duration_ms:$durations.execution_duration_ms,eligible:true}')"
 done < <(jq -c '.[] | select(.event == "pull_request" or .event == "workflow_dispatch")' "$runs_file")
 
 jq -n --slurpfile candidates "$candidates_file" '{candidates:$candidates[0]}' \
