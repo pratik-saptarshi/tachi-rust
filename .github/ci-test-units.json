@@ -49,7 +49,7 @@
       "kind": "package",
       "stage": "compile-and-test",
       "package": "tachi-shell",
-      "argv": ["cargo", "test", "-p", "tachi-shell", "--all-targets"],
+      "argv": ["cargo", "test", "-p", "tachi-shell", "--lib"],
       "modes": ["local-full", "local-route-equivalent"],
       "timeout_seconds": 900
     },

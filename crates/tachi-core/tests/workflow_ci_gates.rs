@@ -18,6 +18,94 @@ fn repo_root() -> PathBuf {
         .to_path_buf()
 }
 
+fn tachi_shell_integration_targets() -> BTreeSet<String> {
+    let metadata = Command::new("cargo")
+        .args([
+            "metadata",
+            "--offline",
+            "--no-deps",
+            "--format-version",
+            "1",
+        ])
+        .current_dir(repo_root())
+        .output()
+        .expect("cargo metadata must run for the local workspace");
+    assert!(
+        metadata.status.success(),
+        "cargo metadata failed: {}",
+        String::from_utf8_lossy(&metadata.stderr)
+    );
+    let metadata: serde_json::Value =
+        serde_json::from_slice(&metadata.stdout).expect("cargo metadata must emit JSON");
+    metadata
+        .get("packages")
+        .and_then(serde_json::Value::as_array)
+        .and_then(|packages| {
+            packages.iter().find(|package| {
+                package.get("name").and_then(serde_json::Value::as_str) == Some("tachi-shell")
+            })
+        })
+        .and_then(|package| package.get("targets"))
+        .and_then(serde_json::Value::as_array)
+        .expect("cargo metadata must include tachi-shell targets")
+        .iter()
+        .filter(|target| {
+            target
+                .get("kind")
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|kinds| kinds.iter().any(|kind| kind.as_str() == Some("test")))
+        })
+        .map(|target| {
+            target
+                .get("name")
+                .and_then(serde_json::Value::as_str)
+                .expect("every integration-test target must have a name")
+                .to_owned()
+        })
+        .collect()
+}
+
+#[test]
+fn matched_control_job_timing_maps_all_package_job_names() {
+    let runner_inventory = r#"{"cargo-test-tachi-core":"ubuntu-latest/image-a","cargo-test-tachi-cli":"ubuntu-latest/image-a","cargo-test-tachi-desktop":"ubuntu-latest/image-a","cargo-test-tachi-mcp":"ubuntu-latest/image-a","cargo-test-tachi-shell":"ubuntu-latest/image-a"}"#;
+    let run_jobs = r#"[{"name":"cargo test -p tachi-core --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-cli --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-desktop --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-mcp --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-shell --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]"#;
+    let output = Command::new("jq")
+        .args([
+            "-n",
+            "--argjson",
+            "runner_inventory",
+            runner_inventory,
+            "--argjson",
+            "run_jobs",
+            run_jobs,
+            "-f",
+        ])
+        .arg(repo_root().join("scripts/rt-ci-job-timings.jq"))
+        .output()
+        .expect("jq must run the matched job timing mapper");
+    assert!(
+        output.status.success(),
+        "job timing mapper failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let mapped: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("job timing mapper must emit JSON");
+    for package in [
+        "tachi-core",
+        "tachi-cli",
+        "tachi-desktop",
+        "tachi-mcp",
+        "tachi-shell",
+    ] {
+        let job_key = format!("cargo-test-{package}");
+        assert_eq!(
+            mapped["job_timings"][&job_key]["name"],
+            format!("cargo test -p {package} --all-targets")
+        );
+        assert_eq!(mapped["job_timings"][&job_key]["execution_ms"], 7_000);
+    }
+}
+
 fn workflow_text(name: &str) -> String {
     fs::read_to_string(repo_root().join(".github/workflows").join(name))
         .unwrap_or_else(|err| panic!("read workflow {name}: {err}"))
@@ -77,6 +165,21 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
         .collect(),
         "manifest package units must match the hosted workspace matrix"
     );
+    let shell_package_unit = units
+        .iter()
+        .find(|unit| unit.get("package").and_then(serde_json::Value::as_str) == Some("tachi-shell"))
+        .expect("manifest must retain the tachi-shell library test unit");
+    assert_eq!(
+        shell_package_unit.get("argv").and_then(serde_json::Value::as_array),
+        Some(&vec![
+            serde_json::json!("cargo"),
+            serde_json::json!("test"),
+            serde_json::json!("-p"),
+            serde_json::json!("tachi-shell"),
+            serde_json::json!("--lib"),
+        ]),
+        "tachi-shell package unit must run library tests while integration tests run in semantic slices"
+    );
 
     let shell_commands: BTreeSet<String> = units
         .iter()
@@ -102,6 +205,39 @@ fn local_ci_manifest_is_the_canonical_projection_of_workspace_workflows() {
             "manifest must preserve hosted shell slice: {command}"
         );
     }
+
+    let configured_shell_targets = units
+        .iter()
+        .filter(|unit| unit.get("kind").and_then(serde_json::Value::as_str) == Some("shell"))
+        .flat_map(|unit| {
+            unit.get("argv")
+                .and_then(serde_json::Value::as_array)
+                .expect("shell units need argv")
+                .windows(2)
+                .filter(|pair| pair[0].as_str() == Some("--test"))
+                .map(|pair| {
+                    pair[1]
+                        .as_str()
+                        .expect("test target name must be a string")
+                        .to_owned()
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+    let configured_shell_target_set = configured_shell_targets
+        .iter()
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        configured_shell_targets.len(),
+        configured_shell_target_set.len(),
+        "semantic shell units must not run an integration-test target more than once"
+    );
+    assert_eq!(
+        configured_shell_target_set,
+        tachi_shell_integration_targets(),
+        "semantic shell units must cover every tachi-shell integration-test target exactly once"
+    );
 
     for schema in [
         ".github/ci-test-units.json",
@@ -274,10 +410,16 @@ fn workspace_cargo_test_pr_gate_runs_full_workspace_suite() {
         Some("cargo test -p ${{ matrix.package }} --all-targets"),
         "cargo-test job must use a package matrix"
     );
-    assert_job_has_run_command(
-        &workflow,
-        "cargo-test",
-        "cargo test -p ${{ matrix.package }} --all-targets",
+    let cargo_test_run = workflow_run_bodies(&workflow)
+        .find(|run| {
+            run.contains("tachi-shell") && run.contains("cargo test -p ${{ matrix.package }}")
+        })
+        .expect("cargo-test matrix must run package tests");
+    assert!(
+        cargo_test_run.contains("if [ \"${{ matrix.package }}\" = \"tachi-shell\" ]; then")
+            && cargo_test_run.contains("cargo test -p ${{ matrix.package }} --lib")
+            && cargo_test_run.contains("cargo test -p ${{ matrix.package }} --all-targets"),
+        "tachi-shell must run library tests while other packages retain all-targets coverage"
     );
     assert!(
         workflow_run_bodies(&workflow).any(|command| command
@@ -1064,6 +1206,10 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "runner_definition",
         "tree_sha",
         "fromdateiso8601",
+        "actions/runs/$run_id/jobs?per_page=100",
+        "rt-ci-job-timings.jq",
+        "end_to_end_latency_ms",
+        "aggregate_execution_work_ms",
         "rejection_reason",
         "rt-ci-matched-controls.jq",
     ] {
@@ -1086,7 +1232,9 @@ fn matched_control_collector_contract_captures_provenance_and_stays_read_only() 
         "$control.runner_inventory",
         "passive-docs",
         "dependency-closure",
-        "optimized_execution_median_max_ratio: 0.65",
+        "optimized_to_full_end_to_end_latency_median_max_ratio: 0.65",
+        "per_job_scheduling_ms",
+        "aggregate_execution_work_ms",
     ] {
         assert!(
             matcher.contains(required),
@@ -1161,7 +1309,11 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
             "started_at": "2026-10-06T00:00:10Z",
             "completed_at": "2026-10-06T00:01:10Z",
             "queue_duration_ms": queue_ms,
-            "execution_duration_ms": execution_ms
+            "execution_duration_ms": execution_ms,
+            "workflow_queue_ms": queue_ms,
+            "end_to_end_latency_ms": execution_ms,
+            "per_job_scheduling_ms": queue_ms * 2,
+            "aggregate_execution_work_ms": execution_ms * 3
         })
     };
     let candidates = serde_json::json!([
@@ -1391,9 +1543,12 @@ fn matched_control_fixtures_exclude_failures_reruns_missing_routes_and_mismatche
         });
     assert_eq!(report["pairs"].as_array().unwrap().len(), 2);
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
-    assert_eq!(report["summary"][0]["routed_execution_median_ms"], 500);
     assert_eq!(
-        report["summary"][0]["full_control_execution_median_ms"],
+        report["summary"][0]["routed_end_to_end_latency_median_ms"],
+        500
+    );
+    assert_eq!(
+        report["summary"][0]["full_control_end_to_end_latency_median_ms"],
         1000
     );
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
@@ -1450,6 +1605,9 @@ fn matched_control_collector_handles_run_api_and_artifact_fixtures() {
         {"databaseId":7,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"mismatch-pr","url":"https://example.test/run/7"},
         {"databaseId":8,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:02:20Z","updatedAt":"2026-10-06T00:02:20Z","headBranch":"mismatch-pr","url":"https://example.test/run/8"}
         ,{"databaseId":9,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"multi-document-pr","url":"https://example.test/run/9"}
+        ,{"databaseId":10,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"missing-job-time","url":"https://example.test/run/10"}
+        ,{"databaseId":11,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"invalid-job-time","url":"https://example.test/run/11"}
+        ,{"databaseId":12,"attempt":1,"conclusion":"success","event":"pull_request","createdAt":"2026-10-06T00:00:00Z","startedAt":"2026-10-06T00:00:10Z","updatedAt":"2026-10-06T00:01:10Z","headBranch":"failed-job","url":"https://example.test/run/12"}
     ]);
     let runs_file = root.join("runs.json");
     fs::write(&runs_file, serde_json::to_vec(&runs).unwrap()).expect("write fake run list");
@@ -1491,6 +1649,16 @@ case "$1 $2" in
     ;;
   api\ *)
     case "$2" in
+      */actions/runs/*/jobs?per_page=100)
+        case "$2" in
+          */actions/runs/10/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":null,"completed_at":"2026-10-06T00:00:10Z"}]}' ;;
+          */actions/runs/11/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:10Z","started_at":"2026-10-06T00:00:05Z","completed_at":"2026-10-06T00:00:20Z"}]}' ;;
+          */actions/runs/12/jobs*) printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"failure","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"}]}' ;;
+          *)
+        printf '%s\n' '{"jobs":[{"name":"route decision and stable orchestrator check","conclusion":"success","created_at":"2026-10-06T00:00:00Z","started_at":"2026-10-06T00:00:03Z","completed_at":"2026-10-06T00:00:10Z"},{"name":"cargo test -p tachi-core --all-targets","conclusion":"success","created_at":"2026-10-06T00:00:20Z","started_at":"2026-10-06T00:00:30Z","completed_at":"2026-10-06T00:00:50Z"}]}'
+            ;;
+        esac
+        ;;
       */head-pr) printf 'tree-a\n' ;;
       */head-control) printf 'tree-a\n' ;;
       */head-mismatch-pr) printf 'tree-b\n' ;;
@@ -1624,6 +1792,19 @@ esac
         false,
         303,
     );
+    for run_id in ["10", "11", "12"] {
+        write_route(
+            run_id,
+            "pull_request",
+            "passive_docs_only",
+            "head-invalid-jobs",
+            "tree-invalid-jobs",
+            "merge-invalid-jobs",
+            "",
+            false,
+            404,
+        );
+    }
     fs::write(
         fixtures.join("9/route.json"),
         concat!(
@@ -1664,6 +1845,18 @@ esac
     assert_eq!(report["pairs"][0]["control_pr_number"], 101);
     assert_eq!(report["pairs"][0]["control_tree_sha"], "merge-control-a");
     assert_eq!(report["pairs"][0]["control_pr_head_sha"], "head-pr");
+    assert_eq!(report["candidate_runs"][0]["end_to_end_latency_ms"], 70_000);
+    assert_eq!(report["candidate_runs"][0]["workflow_queue_ms"], 10_000);
+    assert_eq!(report["candidate_runs"][0]["per_job_scheduling_ms"], 3_000);
+    assert_eq!(
+        report["candidate_runs"][0]["aggregate_execution_work_ms"],
+        7_000
+    );
+    assert_eq!(report["candidate_runs"][1]["per_job_scheduling_ms"], 13_000);
+    assert_eq!(
+        report["candidate_runs"][1]["aggregate_execution_work_ms"],
+        27_000
+    );
     assert_eq!(report["summary"][0]["valid_pairs"], 1);
     assert_eq!(report["summary"][0]["status"], "insufficient_pairs");
     let candidates = report["candidate_runs"].as_array().unwrap();
@@ -1675,6 +1868,18 @@ esac
         (
             "9",
             "route decision and trusted provenance must each contain one JSON object",
+        ),
+        (
+            "10",
+            "one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps",
+        ),
+        (
+            "11",
+            "one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps",
+        ),
+        (
+            "12",
+            "one or more measured jobs are missing, ambiguous, unsuccessful, or have invalid timestamps",
         ),
     ] {
         assert!(
