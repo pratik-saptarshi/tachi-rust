@@ -12,6 +12,6 @@ stdio = []
 
 [dependencies]
 serde = { version = "=1.0.229", features = ["derive"] }
-serde_json = "=1.0.151"
-sha2 = "=0.11.0"
+serde_json = "=1.0.154"
+sha2 = "=0.11.1"
 tachi-shell = { path = "../tachi-shell" }
