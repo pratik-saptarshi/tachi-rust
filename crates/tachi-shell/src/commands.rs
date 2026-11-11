@@ -308,4 +308,59 @@ mod tests {
 
         let _ = fs::remove_dir_all(&root);
     }
+
+    #[test]
+    fn control_plane_scripts_dir_ignores_unmarked_ancestor_scripts_dir() {
+        // Ported adversarial case from Issue #5 (`test_upward_traversal_is_prevented`):
+        // with no workspace manifest or boundary markers anywhere, an ancestor
+        // `scripts/` dir must not capture script resolution.
+        let root = std::env::temp_dir().join(format!(
+            "tachi-shell-scripts-nomarker-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let parent = root.join("parent");
+        let repo_root = parent.join("my-project");
+
+        fs::create_dir_all(parent.join("scripts")).expect("create ancestor scripts");
+        fs::create_dir_all(&repo_root).expect("create repo root");
+
+        let scripts_dir = control_plane_scripts_dir(&repo_root);
+
+        assert_eq!(scripts_dir, repo_root.join("scripts"));
+        assert!(scripts_dir.starts_with(&repo_root));
+        assert_ne!(scripts_dir, parent.join("scripts"));
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn control_plane_scripts_dir_ignores_ancestor_without_workspace_manifest() {
+        // A plain (non-workspace) `Cargo.toml` in an ancestor must not divert
+        // resolution either; only a `[workspace]` manifest claims the tree.
+        let root = std::env::temp_dir().join(format!(
+            "tachi-shell-scripts-plainmanifest-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let parent = root.join("parent");
+        let repo_root = parent.join("my-project");
+
+        fs::create_dir_all(parent.join("scripts")).expect("create ancestor scripts");
+        fs::write(parent.join("Cargo.toml"), "[package]\nname = \"outer\"\n")
+            .expect("write ancestor manifest");
+        fs::create_dir_all(&repo_root).expect("create repo root");
+
+        let scripts_dir = control_plane_scripts_dir(&repo_root);
+
+        assert_eq!(scripts_dir, repo_root.join("scripts"));
+        assert!(scripts_dir.starts_with(&repo_root));
+        assert_ne!(scripts_dir, parent.join("scripts"));
+
+        let _ = fs::remove_dir_all(&root);
+    }
 }
