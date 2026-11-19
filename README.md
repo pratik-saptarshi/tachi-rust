@@ -231,7 +231,7 @@ From your project root:
 To install a specific version:
 
 ```bash
-~/Projects/tachi/scripts/install.sh --version v4.37.0 # x-release-please-version
+~/Projects/tachi/scripts/install.sh --version v4.38.0 # x-release-please-version
 ```
 
 If tachi is cloned to a non-default location:
@@ -658,7 +658,7 @@ tachi is built with the [Agentic Oriented Development Kit (AOD Kit)](https://git
 
 Releases are automated via [release-please](https://github.com/googleapis/release-please). When conventional commits (`feat:`, `fix:`, `docs:`, etc.) are merged to `main`, release-please updates the release state on push and creates the next semantic tag and GitHub Release directly (no separate release PR branch churn).
 
-To install a specific version: `install.sh --version v4.37.0` <!-- x-release-please-version -->
+To install a specific version: `install.sh --version v4.38.0` <!-- x-release-please-version -->
 
 ---
 
